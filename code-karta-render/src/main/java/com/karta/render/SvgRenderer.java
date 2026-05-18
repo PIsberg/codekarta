@@ -5,16 +5,16 @@ import com.karta.core.model.Graph;
 import com.karta.core.model.Group;
 import com.karta.core.model.Node;
 import com.karta.core.model.NodeDimensions;
-import se.deversity.vibetags.annotations.AIObservability;
+import se.deversity.vibetags.annotations.AIContext;
 
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-@AIObservability(
-    logs = {"node-rect", "edge-line", "group-rect", "node-label", "edge-label"},
-    note = "These are stable SVG CSS class names, not log tokens — consumers inject custom themes via the cssString parameter. Renaming or removing any class breaks existing stylesheets."
+@AIContext(
+    focus = "CSS class names node-rect, edge-line, group-rect, node-label, edge-label are stable contract points — consumers inject custom themes via the cssString parameter.",
+    avoids = "Renaming or removing any CSS class — breaks existing stylesheets."
 )
 public class SvgRenderer {
 
