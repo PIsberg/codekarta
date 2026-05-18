@@ -19,12 +19,14 @@ public class KartaCli {
     public static void main(String[] args) {
         Path inputPath = null;
         Path outputDir = DEFAULT_OUTPUT;
+        boolean sequenceOnly = false;
 
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
-                case "--input"  -> { if (i + 1 < args.length) inputPath = Path.of(args[++i]); }
-                case "--output" -> { if (i + 1 < args.length) outputDir = Path.of(args[++i]); }
-                case "--help", "-h" -> { printUsage(); System.exit(0); }
+                case "--input"         -> { if (i + 1 < args.length) inputPath = Path.of(args[++i]); }
+                case "--output"        -> { if (i + 1 < args.length) outputDir = Path.of(args[++i]); }
+                case "--sequence-only" -> sequenceOnly = true;
+                case "--help", "-h"    -> { printUsage(); System.exit(0); }
             }
         }
 
@@ -35,7 +37,7 @@ public class KartaCli {
         }
 
         try {
-            Path output = run(inputPath, outputDir);
+            Path output = run(inputPath, outputDir, sequenceOnly);
             System.out.println("Generated: " + output.toAbsolutePath());
         } catch (IOException e) {
             System.err.println("Error: " + e.getMessage());
@@ -49,9 +51,19 @@ public class KartaCli {
      * @return the path of the written SVG file
      */
     public static Path run(Path inputPath, Path outputDir) throws IOException {
+        return run(inputPath, outputDir, false);
+    }
+
+    /**
+     * Runs the full parse → layout → render pipeline and writes the SVG to outputDir.
+     *
+     * @param sequenceOnly when true, uses CallSequenceParser (no exception-flow annotations)
+     * @return the path of the written SVG file
+     */
+    public static Path run(Path inputPath, Path outputDir, boolean sequenceOnly) throws IOException {
         Files.createDirectories(outputDir);
 
-        Graph graph = new JavaSourceInputParser().parse(inputPath);
+        Graph graph = new JavaSourceInputParser(sequenceOnly).parse(inputPath);
         new SimpleLayoutEngine().layout(graph);
         String svg = new SvgRenderer().render(graph);
 
@@ -76,13 +88,15 @@ public class KartaCli {
     }
 
     private static void printUsage() {
-        System.out.println("Usage: karta --input <path> [--output <dir>]");
+        System.out.println("Usage: karta --input <path> [--output <dir>] [--sequence-only]");
         System.out.println();
-        System.out.println("  --input  <path>   What to parse:");
-        System.out.println("                      module-info.java  → module diagram");
-        System.out.println("                      directory         → class diagram");
-        System.out.println("                      *.java file       → sequence diagram");
-        System.out.println("  --output <dir>    Output directory  (default: ./output)");
-        System.out.println("  --help            Show this message");
+        System.out.println("  --input  <path>      What to parse:");
+        System.out.println("                         module-info.java  → module diagram");
+        System.out.println("                         directory         → class diagram");
+        System.out.println("                         *.java file       → sequence/exception diagram");
+        System.out.println("  --output <dir>       Output directory  (default: ./output)");
+        System.out.println("  --sequence-only      For *.java input: emit only CALLS edges,");
+        System.out.println("                         skipping exception-flow annotations.");
+        System.out.println("  --help               Show this message");
     }
 }

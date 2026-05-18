@@ -1,6 +1,7 @@
 package com.karta.input;
 
 import com.karta.core.model.Graph;
+import com.karta.input.parser.CallSequenceParser;
 import com.karta.input.parser.ExceptionFlowParser;
 import com.karta.input.parser.ClassDiagramParser;
 import com.karta.input.parser.ModuleInfoParser;
@@ -11,9 +12,10 @@ import java.util.logging.Logger;
 
 /**
  * Facade that dispatches to the correct parser based on the path:
- *  - module-info.java  → ModuleInfoParser
- *  - directory         → ClassDiagramParser
- *  - any .java file    → CallSequenceParser
+ *  - module-info.java          → ModuleInfoParser
+ *  - directory                 → ClassDiagramParser
+ *  - any .java file (default)  → ExceptionFlowParser (call graph + exception flow)
+ *  - any .java file (sequenceOnly=true) → CallSequenceParser (call graph only)
  */
 public class JavaSourceInputParser implements InputParser {
 
@@ -22,6 +24,16 @@ public class JavaSourceInputParser implements InputParser {
     private final ModuleInfoParser moduleInfoParser = new ModuleInfoParser();
     private final ClassDiagramParser classDiagramParser = new ClassDiagramParser();
     private final ExceptionFlowParser exceptionFlowParser = new ExceptionFlowParser();
+    private final CallSequenceParser callSequenceParser = new CallSequenceParser();
+    private final boolean sequenceOnly;
+
+    public JavaSourceInputParser() {
+        this(false);
+    }
+
+    public JavaSourceInputParser(boolean sequenceOnly) {
+        this.sequenceOnly = sequenceOnly;
+    }
 
     @Override
     public Graph parse(Path path) {
@@ -35,6 +47,10 @@ public class JavaSourceInputParser implements InputParser {
             return moduleInfoParser.parse(path);
         }
         if (fileName.endsWith(".java")) {
+            if (sequenceOnly) {
+                log.fine(() -> "Delegating source file to CallSequenceParser (sequence-only): " + path);
+                return callSequenceParser.parse(path);
+            }
             log.fine(() -> "Delegating source file to ExceptionFlowParser: " + path);
             return exceptionFlowParser.parse(path);
         }
