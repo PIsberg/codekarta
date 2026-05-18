@@ -125,6 +125,20 @@ class KartaCliTest {
         assertTrue(svg.contains("MyService"), "node label must appear in SVG");
     }
 
+    @Test
+    void elkLayoutProducesValidSvg(@TempDir Path inputDir, @TempDir Path outputDir) throws Exception {
+        Files.writeString(inputDir.resolve("Dog.java"),    "public class Dog extends Animal {}");
+        Files.writeString(inputDir.resolve("Animal.java"), "public class Animal {}");
+
+        Path result = KartaCli.run(inputDir, outputDir, false, "elk");
+
+        assertEquals("class-diagram.svg", result.getFileName().toString());
+        String svg = Files.readString(result);
+        assertTrue(svg.contains("<svg "), "ELK output must be SVG");
+        assertTrue(svg.contains("Dog") || svg.contains("Animal"),
+                "SVG must reference parsed class labels");
+    }
+
     // --- deriveOutputName unit tests ---
 
     @Test

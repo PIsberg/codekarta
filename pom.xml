@@ -23,6 +23,7 @@
         <jackson.version>2.17.1</jackson.version>
         <javaparser.version>3.25.10</javaparser.version>
         <junit.version>5.11.0</junit.version>
+        <elk.version>0.9.1</elk.version>
     </properties>
 
     <dependencyManagement>
@@ -52,6 +53,16 @@
                 <artifactId>junit-jupiter</artifactId>
                 <version>${junit.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.elk</groupId>
+                <artifactId>org.eclipse.elk.core</artifactId>
+                <version>${elk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.elk</groupId>
+                <artifactId>org.eclipse.elk.alg.layered</artifactId>
+                <version>${elk.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

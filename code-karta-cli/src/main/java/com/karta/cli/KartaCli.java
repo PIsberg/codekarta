@@ -3,6 +3,8 @@ package com.karta.cli;
 import com.karta.core.model.Graph;
 import com.karta.input.JavaSourceInputParser;
 import com.karta.input.MultiFileSequenceParser;
+import com.karta.layout.ElkLayoutEngine;
+import com.karta.layout.LayoutEngine;
 import com.karta.layout.SimpleLayoutEngine;
 import com.karta.render.SvgRenderer;
 
@@ -21,11 +23,13 @@ public class KartaCli {
         Path inputPath = null;
         Path outputDir = DEFAULT_OUTPUT;
         boolean sequenceOnly = false;
+        String layout = "simple";
 
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
                 case "--input"         -> { if (i + 1 < args.length) inputPath = Path.of(args[++i]); }
                 case "--output"        -> { if (i + 1 < args.length) outputDir = Path.of(args[++i]); }
+                case "--layout"        -> { if (i + 1 < args.length) layout = args[++i]; }
                 case "--sequence-only" -> sequenceOnly = true;
                 case "--help", "-h"    -> { printUsage(); System.exit(0); }
             }
@@ -38,7 +42,7 @@ public class KartaCli {
         }
 
         try {
-            Path output = run(inputPath, outputDir, sequenceOnly);
+            Path output = run(inputPath, outputDir, sequenceOnly, layout);
             System.out.println("Generated: " + output.toAbsolutePath());
         } catch (IOException e) {
             System.err.println("Error: " + e.getMessage());
@@ -52,7 +56,18 @@ public class KartaCli {
      * @return the path of the written SVG file
      */
     public static Path run(Path inputPath, Path outputDir) throws IOException {
-        return run(inputPath, outputDir, false);
+        return run(inputPath, outputDir, false, "simple");
+    }
+
+    /**
+     * Runs the full parse → layout → render pipeline and writes the SVG to outputDir.
+     *
+     * @param sequenceOnly when true, uses CallSequenceParser (single file) or
+     *                     MultiFileSequenceParser (directory)
+     * @return the path of the written SVG file
+     */
+    public static Path run(Path inputPath, Path outputDir, boolean sequenceOnly) throws IOException {
+        return run(inputPath, outputDir, sequenceOnly, "simple");
     }
 
     /**
@@ -66,9 +81,13 @@ public class KartaCli {
      * @param sequenceOnly when true, uses CallSequenceParser (single file) or
      *                     MultiFileSequenceParser (directory); exception-flow
      *                     annotations are omitted
+     * @param layout       layout engine to use: {@code "elk"} for the ELK layered
+     *                     algorithm, {@code "simple"} (default) for the pure-Java
+     *                     BFS grid layout
      * @return the path of the written SVG file
      */
-    public static Path run(Path inputPath, Path outputDir, boolean sequenceOnly) throws IOException {
+    public static Path run(Path inputPath, Path outputDir,
+                           boolean sequenceOnly, String layout) throws IOException {
         Files.createDirectories(outputDir);
 
         Graph graph;
@@ -79,13 +98,17 @@ public class KartaCli {
             graph = new JavaSourceInputParser(sequenceOnly).parse(inputPath);
         }
 
-        new SimpleLayoutEngine().layout(graph);
+        resolveLayout(layout).layout(graph);
         String svg = new SvgRenderer().render(graph);
 
         Path outputFile = outputDir.resolve(deriveOutputName(inputPath, sequenceOnly));
         Files.writeString(outputFile, svg);
         log.fine("Wrote diagram: " + outputFile);
         return outputFile;
+    }
+
+    private static LayoutEngine resolveLayout(String name) {
+        return "elk".equalsIgnoreCase(name) ? new ElkLayoutEngine() : new SimpleLayoutEngine();
     }
 
     /**
@@ -107,7 +130,7 @@ public class KartaCli {
     }
 
     private static void printUsage() {
-        System.out.println("Usage: karta --input <path> [--output <dir>] [--sequence-only]");
+        System.out.println("Usage: karta --input <path> [--output <dir>] [--sequence-only] [--layout simple|elk]");
         System.out.println();
         System.out.println("  --input  <path>      What to parse:");
         System.out.println("                         module-info.java  → module diagram");
@@ -120,6 +143,10 @@ public class KartaCli {
         System.out.println("                         When combined with a directory input, parses");
         System.out.println("                         all .java files together using cross-file");
         System.out.println("                         symbol resolution to stitch call graphs.");
+        System.out.println("  --layout <engine>    Layout algorithm:  simple (default) or elk.");
+        System.out.println("                         elk uses the Eclipse Layout Kernel layered");
+        System.out.println("                         algorithm for edge-crossing minimisation and");
+        System.out.println("                         orthogonal routing (recommended for large graphs).");
         System.out.println("  --help               Show this message");
     }
 }
