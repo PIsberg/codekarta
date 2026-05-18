@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1860" height="636" viewBox="0 0 1860 636">
+<defs>
+<style>
+svg { font-family: sans-serif; }
+</style>
+<marker id="hollowTriangle" markerWidth="12" markerHeight="12" refX="10" refY="5" orient="auto">
+  <path d="M0,0 L10,5 L0,10 Z" fill="#ffffff" stroke="#374151" stroke-width="1"/>
+</marker>
+<marker id="filledArrow" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
+  <path d="M0,0 L8,4 L0,8 Z" fill="#374151"/>
+</marker>
+<marker id="openArrow" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
+  <path d="M0,0 L8,4 L0,8" fill="none" stroke="#6b7280" stroke-width="1.2"/>
+</marker>
+<marker id="exceptionArrow" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
+  <path d="M0,0 L8,4 L0,8 Z" fill="#dc2626"/>
+</marker>
+</defs>
+<rect width="1860" height="636" fill="#f9fafb"/>
+<line x1="500.0" y1="95.0" x2="580.0" y2="285.0" stroke="#374151" stroke-width="1.6" marker-end="url(#openArrow)"/>
+<text x="540.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#374151" font-style="italic">has</text>
+<line x1="320.0" y1="95.0" x2="240.0" y2="285.0" stroke="#374151" stroke-width="1.6" marker-end="url(#openArrow)"/>
+<text x="280.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#374151" font-style="italic">has</text>
+<line x1="500.0" y1="95.0" x2="840.0" y2="285.0" stroke="#374151" stroke-width="1.6" marker-end="url(#openArrow)"/>
+<text x="670.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#374151" font-style="italic">has</text>
+<line x1="240.0" y1="95.0" x2="1100.0" y2="285.0" stroke="#374151" stroke-width="1.6" marker-end="url(#openArrow)"/>
+<text x="670.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#374151" font-style="italic">has</text>
+<line x1="240.0" y1="95.0" x2="320.0" y2="285.0" stroke="#374151" stroke-width="1.6" marker-end="url(#openArrow)"/>
+<text x="280.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#374151" font-style="italic">has</text>
+<line x1="580.0" y1="95.0" x2="500.0" y2="285.0" stroke="#374151" stroke-width="1.6" marker-end="url(#openArrow)"/>
+<text x="540.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#374151" font-style="italic">has</text>
+<g id="Edge">
+  <rect x="1360.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8"/>
+  <text x="1450.0" y="95.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">Edge</text>
+</g>
+<g id="EdgeType">
+  <rect x="1620.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8"/>
+  <text x="1710.0" y="95.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">EdgeType</text>
+</g>
+<g id="Graph">
+  <rect x="320.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8"/>
+  <text x="410.0" y="95.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">Graph</text>
+</g>
+<g id="List&lt;Node&gt;">
+  <rect x="580.0" y="250.0" width="180.0" height="70.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8"/>
+  <text x="670.0" y="285.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">List&lt;Node&gt;</text>
+</g>
+<g id="List&lt;Edge&gt;">
+  <rect x="60.0" y="250.0" width="180.0" height="70.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8"/>
+  <text x="150.0" y="285.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">List&lt;Edge&gt;</text>
+</g>
+<g id="List&lt;Group&gt;">
+  <rect x="840.0" y="250.0" width="180.0" height="70.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8"/>
+  <text x="930.0" y="285.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">List&lt;Group&gt;</text>
+</g>
+<g id="Group">
+  <rect x="60.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8"/>
+  <text x="150.0" y="95.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">Group</text>
+</g>
+<g id="List&lt;String&gt;">
+  <rect x="1100.0" y="250.0" width="180.0" height="70.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8"/>
+  <text x="1190.0" y="285.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">List&lt;String&gt;</text>
+</g>
+<g id="Map&lt;String,String&gt;">
+  <rect x="320.0" y="250.0" width="180.0" height="70.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8"/>
+  <text x="410.0" y="285.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">Map&lt;String,String&gt;</text>
+</g>
+<g id="Node">
+  <rect x="580.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8"/>
+  <text x="670.0" y="95.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">Node</text>
+</g>
+<g id="NodeDimensions">
+  <rect x="1100.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8"/>
+  <text x="1190.0" y="95.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">NodeDimensions</text>
+</g>
+<g id="NodeType">
+  <rect x="840.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8"/>
+  <text x="930.0" y="95.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">NodeType</text>
+</g>
+<rect x="1624.0" y="560.0" width="220.0" height="76.0" rx="6" fill="#ffffff" stroke="#d1d5db" stroke-width="1"/>
+<text x="1640.0" y="580.0" font-family="sans-serif" font-size="11" font-weight="bold" fill="#374151">Legend</text>
+<line x1="1640.0" y1="604.0" x2="1676.0" y2="604.0" stroke="#374151" stroke-width="2" marker-end="url(#openArrow)"/>
+<text x="1684.0" y="608.0" font-family="sans-serif" font-size="11" fill="#374151">has</text>
+</svg>
