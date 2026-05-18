@@ -55,6 +55,21 @@ class KartaCliTest {
     }
 
     @Test
+    void multiFileSequenceModeStitchesDirectory(@TempDir Path inputDir, @TempDir Path outputDir) throws Exception {
+        Files.writeString(inputDir.resolve("Alpha.java"), "public class Alpha { void a() {} }");
+        Files.writeString(inputDir.resolve("Beta.java"),  "public class Beta  { void b() {} }");
+
+        Path result = KartaCli.run(inputDir, outputDir, true);
+
+        assertEquals("sequence-diagram.svg", result.getFileName().toString(),
+                "directory + sequence-only must produce sequence-diagram.svg");
+        String svg = Files.readString(result);
+        assertTrue(svg.contains("<svg "),  "output must be SVG");
+        assertTrue(svg.contains("Alpha") || svg.contains("Beta"),
+                "SVG must reference at least one parsed class");
+    }
+
+    @Test
     void sequenceOnlyFlagProducesValidSvg(@TempDir Path inputDir, @TempDir Path outputDir) throws Exception {
         Path javaFile = inputDir.resolve("Service.java");
         Files.writeString(javaFile, """

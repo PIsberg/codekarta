@@ -2,6 +2,7 @@ package com.karta.cli;
 
 import com.karta.core.model.Graph;
 import com.karta.input.JavaSourceInputParser;
+import com.karta.input.MultiFileSequenceParser;
 import com.karta.layout.SimpleLayoutEngine;
 import com.karta.render.SvgRenderer;
 
@@ -57,17 +58,31 @@ public class KartaCli {
     /**
      * Runs the full parse → layout → render pipeline and writes the SVG to outputDir.
      *
-     * @param sequenceOnly when true, uses CallSequenceParser (no exception-flow annotations)
+     * <p>When {@code sequenceOnly=true} and {@code inputPath} is a directory,
+     * all {@code .java} files in that directory are parsed together with
+     * cross-file symbol resolution ({@link MultiFileSequenceParser}), producing
+     * a stitched multi-class call-sequence diagram.
+     *
+     * @param sequenceOnly when true, uses CallSequenceParser (single file) or
+     *                     MultiFileSequenceParser (directory); exception-flow
+     *                     annotations are omitted
      * @return the path of the written SVG file
      */
     public static Path run(Path inputPath, Path outputDir, boolean sequenceOnly) throws IOException {
         Files.createDirectories(outputDir);
 
-        Graph graph = new JavaSourceInputParser(sequenceOnly).parse(inputPath);
+        Graph graph;
+        if (sequenceOnly && Files.isDirectory(inputPath)) {
+            log.fine(() -> "Multi-file sequence mode for directory: " + inputPath);
+            graph = new MultiFileSequenceParser().parse(inputPath);
+        } else {
+            graph = new JavaSourceInputParser(sequenceOnly).parse(inputPath);
+        }
+
         new SimpleLayoutEngine().layout(graph);
         String svg = new SvgRenderer().render(graph);
 
-        Path outputFile = outputDir.resolve(deriveOutputName(inputPath));
+        Path outputFile = outputDir.resolve(deriveOutputName(inputPath, sequenceOnly));
         Files.writeString(outputFile, svg);
         log.fine("Wrote diagram: " + outputFile);
         return outputFile;
@@ -77,8 +92,12 @@ public class KartaCli {
      * Maps an input path to a deterministic SVG filename.
      */
     static String deriveOutputName(Path inputPath) {
+        return deriveOutputName(inputPath, false);
+    }
+
+    static String deriveOutputName(Path inputPath, boolean sequenceOnly) {
         if (Files.isDirectory(inputPath)) {
-            return "class-diagram.svg";
+            return sequenceOnly ? "sequence-diagram.svg" : "class-diagram.svg";
         }
         String fileName = inputPath.getFileName().toString();
         if ("module-info.java".equals(fileName)) {
@@ -94,9 +113,13 @@ public class KartaCli {
         System.out.println("                         module-info.java  → module diagram");
         System.out.println("                         directory         → class diagram");
         System.out.println("                         *.java file       → sequence/exception diagram");
+        System.out.println("                         directory + --sequence-only");
+        System.out.println("                                           → multi-file stitched sequence diagram");
         System.out.println("  --output <dir>       Output directory  (default: ./output)");
-        System.out.println("  --sequence-only      For *.java input: emit only CALLS edges,");
-        System.out.println("                         skipping exception-flow annotations.");
+        System.out.println("  --sequence-only      Emit only CALLS edges (no exception-flow).");
+        System.out.println("                         When combined with a directory input, parses");
+        System.out.println("                         all .java files together using cross-file");
+        System.out.println("                         symbol resolution to stitch call graphs.");
         System.out.println("  --help               Show this message");
     }
 }
