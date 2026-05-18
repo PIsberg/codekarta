@@ -2,6 +2,7 @@ package com.karta.layout;
 
 import com.karta.core.model.Edge;
 import com.karta.core.model.Graph;
+import com.karta.core.model.Group;
 import com.karta.core.model.Node;
 import org.junit.jupiter.api.Test;
 
@@ -110,5 +111,46 @@ class ElkLayoutEngineTest {
 
         assertDoesNotThrow(() -> engine.layout(graph),
                 "self-loop edge must not crash ELK layout");
+    }
+
+    @Test
+    void groupMembersReceiveAbsoluteCoordinates() {
+        Graph graph = new Graph();
+        graph.addNode(new Node("A", "CLASS", "A"));
+        graph.addNode(new Node("B", "CLASS", "B"));
+        graph.addEdge(new Edge("a-b", "A", "B", "EXTENDS"));
+        Group group = new Group("pkg", "com.example");
+        group.addMember("A");
+        group.addMember("B");
+        graph.addGroup(group);
+
+        engine.layout(graph);
+
+        Node a = graph.findNode("A");
+        Node b = graph.findNode("B");
+        assertNotNull(a.getX(), "grouped node A must receive x");
+        assertNotNull(a.getY(), "grouped node A must receive y");
+        assertNotNull(b.getX(), "grouped node B must receive x");
+        assertNotNull(b.getY(), "grouped node B must receive y");
+        assertTrue(a.getX() >= 0 && a.getY() >= 0, "A coordinates must be non-negative (absolute)");
+        assertTrue(b.getX() >= 0 && b.getY() >= 0, "B coordinates must be non-negative (absolute)");
+        // At least one axis must differ when there are two siblings in the group
+        assertTrue(a.getX() != b.getX() || a.getY() != b.getY(),
+                "group members must not occupy identical positions");
+    }
+
+    @Test
+    void groupedAndUngroupedNodesAllReceiveCoordinates() {
+        Graph graph = new Graph();
+        graph.addNode(new Node("Grouped", "CLASS", "Grouped"));
+        graph.addNode(new Node("Free",    "CLASS", "Free"));
+        Group group = new Group("g1", "group-one");
+        group.addMember("Grouped");
+        graph.addGroup(group);
+
+        engine.layout(graph);
+
+        assertNotNull(graph.findNode("Grouped").getX(), "grouped node must receive x");
+        assertNotNull(graph.findNode("Free").getX(),    "ungrouped node must receive x");
     }
 }

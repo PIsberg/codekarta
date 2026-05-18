@@ -2,6 +2,7 @@ package com.karta.layout;
 
 import com.karta.core.model.Edge;
 import com.karta.core.model.Graph;
+import com.karta.core.model.Group;
 import com.karta.core.model.Node;
 import org.eclipse.elk.core.IGraphLayoutEngine;
 import org.eclipse.elk.core.RecursiveGraphLayoutEngine;
@@ -50,9 +51,32 @@ public class ElkLayoutEngine implements LayoutEngine {
         root.setProperty(CoreOptions.ALGORITHM, "org.eclipse.elk.layered");
         root.setProperty(CoreOptions.DIRECTION, Direction.DOWN);
 
+        // Build reverse lookup: nodeId → groupId
+        Map<String, String> nodeToGroup = new HashMap<>();
+        for (Group group : graph.getGroups()) {
+            for (String memberId : group.getMemberIds()) {
+                nodeToGroup.put(memberId, group.getId());
+            }
+        }
+
+        // Create compound ElkNode for each group that has members
+        Map<String, ElkNode> groupElkNodes = new HashMap<>();
+        for (Group group : graph.getGroups()) {
+            if (!group.getMemberIds().isEmpty()) {
+                ElkNode compound = ElkGraphUtil.createNode(root);
+                compound.setIdentifier(group.getId());
+                compound.setProperty(CoreOptions.ALGORITHM, "org.eclipse.elk.layered");
+                groupElkNodes.put(group.getId(), compound);
+            }
+        }
+
+        // Create leaf ElkNodes under the correct parent (compound or root)
         Map<String, ElkNode> elkNodes = new HashMap<>();
         for (Node node : graph.getNodes()) {
-            ElkNode elkNode = ElkGraphUtil.createNode(root);
+            String groupId = nodeToGroup.get(node.getId());
+            ElkNode parent = groupId != null && groupElkNodes.containsKey(groupId)
+                    ? groupElkNodes.get(groupId) : root;
+            ElkNode elkNode = ElkGraphUtil.createNode(parent);
             elkNode.setIdentifier(node.getId());
             elkNode.setWidth(NODE_WIDTH);
             elkNode.setHeight(NODE_HEIGHT);
@@ -70,7 +94,25 @@ public class ElkLayoutEngine implements LayoutEngine {
         IGraphLayoutEngine engine = new RecursiveGraphLayoutEngine();
         engine.layout(root, new BasicProgressMonitor());
 
+        // Read back positions for grouped nodes (compound.x + member.x = absolute)
+        for (Map.Entry<String, ElkNode> entry : groupElkNodes.entrySet()) {
+            ElkNode compound = entry.getValue();
+            double cx = compound.getX();
+            double cy = compound.getY();
+            for (ElkNode child : compound.getChildren()) {
+                Node node = graph.findNode(child.getIdentifier());
+                if (node != null) {
+                    node.setX(cx + child.getX());
+                    node.setY(cy + child.getY());
+                    node.setWidth(child.getWidth());
+                    node.setHeight(child.getHeight());
+                }
+            }
+        }
+
+        // Read back positions for non-grouped (root-level) nodes
         for (ElkNode elkNode : root.getChildren()) {
+            if (groupElkNodes.containsKey(elkNode.getIdentifier())) continue;
             Node node = graph.findNode(elkNode.getIdentifier());
             if (node != null) {
                 node.setX(elkNode.getX());
