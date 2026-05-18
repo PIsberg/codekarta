@@ -13,8 +13,110 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.3.0</version>
+        <executions>
+          <execution>
+            <id>gen-module-diagram</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <skip>${skipDiagrams}</skip>
+              <executable>java</executable>
+              <arguments>
+                <argument>-jar</argument>
+                <argument>${project.build.directory}/${project.artifactId}-${project.version}-all.jar</argument>
+                <argument>--input</argument>
+                <argument>example-shipping-system/src/main/java/module-info.java</argument>
+                <argument>--output</argument>
+                <argument>docs/diagrams</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>gen-class-diagram</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <skip>${skipDiagrams}</skip>
+              <executable>java</executable>
+              <arguments>
+                <argument>-jar</argument>
+                <argument>${project.build.directory}/${project.artifactId}-${project.version}-all.jar</argument>
+                <argument>--input</argument>
+                <argument>code-karta-core/src/main/java/com/karta/core/model</argument>
+                <argument>--output</argument>
+                <argument>docs/diagrams</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>gen-cli-sequence</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <skip>${skipDiagrams}</skip>
+              <executable>java</executable>
+              <arguments>
+                <argument>-jar</argument>
+                <argument>${project.build.directory}/${project.artifactId}-${project.version}-all.jar</argument>
+                <argument>--input</argument>
+                <argument>code-karta-cli/src/main/java/com/karta/cli/KartaCli.java</argument>
+                <argument>--output</argument>
+                <argument>docs/diagrams</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>gen-call-sequence</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <skip>${skipDiagrams}</skip>
+              <executable>java</executable>
+              <arguments>
+                <argument>-jar</argument>
+                <argument>${project.build.directory}/${project.artifactId}-${project.version}-all.jar</argument>
+                <argument>--input</argument>
+                <argument>code-karta-input/src/main/java/com/karta/input/parser/CallSequenceParser.java</argument>
+                <argument>--output</argument>
+                <argument>docs/diagrams</argument>
+                <argument>--sequence-only</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>gen-multifile-sequence</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <skip>${skipDiagrams}</skip>
+              <executable>java</executable>
+              <arguments>
+                <argument>-jar</argument>
+                <argument>${project.build.directory}/${project.artifactId}-${project.version}-all.jar</argument>
+                <argument>--input</argument>
+                <argument>code-karta-input/src/main/java/com/karta/input</argument>
+                <argument>--output</argument>
+                <argument>docs/diagrams</argument>
+                <argument>--sequence-only</argument>
+                <argument>--layout</argument>
+                <argument>elk</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
         <configuration>
           <mainClass>com.karta.cli.KartaCli</mainClass>
+          <workingDirectory>${project.basedir}/..</workingDirectory>
         </configuration>
       </plugin>
       <plugin>
@@ -33,6 +135,7 @@
                 <transformer>
                   <mainClass>com.karta.cli.KartaCli</mainClass>
                 </transformer>
+                <transformer />
               </transformers>
               <filters>
                 <filter>

@@ -28,8 +28,7 @@ public class ClassDiagramParser {
             "String", "Object", "Integer", "Long", "Double", "Float", "Boolean",
             "Byte", "Short", "Character", "List", "Map", "Set", "Queue",
             "Optional", "Stream", "Collection", "Iterable", "void", "Void",
-            "StringBuilder", "StringBuffer", "Number", "Comparable", "Serializable"
-    );
+            "StringBuilder", "StringBuffer", "Number", "Comparable", "Serializable");
 
     public Graph parse(Path sourceDirectory) {
         Graph graph = new Graph();
@@ -61,7 +60,8 @@ public class ClassDiagramParser {
     private void processType(TypeDeclaration<?> type, Graph graph) {
         String name = type.getNameAsString();
         String nodeType = (type instanceof ClassOrInterfaceDeclaration coid && coid.isInterface())
-                ? "INTERFACE" : "CLASS";
+                ? "INTERFACE"
+                : "CLASS";
 
         graph.addNodeIfAbsent(new Node(name, nodeType, name));
 
@@ -83,8 +83,7 @@ public class ClassDiagramParser {
                     graph.addNodeIfAbsent(new Node(fieldType, "CLASS", fieldType));
                     graph.addEdge(new Edge(
                             name + "-has-" + fieldName + "-" + fieldType,
-                            name, fieldType, "HAS"
-                    ));
+                            name, fieldType, "HAS"));
                 }
             }
         }

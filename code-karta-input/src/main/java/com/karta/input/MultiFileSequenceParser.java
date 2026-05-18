@@ -34,13 +34,15 @@ import java.util.stream.Stream;
  * Parses multiple Java source files and stitches their call graphs into a
  * single unified {@link Graph}.
  *
- * <p>Cross-file method calls are resolved via JavaParser's
+ * <p>
+ * Cross-file method calls are resolved via JavaParser's
  * {@link JavaSymbolSolver}: when a callee's declaring type can be determined,
  * the callee node id uses the qualified form {@code ClassName.methodName} so
  * nodes from different files are automatically linked. Unresolvable calls fall
  * back gracefully to scope-based naming.
  *
- * <p>Exception-flow annotations (catch-boundary groups, EXCEPTION_PROPAGATION
+ * <p>
+ * Exception-flow annotations (catch-boundary groups, EXCEPTION_PROPAGATION
  * edges) are omitted; use {@code sequenceOnly=false} via
  * {@link JavaSourceInputParser} on individual files when full exception flow is
  * needed per-file.
@@ -72,8 +74,7 @@ public class MultiFileSequenceParser {
 
         CombinedTypeSolver typeSolver = new CombinedTypeSolver(
                 new ReflectionTypeSolver(false),
-                new JavaParserTypeSolver(sourceRoot)
-        );
+                new JavaParserTypeSolver(sourceRoot));
         ParserConfiguration config = new ParserConfiguration()
                 .setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_17)
                 .setSymbolResolver(new JavaSymbolSolver(typeSolver));
@@ -90,7 +91,7 @@ public class MultiFileSequenceParser {
         try {
             ParseResult<CompilationUnit> result = parser.parse(Files.readString(file));
             if (!result.isSuccessful() || result.getResult().isEmpty()) {
-                log.warning("Failed to parse " + file + ", problems: " + result.getProblems());
+                log.warning("Failed to parse " + file);
                 return;
             }
             CompilationUnit cu = result.getResult().get();
@@ -107,7 +108,7 @@ public class MultiFileSequenceParser {
                     String methodId = className + "." + method.getNameAsString();
                     graph.addNodeIfAbsent(new Node(methodId, NodeType.METHOD, method.getNameAsString()));
 
-                    int[] seq = {0};
+                    int[] seq = { 0 };
                     method.accept(new VoidVisitorAdapter<Void>() {
                         @Override
                         public void visit(MethodCallExpr call, Void arg) {
@@ -125,7 +126,7 @@ public class MultiFileSequenceParser {
                     }, null);
 
                     // Catch-boundary groups (structural context, no exception edges)
-                    int[] tryIdx = {0};
+                    int[] tryIdx = { 0 };
                     method.findAll(TryStmt.class).forEach(tryStmt -> {
                         String catchTypes = tryStmt.getCatchClauses().stream()
                                 .map(c -> c.getParameter().getType().asString())

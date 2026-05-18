@@ -13,3 +13,6 @@ code-karta-render/target
 code-karta-render/build
 code-karta-cli/target
 code-karta-cli/build
+.idea/
+.vibetags-cache
+vibetags.log

@@ -35,7 +35,7 @@ public class CallSequenceParser {
                     String qualifiedMethod = className + "." + method.getNameAsString();
                     graph.addNodeIfAbsent(new Node(qualifiedMethod, "METHOD", method.getNameAsString()));
 
-                    int[] order = {0};
+                    int[] order = { 0 };
                     method.accept(new VoidVisitorAdapter<Void>() {
                         @Override
                         public void visit(MethodCallExpr call, Void arg) {
@@ -48,8 +48,7 @@ public class CallSequenceParser {
                             int seq = ++order[0];
                             Edge edge = new Edge(
                                     qualifiedMethod + "-calls-" + callee + "-" + seq,
-                                    qualifiedMethod, callee, "CALLS"
-                            );
+                                    qualifiedMethod, callee, "CALLS");
                             edge.setLabel(String.valueOf(seq));
                             graph.addEdge(edge);
 
