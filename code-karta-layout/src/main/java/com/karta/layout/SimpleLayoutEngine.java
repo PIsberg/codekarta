@@ -3,6 +3,7 @@ package com.karta.layout;
 import com.karta.core.model.Edge;
 import com.karta.core.model.Graph;
 import com.karta.core.model.Node;
+import com.karta.core.model.NodeDimensions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,8 +26,8 @@ import java.util.TreeMap;
  */
 public class SimpleLayoutEngine implements LayoutEngine {
 
-    private static final double NODE_WIDTH  = 180.0;
-    private static final double NODE_HEIGHT = 70.0;
+    private static final double NODE_WIDTH  = NodeDimensions.DEFAULT_WIDTH;
+    private static final double NODE_HEIGHT = NodeDimensions.DEFAULT_HEIGHT;
     private static final double H_GAP       = 80.0;
     private static final double V_GAP       = 120.0;
     private static final double MARGIN      = 60.0;

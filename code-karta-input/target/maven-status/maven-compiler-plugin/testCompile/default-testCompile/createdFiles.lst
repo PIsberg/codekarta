@@ -1,8 +1,0 @@
-com\karta\input\ClassDiagramParserTest.class
-com\karta\input\CallSequenceParserTest.class
-com\karta\input\ExceptionFlowParserTest.class
-com\karta\input\integration\ModuleDiagramIntegrationTest.class
-com\karta\input\integration\ClassDiagramIntegrationTest.class
-com\karta\input\integration\ExceptionFlowIntegrationTest.class
-com\karta\input\ModuleInfoParserTest.class
-com\karta\input\integration\CallSequenceIntegrationTest.class

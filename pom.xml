@@ -19,10 +19,13 @@
 
     <properties>
         <maven.compiler.release>21</maven.compiler.release>
+        <skipDiagrams>false</skipDiagrams>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jackson.version>2.17.1</jackson.version>
-        <javaparser.version>3.25.10</javaparser.version>
+        <javaparser.version>3.26.3</javaparser.version>
         <junit.version>5.11.0</junit.version>
+        <elk.version>0.9.1</elk.version>
+        <vibetags.version>0.8.0</vibetags.version>
     </properties>
 
     <dependencyManagement>
@@ -43,10 +46,31 @@
                 <version>${javaparser.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.github.javaparser</groupId>
+                <artifactId>javaparser-symbol-solver-core</artifactId>
+                <version>${javaparser.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter</artifactId>
                 <version>${junit.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.elk</groupId>
+                <artifactId>org.eclipse.elk.core</artifactId>
+                <version>${elk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.elk</groupId>
+                <artifactId>org.eclipse.elk.alg.layered</artifactId>
+                <version>${elk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>se.deversity.vibetags</groupId>
+                <artifactId>vibetags-processor</artifactId>
+                <version>${vibetags.version}</version>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

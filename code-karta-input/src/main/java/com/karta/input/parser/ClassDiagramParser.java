@@ -1,6 +1,7 @@
 package com.karta.input.parser;
 
-import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
@@ -19,14 +20,15 @@ import java.util.logging.Logger;
 public class ClassDiagramParser {
 
     private static final Logger log = Logger.getLogger(ClassDiagramParser.class.getName());
+    private static final JavaParser PARSER = new JavaParser(
+            new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21));
 
     private static final Set<String> SKIP_TYPES = Set.of(
             "int", "long", "double", "float", "boolean", "byte", "short", "char",
             "String", "Object", "Integer", "Long", "Double", "Float", "Boolean",
             "Byte", "Short", "Character", "List", "Map", "Set", "Queue",
             "Optional", "Stream", "Collection", "Iterable", "void", "Void",
-            "StringBuilder", "StringBuffer", "Number", "Comparable", "Serializable"
-    );
+            "StringBuilder", "StringBuffer", "Number", "Comparable", "Serializable");
 
     public Graph parse(Path sourceDirectory) {
         Graph graph = new Graph();
@@ -46,7 +48,7 @@ public class ClassDiagramParser {
     private void parseFile(Path file, Graph graph) {
         try {
             String source = Files.readString(file);
-            CompilationUnit cu = StaticJavaParser.parse(source);
+            CompilationUnit cu = PARSER.parse(source).getResult().orElseThrow();
             for (TypeDeclaration<?> type : cu.getTypes()) {
                 processType(type, graph);
             }
@@ -58,7 +60,8 @@ public class ClassDiagramParser {
     private void processType(TypeDeclaration<?> type, Graph graph) {
         String name = type.getNameAsString();
         String nodeType = (type instanceof ClassOrInterfaceDeclaration coid && coid.isInterface())
-                ? "INTERFACE" : "CLASS";
+                ? "INTERFACE"
+                : "CLASS";
 
         graph.addNodeIfAbsent(new Node(name, nodeType, name));
 
@@ -80,8 +83,7 @@ public class ClassDiagramParser {
                     graph.addNodeIfAbsent(new Node(fieldType, "CLASS", fieldType));
                     graph.addEdge(new Edge(
                             name + "-has-" + fieldName + "-" + fieldType,
-                            name, fieldType, "HAS"
-                    ));
+                            name, fieldType, "HAS"));
                 }
             }
         }

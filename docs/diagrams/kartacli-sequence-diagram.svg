@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="7060" height="660" viewBox="0 0 7060 660">
+<defs>
+<style>
+svg { font-family: sans-serif; }
+</style>
+<marker id="hollowTriangle" markerWidth="12" markerHeight="12" refX="10" refY="5" orient="auto">
+  <path d="M0,0 L10,5 L0,10 Z" fill="#ffffff" stroke="#374151" stroke-width="1"/>
+</marker>
+<marker id="filledArrow" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
+  <path d="M0,0 L8,4 L0,8 Z" fill="#374151"/>
+</marker>
+<marker id="openArrow" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
+  <path d="M0,0 L8,4 L0,8" fill="none" stroke="#6b7280" stroke-width="1.2"/>
+</marker>
+<marker id="exceptionArrow" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
+  <path d="M0,0 L8,4 L0,8 Z" fill="#dc2626"/>
+</marker>
+</defs>
+<rect width="7060" height="660" fill="#f9fafb"/>
+<rect class="group-rect" x="2906.0" y="46.0" width="3328.0" height="98.0" rx="8" fill="none" stroke="#9ca3af" stroke-dasharray="6,4" stroke-width="1.2"/>
+<text x="2912.0" y="59.0" font-family="sans-serif" font-size="11" fill="#6b7280" font-style="italic">catch(IOException)</text>
+<line x1="4400.0" y1="95.0" x2="5000.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="4700.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1</text>
+<line x1="4400.0" y1="95.0" x2="5000.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="4700.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2</text>
+<line x1="4220.0" y1="95.0" x2="2320.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="3270.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3</text>
+<line x1="4400.0" y1="95.0" x2="5260.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="4830.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4</text>
+<line x1="4220.0" y1="95.0" x2="2580.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="3400.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5</text>
+<line x1="4220.0" y1="95.0" x2="2320.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="3270.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">6</text>
+<line x1="4400.0" y1="95.0" x2="5260.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="4830.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">7</text>
+<line x1="4220.0" y1="95.0" x2="2580.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="3400.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">8</text>
+<line x1="4220.0" y1="95.0" x2="2840.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="3530.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">9</text>
+<line x1="4400.0" y1="95.0" x2="5260.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="4830.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">10</text>
+<line x1="4400.0" y1="95.0" x2="6040.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="5220.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">11</text>
+<line x1="4220.0" y1="95.0" x2="3620.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="3920.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">12</text>
+<line x1="4220.0" y1="95.0" x2="3100.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="3660.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">13</text>
+<line x1="6130.0" y1="60.0" x2="6130.0" y2="130.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="6130.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1</text>
+<line x1="6130.0" y1="60.0" x2="6130.0" y2="130.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="6130.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1</text>
+<line x1="6040.0" y1="95.0" x2="3880.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="4960.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1</text>
+<line x1="6040.0" y1="95.0" x2="5700.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="5870.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2</text>
+<line x1="6040.0" y1="95.0" x2="1540.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="3790.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3</text>
+<line x1="6040.0" y1="95.0" x2="4660.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="5350.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4</text>
+<line x1="6040.0" y1="95.0" x2="4140.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="5090.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5</text>
+<line x1="6040.0" y1="95.0" x2="500.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="3270.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">6</text>
+<line x1="6220.0" y1="95.0" x2="6560.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="6390.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">7</text>
+<line x1="6040.0" y1="95.0" x2="3360.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="4700.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">8</text>
+<line x1="6040.0" y1="95.0" x2="2060.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="4050.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">9</text>
+<line x1="6040.0" y1="95.0" x2="1020.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="3530.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">10</text>
+<line x1="6220.0" y1="95.0" x2="6300.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="6260.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">11</text>
+<line x1="6040.0" y1="95.0" x2="4660.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="5350.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">12</text>
+<line x1="6560.0" y1="95.0" x2="1800.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="4180.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1</text>
+<line x1="930.0" y1="60.0" x2="930.0" y2="130.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="930.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1</text>
+<line x1="1020.0" y1="95.0" x2="5520.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="3270.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1</text>
+<line x1="840.0" y1="95.0" x2="760.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="800.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2</text>
+<line x1="1020.0" y1="95.0" x2="4740.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="2880.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3</text>
+<line x1="840.0" y1="95.0" x2="240.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="540.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4</text>
+<line x1="1020.0" y1="95.0" x2="1100.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="1060.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5</text>
+<line x1="1020.0" y1="95.0" x2="5780.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="3400.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">6</text>
+<line x1="2320.0" y1="95.0" x2="3440.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="2880.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1</text>
+<line x1="2320.0" y1="95.0" x2="3440.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="2880.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2</text>
+<line x1="2320.0" y1="95.0" x2="3440.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="2880.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3</text>
+<line x1="2320.0" y1="95.0" x2="3440.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="2880.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4</text>
+<line x1="2320.0" y1="95.0" x2="3440.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="2880.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5</text>
+<line x1="2320.0" y1="95.0" x2="3440.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="2880.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">6</text>
+<line x1="2320.0" y1="95.0" x2="3440.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="2880.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">7</text>
+<line x1="2320.0" y1="95.0" x2="3440.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="2880.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">8</text>
+<line x1="2320.0" y1="95.0" x2="3440.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="2880.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">9</text>
+<line x1="2320.0" y1="95.0" x2="3440.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="2880.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">10</text>
+<line x1="2320.0" y1="95.0" x2="3440.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="2880.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">11</text>
+<line x1="2320.0" y1="95.0" x2="3440.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="2880.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">12</text>
+<line x1="2320.0" y1="95.0" x2="3440.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="2880.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">13</text>
+<line x1="2320.0" y1="95.0" x2="3440.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="2880.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">14</text>
+<line x1="2320.0" y1="95.0" x2="3440.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="2880.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">15</text>
+<line x1="2320.0" y1="95.0" x2="3440.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="2880.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">16</text>
+<line x1="2320.0" y1="95.0" x2="3440.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="2880.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">17</text>
+<line x1="2320.0" y1="95.0" x2="3440.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="2880.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">18</text>
+<line x1="2320.0" y1="95.0" x2="3440.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="2880.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">19</text>
+<line x1="2320.0" y1="95.0" x2="3440.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="2880.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">20</text>
+<line x1="2320.0" y1="95.0" x2="3440.0" y2="95.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
+<text x="2880.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">21</text>
+<line x1="6040.0" y1="95.0" x2="4400.0" y2="95.0" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#exceptionArrow)"/>
+<text x="5220.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#dc2626" font-style="italic">throws</text>
+<line x1="6130.0" y1="60.0" x2="6130.0" y2="130.0" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#exceptionArrow)"/>
+<text x="6130.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#dc2626" font-style="italic">throws</text>
+<line x1="6130.0" y1="60.0" x2="6130.0" y2="130.0" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#exceptionArrow)"/>
+<text x="6130.0" y="89.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#dc2626" font-style="italic">throws</text>
+<g id="KartaCli">
+  <rect x="6820.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8"/>
+  <text x="6910.0" y="95.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">KartaCli</text>
+</g>
+<g id="KartaCli.main">
+  <rect x="4220.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
+  <text x="4310.0" y="84.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
+  <text x="4310.0" y="105.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">main</text>
+</g>
+<g id="Path.of">
+  <rect x="5000.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
+  <text x="5090.0" y="84.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
+  <text x="5090.0" y="105.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">of</text>
+</g>
+<g id="KartaCli.printUsage">
+  <rect x="2140.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
+  <text x="2230.0" y="84.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
+  <text x="2230.0" y="105.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">printUsage</text>
+</g>
+<g id="System.exit">
+  <rect x="5260.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
+  <text x="5350.0" y="84.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
+  <text x="5350.0" y="105.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">exit</text>
+</g>
+<g id="System.err.println">
+  <rect x="2400.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
+  <text x="2490.0" y="84.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
+  <text x="2490.0" y="105.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">println</text>
+</g>
+<g id="e.getMessage">
+  <rect x="2660.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
+  <text x="2750.0" y="84.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
+  <text x="2750.0" y="105.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">getMessage</text>
+</g>
+<g id="KartaCli.run">
+  <rect x="6040.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
+  <text x="6130.0" y="84.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
+  <text x="6130.0" y="105.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">run</text>
+</g>
+<g id="System.out.println">
+  <rect x="3440.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
+  <text x="3530.0" y="84.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
+  <text x="3530.0" y="105.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">println</text>
+</g>
+<g id="output.toAbsolutePath">
+  <rect x="2920.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
+  <text x="3010.0" y="84.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
+  <text x="3010.0" y="105.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">toAbsolutePath</text>
+</g>
+<g id="Files.createDirectories">
+  <rect x="3700.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
+  <text x="3790.0" y="84.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
+  <text x="3790.0" y="105.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">createDirectories</text>
+</g>
+<g id="Files.isDirectory">
+  <rect x="5520.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
+  <text x="5610.0" y="84.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
+  <text x="5610.0" y="105.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">isDirectory</text>
+</g>
+<g id="new JavaSourceInputParser(sequenceOnly).parse">
+  <rect x="1360.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
+  <text x="1450.0" y="84.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
+  <text x="1450.0" y="105.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">parse</text>
+</g>
+<g id="log.fine">
+  <rect x="4480.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
+  <text x="4570.0" y="84.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
+  <text x="4570.0" y="105.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">fine</text>
+</g>
+<g id="new MultiFileSequenceParser().parse">
+  <rect x="3960.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
+  <text x="4050.0" y="84.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
+  <text x="4050.0" y="105.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">parse</text>
+</g>
+<g id="resolveLayout(layout).layout">
+  <rect x="320.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
+  <text x="410.0" y="84.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
+  <text x="410.0" y="105.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">layout</text>
+</g>
+<g id="KartaCli.resolveLayout">
+  <rect x="6560.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
+  <text x="6650.0" y="84.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
+  <text x="6650.0" y="105.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">resolveLayout</text>
+</g>
+<g id="new SvgRenderer().render">
+  <rect x="3180.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
+  <text x="3270.0" y="84.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
+  <text x="3270.0" y="105.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">render</text>
+</g>
+<g id="outputDir.resolve">
+  <rect x="1880.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
+  <text x="1970.0" y="84.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
+  <text x="1970.0" y="105.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">resolve</text>
+</g>
+<g id="KartaCli.deriveOutputName">
+  <rect x="840.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
+  <text x="930.0" y="84.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
+  <text x="930.0" y="105.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">deriveOutputName</text>
+</g>
+<g id="Files.writeString">
+  <rect x="6300.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
+  <text x="6390.0" y="84.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
+  <text x="6390.0" y="105.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">writeString</text>
+</g>
+<g id="&quot;elk&quot;.equalsIgnoreCase">
+  <rect x="1620.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
+  <text x="1710.0" y="84.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
+  <text x="1710.0" y="105.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">equalsIgnoreCase</text>
+</g>
+<g id="inputPath.getFileName().toString">
+  <rect x="580.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
+  <text x="670.0" y="84.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
+  <text x="670.0" y="105.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">toString</text>
+</g>
+<g id="inputPath.getFileName">
+  <rect x="4740.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
+  <text x="4830.0" y="84.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
+  <text x="4830.0" y="105.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">getFileName</text>
+</g>
+<g id="&quot;module-info.java&quot;.equals">
+  <rect x="60.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
+  <text x="150.0" y="84.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
+  <text x="150.0" y="105.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">equals</text>
+</g>
+<g id="fileName.replace(&quot;.java&quot;, &quot;&quot;).toLowerCase">
+  <rect x="1100.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
+  <text x="1190.0" y="84.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
+  <text x="1190.0" y="105.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">toLowerCase</text>
+</g>
+<g id="fileName.replace">
+  <rect x="5780.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
+  <text x="5870.0" y="84.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
+  <text x="5870.0" y="105.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">replace</text>
+</g>
+<rect x="6824.0" y="560.0" width="220.0" height="100.0" rx="6" fill="#ffffff" stroke="#d1d5db" stroke-width="1"/>
+<text x="6840.0" y="580.0" font-family="sans-serif" font-size="11" font-weight="bold" fill="#374151">Legend</text>
+<line x1="6840.0" y1="604.0" x2="6876.0" y2="604.0" stroke="#92400e" stroke-width="2" marker-end="url(#filledArrow)"/>
+<text x="6884.0" y="608.0" font-family="sans-serif" font-size="11" fill="#374151">calls</text>
+<line x1="6840.0" y1="628.0" x2="6876.0" y2="628.0" stroke="#dc2626" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#exceptionArrow)"/>
+<text x="6884.0" y="632.0" font-family="sans-serif" font-size="11" fill="#374151">exception propagation</text>
+</svg>

@@ -55,6 +55,41 @@ class KartaCliTest {
     }
 
     @Test
+    void multiFileSequenceModeStitchesDirectory(@TempDir Path inputDir, @TempDir Path outputDir) throws Exception {
+        Files.writeString(inputDir.resolve("Alpha.java"), "public class Alpha { void a() {} }");
+        Files.writeString(inputDir.resolve("Beta.java"),  "public class Beta  { void b() {} }");
+
+        Path result = KartaCli.run(inputDir, outputDir, true);
+
+        assertEquals("sequence-diagram.svg", result.getFileName().toString(),
+                "directory + sequence-only must produce sequence-diagram.svg");
+        String svg = Files.readString(result);
+        assertTrue(svg.contains("<svg "),  "output must be SVG");
+        assertTrue(svg.contains("Alpha") || svg.contains("Beta"),
+                "SVG must reference at least one parsed class");
+    }
+
+    @Test
+    void sequenceOnlyFlagProducesValidSvg(@TempDir Path inputDir, @TempDir Path outputDir) throws Exception {
+        Path javaFile = inputDir.resolve("Service.java");
+        Files.writeString(javaFile, """
+                public class Service {
+                    void handle() throws Exception { execute(); }
+                    void execute() {}
+                }
+                """);
+
+        Path result = KartaCli.run(javaFile, outputDir, true);
+
+        assertEquals("service-sequence-diagram.svg", result.getFileName().toString());
+        assertTrue(Files.exists(result));
+        String svg = Files.readString(result);
+        assertTrue(svg.contains("<svg "), "output must be SVG");
+        // sequence-only uses CallSequenceParser — no EXCEPTION nodes should appear
+        assertFalse(svg.contains("exception:"), "sequence-only must not emit exception-type nodes");
+    }
+
+    @Test
     void createsOutputDirectoryIfAbsent(@TempDir Path inputDir, @TempDir Path baseDir) throws Exception {
         Path moduleInfo = inputDir.resolve("module-info.java");
         Files.writeString(moduleInfo, "module com.test {}");
@@ -88,6 +123,20 @@ class KartaCliTest {
         String svg = Files.readString(result);
 
         assertTrue(svg.contains("MyService"), "node label must appear in SVG");
+    }
+
+    @Test
+    void elkLayoutProducesValidSvg(@TempDir Path inputDir, @TempDir Path outputDir) throws Exception {
+        Files.writeString(inputDir.resolve("Dog.java"),    "public class Dog extends Animal {}");
+        Files.writeString(inputDir.resolve("Animal.java"), "public class Animal {}");
+
+        Path result = KartaCli.run(inputDir, outputDir, false, "elk");
+
+        assertEquals("class-diagram.svg", result.getFileName().toString());
+        String svg = Files.readString(result);
+        assertTrue(svg.contains("<svg "), "ELK output must be SVG");
+        assertTrue(svg.contains("Dog") || svg.contains("Animal"),
+                "SVG must reference parsed class labels");
     }
 
     // --- deriveOutputName unit tests ---

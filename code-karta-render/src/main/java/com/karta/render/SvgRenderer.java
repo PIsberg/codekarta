@@ -4,12 +4,18 @@ import com.karta.core.model.Edge;
 import com.karta.core.model.Graph;
 import com.karta.core.model.Group;
 import com.karta.core.model.Node;
-import java.util.Locale;
+import com.karta.core.model.NodeDimensions;
+import se.deversity.vibetags.annotations.AIContext;
 
 import java.util.LinkedHashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+@AIContext(
+    focus = "CSS class names node-rect, edge-line, group-rect, node-label, edge-label are stable contract points — consumers inject custom themes via the cssString parameter.",
+    avoids = "Renaming or removing any CSS class — breaks existing stylesheets."
+)
 public class SvgRenderer {
 
     private static final double MIN_WIDTH   = 960.0;
@@ -140,8 +146,8 @@ public class SvgRenderer {
 
         double x = node.getX();
         double y = node.getY();
-        double w = node.getWidth()  != null ? node.getWidth()  : 180.0;
-        double h = node.getHeight() != null ? node.getHeight() : 70.0;
+        double w = node.getWidth()  != null ? node.getWidth()  : NodeDimensions.DEFAULT_WIDTH;
+        double h = node.getHeight() != null ? node.getHeight() : NodeDimensions.DEFAULT_HEIGHT;
         String type  = node.getType() != null ? node.getType() : "CLASS";
         String label = escapeXml(node.getLabel() != null ? node.getLabel() : node.getId());
 
@@ -186,10 +192,10 @@ public class SvgRenderer {
             return "";
         }
 
-        double sw = source.getWidth()  != null ? source.getWidth()  : 180.0;
-        double sh = source.getHeight() != null ? source.getHeight() : 70.0;
-        double tw = target.getWidth()  != null ? target.getWidth()  : 180.0;
-        double th = target.getHeight() != null ? target.getHeight() : 70.0;
+        double sw = source.getWidth()  != null ? source.getWidth()  : NodeDimensions.DEFAULT_WIDTH;
+        double sh = source.getHeight() != null ? source.getHeight() : NodeDimensions.DEFAULT_HEIGHT;
+        double tw = target.getWidth()  != null ? target.getWidth()  : NodeDimensions.DEFAULT_WIDTH;
+        double th = target.getHeight() != null ? target.getHeight() : NodeDimensions.DEFAULT_HEIGHT;
 
         // Smart attachment: prefer vertical (top/bottom) when nodes are stacked
         double sx, sy, tx, ty;
@@ -259,8 +265,8 @@ public class SvgRenderer {
         for (String memberId : group.getMemberIds()) {
             Node node = graph.findNode(memberId);
             if (node == null || node.getX() == null) continue;
-            double w = node.getWidth()  != null ? node.getWidth()  : 180.0;
-            double h = node.getHeight() != null ? node.getHeight() : 70.0;
+            double w = node.getWidth()  != null ? node.getWidth()  : NodeDimensions.DEFAULT_WIDTH;
+            double h = node.getHeight() != null ? node.getHeight() : NodeDimensions.DEFAULT_HEIGHT;
             minX = Math.min(minX, node.getX());
             minY = Math.min(minY, node.getY());
             maxX = Math.max(maxX, node.getX() + w);
@@ -373,8 +379,8 @@ public class SvgRenderer {
         double maxY = MIN_HEIGHT - PADDING;
         for (Node node : graph.getNodes()) {
             if (node.getX() == null) continue;
-            double w = node.getWidth()  != null ? node.getWidth()  : 180.0;
-            double h = node.getHeight() != null ? node.getHeight() : 70.0;
+            double w = node.getWidth()  != null ? node.getWidth()  : NodeDimensions.DEFAULT_WIDTH;
+            double h = node.getHeight() != null ? node.getHeight() : NodeDimensions.DEFAULT_HEIGHT;
             maxX = Math.max(maxX, node.getX() + w);
             maxY = Math.max(maxY, node.getY() + h);
         }
