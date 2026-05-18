@@ -4,6 +4,7 @@ import com.karta.core.model.Edge;
 import com.karta.core.model.Graph;
 import com.karta.core.model.Group;
 import com.karta.core.model.Node;
+import com.karta.core.model.NodeDimensions;
 import org.eclipse.elk.core.IGraphLayoutEngine;
 import org.eclipse.elk.core.RecursiveGraphLayoutEngine;
 import org.eclipse.elk.core.options.CoreOptions;
@@ -32,8 +33,8 @@ public class ElkLayoutEngine implements LayoutEngine {
 
     private static final Logger log = Logger.getLogger(ElkLayoutEngine.class.getName());
 
-    private static final double NODE_WIDTH  = 180.0;
-    private static final double NODE_HEIGHT = 70.0;
+    private static final double NODE_WIDTH  = NodeDimensions.DEFAULT_WIDTH;
+    private static final double NODE_HEIGHT = NodeDimensions.DEFAULT_HEIGHT;
 
     @Override
     public Graph layout(Graph graph) {
