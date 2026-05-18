@@ -1,7 +1,8 @@
 package com.karta.input;
 
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
-import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
@@ -76,21 +77,22 @@ public class MultiFileSequenceParser {
         ParserConfiguration config = new ParserConfiguration()
                 .setSymbolResolver(new JavaSymbolSolver(typeSolver));
 
-        StaticJavaParser.setConfiguration(config);
-        try {
-            for (Path file : files) {
-                parseFile(file, graph);
-            }
-        } finally {
-            StaticJavaParser.setConfiguration(new ParserConfiguration());
+        JavaParser parser = new JavaParser(config);
+        for (Path file : files) {
+            parseFile(parser, file, graph);
         }
 
         return graph;
     }
 
-    private void parseFile(Path file, Graph graph) {
+    private void parseFile(JavaParser parser, Path file, Graph graph) {
         try {
-            CompilationUnit cu = StaticJavaParser.parse(Files.readString(file));
+            ParseResult<CompilationUnit> result = parser.parse(Files.readString(file));
+            if (!result.isSuccessful() || result.getResult().isEmpty()) {
+                log.warning("Failed to parse " + file);
+                return;
+            }
+            CompilationUnit cu = result.getResult().get();
 
             cu.findAll(ClassOrInterfaceDeclaration.class).forEach(classDecl -> {
                 String className = classDecl.getNameAsString();
