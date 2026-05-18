@@ -1,0 +1,88 @@
+package com.karta.cli;
+
+import com.karta.core.model.Graph;
+import com.karta.input.JavaSourceInputParser;
+import com.karta.layout.SimpleLayoutEngine;
+import com.karta.render.SvgRenderer;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.logging.Logger;
+
+public class KartaCli {
+
+    private static final Logger log = Logger.getLogger(KartaCli.class.getName());
+
+    static final Path DEFAULT_OUTPUT = Path.of("output");
+
+    public static void main(String[] args) {
+        Path inputPath = null;
+        Path outputDir = DEFAULT_OUTPUT;
+
+        for (int i = 0; i < args.length; i++) {
+            switch (args[i]) {
+                case "--input"  -> { if (i + 1 < args.length) inputPath = Path.of(args[++i]); }
+                case "--output" -> { if (i + 1 < args.length) outputDir = Path.of(args[++i]); }
+                case "--help", "-h" -> { printUsage(); System.exit(0); }
+            }
+        }
+
+        if (inputPath == null) {
+            System.err.println("Error: --input is required.");
+            printUsage();
+            System.exit(1);
+        }
+
+        try {
+            Path output = run(inputPath, outputDir);
+            System.out.println("Generated: " + output.toAbsolutePath());
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+            System.exit(2);
+        }
+    }
+
+    /**
+     * Runs the full parse → layout → render pipeline and writes the SVG to outputDir.
+     *
+     * @return the path of the written SVG file
+     */
+    public static Path run(Path inputPath, Path outputDir) throws IOException {
+        Files.createDirectories(outputDir);
+
+        Graph graph = new JavaSourceInputParser().parse(inputPath);
+        new SimpleLayoutEngine().layout(graph);
+        String svg = new SvgRenderer().render(graph);
+
+        Path outputFile = outputDir.resolve(deriveOutputName(inputPath));
+        Files.writeString(outputFile, svg);
+        log.fine("Wrote diagram: " + outputFile);
+        return outputFile;
+    }
+
+    /**
+     * Maps an input path to a deterministic SVG filename.
+     */
+    static String deriveOutputName(Path inputPath) {
+        if (Files.isDirectory(inputPath)) {
+            return "class-diagram.svg";
+        }
+        String fileName = inputPath.getFileName().toString();
+        if ("module-info.java".equals(fileName)) {
+            return "module-diagram.svg";
+        }
+        return fileName.replace(".java", "").toLowerCase() + "-sequence-diagram.svg";
+    }
+
+    private static void printUsage() {
+        System.out.println("Usage: karta --input <path> [--output <dir>]");
+        System.out.println();
+        System.out.println("  --input  <path>   What to parse:");
+        System.out.println("                      module-info.java  → module diagram");
+        System.out.println("                      directory         → class diagram");
+        System.out.println("                      *.java file       → sequence diagram");
+        System.out.println("  --output <dir>    Output directory  (default: ./output)");
+        System.out.println("  --help            Show this message");
+    }
+}

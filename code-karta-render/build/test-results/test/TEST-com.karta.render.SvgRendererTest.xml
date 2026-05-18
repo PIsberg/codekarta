@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.karta.render.SvgRendererTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-05-18T20:27:28.325Z" hostname="DEVERSITY-WORK1" time="0.191">
+  <properties/>
+  <testcase name="outputContainsSvgRootElement()" classname="com.karta.render.SvgRendererTest" time="0.066"/>
+  <testcase name="escapesXmlSpecialCharsInLabel()" classname="com.karta.render.SvgRendererTest" time="0.01"/>
+  <testcase name="skipsNodeWithoutLayoutCoordinates()" classname="com.karta.render.SvgRendererTest" time="0.003"/>
+  <testcase name="skipsEdgeWhenSourceNotLaidOut()" classname="com.karta.render.SvgRendererTest" time="0.011"/>
+  <testcase name="rendersEdgeAsLine()" classname="com.karta.render.SvgRendererTest" time="0.004"/>
+  <testcase name="rendersEdgeLabelWhenPresent()" classname="com.karta.render.SvgRendererTest" time="0.006"/>
+  <testcase name="acceptsCustomCssStyle()" classname="com.karta.render.SvgRendererTest" time="0.006"/>
+  <testcase name="rendersGroupRectForLaidOutMembers()" classname="com.karta.render.SvgRendererTest" time="0.008"/>
+  <testcase name="rendersLaidOutNodeAsRect()" classname="com.karta.render.SvgRendererTest" time="0.004"/>
+  <testcase name="outputStartsWithXmlDeclaration()" classname="com.karta.render.SvgRendererTest" time="0.005"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

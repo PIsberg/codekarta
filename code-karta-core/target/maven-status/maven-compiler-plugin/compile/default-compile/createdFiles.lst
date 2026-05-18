@@ -1,0 +1,6 @@
+com\karta\core\model\Node.class
+com\karta\core\model\NodeType.class
+com\karta\core\model\EdgeType.class
+com\karta\core\model\Graph.class
+com\karta\core\model\Edge.class
+com\karta\core\model\Group.class

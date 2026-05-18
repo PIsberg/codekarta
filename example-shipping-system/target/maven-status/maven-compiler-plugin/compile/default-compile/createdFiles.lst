@@ -1,0 +1,6 @@
+module-info.class
+com\karta\shipping\domain\Cargo.class
+com\karta\shipping\core\InventoryService.class
+com\karta\shipping\domain\ShippingUnit.class
+com\karta\shipping\core\OrderProcessor.class
+com\karta\shipping\domain\ExpressCargo.class

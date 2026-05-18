@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.karta.input.integration.CallSequenceIntegrationTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-05-18T20:27:24.142Z" hostname="DEVERSITY-WORK1" time="0.047">
+  <properties/>
+  <testcase name="submitCallsAreOrderedCorrectly()" classname="com.karta.input.integration.CallSequenceIntegrationTest" time="0.003"/>
+  <testcase name="callEdgesCarrySequenceLabels()" classname="com.karta.input.integration.CallSequenceIntegrationTest" time="0.008"/>
+  <testcase name="orderProcessorClassNodePresent()" classname="com.karta.input.integration.CallSequenceIntegrationTest" time="0.002"/>
+  <testcase name="cancelCallsReleaseStock()" classname="com.karta.input.integration.CallSequenceIntegrationTest" time="0.0"/>
+  <testcase name="submitMethodNodePresent()" classname="com.karta.input.integration.CallSequenceIntegrationTest" time="0.0"/>
+  <testcase name="cancelMethodNodePresent()" classname="com.karta.input.integration.CallSequenceIntegrationTest" time="0.003"/>
+  <testcase name="submitCallsReserveStock()" classname="com.karta.input.integration.CallSequenceIntegrationTest" time="0.002"/>
+  <testcase name="submitCallsCheckStock()" classname="com.karta.input.integration.CallSequenceIntegrationTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
