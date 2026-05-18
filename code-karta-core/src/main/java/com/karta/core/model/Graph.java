@@ -1,10 +1,12 @@
 package com.karta.core.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import se.deversity.vibetags.annotations.AICore;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@AICore(sensitivity = "Critical", note = "Central IR that flows between all three pipeline tiers. Contains only structural data — no business logic, no tier-specific knowledge. Layout coordinates (x/y/width/height) are the only mutable state, written exclusively by Tier 2 engines.")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Graph {
 

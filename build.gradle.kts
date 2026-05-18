@@ -19,6 +19,8 @@ subprojects {
     dependencies {
         "testImplementation"("org.junit.jupiter:junit-jupiter:5.11.0")
         "testRuntimeOnly"("org.junit.platform:junit-platform-launcher")
+        "compileOnly"("se.deversity.vibetags:vibetags-processor:0.8.0")
+        "annotationProcessor"("se.deversity.vibetags:vibetags-processor:0.8.0")
     }
 
     tasks.named<Test>("test") {

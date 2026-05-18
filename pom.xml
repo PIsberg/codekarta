@@ -25,6 +25,7 @@
         <javaparser.version>3.25.10</javaparser.version>
         <junit.version>5.11.0</junit.version>
         <elk.version>0.9.1</elk.version>
+        <vibetags.version>0.8.0</vibetags.version>
     </properties>
 
     <dependencyManagement>
@@ -64,6 +65,12 @@
                 <groupId>org.eclipse.elk</groupId>
                 <artifactId>org.eclipse.elk.alg.layered</artifactId>
                 <version>${elk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>se.deversity.vibetags</groupId>
+                <artifactId>vibetags-processor</artifactId>
+                <version>${vibetags.version}</version>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

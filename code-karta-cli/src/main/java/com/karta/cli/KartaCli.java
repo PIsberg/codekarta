@@ -8,11 +8,16 @@ import com.karta.layout.LayoutEngine;
 import com.karta.layout.SimpleLayoutEngine;
 import com.karta.render.SvgRenderer;
 
+import se.deversity.vibetags.annotations.AIAudit;
+import se.deversity.vibetags.annotations.AIContract;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.logging.Logger;
 
+@AIContract(reason = "run(Path, Path, boolean, String) is a public static method tested directly by KartaCliTest without spawning a process. Its signature and output filename conventions (module-diagram.svg, class-diagram.svg, <name>-sequence-diagram.svg) must remain stable.")
+@AIAudit(checkFor = {"Path traversal", "Unauthorized file write"})
 public class KartaCli {
 
     private static final Logger log = Logger.getLogger(KartaCli.class.getName());
