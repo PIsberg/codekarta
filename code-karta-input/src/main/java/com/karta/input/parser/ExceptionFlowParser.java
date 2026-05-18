@@ -50,7 +50,7 @@ public class ExceptionFlowParser {
 
     private static final Logger log = Logger.getLogger(ExceptionFlowParser.class.getName());
     private static final JavaParser PARSER = new JavaParser(
-            new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_17));
+            new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21));
 
     public Graph parse(Path sourceFile) {
         Graph graph = new Graph();

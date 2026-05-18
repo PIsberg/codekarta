@@ -174,5 +174,11 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <dependency>
+      <groupId>se.deversity.vibetags</groupId>
+      <artifactId>vibetags-processor</artifactId>
+      <version>0.8.0</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 </project>

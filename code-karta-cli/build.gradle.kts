@@ -1,6 +1,6 @@
 plugins {
     application
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.gradleup.shadow") version "8.3.6"
 }
 
 application {
@@ -16,7 +16,7 @@ dependencies {
 
 // Fat JAR via shadow plugin — merges META-INF/services so ELK algorithm SPI is found.
 // ./gradlew :code-karta-cli:fatJar → build/libs/code-karta-cli-1.0-SNAPSHOT-all.jar
-tasks.named<com.github.johnrengelman.shadow.tasks.ShadowJar>("shadowJar") {
+tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
     archiveClassifier.set("all")
     mergeServiceFiles()
     manifest {
@@ -42,7 +42,7 @@ tasks.register("generateDiagrams") {
     onlyIf { !project.hasProperty("skipDiagrams") }
 
     doLast {
-        val jar = tasks.named<com.github.johnrengelman.shadow.tasks.ShadowJar>("shadowJar")
+        val jar = tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar")
             .get().archiveFile.get().asFile
         val root = project.rootDir
         val out  = File(root, "docs/diagrams")
@@ -64,8 +64,13 @@ tasks.register("generateDiagrams") {
             listOf("--input", "$root/code-karta-input/src/main/java/com/karta/input",
                    "--output", "$out", "--sequence-only", "--layout", "elk")
         ).forEach { args ->
-            exec {
-                commandLine(listOf("java", "-jar", jar.absolutePath) + args)
+            val pb = ProcessBuilder(listOf("java", "-jar", jar.absolutePath) + args)
+                .directory(root)
+                .inheritIO()
+            val process = pb.start()
+            val exitCode = process.waitFor()
+            if (exitCode != 0) {
+                throw GradleException("Diagram generation failed with exit code $exitCode for arguments: $args")
             }
         }
     }

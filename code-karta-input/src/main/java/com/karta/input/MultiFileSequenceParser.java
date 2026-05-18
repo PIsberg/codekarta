@@ -76,7 +76,7 @@ public class MultiFileSequenceParser {
                 new ReflectionTypeSolver(false),
                 new JavaParserTypeSolver(sourceRoot));
         ParserConfiguration config = new ParserConfiguration()
-                .setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_17)
+                .setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21)
                 .setSymbolResolver(new JavaSymbolSolver(typeSolver));
 
         JavaParser parser = new JavaParser(config);

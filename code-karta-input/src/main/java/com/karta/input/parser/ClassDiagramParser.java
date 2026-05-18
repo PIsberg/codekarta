@@ -21,7 +21,7 @@ public class ClassDiagramParser {
 
     private static final Logger log = Logger.getLogger(ClassDiagramParser.class.getName());
     private static final JavaParser PARSER = new JavaParser(
-            new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_17));
+            new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21));
 
     private static final Set<String> SKIP_TYPES = Set.of(
             "int", "long", "double", "float", "boolean", "byte", "short", "char",

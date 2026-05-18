@@ -22,7 +22,7 @@
         <skipDiagrams>false</skipDiagrams>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jackson.version>2.17.1</jackson.version>
-        <javaparser.version>3.25.10</javaparser.version>
+        <javaparser.version>3.26.3</javaparser.version>
         <junit.version>5.11.0</junit.version>
         <elk.version>0.9.1</elk.version>
         <vibetags.version>0.8.0</vibetags.version>

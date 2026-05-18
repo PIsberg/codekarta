@@ -19,7 +19,7 @@ public class ModuleInfoParser {
 
     private static final Logger log = Logger.getLogger(ModuleInfoParser.class.getName());
     private static final JavaParser PARSER = new JavaParser(
-            new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_17));
+            new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21));
 
     public Graph parse(Path moduleInfoFile) {
         Graph graph = new Graph();
