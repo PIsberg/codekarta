@@ -41,13 +41,112 @@
     <build>
         <plugins>
             <!-- Run during development via: mvn -pl code-karta-cli exec:java with Dexec.args -->
+            <!-- Diagram generation runs in verify phase: mvn verify -DskipTests              -->
+            <!-- Skip with: -DskipDiagrams=true                                               -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.3.0</version>
                 <configuration>
                     <mainClass>com.karta.cli.KartaCli</mainClass>
+                    <workingDirectory>${project.basedir}/..</workingDirectory>
                 </configuration>
+                <executions>
+                    <!-- 1. Module diagram -->
+                    <execution>
+                        <id>gen-module-diagram</id>
+                        <phase>verify</phase>
+                        <goals><goal>exec</goal></goals>
+                        <configuration>
+                            <skip>${skipDiagrams}</skip>
+                            <executable>java</executable>
+                            <arguments>
+                                <argument>-jar</argument>
+                                <argument>${project.build.directory}/${project.artifactId}-${project.version}-all.jar</argument>
+                                <argument>--input</argument>
+                                <argument>example-shipping-system/src/main/java/module-info.java</argument>
+                                <argument>--output</argument>
+                                <argument>docs/diagrams</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <!-- 2. Class diagram — core IR model -->
+                    <execution>
+                        <id>gen-class-diagram</id>
+                        <phase>verify</phase>
+                        <goals><goal>exec</goal></goals>
+                        <configuration>
+                            <skip>${skipDiagrams}</skip>
+                            <executable>java</executable>
+                            <arguments>
+                                <argument>-jar</argument>
+                                <argument>${project.build.directory}/${project.artifactId}-${project.version}-all.jar</argument>
+                                <argument>--input</argument>
+                                <argument>code-karta-core/src/main/java/com/karta/core/model</argument>
+                                <argument>--output</argument>
+                                <argument>docs/diagrams</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <!-- 3. Exception-flow sequence — CLI entry point -->
+                    <execution>
+                        <id>gen-cli-sequence</id>
+                        <phase>verify</phase>
+                        <goals><goal>exec</goal></goals>
+                        <configuration>
+                            <skip>${skipDiagrams}</skip>
+                            <executable>java</executable>
+                            <arguments>
+                                <argument>-jar</argument>
+                                <argument>${project.build.directory}/${project.artifactId}-${project.version}-all.jar</argument>
+                                <argument>--input</argument>
+                                <argument>code-karta-cli/src/main/java/com/karta/cli/KartaCli.java</argument>
+                                <argument>--output</argument>
+                                <argument>docs/diagrams</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <!-- 4. Call-sequence-only — CallSequenceParser (shows sequence-only) -->
+                    <execution>
+                        <id>gen-call-sequence</id>
+                        <phase>verify</phase>
+                        <goals><goal>exec</goal></goals>
+                        <configuration>
+                            <skip>${skipDiagrams}</skip>
+                            <executable>java</executable>
+                            <arguments>
+                                <argument>-jar</argument>
+                                <argument>${project.build.directory}/${project.artifactId}-${project.version}-all.jar</argument>
+                                <argument>--input</argument>
+                                <argument>code-karta-input/src/main/java/com/karta/input/parser/CallSequenceParser.java</argument>
+                                <argument>--output</argument>
+                                <argument>docs/diagrams</argument>
+                                <argument>--sequence-only</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <!-- 5. Multi-file stitched sequence — input parsers with ELK layout -->
+                    <execution>
+                        <id>gen-multifile-sequence</id>
+                        <phase>verify</phase>
+                        <goals><goal>exec</goal></goals>
+                        <configuration>
+                            <skip>${skipDiagrams}</skip>
+                            <executable>java</executable>
+                            <arguments>
+                                <argument>-jar</argument>
+                                <argument>${project.build.directory}/${project.artifactId}-${project.version}-all.jar</argument>
+                                <argument>--input</argument>
+                                <argument>code-karta-input/src/main/java/com/karta/input</argument>
+                                <argument>--output</argument>
+                                <argument>docs/diagrams</argument>
+                                <argument>--sequence-only</argument>
+                                <argument>--layout</argument>
+                                <argument>elk</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <!-- Fat JAR: mvn package produces target/code-karta-cli-1.0-SNAPSHOT-all.jar -->
             <plugin>
@@ -65,6 +164,7 @@
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>com.karta.cli.KartaCli</mainClass>
                                 </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                             </transformers>
                             <filters>
                                 <filter>

@@ -1,6 +1,7 @@
 package com.karta.input.parser;
 
-import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
@@ -17,12 +18,14 @@ import java.util.logging.Logger;
 public class CallSequenceParser {
 
     private static final Logger log = Logger.getLogger(CallSequenceParser.class.getName());
+    private static final JavaParser PARSER = new JavaParser(
+            new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_17));
 
     public Graph parse(Path sourceFile) {
         Graph graph = new Graph();
         try {
             String source = Files.readString(sourceFile);
-            CompilationUnit cu = StaticJavaParser.parse(source);
+            CompilationUnit cu = PARSER.parse(source).getResult().orElseThrow();
 
             cu.findAll(ClassOrInterfaceDeclaration.class).forEach(classDecl -> {
                 String className = classDecl.getNameAsString();

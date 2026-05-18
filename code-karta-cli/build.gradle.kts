@@ -1,5 +1,6 @@
 plugins {
     application
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 application {
@@ -13,15 +14,59 @@ dependencies {
     implementation(project(":code-karta-render"))
 }
 
-// Fat JAR: ./gradlew :code-karta-cli:fatJar → build/libs/code-karta-cli-1.0-SNAPSHOT-all.jar
-tasks.register<Jar>("fatJar") {
-    group = "build"
-    description = "Assembles a self-contained executable JAR with all dependencies."
-    archiveClassifier = "all"
+// Fat JAR via shadow plugin — merges META-INF/services so ELK algorithm SPI is found.
+// ./gradlew :code-karta-cli:fatJar → build/libs/code-karta-cli-1.0-SNAPSHOT-all.jar
+tasks.named<com.github.johnrengelman.shadow.tasks.ShadowJar>("shadowJar") {
+    archiveClassifier.set("all")
+    mergeServiceFiles()
     manifest {
         attributes["Main-Class"] = "com.karta.cli.KartaCli"
     }
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
-    with(tasks.jar.get())
+}
+
+// Keep the fatJar alias so existing scripts and CI stay unchanged.
+tasks.register("fatJar") {
+    group = "build"
+    description = "Alias for shadowJar — assembles a self-contained executable JAR."
+    dependsOn(tasks.named("shadowJar"))
+}
+
+// generateDiagrams — runs the fat JAR to regenerate docs/diagrams/.
+// ./gradlew :code-karta-cli:generateDiagrams
+// Skip with: -PskipDiagrams
+tasks.register("generateDiagrams") {
+    group = "documentation"
+    description = "Regenerates architecture diagrams in docs/diagrams/ using the fat JAR."
+    dependsOn(tasks.named("shadowJar"))
+
+    onlyIf { !project.hasProperty("skipDiagrams") }
+
+    doLast {
+        val jar = tasks.named<com.github.johnrengelman.shadow.tasks.ShadowJar>("shadowJar")
+            .get().archiveFile.get().asFile
+        val root = project.rootDir
+        val out  = File(root, "docs/diagrams")
+
+        listOf(
+            // 1. Module diagram — example shipping system
+            listOf("--input", "$root/example-shipping-system/src/main/java/module-info.java",
+                   "--output", "$out"),
+            // 2. Class diagram — core IR model
+            listOf("--input", "$root/code-karta-core/src/main/java/com/karta/core/model",
+                   "--output", "$out"),
+            // 3. Exception-flow sequence — CLI entry point
+            listOf("--input", "$root/code-karta-cli/src/main/java/com/karta/cli/KartaCli.java",
+                   "--output", "$out"),
+            // 4. Call-sequence-only — demonstrates --sequence-only flag
+            listOf("--input", "$root/code-karta-input/src/main/java/com/karta/input/parser/CallSequenceParser.java",
+                   "--output", "$out", "--sequence-only"),
+            // 5. Multi-file stitched sequence — input parsers with ELK layout
+            listOf("--input", "$root/code-karta-input/src/main/java/com/karta/input",
+                   "--output", "$out", "--sequence-only", "--layout", "elk")
+        ).forEach { args ->
+            exec {
+                commandLine(listOf("java", "-jar", jar.absolutePath) + args)
+            }
+        }
+    }
 }

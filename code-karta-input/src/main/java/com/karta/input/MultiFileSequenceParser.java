@@ -75,6 +75,7 @@ public class MultiFileSequenceParser {
                 new JavaParserTypeSolver(sourceRoot)
         );
         ParserConfiguration config = new ParserConfiguration()
+                .setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_17)
                 .setSymbolResolver(new JavaSymbolSolver(typeSolver));
 
         JavaParser parser = new JavaParser(config);
@@ -89,7 +90,7 @@ public class MultiFileSequenceParser {
         try {
             ParseResult<CompilationUnit> result = parser.parse(Files.readString(file));
             if (!result.isSuccessful() || result.getResult().isEmpty()) {
-                log.warning("Failed to parse " + file);
+                log.warning("Failed to parse " + file + ", problems: " + result.getProblems());
                 return;
             }
             CompilationUnit cu = result.getResult().get();

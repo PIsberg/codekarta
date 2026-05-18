@@ -1,6 +1,7 @@
 package com.karta.input.parser;
 
-import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
@@ -46,11 +47,13 @@ import java.util.logging.Logger;
 public class ExceptionFlowParser {
 
     private static final Logger log = Logger.getLogger(ExceptionFlowParser.class.getName());
+    private static final JavaParser PARSER = new JavaParser(
+            new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_17));
 
     public Graph parse(Path sourceFile) {
         Graph graph = new Graph();
         try {
-            CompilationUnit cu = StaticJavaParser.parse(Files.readString(sourceFile));
+            CompilationUnit cu = PARSER.parse(Files.readString(sourceFile)).getResult().orElseThrow();
 
             cu.findAll(ClassOrInterfaceDeclaration.class).forEach(classDecl -> {
                 String className = classDecl.getNameAsString();
