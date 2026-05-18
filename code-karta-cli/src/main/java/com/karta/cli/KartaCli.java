@@ -143,6 +143,9 @@ public class KartaCli {
         System.out.println("                         When combined with a directory input, parses");
         System.out.println("                         all .java files together using cross-file");
         System.out.println("                         symbol resolution to stitch call graphs.");
+        System.out.println("                         Tip: point --input at the source package root");
+        System.out.println("                         (e.g. src/main/java) so the symbol solver can");
+        System.out.println("                         resolve cross-package references correctly.");
         System.out.println("  --layout <engine>    Layout algorithm:  simple (default) or elk.");
         System.out.println("                         elk uses the Eclipse Layout Kernel layered");
         System.out.println("                         algorithm for edge-crossing minimisation and");
