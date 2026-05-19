@@ -29,6 +29,8 @@ import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import se.deversity.vibetags.annotations.AIArchitecture;
+import se.deversity.vibetags.annotations.AIContext;
 
 /**
  * Parses multiple Java source files and stitches their call graphs into a
@@ -47,6 +49,11 @@ import java.util.stream.Stream;
  * {@link JavaSourceInputParser} on individual files when full exception flow is
  * needed per-file.
  */
+@AIContext(
+    focus = "Cross-file call resolution via JavaSymbolSolver: resolved callees get 'ClassName.methodName' ids so nodes from different source files are automatically linked. Unresolvable calls fall back to scope-based naming without crashing.",
+    avoids = "Adding exception-flow parsing here — catch-boundary groups and EXCEPTION_PROPAGATION edges belong to ExceptionFlowParser on individual files, not to the multi-file stitching pass."
+)
+@AIArchitecture(belongsTo = "input", cannotReference = {"layout", "render", "cli"})
 public class MultiFileSequenceParser {
 
     private static final Logger log = Logger.getLogger(MultiFileSequenceParser.class.getName());

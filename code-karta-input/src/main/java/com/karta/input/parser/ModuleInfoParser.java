@@ -14,7 +14,14 @@ import com.karta.core.model.Node;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.logging.Logger;
+import se.deversity.vibetags.annotations.AIArchitecture;
+import se.deversity.vibetags.annotations.AIContext;
 
+@AIContext(
+    focus = "Parses module-info.java directives only: 'requires' → REQUIRES edge between MODULE nodes; 'exports' → EXPORTS edge to a PACKAGE node. The module name itself becomes the root MODULE node.",
+    avoids = "Parsing class files or anything outside the module declaration — this parser is scoped to module-info.java exclusively."
+)
+@AIArchitecture(belongsTo = "input", cannotReference = {"layout", "render", "cli"})
 public class ModuleInfoParser {
 
     private static final Logger log = Logger.getLogger(ModuleInfoParser.class.getName());

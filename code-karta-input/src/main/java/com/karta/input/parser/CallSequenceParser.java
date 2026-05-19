@@ -10,6 +10,7 @@ import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.karta.core.model.Edge;
 import com.karta.core.model.Graph;
 import com.karta.core.model.Node;
+import se.deversity.vibetags.annotations.AIArchitecture;
 import se.deversity.vibetags.annotations.AIContext;
 
 import java.nio.file.Files;
@@ -20,6 +21,7 @@ import java.util.logging.Logger;
     focus = "Produces integer-labelled CALLS edges in textual call order within each method. Node IDs use 'ClassName.methodName' qualified form. These integer labels are the contract read by SequenceDiagramRenderer to order messages.",
     avoids = "Changing the CALLS edge label format — SequenceDiagramRenderer.isInteractionGraph() and orderMessages() depend on labels parsing as integers."
 )
+@AIArchitecture(belongsTo = "input", cannotReference = {"layout", "render", "cli"})
 public class CallSequenceParser {
 
     private static final Logger log = Logger.getLogger(CallSequenceParser.class.getName());

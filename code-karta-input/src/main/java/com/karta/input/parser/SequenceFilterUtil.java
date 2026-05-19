@@ -1,7 +1,12 @@
 package com.karta.input.parser;
 
 import java.util.Set;
+import se.deversity.vibetags.annotations.AIContext;
 
+@AIContext(
+    focus = "SKIP_METHODS is a scoped-call filter only — it applies to receiver.method() calls. Unscoped calls (direct local method invocations) are never filtered because they represent intra-class domain logic. shouldSkipScopedCall() is the single decision point used by all parsers.",
+    avoids = "Adding method names that could be legitimate domain operations (e.g. 'process', 'execute', 'run') — only add names that are unambiguously stdlib/infrastructure noise regardless of context."
+)
 final class SequenceFilterUtil {
 
     // Method names that produce noise in sequence diagrams: stdlib operations,

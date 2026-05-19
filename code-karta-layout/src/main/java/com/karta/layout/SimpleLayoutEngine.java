@@ -4,6 +4,7 @@ import com.karta.core.model.Edge;
 import com.karta.core.model.Graph;
 import com.karta.core.model.Node;
 import com.karta.core.model.NodeDimensions;
+import se.deversity.vibetags.annotations.AIArchitecture;
 import se.deversity.vibetags.annotations.AIContext;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import java.util.TreeMap;
     focus = "BFS from root nodes (no incoming edges) assigns depth levels → rows; siblings within a row become columns. Isolated nodes fall back to level 0. Cyclic graphs seed BFS from the first node.",
     avoids = "Changing NodeDimensions.DEFAULT_WIDTH/HEIGHT — those constants are @AILocked and consumed by both layout engines and SvgRenderer."
 )
+@AIArchitecture(belongsTo = "layout", cannotReference = {"input", "render", "cli"})
 /**
  * Pure-Java BFS hierarchical layout.
  *

@@ -4,6 +4,7 @@ import com.karta.core.model.Edge;
 import com.karta.core.model.Graph;
 import com.karta.core.model.Group;
 import com.karta.core.model.Node;
+import se.deversity.vibetags.annotations.AIArchitecture;
 import se.deversity.vibetags.annotations.AIContext;
 
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import java.util.Set;
     focus = "Participants are derived from METHOD node-id prefixes (before last dot). Messages are DFS-ordered by integer CALLS label from entry methods (no incoming CALLS). EXCEPTION nodes (id prefix 'exception:') are pinned last. Groups become UML region frames spanning the Y-range of their member messages.",
     avoids = "Reading Node.x/y from the Graph — this renderer ignores BFS coordinates entirely and computes its own lane geometry from LANE_W and participant index."
 )
+@AIArchitecture(belongsTo = "render", cannotReference = {"input", "layout", "cli"})
 class SequenceDiagramRenderer {
 
     private static final double LANE_W          = 220.0;
