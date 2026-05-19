@@ -93,8 +93,9 @@ public class ExceptionFlowParser {
                         @Override
                         public void visit(MethodCallExpr call, Void arg) {
                             String name = call.getNameAsString();
-                            boolean scoped = call.getScope().isPresent();
-                            if (!scoped || !SequenceFilterUtil.SKIP_METHODS.contains(name)) {
+                            boolean skip = call.getScope().isPresent()
+                                    && SequenceFilterUtil.shouldSkipScopedCall(name);
+                            if (!skip) {
                                 String callee = call.getScope()
                                         .map(s -> s.toString() + "." + name)
                                         .orElse(localMethodNames.contains(name) ? className + "." + name : name);
@@ -127,8 +128,9 @@ public class ExceptionFlowParser {
 
                         tryStmt.getTryBlock().findAll(MethodCallExpr.class).forEach(call -> {
                             String cname = call.getNameAsString();
-                            boolean callScoped = call.getScope().isPresent();
-                            if (callScoped && SequenceFilterUtil.SKIP_METHODS.contains(cname)) return;
+                            boolean callSkip = call.getScope().isPresent()
+                                    && SequenceFilterUtil.shouldSkipScopedCall(cname);
+                            if (callSkip) return;
                             String callee = call.getScope()
                                     .map(s -> s.toString() + "." + cname)
                                     .orElse(localMethodNames.contains(cname) ? className + "." + cname : cname);

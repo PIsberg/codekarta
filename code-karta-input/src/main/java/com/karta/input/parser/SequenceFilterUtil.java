@@ -50,8 +50,20 @@ final class SequenceFilterUtil {
             "abs", "ceil", "floor", "round", "pow", "sqrt", "min", "max",
             // Comparator / functional
             "compare", "comparing", "thenComparing", "reversed",
-            "naturalOrder", "reverseOrder"
+            "naturalOrder", "reverseOrder",
+            // Throwable / Exception — catch-block noise (e.getMessage(), t.getCause(), …)
+            "getMessage", "getLocalizedMessage", "getCause", "getStackTrace",
+            "printStackTrace", "fillInStackTrace", "getSuppressed", "addSuppressed",
+            // Getter/setter noise for infrastructure objects
+            "getLogger", "getName", "getSimpleName", "getCanonicalName"
     );
+
+    /**
+     * Returns true when a scoped call should be excluded from sequence diagrams.
+     */
+    static boolean shouldSkipScopedCall(String methodName) {
+        return SKIP_METHODS.contains(methodName);
+    }
 
     private SequenceFilterUtil() {}
 }

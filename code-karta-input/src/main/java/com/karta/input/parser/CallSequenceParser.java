@@ -44,8 +44,9 @@ public class CallSequenceParser {
                     method.accept(new VoidVisitorAdapter<Void>() {
                         @Override
                         public void visit(MethodCallExpr call, Void arg) {
-                            boolean scoped = call.getScope().isPresent();
-                            if (!scoped || !SequenceFilterUtil.SKIP_METHODS.contains(call.getNameAsString())) {
+                            boolean skip = call.getScope().isPresent()
+                                    && SequenceFilterUtil.shouldSkipScopedCall(call.getNameAsString());
+                            if (!skip) {
                                 String callee = call.getScope()
                                         .map(s -> s.toString() + "." + call.getNameAsString())
                                         .orElse(call.getNameAsString());
