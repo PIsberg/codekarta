@@ -128,7 +128,7 @@ Converts a spatially-annotated `Graph` into an SVG document string.
 
 ### Class diagram (`docs/diagrams/class-diagram.svg`)
 
-![Class diagram of code-karta's own core model](diagrams/class-diagram.svg)
+![Class diagram of code-karta's input tier](diagrams/class-diagram.svg)
 
 ### Sequence diagram (`docs/diagrams/kartacli-sequence-diagram.svg`)
 
