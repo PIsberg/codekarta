@@ -15,4 +15,5 @@ code-karta-cli/target
 code-karta-cli/build
 .idea/
 .vibetags-cache
+.vibetags-mod-*
 vibetags.log
