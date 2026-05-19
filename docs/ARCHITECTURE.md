@@ -25,7 +25,8 @@ code-karta is a compiler-style, 3-tier pipeline. Each tier is a separate Maven/G
           ▼
 ┌─────────────────────┐
 │  code-karta-render  │  Tier 3 — Vector Output
-│  SvgRenderer        │  nodes → <rect>+<text>, edges → <line>, groups → dashed <rect>
+│  SvgRenderer        │  class/module → UML boxes, bezier edges, per-color markers
+│  SequenceDiagramRenderer (auto-dispatched for interaction graphs)
 └─────────┬───────────┘
           │  SVG string
           ▼
@@ -69,11 +70,12 @@ Parses Java sources into the Core IR using [JavaParser](https://javaparser.org/)
 | `ModuleInfoParser` | `module-info.java` | `MODULE`, `PACKAGE` | `REQUIRES`, `EXPORTS` |
 | `ClassDiagramParser` | directory of `.java` files | `CLASS`, `INTERFACE` | `EXTENDS`, `IMPLEMENTS`, `HAS` |
 | `CallSequenceParser` | single `.java` file | `CLASS`, `METHOD` | `CALLS` (integer sequence label) |
+| `ExceptionFlowParser` | single `.java` file | `CLASS`, `METHOD`, `EXCEPTION` | `CALLS`, `EXCEPTION_PROPAGATION` + try/catch `Group`s |
 | `JavaSourceInputParser` | any path | delegates based on path type | — |
 
 **Fault-tolerance guarantee:** every parser wraps all JavaParser calls in `try/catch`. Malformed or unparseable files log a warning and return a partial graph — the pipeline never crashes.
 
-`ClassDiagramParser` filters out standard-library field types (`String`, `List`, primitives, etc.) to keep the graph focused on domain classes.
+`ClassDiagramParser` filters out standard-library field types (`String`, `List`, primitives, etc.) and strips generic parameters before matching (`List<Node>` → `List`) to keep the graph focused on domain classes. It also populates `Node.properties` with truncated field/method summaries for UML compartment rendering.
 
 ---
 
@@ -85,6 +87,7 @@ Reads the flat IR graph and assigns absolute coordinates to every node.
 |---|---|
 | `LayoutEngine` | Interface: `Graph layout(Graph graph)` — returns the same instance |
 | `SimpleLayoutEngine` | BFS from root nodes (no incoming edges) → assigns depth levels. Each depth = one row; siblings within a row = columns. Node size: 150 × 50 px; H gap: 50 px; V gap: 80 px. |
+| `ElkLayoutEngine` | Eclipse Layout Kernel layered (Sugiyama) algorithm — layer assignment, crossing minimisation, node placement, edge routing. Falls back to `SimpleLayoutEngine` on error. |
 
 The layout engine mutates `Node` objects in-place. Isolated nodes fall back to level 0. Cyclic graphs seed BFS from the first node.
 
@@ -96,15 +99,44 @@ The layout engine mutates `Node` objects in-place. Isolated nodes fall back to l
 
 Converts a spatially-annotated `Graph` into an SVG document string.
 
-Rendering rules:
+`SvgRenderer` is the entry point. It automatically detects interaction graphs (METHOD nodes + integer-labelled CALLS edges) and delegates to `SequenceDiagramRenderer`.
+
+| Class | Handles |
+|---|---|
+| `SvgRenderer` | Class diagrams, module diagrams — UML boxes, curved edges, per-color markers, compartments |
+| `SequenceDiagramRenderer` | Sequence/exception-flow diagrams — lifelines, message arrows, activation bars, try/catch frames |
+
+**Generic path rendering rules (`SvgRenderer`):**
 - Nodes with `null` coordinates are silently skipped (handles partial graphs safely).
-- Nodes → `<rect class="node-rect" rx="4">` + `<text class="node-label">`.
-- Edges → `<line class="edge-line">` + optional `<text class="edge-label">` at the midpoint.
-- Groups → `<rect class="group-rect" stroke-dasharray="5,5">` bounding-box from member positions.
-- Arrow markers defined once in `<defs>`.
+- Nodes → `<rect class="node-rect">` + `<text class="node-label">` + `<title>` tooltip.
+- CLASS/INTERFACE nodes with `properties["fields"]` / `properties["methods"]` get UML 3-compartment boxes with divider lines and auto-height.
+- Edges → quadratic-bezier `<path class="edge-line">` with perpendicular bow; per-color arrowhead markers generated dynamically in `<defs>`.
+- Groups → `<rect class="group-rect">` bounding-box with subtle fill.
 - All user-visible strings are XML-escaped.
 
+**Sequence path rendering rules (`SequenceDiagramRenderer`):**
+- Participant lanes derived from METHOD node-id prefixes; EXCEPTION nodes pinned last.
+- Messages DFS-ordered by integer CALLS label from entry methods.
+- Dashed `stroke-dasharray="6,4"` lifelines, activation bars, and self-call loops.
+- EXCEPTION_PROPAGATION arrows in dashed red; try/catch `Group`s become UML region frames.
+
 **Style injection:** `SvgRenderer.render(graph, cssString)` replaces the embedded stylesheet. All visual elements use stable CSS class names so diagrams can be themed without modifying Java code.
+
+---
+
+## Example Output
+
+### Class diagram (`docs/diagrams/class-diagram.svg`)
+
+![Class diagram of code-karta's own core model](diagrams/class-diagram.svg)
+
+### Sequence diagram (`docs/diagrams/kartacli-sequence-diagram.svg`)
+
+![Sequence diagram of KartaCli](diagrams/kartacli-sequence-diagram.svg)
+
+### Module diagram (`docs/diagrams/module-diagram.svg`)
+
+![Module diagram](diagrams/module-diagram.svg)
 
 ---
 

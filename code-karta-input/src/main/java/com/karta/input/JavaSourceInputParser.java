@@ -5,6 +5,7 @@ import com.karta.input.parser.CallSequenceParser;
 import com.karta.input.parser.ExceptionFlowParser;
 import com.karta.input.parser.ClassDiagramParser;
 import com.karta.input.parser.ModuleInfoParser;
+import se.deversity.vibetags.annotations.AIContext;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,6 +18,10 @@ import java.util.logging.Logger;
  *  - any .java file (default)  → ExceptionFlowParser (call graph + exception flow)
  *  - any .java file (sequenceOnly=true) → CallSequenceParser (call graph only)
  */
+@AIContext(
+    focus = "Dispatch logic is path-type-based (isDirectory, filename == 'module-info.java', .java extension). All parsers are lazily initialised. The sequenceOnly flag selects between CallSequenceParser (no exception edges) and ExceptionFlowParser (call graph + try/catch Groups).",
+    avoids = "Adding new dispatch conditions without updating the InputParser contract javadoc and KartaCliTest expected output filenames."
+)
 public class JavaSourceInputParser implements InputParser {
 
     private static final Logger log = Logger.getLogger(JavaSourceInputParser.class.getName());

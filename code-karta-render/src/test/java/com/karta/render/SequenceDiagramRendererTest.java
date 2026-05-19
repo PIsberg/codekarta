@@ -5,11 +5,13 @@ import com.karta.core.model.Graph;
 import com.karta.core.model.Group;
 import com.karta.core.model.Node;
 import org.junit.jupiter.api.Test;
+import se.deversity.vibetags.annotations.AIParallelTests;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@AIParallelTests
 class SequenceDiagramRendererTest {
 
     private final SvgRenderer renderer = new SvgRenderer();

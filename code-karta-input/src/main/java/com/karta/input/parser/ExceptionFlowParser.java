@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.logging.Logger;
+import se.deversity.vibetags.annotations.AIContext;
 
 /**
  * Parses a Java source file for call sequences AND exception flow:
@@ -46,6 +47,10 @@ import java.util.logging.Logger;
  * or to a synthetic exception-type node when no caller is found.</li>
  * </ol>
  */
+@AIContext(
+    focus = "Two-pass per class: (1) build call graph + collect TryStmt catch-boundaries → Group objects; (2) walk throws declarations → emit EXCEPTION_PROPAGATION edges. Exception nodes use 'exception:TypeName' id prefix for renderer detection.",
+    avoids = "Merging both passes into one — Pass 2 needs the complete caller map from Pass 1 to resolve propagation targets correctly."
+)
 public class ExceptionFlowParser {
 
     private static final Logger log = Logger.getLogger(ExceptionFlowParser.class.getName());

@@ -1,7 +1,11 @@
 package com.karta.core.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import se.deversity.vibetags.annotations.AICore;
+import se.deversity.vibetags.annotations.AISchemaSafe;
 
+@AICore(sensitivity = "High", note = "IR directed edge. id/sourceId/targetId/type are required; label is optional (sequence number for CALLS, field name for HAS).")
+@AISchemaSafe
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Edge {
 

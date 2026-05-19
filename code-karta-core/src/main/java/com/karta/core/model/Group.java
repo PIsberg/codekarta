@@ -1,12 +1,16 @@
 package com.karta.core.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import se.deversity.vibetags.annotations.AICore;
+import se.deversity.vibetags.annotations.AISchemaSafe;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@AICore(sensitivity = "Medium", note = "IR cluster — maps a label (package, module boundary, try/catch region) to a set of node IDs. Used by the render tier to draw bounding frames.")
+@AISchemaSafe
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Group {
 

@@ -6,6 +6,7 @@ import com.karta.core.model.Group;
 import com.karta.core.model.Node;
 import com.karta.core.model.NodeDimensions;
 import se.deversity.vibetags.annotations.AIContext;
+import se.deversity.vibetags.annotations.AIPublicAPI;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -14,9 +15,10 @@ import java.util.Map;
 import java.util.Set;
 
 @AIContext(
-    focus = "CSS class names node-rect, edge-line, group-rect, node-label, edge-label are stable contract points — consumers inject custom themes via the cssString param.",
-    avoids = "Renaming or removing any CSS class — breaks existing stylesheets."
+    focus = "CSS class names node-rect, edge-line, group-rect, node-label, edge-label are stable contract points — consumers inject custom themes via the cssString param. Interaction graphs (METHOD nodes + integer CALLS labels) are automatically routed to SequenceDiagramRenderer.",
+    avoids = "Renaming or removing any CSS class — breaks existing stylesheets. Hardcoding a diagram-type field on Graph — detection must remain content-based."
 )
+@AIPublicAPI
 public class SvgRenderer {
 
     private static final double MIN_WIDTH    = 960.0;

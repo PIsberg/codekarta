@@ -8,9 +8,12 @@ import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import se.deversity.vibetags.annotations.AIParallelTests;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static com.karta.input.parser.ClassDiagramParser.rawType;
 
+@AIParallelTests
 class ClassDiagramParserTest {
 
     private final ClassDiagramParser parser = new ClassDiagramParser();
