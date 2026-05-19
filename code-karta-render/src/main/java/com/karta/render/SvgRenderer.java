@@ -5,6 +5,7 @@ import com.karta.core.model.Graph;
 import com.karta.core.model.Group;
 import com.karta.core.model.Node;
 import com.karta.core.model.NodeDimensions;
+import se.deversity.vibetags.annotations.AIArchitecture;
 import se.deversity.vibetags.annotations.AIContext;
 import se.deversity.vibetags.annotations.AIPublicAPI;
 
@@ -19,6 +20,7 @@ import java.util.Set;
     avoids = "Renaming or removing any CSS class — breaks existing stylesheets. Hardcoding a diagram-type field on Graph — detection must remain content-based."
 )
 @AIPublicAPI
+@AIArchitecture(belongsTo = "render", cannotReference = {"input", "layout", "cli"})
 public class SvgRenderer {
 
     private static final double MIN_WIDTH    = 960.0;

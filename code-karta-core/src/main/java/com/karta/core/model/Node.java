@@ -3,12 +3,14 @@ package com.karta.core.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import se.deversity.vibetags.annotations.AICore;
 import se.deversity.vibetags.annotations.AISchemaSafe;
+import se.deversity.vibetags.annotations.AIStrictTypes;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @AICore(sensitivity = "High", note = "IR vertex. Fields id/type/label/properties are the stable serialised schema; x/y/width/height are layout-only and may be null before Tier 2 runs.")
 @AISchemaSafe
+@AIStrictTypes
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Node {
 
