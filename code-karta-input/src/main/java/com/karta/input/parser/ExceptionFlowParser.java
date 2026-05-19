@@ -5,6 +5,7 @@ import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.stmt.TryStmt;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -27,6 +28,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.logging.Logger;
+import se.deversity.vibetags.annotations.AIArchitecture;
+import se.deversity.vibetags.annotations.AIContext;
 
 /**
  * Parses a Java source file for call sequences AND exception flow:
@@ -46,6 +49,11 @@ import java.util.logging.Logger;
  * or to a synthetic exception-type node when no caller is found.</li>
  * </ol>
  */
+@AIContext(
+    focus = "Two-pass per class: (1) build call graph + collect TryStmt catch-boundaries → Group objects; (2) walk throws declarations → emit EXCEPTION_PROPAGATION edges. Exception nodes use 'exception:TypeName' id prefix for renderer detection.",
+    avoids = "Merging both passes into one — Pass 2 needs the complete caller map from Pass 1 to resolve propagation targets correctly."
+)
+@AIArchitecture(belongsTo = "input", cannotReference = {"layout", "render", "cli"})
 public class ExceptionFlowParser {
 
     private static final Logger log = Logger.getLogger(ExceptionFlowParser.class.getName());
@@ -66,11 +74,17 @@ public class ExceptionFlowParser {
                 // methodId → declared exception simple names
                 Map<String, Set<String>> methodThrows = new LinkedHashMap<>();
 
-                // Pre-pass: collect local method names so unscoped calls resolve to qualified
-                // ids
+                // Pre-pass: collect local method names + return types for scope resolution
                 Set<String> localMethodNames = classDecl.findAll(MethodDeclaration.class).stream()
                         .map(MethodDeclaration::getNameAsString)
                         .collect(Collectors.toSet());
+
+                Map<String, String> returnTypes = new HashMap<>();
+                classDecl.findAll(MethodDeclaration.class).forEach(m -> {
+                    String rt = m.getType().asString();
+                    int lt = rt.indexOf('<');
+                    returnTypes.put(m.getNameAsString(), lt > 0 ? rt.substring(0, lt).trim() : rt.trim());
+                });
 
                 // ── Pass 1 ────────────────────────────────────────────────
                 classDecl.findAll(MethodDeclaration.class).forEach(method -> {
@@ -88,18 +102,28 @@ public class ExceptionFlowParser {
                         @Override
                         public void visit(MethodCallExpr call, Void arg) {
                             String name = call.getNameAsString();
-                            String callee = call.getScope()
-                                    .map(s -> s.toString() + "." + name)
-                                    .orElse(localMethodNames.contains(name) ? className + "." + name : name);
-
+                            String callee;
+                            if (call.getScope().isPresent()) {
+                                if (SequenceFilterUtil.shouldSkipScopedCall(name)) {
+                                    super.visit(call, arg);
+                                    return;
+                                }
+                                String scopeName = CallSequenceParser.resolveScope(
+                                        call.getScope().get(), returnTypes, className);
+                                if (scopeName == null) {
+                                    super.visit(call, arg);
+                                    return;
+                                }
+                                callee = scopeName + "." + name;
+                            } else {
+                                callee = localMethodNames.contains(name) ? className + "." + name : name;
+                            }
                             graph.addNodeIfAbsent(new Node(callee, NodeType.METHOD, call.getNameAsString()));
-
                             int n = ++seq[0];
                             Edge edge = new Edge(methodId + "-calls-" + callee + "-" + n,
                                     methodId, callee, EdgeType.CALLS);
                             edge.setLabel(String.valueOf(n));
                             graph.addEdge(edge);
-
                             callersOf.computeIfAbsent(callee, k -> new ArrayList<>()).add(methodId);
                             super.visit(call, arg);
                         }
@@ -119,9 +143,16 @@ public class ExceptionFlowParser {
 
                         tryStmt.getTryBlock().findAll(MethodCallExpr.class).forEach(call -> {
                             String cname = call.getNameAsString();
-                            String callee = call.getScope()
-                                    .map(s -> s.toString() + "." + cname)
-                                    .orElse(localMethodNames.contains(cname) ? className + "." + cname : cname);
+                            String callee;
+                            if (call.getScope().isPresent()) {
+                                if (SequenceFilterUtil.shouldSkipScopedCall(cname)) return;
+                                String sn = CallSequenceParser.resolveScope(
+                                        call.getScope().get(), returnTypes, className);
+                                if (sn == null) return;
+                                callee = sn + "." + cname;
+                            } else {
+                                callee = localMethodNames.contains(cname) ? className + "." + cname : cname;
+                            }
                             graph.addNodeIfAbsent(new Node(callee, NodeType.METHOD, cname));
                             group.addMember(callee);
                         });

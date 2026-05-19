@@ -98,6 +98,16 @@ Four model classes: `Node`, `Edge`, `Group`, `Graph`. Jackson `@JsonInclude(NON_
   </contract_signatures>
 
 <rule>You may refactor the internal logic of elements listed in <contract_signatures>, but you MUST NOT change their public signatures: method names, parameter types, parameter order, return types, or checked exceptions.</rule>
+  <test_driven_requirements>
+    <element path="com.karta.cli.KartaCli">
+      <coverage_goal>90</coverage_goal>
+      <frameworks>JUNIT_5</frameworks>
+      <test_location>code-karta-cli/src/test/java/com/karta/cli/KartaCliTest.java</test_location>
+      <mock_policy>Do not mock parsers or layout engines — KartaCliTest calls run() directly against the example-shipping-system fixture for end-to-end coverage</mock_policy>
+    </element>
+  </test_driven_requirements>
+
+<rule>For any element listed in <test_driven_requirements>, you MUST provide both the implementation change AND the corresponding test code update in a single response. Changes without tests are incomplete and must not be proposed.</rule>
 </project_guardrails>
 
 <rule>Never propose edits to files listed in <locked_files>.</rule>

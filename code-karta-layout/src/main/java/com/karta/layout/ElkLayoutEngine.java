@@ -13,7 +13,10 @@ import org.eclipse.elk.core.util.BasicProgressMonitor;
 import org.eclipse.elk.graph.ElkNode;
 import org.eclipse.elk.graph.util.ElkGraphUtil;
 
+import se.deversity.vibetags.annotations.AIArchitecture;
 import se.deversity.vibetags.annotations.AIContext;
+import se.deversity.vibetags.annotations.AIPerformance;
+import se.deversity.vibetags.annotations.AIStrictClasspath;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,6 +35,8 @@ import java.util.logging.Logger;
  * {@link SimpleLayoutEngine} so the pipeline never produces an empty diagram.
  */
 @AIContext(focus = "Group members must be laid out as children of compound ElkNodes; absolute coordinates are compound.x + child.x. ELK's SPI entries must be merged in the fat JAR.", avoids = "Adding ELK options that are unsupported by the layered algorithm — any unknown property silently breaks layout and triggers the SimpleLayoutEngine fallback.")
+@AIArchitecture(belongsTo = "layout", cannotReference = {"input", "render", "cli"})
+@AIStrictClasspath
 public class ElkLayoutEngine implements LayoutEngine {
 
     private static final Logger log = Logger.getLogger(ElkLayoutEngine.class.getName());
@@ -40,6 +45,7 @@ public class ElkLayoutEngine implements LayoutEngine {
     private static final double NODE_HEIGHT = NodeDimensions.DEFAULT_HEIGHT;
 
     @Override
+    @AIPerformance(constraint = "Layout runs synchronously in the CLI pipeline — avoid O(n²) or heap-allocating operations on the full node list. ELK's layered algorithm is already O(n log n); the fallback SimpleLayoutEngine is O(n).")
     public Graph layout(Graph graph) {
         if (graph.getNodes().isEmpty()) return graph;
         try {

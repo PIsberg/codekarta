@@ -5,9 +5,13 @@ import com.karta.core.model.Graph;
 import com.karta.core.model.Group;
 import com.karta.core.model.Node;
 import org.junit.jupiter.api.Test;
+import se.deversity.vibetags.annotations.AIParallelTests;
+
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@AIParallelTests
 class SvgRendererTest {
 
     private final SvgRenderer renderer = new SvgRenderer();
@@ -36,8 +40,21 @@ class SvgRendererTest {
 
         String svg = renderer.render(graph);
 
-        assertTrue(svg.contains("<rect"), "node must produce a <rect> element");
+        assertTrue(svg.contains("class=\"node-rect\""), "node rect must carry the contract CSS class");
         assertTrue(svg.contains("MyClass"), "node label must appear in output");
+    }
+
+    @Test
+    void rendersNodeTooltip() {
+        Graph graph = new Graph();
+        Node node = new Node("A", "CLASS", "MyClass");
+        node.setX(20.0); node.setY(20.0); node.setWidth(150.0); node.setHeight(50.0);
+        graph.addNode(node);
+
+        String svg = renderer.render(graph);
+
+        assertTrue(svg.contains("<title>"), "<title> tooltip must be present");
+        assertTrue(svg.contains("MyClass"), "tooltip must contain the node label");
     }
 
     @Test
@@ -51,17 +68,17 @@ class SvgRendererTest {
     }
 
     @Test
-    void rendersEdgeAsLine() {
+    void rendersEdgePath() {
         Graph graph = new Graph();
         Node src = laid("src", "Source", 20, 20);
-        Node tgt = laid("tgt", "Target", 20, 150);
+        Node tgt = laid("tgt", "Target", 20, 200);
         graph.addNode(src);
         graph.addNode(tgt);
         graph.addEdge(new Edge("e1", "src", "tgt", "EXTENDS"));
 
         String svg = renderer.render(graph);
 
-        assertTrue(svg.contains("<line"), "edge must produce a <line> element");
+        assertTrue(svg.contains("class=\"edge-line\""), "edge must carry the contract CSS class");
     }
 
     @Test
@@ -74,14 +91,14 @@ class SvgRendererTest {
 
         String svg = renderer.render(graph);
 
-        assertFalse(svg.contains("<line"), "edge with unlaid source must be skipped");
+        assertFalse(svg.contains("class=\"edge-line\""), "edge with unlaid source must not produce an edge-line element");
     }
 
     @Test
     void rendersEdgeLabelWhenPresent() {
         Graph graph = new Graph();
         Node src = laid("src", "A", 20, 20);
-        Node tgt = laid("tgt", "B", 20, 150);
+        Node tgt = laid("tgt", "B", 20, 200);
         graph.addNode(src);
         graph.addNode(tgt);
         Edge edge = new Edge("e1", "src", "tgt", "CALLS");
@@ -90,7 +107,7 @@ class SvgRendererTest {
 
         String svg = renderer.render(graph);
 
-        assertTrue(svg.contains(">1<"), "edge label must appear in output");
+        assertTrue(svg.contains(">1<"), "edge label text must appear in output");
     }
 
     @Test
@@ -104,7 +121,7 @@ class SvgRendererTest {
 
         String svg = renderer.render(graph);
 
-        assertTrue(svg.contains("group-rect"), "group must render a dashed rect");
+        assertTrue(svg.contains("group-rect"), "group must render a rect with group-rect class");
         assertTrue(svg.contains("com.karta"), "group label must appear");
     }
 
@@ -134,10 +151,77 @@ class SvgRendererTest {
         assertTrue(svg.contains("fill: red"), "custom CSS must be injected");
     }
 
+    @Test
+    void rendersPerColorArrowMarker() {
+        Graph graph = new Graph();
+        Node src = laid("src", "A", 20, 20);
+        Node tgt = laid("tgt", "B", 20, 200);
+        graph.addNode(src);
+        graph.addNode(tgt);
+        graph.addEdge(new Edge("e1", "src", "tgt", "IMPLEMENTS"));
+
+        String svg = renderer.render(graph);
+
+        // IMPLEMENTS → color #1d4ed8, hollow triangle marker
+        assertTrue(svg.contains("marker-hollow-1d4ed8"), "per-color hollow marker must be generated for IMPLEMENTS");
+        assertTrue(svg.contains("url(#marker-hollow-1d4ed8)"), "edge must reference its per-color marker");
+    }
+
+    @Test
+    void rendersCompartmentsForNodeWithProperties() {
+        Graph graph = new Graph();
+        Node node = new Node("W", "CLASS", "Widget");
+        node.setX(20.0); node.setY(20.0); node.setWidth(180.0); node.setHeight(70.0);
+        node.setProperties(Map.of(
+            "fields", "name: String\ncount: int",
+            "methods", "getName(): String"
+        ));
+        graph.addNode(node);
+
+        String svg = renderer.render(graph);
+
+        assertTrue(svg.contains("name: String"), "fields compartment must appear");
+        assertTrue(svg.contains("getName"), "methods compartment must appear");
+        // Divider line between header and fields
+        assertTrue(svg.contains("stroke-width=\"0.8\""), "compartment divider line must be present");
+    }
+
+    @Test
+    void doesNotDetectClassGraphAsInteraction() {
+        Graph graph = new Graph();
+        Node a = laid("A", "ClassA", 20, 20);
+        Node b = laid("B", "ClassB", 20, 200);
+        graph.addNode(a);
+        graph.addNode(b);
+        graph.addEdge(new Edge("e1", "A", "B", "EXTENDS"));
+
+        assertFalse(renderer.isInteractionGraph(graph), "CLASS/EXTENDS graph must not be detected as interaction");
+    }
+
+    @Test
+    void detectsInteractionGraph() {
+        Graph graph = new Graph();
+        Node caller = methodNode("A.doThing", "doThing", 20, 20);
+        Node callee = methodNode("B.helper", "helper", 20, 200);
+        graph.addNode(caller);
+        graph.addNode(callee);
+        Edge e = new Edge("c1", "A.doThing", "B.helper", "CALLS");
+        e.setLabel("1");
+        graph.addEdge(e);
+
+        assertTrue(renderer.isInteractionGraph(graph), "METHOD graph with integer CALLS labels must be detected as interaction");
+    }
+
     // --- helpers ---
 
     private Node laid(String id, String label, double x, double y) {
         Node n = new Node(id, "CLASS", label);
+        n.setX(x); n.setY(y); n.setWidth(150.0); n.setHeight(50.0);
+        return n;
+    }
+
+    private Node methodNode(String id, String label, double x, double y) {
+        Node n = new Node(id, "METHOD", label);
         n.setX(x); n.setY(y); n.setWidth(150.0); n.setHeight(50.0);
         return n;
     }

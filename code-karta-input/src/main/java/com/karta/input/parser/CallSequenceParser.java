@@ -5,16 +5,26 @@ import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.karta.core.model.Edge;
 import com.karta.core.model.Graph;
 import com.karta.core.model.Node;
+import se.deversity.vibetags.annotations.AIArchitecture;
+import se.deversity.vibetags.annotations.AIContext;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
+@AIContext(
+    focus = "Produces integer-labelled CALLS edges in textual call order within each method. Node IDs use 'ClassName.methodName' qualified form. These integer labels are the contract read by SequenceDiagramRenderer to order messages.",
+    avoids = "Changing the CALLS edge label format — SequenceDiagramRenderer.isInteractionGraph() and orderMessages() depend on labels parsing as integers."
+)
+@AIArchitecture(belongsTo = "input", cannotReference = {"layout", "render", "cli"})
 public class CallSequenceParser {
 
     private static final Logger log = Logger.getLogger(CallSequenceParser.class.getName());
@@ -24,12 +34,19 @@ public class CallSequenceParser {
     public Graph parse(Path sourceFile) {
         Graph graph = new Graph();
         try {
-            String source = Files.readString(sourceFile);
-            CompilationUnit cu = PARSER.parse(source).getResult().orElseThrow();
+            CompilationUnit cu = PARSER.parse(Files.readString(sourceFile)).getResult().orElseThrow();
 
             cu.findAll(ClassOrInterfaceDeclaration.class).forEach(classDecl -> {
                 String className = classDecl.getNameAsString();
                 graph.addNodeIfAbsent(new Node(className, "CLASS", className));
+
+                // Return-type map for resolving chained local calls, e.g. resolveLayout(x).layout(g)
+                Map<String, String> returnTypes = new HashMap<>();
+                classDecl.findAll(MethodDeclaration.class).forEach(m -> {
+                    String rt = m.getType().asString();
+                    int lt = rt.indexOf('<');
+                    returnTypes.put(m.getNameAsString(), lt > 0 ? rt.substring(0, lt).trim() : rt.trim());
+                });
 
                 classDecl.findAll(MethodDeclaration.class).forEach(method -> {
                     String qualifiedMethod = className + "." + method.getNameAsString();
@@ -39,19 +56,28 @@ public class CallSequenceParser {
                     method.accept(new VoidVisitorAdapter<Void>() {
                         @Override
                         public void visit(MethodCallExpr call, Void arg) {
-                            String callee = call.getScope()
-                                    .map(s -> s.toString() + "." + call.getNameAsString())
-                                    .orElse(call.getNameAsString());
-
-                            graph.addNodeIfAbsent(new Node(callee, "METHOD", call.getNameAsString()));
-
+                            String name = call.getNameAsString();
+                            String callee;
+                            if (call.getScope().isPresent()) {
+                                if (SequenceFilterUtil.shouldSkipScopedCall(name)) {
+                                    super.visit(call, arg);
+                                    return;
+                                }
+                                String scopeName = resolveScope(call.getScope().get(), returnTypes, className);
+                                if (scopeName == null) {
+                                    super.visit(call, arg);
+                                    return;
+                                }
+                                callee = scopeName + "." + name;
+                            } else {
+                                callee = name;
+                            }
+                            graph.addNodeIfAbsent(new Node(callee, "METHOD", name));
                             int seq = ++order[0];
-                            Edge edge = new Edge(
-                                    qualifiedMethod + "-calls-" + callee + "-" + seq,
+                            Edge edge = new Edge(qualifiedMethod + "-calls-" + callee + "-" + seq,
                                     qualifiedMethod, callee, "CALLS");
                             edge.setLabel(String.valueOf(seq));
                             graph.addEdge(edge);
-
                             super.visit(call, arg);
                         }
                     }, null);
@@ -61,5 +87,21 @@ public class CallSequenceParser {
             log.warning("Failed to parse " + sourceFile + ": " + e.getMessage());
         }
         return graph;
+    }
+
+    /**
+     * Resolves a scope expression to a simple class/variable name.
+     * Returns null when the scope is too complex to represent (skip the call).
+     */
+    static String resolveScope(Expression scope, Map<String, String> returnTypes, String thisClass) {
+        if (scope.isNameExpr())            return scope.asNameExpr().getNameAsString();
+        if (scope.isThisExpr())            return thisClass;
+        if (scope.isObjectCreationExpr())  return scope.asObjectCreationExpr().getType().getNameAsString();
+        if (scope.isMethodCallExpr()) {
+            MethodCallExpr inner = scope.asMethodCallExpr();
+            // local method call as scope: resolveLayout(x).layout(g) → use declared return type
+            if (inner.getScope().isEmpty()) return returnTypes.get(inner.getNameAsString());
+        }
+        return null; // field access chains, cast expressions, etc. — skip
     }
 }
