@@ -1,234 +1,207 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="6020" height="636" viewBox="0 0 6020 636">
+<svg xmlns="http://www.w3.org/2000/svg" width="4560" height="2400" viewBox="0 0 4560 2400">
 <defs>
 <style>
-svg { font-family: sans-serif; }
+svg { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+.node-rect { transition: filter 0.15s; }
+.node-rect:hover { stroke-width: 2.5 !important; }
+.edge-line { stroke-linecap: round; stroke-linejoin: round; }
+.edge-label { paint-order: stroke; stroke: #f9fafb; stroke-width: 3; }
+.group-rect { }
+.node-label { pointer-events: none; }
 </style>
-<marker id="hollowTriangle" markerWidth="12" markerHeight="12" refX="10" refY="5" orient="auto">
-  <path d="M0,0 L10,5 L0,10 Z" fill="#ffffff" stroke="#374151" stroke-width="1"/>
+<filter id="nodeShadow" x="-15%" y="-15%" width="130%" height="130%">
+  <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0000001a"/>
+</filter>
+<marker id="seq-marker-call" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
+  <path d="M0,0 L8,4 L0,8 Z" fill="#92400e"/>
 </marker>
-<marker id="filledArrow" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
-  <path d="M0,0 L8,4 L0,8 Z" fill="#374151"/>
-</marker>
-<marker id="openArrow" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
-  <path d="M0,0 L8,4 L0,8" fill="none" stroke="#6b7280" stroke-width="1.2"/>
-</marker>
-<marker id="exceptionArrow" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
+<marker id="seq-marker-exc" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
   <path d="M0,0 L8,4 L0,8 Z" fill="#dc2626"/>
 </marker>
 </defs>
-<rect width="6020" height="636" fill="#f9fafb"/>
-<line x1="500.0" y1="95.0" x2="3440.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="1970.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1</text>
-<line x1="500.0" y1="95.0" x2="1880.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="1190.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2</text>
-<line x1="410.0" y1="130.0" x2="410.0" y2="250.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="410.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3</text>
-<line x1="500.0" y1="95.0" x2="2140.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="1320.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4</text>
-<line x1="500.0" y1="95.0" x2="1360.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="930.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5</text>
-<line x1="500.0" y1="95.0" x2="5000.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="2750.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">6</text>
-<line x1="320.0" y1="95.0" x2="240.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="280.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">7</text>
-<line x1="500.0" y1="95.0" x2="3960.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="2230.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">8</text>
-<line x1="500.0" y1="95.0" x2="2660.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="1580.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">9</text>
-<line x1="500.0" y1="95.0" x2="4480.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="2490.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">10</text>
-<line x1="500.0" y1="95.0" x2="1100.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="800.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">11</text>
-<line x1="500.0" y1="95.0" x2="2660.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="1580.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">12</text>
-<line x1="500.0" y1="95.0" x2="1100.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="800.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">13</text>
-<line x1="500.0" y1="95.0" x2="580.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="540.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">14</text>
-<line x1="500.0" y1="95.0" x2="5260.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="2880.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">15</text>
-<line x1="500.0" y1="95.0" x2="2920.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="1710.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">16</text>
-<line x1="500.0" y1="95.0" x2="5780.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="3140.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">17</text>
-<line x1="500.0" y1="95.0" x2="3700.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="2100.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">18</text>
-<line x1="500.0" y1="95.0" x2="2920.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="1710.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">19</text>
-<line x1="500.0" y1="95.0" x2="4740.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="2620.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">20</text>
-<line x1="500.0" y1="95.0" x2="2660.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="1580.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">21</text>
-<line x1="500.0" y1="95.0" x2="2920.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="1710.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">22</text>
-<line x1="500.0" y1="95.0" x2="4220.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="2360.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">23</text>
-<line x1="500.0" y1="95.0" x2="2400.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="1450.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">24</text>
-<line x1="500.0" y1="95.0" x2="5520.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="3010.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">25</text>
-<line x1="500.0" y1="95.0" x2="840.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="670.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">26</text>
-<line x1="500.0" y1="95.0" x2="1620.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="1060.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">27</text>
-<line x1="500.0" y1="95.0" x2="3180.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="1840.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">28</text>
-<line x1="760.0" y1="95.0" x2="5260.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="3010.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1</text>
-<line x1="760.0" y1="95.0" x2="2920.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="1840.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2</text>
-<line x1="760.0" y1="95.0" x2="5780.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="3270.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3</text>
-<line x1="760.0" y1="95.0" x2="3700.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="2230.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4</text>
-<line x1="760.0" y1="95.0" x2="2920.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="1840.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5</text>
-<line x1="760.0" y1="95.0" x2="4740.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="2750.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">6</text>
-<line x1="760.0" y1="95.0" x2="2660.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="1710.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">7</text>
-<line x1="760.0" y1="95.0" x2="2920.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="1840.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">8</text>
-<line x1="760.0" y1="95.0" x2="4220.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="2490.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">9</text>
-<line x1="760.0" y1="95.0" x2="2400.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="1580.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">10</text>
-<line x1="760.0" y1="95.0" x2="5520.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="3140.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">11</text>
-<line x1="760.0" y1="95.0" x2="840.0" y2="285.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#filledArrow)"/>
-<text x="800.0" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">12</text>
-<g id="CallSequenceParser">
-  <rect x="60.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8"/>
-  <text x="150.0" y="95.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">CallSequenceParser</text>
-</g>
-<g id="CallSequenceParser.parse">
-  <rect x="320.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
-  <text x="410.0" y="84.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
-  <text x="410.0" y="105.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">parse</text>
-</g>
-<g id="log.warning">
-  <rect x="3440.0" y="250.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
-  <text x="3530.0" y="274.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
-  <text x="3530.0" y="295.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">warning</text>
-</g>
-<g id="e.getMessage">
-  <rect x="1880.0" y="250.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
-  <text x="1970.0" y="274.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
-  <text x="1970.0" y="295.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">getMessage</text>
-</g>
-<g id="Files.readString">
-  <rect x="320.0" y="250.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
-  <text x="410.0" y="274.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
-  <text x="410.0" y="295.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">readString</text>
-</g>
-<g id="PARSER.parse(source).getResult().orElseThrow">
-  <rect x="2140.0" y="250.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
-  <text x="2230.0" y="274.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
-  <text x="2230.0" y="295.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">orElseThrow</text>
-</g>
-<g id="PARSER.parse(source).getResult">
-  <rect x="1360.0" y="250.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
-  <text x="1450.0" y="274.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
-  <text x="1450.0" y="295.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">getResult</text>
-</g>
-<g id="PARSER.parse">
-  <rect x="5000.0" y="250.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
-  <text x="5090.0" y="274.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
-  <text x="5090.0" y="295.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">parse</text>
-</g>
-<g id="cu.findAll(ClassOrInterfaceDeclaration.class).forEach">
-  <rect x="60.0" y="250.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
-  <text x="150.0" y="274.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
-  <text x="150.0" y="295.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">forEach</text>
-</g>
-<g id="classDecl.getNameAsString">
-  <rect x="3960.0" y="250.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
-  <text x="4050.0" y="274.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
-  <text x="4050.0" y="295.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">getNameAsString</text>
-</g>
-<g id="graph.addNodeIfAbsent">
-  <rect x="2660.0" y="250.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
-  <text x="2750.0" y="274.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
-  <text x="2750.0" y="295.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">addNodeIfAbsent</text>
-</g>
-<g id="classDecl.findAll(MethodDeclaration.class).forEach">
-  <rect x="4480.0" y="250.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
-  <text x="4570.0" y="274.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
-  <text x="4570.0" y="295.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">forEach</text>
-</g>
-<g id="method.getNameAsString">
-  <rect x="1100.0" y="250.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
-  <text x="1190.0" y="274.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
-  <text x="1190.0" y="295.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">getNameAsString</text>
-</g>
-<g id="method.accept">
-  <rect x="580.0" y="250.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
-  <text x="670.0" y="274.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
-  <text x="670.0" y="295.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">accept</text>
-</g>
-<g id="call.getScope().map(s -&gt; s.toString() + &quot;.&quot; + call.getNameAsString()).orElse">
-  <rect x="5260.0" y="250.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
-  <text x="5350.0" y="274.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
-  <text x="5350.0" y="295.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">orElse</text>
-</g>
-<g id="call.getNameAsString">
-  <rect x="2920.0" y="250.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
-  <text x="3010.0" y="274.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
-  <text x="3010.0" y="295.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">getNameAsString</text>
-</g>
-<g id="call.getScope().map">
-  <rect x="5780.0" y="250.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
-  <text x="5870.0" y="274.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
-  <text x="5870.0" y="295.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">map</text>
-</g>
-<g id="s.toString">
-  <rect x="3700.0" y="250.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
-  <text x="3790.0" y="274.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
-  <text x="3790.0" y="295.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">toString</text>
-</g>
-<g id="call.getScope">
-  <rect x="4740.0" y="250.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
-  <text x="4830.0" y="274.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
-  <text x="4830.0" y="295.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">getScope</text>
-</g>
-<g id="edge.setLabel">
-  <rect x="4220.0" y="250.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
-  <text x="4310.0" y="274.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
-  <text x="4310.0" y="295.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">setLabel</text>
-</g>
-<g id="String.valueOf">
-  <rect x="2400.0" y="250.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
-  <text x="2490.0" y="274.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
-  <text x="2490.0" y="295.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">valueOf</text>
-</g>
-<g id="graph.addEdge">
-  <rect x="5520.0" y="250.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
-  <text x="5610.0" y="274.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
-  <text x="5610.0" y="295.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">addEdge</text>
-</g>
-<g id="super.visit">
-  <rect x="840.0" y="250.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
-  <text x="930.0" y="274.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
-  <text x="930.0" y="295.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">visit</text>
-</g>
-<g id="classDecl.findAll">
-  <rect x="1620.0" y="250.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
-  <text x="1710.0" y="274.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
-  <text x="1710.0" y="295.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">findAll</text>
-</g>
-<g id="cu.findAll">
-  <rect x="3180.0" y="250.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
-  <text x="3270.0" y="274.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
-  <text x="3270.0" y="295.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">findAll</text>
-</g>
-<g id="CallSequenceParser.visit">
-  <rect x="580.0" y="60.0" width="180.0" height="70.0" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.8"/>
-  <text x="670.0" y="84.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">«method»</text>
-  <text x="670.0" y="105.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">visit</text>
-</g>
-<rect x="5784.0" y="560.0" width="220.0" height="76.0" rx="6" fill="#ffffff" stroke="#d1d5db" stroke-width="1"/>
-<text x="5800.0" y="580.0" font-family="sans-serif" font-size="11" font-weight="bold" fill="#374151">Legend</text>
-<line x1="5800.0" y1="604.0" x2="5836.0" y2="604.0" stroke="#92400e" stroke-width="2" marker-end="url(#filledArrow)"/>
-<text x="5844.0" y="608.0" font-family="sans-serif" font-size="11" fill="#374151">calls</text>
+<rect width="4560" height="2400" fill="#f9fafb"/>
+<rect class="group-rect" x="91.0" y="220.0" width="4378.0" height="2036.0" rx="4" fill="#fef9c3" fill-opacity="0.35" stroke="#ca8a04" stroke-dasharray="6,3" stroke-width="1.2"/>
+<rect x="91.0" y="220.0" width="124.0" height="16" rx="2" fill="#fef08a"/>
+<text x="95.0" y="231.0" font-family="sans-serif" font-size="10" fill="#713f12">catch(Exception)</text>
+<line x1="190.0" y1="98.0" x2="190.0" y2="2340.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="410.0" y1="98.0" x2="410.0" y2="2340.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="630.0" y1="98.0" x2="630.0" y2="2340.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="850.0" y1="98.0" x2="850.0" y2="2340.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="1070.0" y1="98.0" x2="1070.0" y2="2340.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="1290.0" y1="98.0" x2="1290.0" y2="2340.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="1510.0" y1="98.0" x2="1510.0" y2="2340.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="1730.0" y1="98.0" x2="1730.0" y2="2340.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="1950.0" y1="98.0" x2="1950.0" y2="2340.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="2170.0" y1="98.0" x2="2170.0" y2="2340.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="2390.0" y1="98.0" x2="2390.0" y2="2340.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="2610.0" y1="98.0" x2="2610.0" y2="2340.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="2830.0" y1="98.0" x2="2830.0" y2="2340.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="3050.0" y1="98.0" x2="3050.0" y2="2340.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="3270.0" y1="98.0" x2="3270.0" y2="2340.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="3490.0" y1="98.0" x2="3490.0" y2="2340.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="3710.0" y1="98.0" x2="3710.0" y2="2340.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="3930.0" y1="98.0" x2="3930.0" y2="2340.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="4150.0" y1="98.0" x2="4150.0" y2="2340.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="4370.0" y1="98.0" x2="4370.0" y2="2340.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<rect x="405.0" y="123.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="625.0" y="177.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="845.0" y="231.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1065.0" y="285.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1285.0" y="339.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1505.0" y="393.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1725.0" y="447.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1945.0" y="501.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2165.0" y="555.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2385.0" y="609.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2605.0" y="663.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2165.0" y="717.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2605.0" y="771.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2605.0" y="825.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2825.0" y="879.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="3045.0" y="933.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="3265.0" y="987.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="3485.0" y="1041.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="3045.0" y="1095.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="3045.0" y="1149.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2165.0" y="1203.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="3045.0" y="1257.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="3705.0" y="1311.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="3925.0" y="1365.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2165.0" y="1419.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="4145.0" y="1473.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1945.0" y="1527.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="4365.0" y="1581.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2825.0" y="1635.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="3045.0" y="1689.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="3265.0" y="1743.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="3485.0" y="1797.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="3045.0" y="1851.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="3045.0" y="1905.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2165.0" y="1959.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="3045.0" y="2013.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="3705.0" y="2067.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="3925.0" y="2121.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2165.0" y="2175.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="4145.0" y="2229.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<line class="edge-line" x1="190.0" y1="130.0" x2="405.0" y2="130.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="300.0" y="121.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: warning</text>
+<line class="edge-line" x1="190.0" y1="184.0" x2="625.0" y2="184.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="410.0" y="175.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2: getMessage</text>
+<line class="edge-line" x1="190.0" y1="238.0" x2="845.0" y2="238.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="520.0" y="229.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3: readString</text>
+<line class="edge-line" x1="190.0" y1="292.0" x2="1065.0" y2="292.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="630.0" y="283.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4: orElseThrow</text>
+<line class="edge-line" x1="190.0" y1="346.0" x2="1285.0" y2="346.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="740.0" y="337.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5: getResult</text>
+<line class="edge-line" x1="190.0" y1="400.0" x2="1505.0" y2="400.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="850.0" y="391.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">6: parse</text>
+<line class="edge-line" x1="190.0" y1="454.0" x2="1725.0" y2="454.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="960.0" y="445.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">7: forEach</text>
+<line class="edge-line" x1="190.0" y1="508.0" x2="1945.0" y2="508.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1070.0" y="499.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">8: getNameAsString</text>
+<line class="edge-line" x1="190.0" y1="562.0" x2="2165.0" y2="562.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1180.0" y="553.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">9: addNodeIfAbsent</text>
+<line class="edge-line" x1="190.0" y1="616.0" x2="2385.0" y2="616.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1290.0" y="607.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">10: forEach</text>
+<line class="edge-line" x1="190.0" y1="670.0" x2="2605.0" y2="670.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1400.0" y="661.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">11: getNameAsString</text>
+<line class="edge-line" x1="190.0" y1="724.0" x2="2165.0" y2="724.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1180.0" y="715.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">12: addNodeIfAbsent</text>
+<line class="edge-line" x1="190.0" y1="778.0" x2="2605.0" y2="778.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1400.0" y="769.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">13: getNameAsString</text>
+<line class="edge-line" x1="190.0" y1="832.0" x2="2605.0" y2="832.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1400.0" y="823.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">14: accept</text>
+<line class="edge-line" x1="190.0" y1="886.0" x2="2825.0" y2="886.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1510.0" y="877.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">15: orElse</text>
+<line class="edge-line" x1="190.0" y1="940.0" x2="3045.0" y2="940.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1620.0" y="931.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">16: getNameAsString</text>
+<line class="edge-line" x1="190.0" y1="994.0" x2="3265.0" y2="994.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1730.0" y="985.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">17: map</text>
+<line class="edge-line" x1="190.0" y1="1048.0" x2="3485.0" y2="1048.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1840.0" y="1039.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">18: toString</text>
+<line class="edge-line" x1="190.0" y1="1102.0" x2="3045.0" y2="1102.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1620.0" y="1093.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">19: getNameAsString</text>
+<line class="edge-line" x1="190.0" y1="1156.0" x2="3045.0" y2="1156.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1620.0" y="1147.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">20: getScope</text>
+<line class="edge-line" x1="190.0" y1="1210.0" x2="2165.0" y2="1210.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1180.0" y="1201.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">21: addNodeIfAbsent</text>
+<line class="edge-line" x1="190.0" y1="1264.0" x2="3045.0" y2="1264.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1620.0" y="1255.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">22: getNameAsString</text>
+<line class="edge-line" x1="190.0" y1="1318.0" x2="3705.0" y2="1318.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1950.0" y="1309.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">23: setLabel</text>
+<line class="edge-line" x1="190.0" y1="1372.0" x2="3925.0" y2="1372.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="2060.0" y="1363.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">24: valueOf</text>
+<line class="edge-line" x1="190.0" y1="1426.0" x2="2165.0" y2="1426.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1180.0" y="1417.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">25: addEdge</text>
+<line class="edge-line" x1="190.0" y1="1480.0" x2="4145.0" y2="1480.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="2170.0" y="1471.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">26: visit</text>
+<line class="edge-line" x1="190.0" y1="1534.0" x2="1945.0" y2="1534.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1070.0" y="1525.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">27: findAll</text>
+<line class="edge-line" x1="190.0" y1="1588.0" x2="4365.0" y2="1588.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="2280.0" y="1579.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">28: findAll</text>
+<line class="edge-line" x1="190.0" y1="1642.0" x2="2825.0" y2="1642.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1510.0" y="1633.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: orElse</text>
+<line class="edge-line" x1="190.0" y1="1696.0" x2="3045.0" y2="1696.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1620.0" y="1687.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2: getNameAsString</text>
+<line class="edge-line" x1="190.0" y1="1750.0" x2="3265.0" y2="1750.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1730.0" y="1741.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3: map</text>
+<line class="edge-line" x1="190.0" y1="1804.0" x2="3485.0" y2="1804.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1840.0" y="1795.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4: toString</text>
+<line class="edge-line" x1="190.0" y1="1858.0" x2="3045.0" y2="1858.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1620.0" y="1849.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5: getNameAsString</text>
+<line class="edge-line" x1="190.0" y1="1912.0" x2="3045.0" y2="1912.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1620.0" y="1903.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">6: getScope</text>
+<line class="edge-line" x1="190.0" y1="1966.0" x2="2165.0" y2="1966.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1180.0" y="1957.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">7: addNodeIfAbsent</text>
+<line class="edge-line" x1="190.0" y1="2020.0" x2="3045.0" y2="2020.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1620.0" y="2011.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">8: getNameAsString</text>
+<line class="edge-line" x1="190.0" y1="2074.0" x2="3705.0" y2="2074.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1950.0" y="2065.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">9: setLabel</text>
+<line class="edge-line" x1="190.0" y1="2128.0" x2="3925.0" y2="2128.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="2060.0" y="2119.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">10: valueOf</text>
+<line class="edge-line" x1="190.0" y1="2182.0" x2="2165.0" y2="2182.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1180.0" y="2173.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">11: addEdge</text>
+<line class="edge-line" x1="190.0" y1="2236.0" x2="4145.0" y2="2236.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="2170.0" y="2227.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">12: visit</text>
+<rect class="node-rect" x="105.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="190.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">CallSequenceParser</text>
+<rect class="node-rect" x="325.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="410.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">log</text>
+<rect class="node-rect" x="545.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="630.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">e</text>
+<rect class="node-rect" x="765.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="850.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">Files</text>
+<rect class="node-rect" x="985.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="1070.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">PARSER.parse(source).getResult()</text>
+<rect class="node-rect" x="1205.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="1290.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">PARSER.parse(source)</text>
+<rect class="node-rect" x="1425.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="1510.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">PARSER</text>
+<rect class="node-rect" x="1645.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="1730.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">cu.findAll(ClassOrInterfaceDeclaration.class)</text>
+<rect class="node-rect" x="1865.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="1950.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">classDecl</text>
+<rect class="node-rect" x="2085.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="2170.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">graph</text>
+<rect class="node-rect" x="2305.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="2390.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">classDecl.findAll(MethodDeclaration.class)</text>
+<rect class="node-rect" x="2525.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="2610.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">method</text>
+<rect class="node-rect" x="2745.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="2830.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">call.getScope().map(s -&gt; s.toString() + &quot;.&quot; + call.getNameAsString())</text>
+<rect class="node-rect" x="2965.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="3050.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">call</text>
+<rect class="node-rect" x="3185.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="3270.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">call.getScope()</text>
+<rect class="node-rect" x="3405.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="3490.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">s</text>
+<rect class="node-rect" x="3625.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="3710.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">edge</text>
+<rect class="node-rect" x="3845.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="3930.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">String</text>
+<rect class="node-rect" x="4065.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="4150.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">super</text>
+<rect class="node-rect" x="4285.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="4370.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">cu</text>
 </svg>

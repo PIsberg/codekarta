@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static com.karta.input.parser.ClassDiagramParser.rawType;
 
 class ClassDiagramParserTest {
 
@@ -118,6 +119,69 @@ class ClassDiagramParserTest {
 
         // Must not throw; should still parse Good.java
         assertNotNull(graph.findNode("Good"));
+    }
+
+    @Test
+    void skipsGenericCollectionFieldType(@TempDir Path dir) throws Exception {
+        Files.writeString(dir.resolve("Order.java"), """
+                import java.util.List;
+                public class Order {
+                    private List<String> items;
+                }
+                """);
+
+        Graph graph = parser.parse(dir);
+
+        assertNull(graph.findNode("List<String>"), "Parameterised List should not produce a node");
+        assertNull(graph.findNode("List"), "Bare List should be skipped (stdlib)");
+        assertFalse(hasEdge(graph, "Order", "List<String>", "HAS"));
+    }
+
+    @Test
+    void hasEdgeLabelEqualsFieldName(@TempDir Path dir) throws Exception {
+        Files.writeString(dir.resolve("Engine.java"), "public class Engine {}");
+        Files.writeString(dir.resolve("Car.java"), """
+                public class Car {
+                    private Engine engine;
+                }
+                """);
+
+        Graph graph = parser.parse(dir);
+
+        var hasEdge = graph.getEdges().stream()
+                .filter(e -> "Car".equals(e.getSourceId()) && "Engine".equals(e.getTargetId())
+                        && "HAS".equals(e.getType()))
+                .findFirst();
+        assertTrue(hasEdge.isPresent(), "HAS edge must exist");
+        assertEquals("engine", hasEdge.get().getLabel(), "HAS edge label must be the field name");
+    }
+
+    @Test
+    void nodePropertiesContainFieldsAndMethods(@TempDir Path dir) throws Exception {
+        Files.writeString(dir.resolve("Widget.java"), """
+                public class Widget {
+                    private String name;
+                    public String getName() { return name; }
+                }
+                """);
+
+        Graph graph = parser.parse(dir);
+
+        var node = graph.findNode("Widget");
+        assertNotNull(node);
+        assertNotNull(node.getProperties());
+        assertNotNull(node.getProperties().get("fields"), "fields property must be populated");
+        assertTrue(node.getProperties().get("fields").contains("name"), "fields should list 'name'");
+        assertNotNull(node.getProperties().get("methods"), "methods property must be populated");
+        assertTrue(node.getProperties().get("methods").contains("getName"), "methods should list 'getName'");
+    }
+
+    @Test
+    void rawTypeStripsGenericParams() {
+        assertEquals("List", rawType("List<Node>"));
+        assertEquals("Map", rawType("Map<String,String>"));
+        assertEquals("Foo", rawType("Foo"));
+        assertEquals("Foo", rawType("Foo<A,B,C>"));
     }
 
     private boolean hasEdge(Graph graph, String src, String tgt, String type) {
