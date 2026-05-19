@@ -93,19 +93,22 @@ public class ExceptionFlowParser {
                         @Override
                         public void visit(MethodCallExpr call, Void arg) {
                             String name = call.getNameAsString();
-                            String callee = call.getScope()
-                                    .map(s -> s.toString() + "." + name)
-                                    .orElse(localMethodNames.contains(name) ? className + "." + name : name);
+                            boolean scoped = call.getScope().isPresent();
+                            if (!scoped || !SequenceFilterUtil.SKIP_METHODS.contains(name)) {
+                                String callee = call.getScope()
+                                        .map(s -> s.toString() + "." + name)
+                                        .orElse(localMethodNames.contains(name) ? className + "." + name : name);
 
-                            graph.addNodeIfAbsent(new Node(callee, NodeType.METHOD, call.getNameAsString()));
+                                graph.addNodeIfAbsent(new Node(callee, NodeType.METHOD, call.getNameAsString()));
 
-                            int n = ++seq[0];
-                            Edge edge = new Edge(methodId + "-calls-" + callee + "-" + n,
-                                    methodId, callee, EdgeType.CALLS);
-                            edge.setLabel(String.valueOf(n));
-                            graph.addEdge(edge);
+                                int n = ++seq[0];
+                                Edge edge = new Edge(methodId + "-calls-" + callee + "-" + n,
+                                        methodId, callee, EdgeType.CALLS);
+                                edge.setLabel(String.valueOf(n));
+                                graph.addEdge(edge);
 
-                            callersOf.computeIfAbsent(callee, k -> new ArrayList<>()).add(methodId);
+                                callersOf.computeIfAbsent(callee, k -> new ArrayList<>()).add(methodId);
+                            }
                             super.visit(call, arg);
                         }
                     }, null);
@@ -124,6 +127,8 @@ public class ExceptionFlowParser {
 
                         tryStmt.getTryBlock().findAll(MethodCallExpr.class).forEach(call -> {
                             String cname = call.getNameAsString();
+                            boolean callScoped = call.getScope().isPresent();
+                            if (callScoped && SequenceFilterUtil.SKIP_METHODS.contains(cname)) return;
                             String callee = call.getScope()
                                     .map(s -> s.toString() + "." + cname)
                                     .orElse(localMethodNames.contains(cname) ? className + "." + cname : cname);

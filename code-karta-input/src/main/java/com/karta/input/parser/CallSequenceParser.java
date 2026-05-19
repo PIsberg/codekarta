@@ -44,19 +44,21 @@ public class CallSequenceParser {
                     method.accept(new VoidVisitorAdapter<Void>() {
                         @Override
                         public void visit(MethodCallExpr call, Void arg) {
-                            String callee = call.getScope()
-                                    .map(s -> s.toString() + "." + call.getNameAsString())
-                                    .orElse(call.getNameAsString());
+                            boolean scoped = call.getScope().isPresent();
+                            if (!scoped || !SequenceFilterUtil.SKIP_METHODS.contains(call.getNameAsString())) {
+                                String callee = call.getScope()
+                                        .map(s -> s.toString() + "." + call.getNameAsString())
+                                        .orElse(call.getNameAsString());
 
-                            graph.addNodeIfAbsent(new Node(callee, "METHOD", call.getNameAsString()));
+                                graph.addNodeIfAbsent(new Node(callee, "METHOD", call.getNameAsString()));
 
-                            int seq = ++order[0];
-                            Edge edge = new Edge(
-                                    qualifiedMethod + "-calls-" + callee + "-" + seq,
-                                    qualifiedMethod, callee, "CALLS");
-                            edge.setLabel(String.valueOf(seq));
-                            graph.addEdge(edge);
-
+                                int seq = ++order[0];
+                                Edge edge = new Edge(
+                                        qualifiedMethod + "-calls-" + callee + "-" + seq,
+                                        qualifiedMethod, callee, "CALLS");
+                                edge.setLabel(String.valueOf(seq));
+                                graph.addEdge(edge);
+                            }
                             super.visit(call, arg);
                         }
                     }, null);
