@@ -94,16 +94,31 @@ public class ClassDiagramParser {
                 graph.addEdge(new Edge(name + "-implements-" + iface, name, iface, "IMPLEMENTS"));
             }
             for (FieldDeclaration field : coid.getFields()) {
-                // Strip generic params before filtering: List<Node> → List, Map<K,V> → Map
-                String rawType = rawType(field.getElementType().asString());
-                if (!SKIP_TYPES.contains(rawType) && Character.isUpperCase(rawType.charAt(0))) {
-                    String fieldName = field.getVariables().get(0).getNameAsString();
+                String fullType  = field.getElementType().asString();
+                String rawType   = rawType(fullType);
+                String fieldName = field.getVariables().get(0).getNameAsString();
+
+                if (!SKIP_TYPES.contains(rawType) && rawType.length() > 0
+                        && Character.isUpperCase(rawType.charAt(0))) {
+                    // Direct domain type: Engine engine → HAS Engine
                     graph.addNodeIfAbsent(new Node(rawType, "CLASS", rawType));
                     Edge hasEdge = new Edge(
                             name + "-has-" + fieldName + "-" + rawType,
                             name, rawType, "HAS");
                     hasEdge.setLabel(fieldName);
                     graph.addEdge(hasEdge);
+                } else {
+                    // Container of domain type: List<Node> → HAS Node, Map<String,Node> → HAS Node
+                    String innerType = innerGenericType(fullType);
+                    if (innerType != null && !SKIP_TYPES.contains(innerType)
+                            && innerType.length() > 0 && Character.isUpperCase(innerType.charAt(0))) {
+                        graph.addNodeIfAbsent(new Node(innerType, "CLASS", innerType));
+                        Edge hasEdge = new Edge(
+                                name + "-has-" + fieldName + "-" + innerType,
+                                name, innerType, "HAS");
+                        hasEdge.setLabel(fieldName);
+                        graph.addEdge(hasEdge);
+                    }
                 }
             }
         }
@@ -140,6 +155,16 @@ public class ClassDiagramParser {
             }
         }
 
+        // Detect constants-class pattern: only static-final fields, no instance methods
+        if (type instanceof ClassOrInterfaceDeclaration coid) {
+            boolean isConstantsClass = !type.getFields().isEmpty()
+                    && coid.getMethods().isEmpty()
+                    && type.getFields().stream().allMatch(f -> f.isStatic() && f.isFinal());
+            if (isConstantsClass) {
+                props.put("stereotype", "«constants»");
+            }
+        }
+
         return props;
     }
 
@@ -157,5 +182,20 @@ public class ClassDiagramParser {
     public static String rawType(String typeName) {
         int lt = typeName.indexOf('<');
         return lt >= 0 ? typeName.substring(0, lt) : typeName;
+    }
+
+    /**
+     * Extract the last generic type parameter: {@code Map<String, Node>} → {@code Node},
+     * {@code List<Node>} → {@code Node}.  Returns {@code null} if no type parameter is present.
+     */
+    public static String innerGenericType(String typeName) {
+        int lt = typeName.indexOf('<');
+        int gt = typeName.lastIndexOf('>');
+        if (lt < 0 || gt <= lt) return null;
+        String params = typeName.substring(lt + 1, gt);
+        // For Map<K,V> take the value (last) param; for single-param types like List<T> there is only one
+        int comma = params.lastIndexOf(',');
+        String inner = comma >= 0 ? params.substring(comma + 1).trim() : params.trim();
+        return rawType(inner); // strip further generics, e.g. List<List<X>>
     }
 }

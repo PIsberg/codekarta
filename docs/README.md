@@ -128,14 +128,15 @@ java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \
 
 ### Multi-File Stitched Sequence Diagram
 
-Directory input plus `--sequence-only` parses all `.java` files below the directory and uses JavaParser symbol solving to stitch calls across files. Point `--input` at the source root, such as `src/main/java`, when you need cross-package resolution.
+Directory input plus `--sequence-only` parses all `.java` files below the directory and uses JavaParser symbol solving to stitch calls across files. The key difference from single-file mode: a call like `inventoryService.checkStock()` resolves to `InventoryService.checkStock` and connects to the node created when `InventoryService.java` is parsed, rather than dangling as an unowned node.
+
+Point `--input` at a source root such as `src/main/java` when you need cross-package resolution.
 
 ```bash
 java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \
-  --input code-karta-input/src/main/java \
+  --input example-shipping-system/src/main/java/com/karta/shipping/core \
   --output docs/diagrams \
-  --sequence-only \
-  --layout elk
+  --sequence-only
 ```
 
 ### State Transition Diagram

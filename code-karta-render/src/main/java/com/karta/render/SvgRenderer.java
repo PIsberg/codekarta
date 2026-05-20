@@ -152,9 +152,17 @@ public class SvgRenderer {
         String label  = escapeXml(node.getLabel() != null ? node.getLabel() : node.getId());
         String fill   = NODE_FILL.getOrDefault(type, "#ffffff");
         String stroke = NODE_STROKE.getOrDefault(type, "#374151");
-        String stereo = STEREOTYPE.get(type);
-
         Map<String, String> props = node.getProperties();
+        // JDK/stdlib modules get a muted palette so they don't visually compete with project modules
+        String rawLabel = node.getLabel() != null ? node.getLabel() : node.getId();
+        if ("MODULE".equals(type) && rawLabel.startsWith("java.")) {
+            fill = "#f3f4f6";
+            stroke = "#9ca3af";
+        }
+        String stereo = STEREOTYPE.get(type);
+        if (stereo == null && props != null) {
+            stereo = props.get("stereotype"); // custom override (e.g. «constants» from ClassDiagramParser)
+        }
         boolean compartments = props != null
                 && (props.containsKey("fields") || props.containsKey("methods"))
                 && ("CLASS".equals(type) || "INTERFACE".equals(type));
@@ -229,7 +237,7 @@ public class SvgRenderer {
                 sb.append(String.format(Locale.ROOT,
                     "  <text x=\"%.1f\" y=\"%.1f\" font-family=\"sans-serif\" font-size=\"10\" " +
                     "fill=\"#374151\" dominant-baseline=\"central\">%s</text>\n",
-                    x + 8, curY + COMPARTMENT_LINE_H / 2, escapeXml(truncate(line, 28))));
+                    x + 8, curY + COMPARTMENT_LINE_H / 2, escapeXml(truncate(line, 32))));
                 curY += COMPARTMENT_LINE_H;
             }
             curY += COMPARTMENT_PADDING;
