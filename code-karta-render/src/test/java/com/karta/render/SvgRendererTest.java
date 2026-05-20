@@ -152,6 +152,28 @@ class SvgRendererTest {
     }
 
     @Test
+    void rendersClickableAttributionInBottomRightOutsideContent() {
+        Graph graph = new Graph();
+        Node node = laid("n1", "X", 20, 20);
+        graph.addNode(node);
+
+        String svg = renderer.render(graph);
+
+        assertTrue(svg.contains("Created with https://github.com/PIsberg/codekarta"),
+                "attribution text must be rendered");
+        assertTrue(svg.contains("href=\"https://github.com/PIsberg/codekarta\""),
+                "attribution must link to the project repository");
+        assertTrue(svg.contains("class=\"diagram-attribution\""),
+                "attribution must expose a stable CSS class");
+        assertTrue(svg.contains("text-anchor=\"end\""),
+                "attribution must be anchored to the right edge");
+        assertTrue(svg.contains("text-decoration=\"underline\""),
+                "attribution must be visibly underlined");
+        assertTrue(svg.indexOf("Created with https://github.com/PIsberg/codekarta") > svg.indexOf("class=\"node-rect\""),
+                "attribution must be rendered after diagram content");
+    }
+
+    @Test
     void rendersPerColorArrowMarker() {
         Graph graph = new Graph();
         Node src = laid("src", "A", 20, 20);
