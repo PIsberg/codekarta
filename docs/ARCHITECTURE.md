@@ -1,202 +1,207 @@
-# Architecture — code-karta
+# Architecture
 
-## Overview
+code-karta is a compiler-style Java architecture mapping pipeline. Each stage does one job and exchanges only the shared `Graph` intermediate representation from `code-karta-core`.
 
-code-karta is a compiler-style, 3-tier pipeline. Each tier is a separate Maven/Gradle module with a strict contract: the only shared currency is the **Intermediate Representation (IR)** — a flat JSON-serialisable graph defined in `code-karta-core`.
-
-```
-  Source files
-       │
-       ▼
-┌─────────────────────┐
-│  code-karta-input   │  Tier 1 — AST Extraction
-│  JavaSourceInputParser
-│  ModuleInfoParser   │  module-info.java → MODULE/PACKAGE nodes, REQUIRES/EXPORTS edges
-│  ClassDiagramParser │  directory        → CLASS/INTERFACE nodes, EXTENDS/IMPLEMENTS/HAS edges
-│  CallSequenceParser │  *.java file      → METHOD nodes, CALLS edges (ordered by sequence label)
-└─────────┬───────────┘
-          │  Graph (nodes + edges, no coordinates yet)
-          ▼
-┌─────────────────────┐
-│  code-karta-layout  │  Tier 2 — Spatial Layout
-│  SimpleLayoutEngine │  BFS depth → row/column grid; sets x, y, width, height on every Node
-└─────────┬───────────┘
-          │  Graph (same object, Node coordinates now populated)
-          ▼
-┌─────────────────────┐
-│  code-karta-render  │  Tier 3 — Vector Output
-│  SvgRenderer        │  class/module → UML boxes, bezier edges, per-color markers
-│  SequenceDiagramRenderer (auto-dispatched for interaction graphs)
-└─────────┬───────────┘
-          │  SVG string
-          ▼
-┌─────────────────────┐
-│  code-karta-cli     │  Driver
-│  KartaCli           │  auto-detects diagram type, calls all three tiers,
-│                     │  writes <name>.svg to --output dir (default: ./output/)
-└─────────────────────┘
-          │
-          ▼
-  diagrams/*.svg   ← open in any browser or IDE
+```text
+Java source
+   |
+   v
+code-karta-input
+   JavaParser-based source analysis
+   Graph with nodes, edges, groups
+   |
+   v
+code-karta-layout
+   coordinate assignment
+   same Graph with x, y, width, height
+   |
+   v
+code-karta-render
+   SVG generation
+   |
+   v
+code-karta-cli
+   command-line orchestration and file output
 ```
 
-**Design rule:** No tier imports from a tier beside or below it. `input` never calls layout; `layout` never calls render; `render` never calls parsers.
+The dependency rule is strict: lower-level modules do not depend on higher-level modules, and sibling tiers do not call each other. `input` does not import `layout` or `render`; `layout` does not import `render`; `render` does not import parsers. The CLI is the composition layer.
 
----
+## Modules
 
-## Module Reference
+| Module | Responsibility | Depends on |
+|---|---|---|
+| `code-karta-core` | Graph IR model: `Graph`, `Node`, `Edge`, `Group`, node/edge enums, dimensions | none |
+| `code-karta-input` | Parse Java source into a graph | `core`, JavaParser |
+| `code-karta-layout` | Assign node coordinates and sizes | `core`, optional ELK |
+| `code-karta-render` | Convert a laid-out graph to SVG | `core` |
+| `code-karta-cli` | Parse flags, select parser/layout mode, write SVG files | all modules |
 
-### `code-karta-core`
+## Core IR
 
-Pure data model, no logic. All other modules depend on this.
+`code-karta-core` is the shared contract between every tier. It intentionally contains data only.
 
-| Class | Role |
+| Type | Purpose |
 |---|---|
-| `Node` | A graph vertex: `id`, `type`, `label`, `properties`. Optionally annotated with `x`, `y`, `width`, `height` by the layout tier. |
-| `Edge` | A directed connection: `id`, `sourceId`, `targetId`, `type`, `label`. |
-| `Group` | A named cluster of node IDs (namespace, module boundary, package). |
-| `Graph` | Container for `nodes[]`, `edges[]`, `groups[]`. Provides `addNode`, `addNodeIfAbsent`, `findNode` helpers. |
+| `Graph` | Container for `nodes`, `edges`, and `groups`; includes helpers such as `addNodeIfAbsent` and `findNode`. |
+| `Node` | A vertex with `id`, `type`, `label`, optional layout fields, and optional `properties`. |
+| `Edge` | Directed relationship with `id`, `sourceId`, `targetId`, `type`, and optional `label`. |
+| `Group` | Named cluster of node IDs, used for module/package boundaries and try/catch regions. |
+| `NodeDimensions` | Central default dimensions used by layout/render code. |
 
-All classes carry `@JsonInclude(NON_NULL)` — layout fields are absent from serialisation until Tier 2 runs, keeping the JSON compact for LLM consumption.
+Jackson omits null fields with `@JsonInclude(NON_NULL)`, so raw parser output stays compact until layout coordinates are assigned.
 
----
-
-### `code-karta-input`
-
-Parses Java sources into the Core IR using [JavaParser](https://javaparser.org/).
-
-| Class | Input | Nodes produced | Edges produced |
-|---|---|---|---|
-| `ModuleInfoParser` | `module-info.java` | `MODULE`, `PACKAGE` | `REQUIRES`, `EXPORTS` |
-| `ClassDiagramParser` | directory of `.java` files | `CLASS`, `INTERFACE` | `EXTENDS`, `IMPLEMENTS`, `HAS` |
-| `CallSequenceParser` | single `.java` file | `CLASS`, `METHOD` | `CALLS` (integer sequence label) |
-| `ExceptionFlowParser` | single `.java` file | `CLASS`, `METHOD`, `EXCEPTION` | `CALLS`, `EXCEPTION_PROPAGATION` + try/catch `Group`s |
-| `JavaSourceInputParser` | any path | delegates based on path type | — |
-
-**Fault-tolerance guarantee:** every parser wraps all JavaParser calls in `try/catch`. Malformed or unparseable files log a warning and return a partial graph — the pipeline never crashes.
-
-`ClassDiagramParser` filters out standard-library field types (`String`, `List`, primitives, etc.) and strips generic parameters before matching (`List<Node>` → `List`) to keep the graph focused on domain classes. It also populates `Node.properties` with truncated field/method summaries for UML compartment rendering.
-
----
-
-### `code-karta-layout`
-
-Reads the flat IR graph and assigns absolute coordinates to every node.
-
-| Class | Algorithm |
-|---|---|
-| `LayoutEngine` | Interface: `Graph layout(Graph graph)` — returns the same instance |
-| `SimpleLayoutEngine` | BFS from root nodes (no incoming edges) → assigns depth levels. Each depth = one row; siblings within a row = columns. Node size: 150 × 50 px; H gap: 50 px; V gap: 80 px. |
-| `ElkLayoutEngine` | Eclipse Layout Kernel layered (Sugiyama) algorithm — layer assignment, crossing minimisation, node placement, edge routing. Falls back to `SimpleLayoutEngine` on error. |
-
-The layout engine mutates `Node` objects in-place. Isolated nodes fall back to level 0. Cyclic graphs seed BFS from the first node.
-
-**Swap-out:** implement `LayoutEngine` to plug in Eclipse ELK or Graphviz without touching any other module.
-
----
-
-### `code-karta-render`
-
-Converts a spatially-annotated `Graph` into an SVG document string.
-
-`SvgRenderer` is the entry point. It automatically detects interaction graphs (METHOD nodes + integer-labelled CALLS edges) and delegates to `SequenceDiagramRenderer`.
-
-| Class | Handles |
-|---|---|
-| `SvgRenderer` | Class diagrams, module diagrams — UML boxes, curved edges, per-color markers, compartments |
-| `SequenceDiagramRenderer` | Sequence/exception-flow diagrams — lifelines, message arrows, activation bars, try/catch frames |
-
-**Generic path rendering rules (`SvgRenderer`):**
-- Nodes with `null` coordinates are silently skipped (handles partial graphs safely).
-- Nodes → `<rect class="node-rect">` + `<text class="node-label">` + `<title>` tooltip.
-- CLASS/INTERFACE nodes with `properties["fields"]` / `properties["methods"]` get UML 3-compartment boxes with divider lines and auto-height.
-- Edges → quadratic-bezier `<path class="edge-line">` with perpendicular bow; per-color arrowhead markers generated dynamically in `<defs>`.
-- Groups → `<rect class="group-rect">` bounding-box with subtle fill.
-- All user-visible strings are XML-escaped.
-
-**Sequence path rendering rules (`SequenceDiagramRenderer`):**
-- Participant lanes derived from METHOD node-id prefixes; EXCEPTION nodes pinned last.
-- Messages DFS-ordered by integer CALLS label from entry methods.
-- Dashed `stroke-dasharray="6,4"` lifelines, activation bars, and self-call loops.
-- EXCEPTION_PROPAGATION arrows in dashed red; try/catch `Group`s become UML region frames.
-
-**Style injection:** `SvgRenderer.render(graph, cssString)` replaces the embedded stylesheet. All visual elements use stable CSS class names so diagrams can be themed without modifying Java code.
-
----
-
-## Example Output
-
-### Class diagram (`docs/diagrams/class-diagram.svg`)
-
-![Class diagram of code-karta's input tier](diagrams/class-diagram.svg)
-
-### Sequence diagram (`docs/diagrams/kartacli-sequence-diagram.svg`)
-
-![Sequence diagram of KartaCli](diagrams/kartacli-sequence-diagram.svg)
-
-### Module diagram (`docs/diagrams/module-diagram.svg`)
-
-![Module diagram](diagrams/module-diagram.svg)
-
----
-
-### `code-karta-cli`
-
-Thin driver that wires all three tiers together and handles file I/O.
-
-```
-main(args)
-  └─ run(inputPath, outputDir)
-       ├─ JavaSourceInputParser.parse(inputPath)   → Graph  [Tier 1]
-       ├─ SimpleLayoutEngine.layout(graph)          → Graph  [Tier 2]
-       ├─ SvgRenderer.render(graph)                 → String [Tier 3]
-       ├─ Files.createDirectories(outputDir)
-       └─ Files.writeString(outputDir / name, svg)
-              │
-              ▼
-         outputDir/
-           module-diagram.svg          (from module-info.java input)
-           class-diagram.svg           (from directory input)
-           <name>-sequence-diagram.svg (from *.java file input)
-```
-
-`run()` is a public static method so it can be tested directly without spawning a subprocess.
-
-**Output location:** controlled by `--output` (default `./output/` relative to the working directory).
-The example project's pre-generated diagrams are at `example-shipping-system/diagrams/`.
-
----
-
-## IR Schema
-
-The IR is designed to be token-efficient for LLM consumption (spec requirement).
-A serialised class-diagram graph looks like:
+Example graph:
 
 ```json
 {
   "nodes": [
-    { "id": "Cargo",        "type": "CLASS",     "label": "Cargo",        "x": 20,  "y": 150, "width": 150, "height": 50 },
-    { "id": "ShippingUnit", "type": "INTERFACE",  "label": "ShippingUnit", "x": 220, "y": 20,  "width": 150, "height": 50 },
-    { "id": "ExpressCargo", "type": "CLASS",      "label": "ExpressCargo", "x": 20,  "y": 280, "width": 150, "height": 50 }
+    { "id": "Cargo", "type": "CLASS", "label": "Cargo", "x": 20, "y": 150, "width": 150, "height": 50 },
+    { "id": "ShippingUnit", "type": "INTERFACE", "label": "ShippingUnit", "x": 220, "y": 20, "width": 150, "height": 50 }
   ],
   "edges": [
-    { "id": "Cargo-implements-ShippingUnit",    "sourceId": "Cargo",        "targetId": "ShippingUnit", "type": "IMPLEMENTS" },
-    { "id": "ExpressCargo-extends-Cargo",       "sourceId": "ExpressCargo", "targetId": "Cargo",        "type": "EXTENDS"    }
+    { "id": "Cargo-implements-ShippingUnit", "sourceId": "Cargo", "targetId": "ShippingUnit", "type": "IMPLEMENTS" }
   ],
   "groups": []
 }
 ```
 
-`null` fields are omitted by Jackson `@JsonInclude(NON_NULL)`.
+## Input Tier
 
----
+`code-karta-input` uses JavaParser to analyze source files and populate the IR. `JavaSourceInputParser` is the facade used by the CLI and by most library users.
+
+| Parser | Input | Nodes | Edges and groups |
+|---|---|---|---|
+| `ModuleInfoParser` | `module-info.java` | `MODULE`, `PACKAGE` | `REQUIRES`, `EXPORTS` |
+| `ClassDiagramParser` | directory | `CLASS`, `INTERFACE` | `EXTENDS`, `IMPLEMENTS`, `HAS` |
+| `ExceptionFlowParser` | one `.java` file | `CLASS`, `METHOD`, `EXCEPTION` | `CALLS`, `EXCEPTION_PROPAGATION`, try/catch `Group`s |
+| `CallSequenceParser` | one `.java` file | `CLASS`, `METHOD` | ordered `CALLS` |
+| `MultiFileSequenceParser` | source directory | `CLASS`, `METHOD` | ordered `CALLS`, cross-file callee IDs when symbol solving succeeds |
+
+Dispatch rules:
+
+```text
+module-info.java              -> ModuleInfoParser
+directory                     -> ClassDiagramParser
+single .java file             -> ExceptionFlowParser
+single .java file + sequence  -> CallSequenceParser
+directory + sequence          -> MultiFileSequenceParser, selected by KartaCli
+```
+
+The parsers are fault tolerant. Parse failures are logged and produce partial or empty graphs rather than crashing the pipeline.
+
+Class diagrams filter obvious JDK types and primitives so associations stay focused on project types. Class and interface nodes can include `fields` and `methods` entries in `Node.properties`; the SVG renderer uses those properties for UML compartments.
+
+Multi-file sequence parsing anchors JavaParser's symbol solver at the supplied source root. For best results, pass a root such as `src/main/java` instead of a nested package directory.
+
+## Layout Tier
+
+`LayoutEngine` is the layout contract:
+
+```java
+Graph layout(Graph graph);
+```
+
+Implementations mutate the same `Graph` instance and return it for chaining. They should set `x`, `y`, `width`, and `height` on every positioned node. The renderer skips nodes with missing coordinates, which lets partial graphs fail softly.
+
+| Engine | Use case |
+|---|---|
+| `SimpleLayoutEngine` | Default pure-Java layout. Uses root discovery plus breadth-first depth levels and a row/column grid. Predictable and dependency-light. |
+| `ElkLayoutEngine` | Large or dense graphs. Uses Eclipse Layout Kernel layered layout for crossing reduction and routed edges. Falls back to simple layout if ELK fails. |
+
+CLI selection:
+
+```bash
+--layout simple
+--layout elk
+```
+
+## Render Tier
+
+`SvgRenderer` converts a laid-out `Graph` into a self-contained SVG string:
+
+```java
+String svg = new SvgRenderer().render(graph);
+String themed = new SvgRenderer().render(graph, cssOverride);
+```
+
+Rendering behavior:
+
+| Graph content | Renderer behavior |
+|---|---|
+| Class/module graph | UML-like boxes, curved edges, groups, arrow markers, legend |
+| `METHOD` nodes plus integer-labelled `CALLS` edges | Delegates to `SequenceDiagramRenderer` |
+| Node `properties.fields` or `properties.methods` | Renders UML compartments |
+| `Group` entries | Renders bounding regions |
+| Missing node coordinates | Skips those nodes safely |
+
+`SequenceDiagramRenderer` derives participant lanes from method node IDs, renders ordered messages, self-calls, activation bars, exception propagation arrows, and try/catch frames when present.
+
+All user-visible text is XML escaped. SVG elements use stable CSS class names, including `.node-rect`, `.node-label`, `.edge-line`, and `.group-rect`.
+
+## CLI
+
+`KartaCli` wires the three tiers together:
+
+```text
+parse flags
+create output directory
+parse input path into Graph
+layout Graph
+render SVG
+derive deterministic filename
+write output file
+```
+
+Public API:
+
+```java
+Path run(Path inputPath, Path outputDir) throws IOException
+Path run(Path inputPath, Path outputDir, boolean sequenceOnly) throws IOException
+Path run(Path inputPath, Path outputDir, boolean sequenceOnly, String layout) throws IOException
+```
+
+Output naming:
+
+| Input | Output |
+|---|---|
+| `module-info.java` | `module-diagram.svg` |
+| directory | `class-diagram.svg` |
+| directory plus `--sequence-only` | `sequence-diagram.svg` |
+| `.java` file | `<lowercase-classname>-sequence-diagram.svg` |
+
+## Example Diagrams
+
+The repository keeps generated examples in `docs/diagrams/` and `example-shipping-system/diagrams/`.
+
+![Core class diagram](diagrams/class-diagram.svg)
+
+![KartaCli sequence diagram](diagrams/kartacli-sequence-diagram.svg)
+
+![Module diagram](diagrams/module-diagram.svg)
+
+Regeneration:
+
+```bash
+mvn verify -DskipTests
+./gradlew :code-karta-cli:generateDiagrams
+```
+
+Skip generation:
+
+```bash
+mvn verify -DskipTests -DskipDiagrams=true
+./gradlew :code-karta-cli:generateDiagrams -PskipDiagrams
+```
 
 ## Extension Points
 
-| What to extend | How |
+| Goal | Approach |
 |---|---|
-| Add a new layout algorithm | Implement `LayoutEngine`, pass it to `KartaCli.run()` |
-| Add a new output format (PDF, Mermaid, DOT) | New module depending only on `code-karta-core`; implement a renderer class |
-| Add a new language parser (Kotlin, Python via Tree-sitter) | Implement `InputParser`; register in `JavaSourceInputParser` |
-| Custom CSS themes | Pass a CSS string to `SvgRenderer.render(graph, css)` |
-| Annotation-driven grouping | Extend `ClassDiagramParser` to detect `@Component`, `@Service`, etc. and populate `Group` objects |
+| Add a diagram type | Add or extend an input parser that emits the existing `Graph` IR. |
+| Add a layout algorithm | Implement `LayoutEngine`; keep dependencies out of input/render modules. |
+| Add an output format | Create a renderer that depends only on `code-karta-core`. |
+| Add a language | Implement a parser that maps that language into `Node`, `Edge`, and `Group`. |
+| Theme SVG output | Pass a CSS override to `SvgRenderer.render(graph, css)`. |
+| Add framework-aware grouping | Extend input parsers to emit `Group` entries from annotations or package rules. |
+
+When extending the project, preserve the IR boundary. New analysis belongs in input, spatial decisions belong in layout, visual decisions belong in render, and orchestration belongs in cli.

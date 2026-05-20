@@ -57,7 +57,9 @@ class SequenceDiagramRenderer {
 
         double svgWidth  = Math.max(960.0, MARGIN_X * 2 + participants.size() * LANE_W);
         double diagramY  = MARGIN_TOP + HEADER_H + DIAGRAM_OFFSET;
-        double svgHeight = Math.max(560.0, diagramY + Math.max(1, messages.size()) * STEP_GAP + LIFELINE_EXTRA + 60);
+        double svgHeight = Math.max(560.0,
+                diagramY + Math.max(1, messages.size()) * STEP_GAP
+                        + LIFELINE_EXTRA + 60 + SvgRenderer.ATTRIBUTION_H);
 
         StringBuilder sb = new StringBuilder();
         sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
@@ -116,6 +118,7 @@ class SequenceDiagramRenderer {
             sb.append(renderHeader(p));
         }
 
+        sb.append(parent.renderAttribution(svgWidth, svgHeight));
         sb.append("</svg>");
         return sb.toString();
     }

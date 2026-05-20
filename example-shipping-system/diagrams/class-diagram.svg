@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="711" viewBox="0 0 1080 711">
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="721" viewBox="0 0 960 721">
 <defs>
 <style>
 svg { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
@@ -7,74 +7,26 @@ svg { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
 .node-rect:hover { stroke-width: 2.5 !important; }
 .edge-line { stroke-linecap: round; stroke-linejoin: round; }
 .edge-label { paint-order: stroke; stroke: #f9fafb; stroke-width: 3; }
+.diagram-attribution { fill: #6b7280; text-decoration: underline; }
+.diagram-attribution:hover { fill: #374151; text-decoration: underline; }
 .group-rect { }
 .node-label { pointer-events: none; }
 </style>
 <filter id="nodeShadow" x="-15%" y="-15%" width="130%" height="130%">
   <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0000001a"/>
 </filter>
-<marker id="marker-hollow-374151" markerWidth="12" markerHeight="12" refX="10" refY="5" orient="auto">
-  <path d="M0,0 L10,5 L0,10 Z" fill="#ffffff" stroke="#374151" stroke-width="1"/>
-</marker>
-<marker id="marker-open-374151" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
-  <path d="M0,0 L8,4 L0,8" fill="none" stroke="#374151" stroke-width="1.2"/>
-</marker>
 <marker id="marker-hollow-1d4ed8" markerWidth="12" markerHeight="12" refX="10" refY="5" orient="auto">
   <path d="M0,0 L10,5 L0,10 Z" fill="#ffffff" stroke="#1d4ed8" stroke-width="1"/>
 </marker>
+<marker id="marker-hollow-374151" markerWidth="12" markerHeight="12" refX="10" refY="5" orient="auto">
+  <path d="M0,0 L10,5 L0,10 Z" fill="#ffffff" stroke="#374151" stroke-width="1"/>
+</marker>
 </defs>
-<rect width="1080" height="711" fill="#f9fafb"/>
-<path class="edge-line" d="M410.0 146.0 Q391.3 198.0 410.0 250.0" fill="none" stroke="#374151" stroke-width="1.6" marker-end="url(#marker-hollow-374151)"/>
-<text class="edge-label" x="400.6" y="192.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#374151" font-style="italic">extends</text>
-<path class="edge-line" d="M840.0 132.5 Q778.2 206.4 760.0 301.0" fill="none" stroke="#374151" stroke-width="1.6" marker-end="url(#marker-open-374151)"/>
-<text class="edge-label" x="789.1" y="205.6" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#374151" font-style="italic">inventoryService</text>
-<path class="edge-line" d="M760.0 103.0 Q776.4 207.9 840.0 293.0" fill="none" stroke="#374151" stroke-width="1.6" marker-end="url(#marker-hollow-374151)"/>
-<text class="edge-label" x="788.2" y="197.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#374151" font-style="italic">extends</text>
+<rect width="960" height="721" fill="#f9fafb"/>
 <path class="edge-line" d="M150.0 410.0 Q144.6 425.0 150.0 440.0" fill="none" stroke="#1d4ed8" stroke-width="1.6" stroke-dasharray="8,4" marker-end="url(#marker-hollow-1d4ed8)"/>
 <text class="edge-label" x="147.3" y="419.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#1d4ed8" font-style="italic">implements</text>
 <path class="edge-line" d="M150.0 160.0 Q133.8 205.0 150.0 250.0" fill="none" stroke="#374151" stroke-width="1.6" marker-end="url(#marker-hollow-374151)"/>
 <text class="edge-label" x="141.9" y="199.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#374151" font-style="italic">extends</text>
-<g id="InventoryException">
-  <title>InventoryException [CLASS]</title>
-  <rect class="node-rect" x="320.0" y="60.0" width="180.0" height="86.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="410.0" y="103.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">InventoryException</text>
-</g>
-<g id="RuntimeException">
-  <title>RuntimeException [CLASS]</title>
-  <rect class="node-rect" x="320.0" y="250.0" width="180.0" height="86.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="410.0" y="293.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">RuntimeException</text>
-</g>
-<g id="InventoryService">
-  <title>InventoryService [CLASS]</title>
-  <rect class="node-rect" x="580.0" y="250.0" width="180.0" height="102.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="670.0" y="272.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">InventoryService</text>
-  <line x1="580.0" y1="294.0" x2="760.0" y2="294.0" stroke="#374151" stroke-width="0.8" opacity="0.4"/>
-  <text x="588.0" y="307.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">checkStock(String): boolean</text>
-  <text x="588.0" y="322.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">reserveStock(String, int): …</text>
-  <text x="588.0" y="337.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">releaseStock(String, int): …</text>
-</g>
-<g id="OrderProcessor">
-  <title>OrderProcessor [CLASS]</title>
-  <rect class="node-rect" x="840.0" y="60.0" width="180.0" height="145.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="930.0" y="82.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">OrderProcessor</text>
-  <line x1="840.0" y1="104.0" x2="1020.0" y2="104.0" stroke="#374151" stroke-width="0.8" opacity="0.4"/>
-  <text x="848.0" y="117.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">inventoryService: Inventory…</text>
-  <line x1="840.0" y1="131.0" x2="1020.0" y2="131.0" stroke="#374151" stroke-width="0.8" opacity="0.4"/>
-  <text x="848.0" y="144.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">submit(String, String): void</text>
-  <text x="848.0" y="159.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">cancel(String, String): void</text>
-  <text x="848.0" y="174.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">processOrder(String): void</text>
-  <text x="848.0" y="189.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">submitOrder(String): void</text>
-</g>
-<g id="OrderValidationException">
-  <title>OrderValidationException [CLASS]</title>
-  <rect class="node-rect" x="580.0" y="60.0" width="180.0" height="86.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="670.0" y="103.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">OrderValidationException</text>
-</g>
-<g id="Exception">
-  <title>Exception [CLASS]</title>
-  <rect class="node-rect" x="840.0" y="250.0" width="180.0" height="86.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="930.0" y="293.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">Exception</text>
-</g>
 <g id="Cargo">
   <title>Cargo [CLASS]</title>
   <rect class="node-rect" x="60.0" y="250.0" width="180.0" height="160.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
@@ -106,12 +58,13 @@ svg { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
   <line x1="60.0" y1="131.0" x2="240.0" y2="131.0" stroke="#374151" stroke-width="0.8" opacity="0.4"/>
   <text x="68.0" y="144.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">getPriorityLevel(): int</text>
 </g>
-<rect x="844.0" y="587.0" width="220.0" height="124.0" rx="6" fill="#ffffff" stroke="#d1d5db" stroke-width="1" filter="url(#nodeShadow)"/>
-<text x="860.0" y="607.0" font-family="sans-serif" font-size="11" font-weight="bold" fill="#374151">Legend</text>
-<line x1="860.0" y1="631.0" x2="896.0" y2="631.0" stroke="#374151" stroke-width="2" marker-end="url(#marker-hollow-374151)"/>
-<text x="904.0" y="635.0" font-family="sans-serif" font-size="11" fill="#374151">extends</text>
-<line x1="860.0" y1="655.0" x2="896.0" y2="655.0" stroke="#374151" stroke-width="2" marker-end="url(#marker-open-374151)"/>
-<text x="904.0" y="659.0" font-family="sans-serif" font-size="11" fill="#374151">has</text>
-<line x1="860.0" y1="679.0" x2="896.0" y2="679.0" stroke="#1d4ed8" stroke-width="2" stroke-dasharray="8,4" marker-end="url(#marker-hollow-1d4ed8)"/>
-<text x="904.0" y="683.0" font-family="sans-serif" font-size="11" fill="#374151">implements</text>
+<rect x="724.0" y="587.0" width="220.0" height="100.0" rx="6" fill="#ffffff" stroke="#d1d5db" stroke-width="1" filter="url(#nodeShadow)"/>
+<text x="740.0" y="607.0" font-family="sans-serif" font-size="11" font-weight="bold" fill="#374151">Legend</text>
+<line x1="740.0" y1="631.0" x2="776.0" y2="631.0" stroke="#1d4ed8" stroke-width="2" stroke-dasharray="8,4" marker-end="url(#marker-hollow-1d4ed8)"/>
+<text x="784.0" y="635.0" font-family="sans-serif" font-size="11" fill="#374151">implements</text>
+<line x1="740.0" y1="655.0" x2="776.0" y2="655.0" stroke="#374151" stroke-width="2" marker-end="url(#marker-hollow-374151)"/>
+<text x="784.0" y="659.0" font-family="sans-serif" font-size="11" fill="#374151">extends</text>
+<a class="diagram-attribution" href="https://github.com/PIsberg/codekarta" target="_blank" rel="noopener noreferrer">
+  <text x="944.0" y="705.0" text-anchor="end" font-family="sans-serif" font-size="11" fill="#6b7280" text-decoration="underline">Created with https://github.com/PIsberg/codekarta</text>
+</a>
 </svg>

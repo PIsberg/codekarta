@@ -28,6 +28,10 @@ public class SvgRenderer {
     private static final double PADDING      = 60.0;
     private static final double LEGEND_ROW_H = 24.0;
     private static final double LEGEND_PAD   = 16.0;
+    static final double ATTRIBUTION_H        = 34.0;
+    static final double ATTRIBUTION_PAD      = 16.0;
+    static final String ATTRIBUTION_TEXT     = "Created with https://github.com/PIsberg/codekarta";
+    static final String ATTRIBUTION_URL      = "https://github.com/PIsberg/codekarta";
 
     // Renderer-local sizing — layout engines use NodeDimensions constants (locked @AILocked)
     static final double RENDER_NODE_W        = NodeDimensions.DEFAULT_WIDTH;
@@ -105,7 +109,7 @@ public class SvgRenderer {
         double      legendH     = legendHeight(legendTypes);
         double[]    bounds      = computeBounds(graph);
         double      svgW        = Math.max(MIN_WIDTH,  bounds[0] + PADDING);
-        double      svgH        = Math.max(MIN_HEIGHT, bounds[1] + PADDING + legendH);
+        double      svgH        = Math.max(MIN_HEIGHT, bounds[1] + PADDING + legendH + ATTRIBUTION_H);
 
         StringBuilder sb = new StringBuilder();
         sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
@@ -127,6 +131,7 @@ public class SvgRenderer {
         for (Node  node  : graph.getNodes())  sb.append(renderNode(node));
 
         if (!legendTypes.isEmpty()) sb.append(renderLegend(legendTypes, svgW, bounds[1] + PADDING));
+        sb.append(renderAttribution(svgW, svgH));
         sb.append("</svg>");
         return sb.toString();
     }
@@ -426,8 +431,22 @@ public class SvgRenderer {
              + ".node-rect:hover { stroke-width: 2.5 !important; }\n"
              + ".edge-line { stroke-linecap: round; stroke-linejoin: round; }\n"
              + ".edge-label { paint-order: stroke; stroke: #f9fafb; stroke-width: 3; }\n"
+             + ".diagram-attribution { fill: #6b7280; text-decoration: underline; }\n"
+             + ".diagram-attribution:hover { fill: #374151; text-decoration: underline; }\n"
              + ".group-rect { }\n"
              + ".node-label { pointer-events: none; }\n";
+    }
+
+    String renderAttribution(double svgWidth, double svgHeight) {
+        return String.format(Locale.ROOT,
+            "<a class=\"diagram-attribution\" href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer\">\n" +
+            "  <text x=\"%.1f\" y=\"%.1f\" text-anchor=\"end\" font-family=\"sans-serif\" " +
+            "font-size=\"11\" fill=\"#6b7280\" text-decoration=\"underline\">%s</text>\n" +
+            "</a>\n",
+            ATTRIBUTION_URL,
+            svgWidth - ATTRIBUTION_PAD,
+            svgHeight - ATTRIBUTION_PAD,
+            escapeXml(ATTRIBUTION_TEXT));
     }
 
     static String dropShadowFilter() {

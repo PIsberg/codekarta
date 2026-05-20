@@ -1,122 +1,117 @@
-# Architecture
-
-> *This document is regenerated automatically by the build.*  
-> Each section uses a different diagram type that the tool can produce.
+> *This document is regenerated automatically by the build.*
 >
-> **Regenerate:** `mvn verify -DskipTests` (Maven) · `./gradlew :code-karta-cli:generateDiagrams` (Gradle)  
-> **Skip generation:** add `-DskipDiagrams=true` (Maven) · `-PskipDiagrams` (Gradle)
+> Each section demonstrates a diagram type that code-karta can produce.
+>
+> **Regenerate:** `mvn verify -DskipTests` or `./gradlew :code-karta-cli:generateDiagrams`
+>
+> **Skip generation:** `mvn verify -DskipTests -DskipDiagrams=true` or `./gradlew :code-karta-cli:generateDiagrams -PskipDiagrams`
 
----
-
-## Overview
+# code-karta Architecture
 
 code-karta is a three-tier pipeline that turns Java source into SVG diagrams:
 
+```text
+code-karta-core    -> pure IR data model: Graph, Node, Edge, Group
+code-karta-input   -> Java source parsing into the IR
+code-karta-layout  -> coordinate assignment
+code-karta-render  -> SVG output
+code-karta-cli     -> command-line orchestration
 ```
-code-karta-core       ← pure IR data model (Graph, Node, Edge, Group)
-      ↑         ↑         ↑
-code-karta-input  code-karta-layout  code-karta-render
-                                           ↑
-                                     code-karta-cli   ← wires all three
-```
 
-No tier may import from a tier beside or below it. The `Graph` object is the only thing that passes between tiers.
+No tier imports from a sibling or from a tier above it. The `Graph` object is the only contract that crosses tier boundaries.
 
----
-
-## 1. Core IR Model — Class Diagram
+## 1. Core IR Model - Class Diagram
 
 Generated from `code-karta-core/src/main/java/com/karta/core/model`:
 
-```
-java -jar karta.jar --input code-karta-core/src/main/java/com/karta/core/model --output docs/diagrams
+```bash
+java -jar karta.jar \
+  --input code-karta-core/src/main/java/com/karta/core/model \
+  --output docs/diagrams
 ```
 
-The IR carries just enough structure to describe any diagram type. `NodeDimensions` is the single source of truth for default node sizing across all tiers.
+The IR carries enough structure to describe module, class, and sequence diagrams. `NodeDimensions` is the shared default sizing source for layout and rendering.
 
 ![Core IR class diagram](docs/diagrams/class-diagram.svg)
 
----
-
-## 2. Example Module Structure — Module Diagram
+## 2. Example Module Structure - Module Diagram
 
 Generated from `example-shipping-system/src/main/java/module-info.java`:
 
-```
-java -jar karta.jar --input example-shipping-system/src/main/java/module-info.java --output docs/diagrams
+```bash
+java -jar karta.jar \
+  --input example-shipping-system/src/main/java/module-info.java \
+  --output docs/diagrams
 ```
 
-The shipping system fixture declares its module dependencies (JPMS `requires`/`exports`). The `MODULE` and `PACKAGE` nodes and `REQUIRES`/`EXPORTS` edges are extracted directly from the module descriptor.
+The shipping fixture declares JPMS `requires` and `exports` relationships. The parser maps modules and packages to nodes, then maps module dependencies and exported packages to `REQUIRES` and `EXPORTS` edges.
 
 ![Module diagram](docs/diagrams/module-diagram.svg)
 
----
+## 3. CLI Entry Point - Exception-Flow Sequence Diagram
 
-## 3. CLI Entry Point — Exception-Flow Sequence Diagram
+Generated from `KartaCli.java` in default file mode:
 
-Generated from `KartaCli.java` (default mode — includes exception propagation edges):
-
+```bash
+java -jar karta.jar \
+  --input code-karta-cli/src/main/java/com/karta/cli/KartaCli.java \
+  --output docs/diagrams
 ```
-java -jar karta.jar --input code-karta-cli/src/main/java/com/karta/cli/KartaCli.java --output docs/diagrams
-```
 
-`KartaCli` is the pipeline entry point. This diagram shows its method-call sequence with try/catch boundaries surfaced as `Group` nodes and `EXCEPTION_PROPAGATION` edges marking which methods declare checked exceptions. Requires `LanguageLevel.JAVA_17` in JavaParser to parse the arrow-switch dispatch in `main()`.
+`KartaCli` is the composition layer for parsing, layout, rendering, and file output. Default single-file parsing includes method calls, try/catch boundaries, and checked exception propagation when JavaParser can identify them.
 
 ![KartaCli exception-flow sequence diagram](docs/diagrams/kartacli-sequence-diagram.svg)
 
----
+## 4. Parser Call Chain - Call-Only Sequence Diagram
 
-## 4. Parser Call Chain — Call-Sequence Diagram (`--sequence-only`)
+Generated from `CallSequenceParser.java` with `--sequence-only`:
 
-Generated from `CallSequenceParser.java` with `--sequence-only` (CALLS edges only, no exception flow):
-
+```bash
+java -jar karta.jar \
+  --input code-karta-input/src/main/java/com/karta/input/parser/CallSequenceParser.java \
+  --output docs/diagrams \
+  --sequence-only
 ```
-java -jar karta.jar --input code-karta-input/src/main/java/com/karta/input/parser/CallSequenceParser.java \
-     --output docs/diagrams --sequence-only
-```
 
-`--sequence-only` strips out exception-flow analysis and emits only `CALLS` edges with sequence-order labels. Use this for clean call graphs when exception propagation is not relevant.
+`--sequence-only` emits ordered `CALLS` edges without exception-flow analysis. Use it when a compact call graph is more useful than exception propagation details.
 
 ![CallSequenceParser call-sequence diagram](docs/diagrams/callsequenceparser-sequence-diagram.svg)
 
----
-
-## 5. Input Layer Call Graph — Multi-File Stitched Sequence
+## 5. Input Layer Call Graph - Multi-File Stitched Sequence
 
 Generated from the full `code-karta-input` source root with `--sequence-only`:
 
-```
-java -jar karta.jar --input code-karta-input/src/main/java/com/karta/input \
-     --output docs/diagrams --sequence-only
+```bash
+java -jar karta.jar \
+  --input code-karta-input/src/main/java \
+  --output docs/diagrams \
+  --sequence-only \
+  --layout elk
 ```
 
-When `--input` is a directory combined with `--sequence-only`, all `.java` files are parsed together. Cross-file method calls are resolved via JavaParser's symbol solver (`JavaParserTypeSolver` anchored at the source root), and callee nodes use the qualified `ClassName.method` form so calls that cross file boundaries are stitched into a single unified graph. The `--layout elk` flag applies ELK's Sugiyama pipeline, reducing the diagram width from ~13 000 px to ~2 500 px compared with the BFS grid.
+Directory input plus `--sequence-only` parses all Java files below the directory into one graph. JavaParser symbol solving is anchored at the input root, and resolved callees use qualified `ClassName.method` node IDs so calls can connect across files.
 
-> **Tip:** For accurate cross-package resolution, point `--input` at the package root (e.g. `src/main/java`) rather than a nested subdirectory.
+For accurate cross-package resolution, point `--input` at a source root such as `src/main/java`.
 
 ![Input layer multi-file stitched sequence diagram](docs/diagrams/sequence-diagram.svg)
 
----
-
 ## Layout Engines
 
-Two layout engines implement the `LayoutEngine` interface. The engine is selected with `--layout`:
+Two layout engines implement `LayoutEngine` and are selected with `--layout`.
 
 | Flag | Engine | Algorithm |
-|------|--------|-----------|
-| `--layout simple` (default) | `SimpleLayoutEngine` | BFS from root nodes → depth layers → row/column grid |
-| `--layout elk` | `ElkLayoutEngine` | Eclipse Layout Kernel — Sugiyama pipeline (layer assignment, crossing minimisation, orthogonal edge routing). Falls back to `simple` on failure. |
+|---|---|---|
+| `--layout simple` | `SimpleLayoutEngine` | Breadth-first depth levels arranged in a row/column grid. This is the default. |
+| `--layout elk` | `ElkLayoutEngine` | Eclipse Layout Kernel layered layout with crossing reduction and routed edges. Falls back to simple layout on failure. |
 
-ELK is recommended for large graphs where the BFS grid produces overly wide diagrams.
-
----
+ELK is recommended for large or dense graphs where the simple grid becomes too wide.
 
 ## Diagram Type Summary
 
 | Input | Diagram type | Output filename |
-|-------|--------------|-----------------|
+|---|---|---|
 | `module-info.java` | Module diagram | `module-diagram.svg` |
-| Directory (default) | Class diagram | `class-diagram.svg` |
-| `*.java` file (default) | Exception-flow sequence | `<name>-sequence-diagram.svg` |
-| `*.java` file + `--sequence-only` | Call sequence | `<name>-sequence-diagram.svg` |
-| Directory + `--sequence-only` | Multi-file stitched sequence | `sequence-diagram.svg` |
+| directory | Class diagram | `class-diagram.svg` |
+| `.java` file | Exception-flow sequence | `<name>-sequence-diagram.svg` |
+| `.java` file plus `--sequence-only` | Call-only sequence | `<name>-sequence-diagram.svg` |
+| directory plus `--sequence-only` | Multi-file stitched sequence | `sequence-diagram.svg` |

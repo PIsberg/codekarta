@@ -107,6 +107,23 @@ class SequenceDiagramRendererTest {
     }
 
     @Test
+    void rendersClickableAttributionInSequenceDiagrams() {
+        Graph graph = twoMethodGraph();
+        String svg = renderer.render(graph);
+
+        assertTrue(svg.contains("Created with https://github.com/PIsberg/codekarta"),
+                "sequence diagrams must include attribution text");
+        assertTrue(svg.contains("href=\"https://github.com/PIsberg/codekarta\""),
+                "sequence diagram attribution must link to the project repository");
+        assertTrue(svg.contains("text-anchor=\"end\""),
+                "sequence diagram attribution must be anchored to the right edge");
+        assertTrue(svg.contains("text-decoration=\"underline\""),
+                "sequence diagram attribution must be visibly underlined");
+        assertTrue(svg.indexOf("Created with https://github.com/PIsberg/codekarta") > svg.indexOf("ServiceA"),
+                "attribution must be rendered after sequence content");
+    }
+
+    @Test
     void rendersActivationBars() {
         Graph graph = twoMethodGraph();
         String svg = renderer.render(graph);

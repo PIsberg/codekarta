@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="3020" height="2272" viewBox="0 0 3020 2272">
+<defs>
+<style>
+svg { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+.node-rect { transition: filter 0.15s; }
+.node-rect:hover { stroke-width: 2.5 !important; }
+.edge-line { stroke-linecap: round; stroke-linejoin: round; }
+.edge-label { paint-order: stroke; stroke: #f9fafb; stroke-width: 3; }
+.diagram-attribution { fill: #6b7280; text-decoration: underline; }
+.diagram-attribution:hover { fill: #374151; text-decoration: underline; }
+.group-rect { }
+.node-label { pointer-events: none; }
+</style>
+<filter id="nodeShadow" x="-15%" y="-15%" width="130%" height="130%">
+  <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0000001a"/>
+</filter>
+<marker id="seq-marker-call" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
+  <path d="M0,0 L8,4 L0,8 Z" fill="#92400e"/>
+</marker>
+<marker id="seq-marker-exc" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
+  <path d="M0,0 L8,4 L0,8 Z" fill="#dc2626"/>
+</marker>
+</defs>
+<rect width="3020" height="2272" fill="#f9fafb"/>
+<line x1="190.0" y1="98.0" x2="190.0" y2="2178.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="410.0" y1="98.0" x2="410.0" y2="2178.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="630.0" y1="98.0" x2="630.0" y2="2178.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="850.0" y1="98.0" x2="850.0" y2="2178.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="1070.0" y1="98.0" x2="1070.0" y2="2178.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="1290.0" y1="98.0" x2="1290.0" y2="2178.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="1510.0" y1="98.0" x2="1510.0" y2="2178.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="1730.0" y1="98.0" x2="1730.0" y2="2178.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="1950.0" y1="98.0" x2="1950.0" y2="2178.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="2170.0" y1="98.0" x2="2170.0" y2="2178.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="2390.0" y1="98.0" x2="2390.0" y2="2178.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="2610.0" y1="98.0" x2="2610.0" y2="2178.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="2830.0" y1="98.0" x2="2830.0" y2="2178.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<rect x="405.0" y="123.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="625.0" y="177.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="845.0" y="231.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1065.0" y="285.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1065.0" y="339.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="625.0" y="393.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1285.0" y="447.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="845.0" y="501.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1285.0" y="555.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1285.0" y="609.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1505.0" y="663.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1505.0" y="717.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1725.0" y="771.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1945.0" y="825.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1505.0" y="879.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="845.0" y="933.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2165.0" y="987.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="845.0" y="1041.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="625.0" y="1095.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2385.0" y="1149.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1505.0" y="1203.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1505.0" y="1257.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1725.0" y="1311.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1945.0" y="1365.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1505.0" y="1419.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="845.0" y="1473.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2165.0" y="1527.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="845.0" y="1581.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2605.0" y="1635.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2605.0" y="1689.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2605.0" y="1743.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2605.0" y="1797.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2605.0" y="1851.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2605.0" y="1905.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2605.0" y="1959.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2825.0" y="2013.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2825.0" y="2067.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<line class="edge-line" x1="190.0" y1="130.0" x2="405.0" y2="130.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="300.0" y="121.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: parse</text>
+<line class="edge-line" x1="190.0" y1="184.0" x2="625.0" y2="184.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="410.0" y="175.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2: getNameAsString</text>
+<line class="edge-line" x1="190.0" y1="238.0" x2="845.0" y2="238.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="520.0" y="229.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3: addNodeIfAbsent</text>
+<line class="edge-line" x1="190.0" y1="292.0" x2="1065.0" y2="292.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="630.0" y="283.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4: getType</text>
+<line class="edge-line" x1="190.0" y1="346.0" x2="1065.0" y2="346.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="630.0" y="337.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5: getNameAsString</text>
+<line class="edge-line" x1="190.0" y1="400.0" x2="625.0" y2="400.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="410.0" y="391.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">6: findAll</text>
+<line class="edge-line" x1="190.0" y1="454.0" x2="1285.0" y2="454.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="740.0" y="445.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">7: getNameAsString</text>
+<line class="edge-line" x1="190.0" y1="508.0" x2="845.0" y2="508.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="520.0" y="499.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">8: addNodeIfAbsent</text>
+<line class="edge-line" x1="190.0" y1="562.0" x2="1285.0" y2="562.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="740.0" y="553.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">9: getNameAsString</text>
+<line class="edge-line" x1="190.0" y1="616.0" x2="1285.0" y2="616.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="740.0" y="607.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">10: accept</text>
+<line class="edge-line" x1="190.0" y1="670.0" x2="1505.0" y2="670.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="850.0" y="661.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">11: getNameAsString</text>
+<line class="edge-line" x1="190.0" y1="724.0" x2="1505.0" y2="724.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="850.0" y="715.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">12: getScope</text>
+<line class="edge-line" x1="190.0" y1="778.0" x2="1725.0" y2="778.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="960.0" y="769.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">13: shouldSkipScopedCall</text>
+<line class="edge-line" x1="190.0" y1="832.0" x2="1945.0" y2="832.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1070.0" y="823.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">14: resolveScope</text>
+<line class="edge-line" x1="190.0" y1="886.0" x2="1505.0" y2="886.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="850.0" y="877.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">15: getScope</text>
+<line class="edge-line" x1="190.0" y1="940.0" x2="845.0" y2="940.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="520.0" y="931.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">16: addNodeIfAbsent</text>
+<line class="edge-line" x1="190.0" y1="994.0" x2="2165.0" y2="994.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1180.0" y="985.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">17: setLabel</text>
+<line class="edge-line" x1="190.0" y1="1048.0" x2="845.0" y2="1048.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="520.0" y="1039.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">18: addEdge</text>
+<line class="edge-line" x1="190.0" y1="1102.0" x2="625.0" y2="1102.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="410.0" y="1093.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">19: findAll</text>
+<line class="edge-line" x1="190.0" y1="1156.0" x2="2385.0" y2="1156.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1290.0" y="1147.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">20: findAll</text>
+<line class="edge-line" x1="190.0" y1="1210.0" x2="1505.0" y2="1210.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="850.0" y="1201.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: getNameAsString</text>
+<line class="edge-line" x1="190.0" y1="1264.0" x2="1505.0" y2="1264.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="850.0" y="1255.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2: getScope</text>
+<line class="edge-line" x1="190.0" y1="1318.0" x2="1725.0" y2="1318.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="960.0" y="1309.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3: shouldSkipScopedCall</text>
+<line class="edge-line" x1="190.0" y1="1372.0" x2="1945.0" y2="1372.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1070.0" y="1363.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4: resolveScope</text>
+<line class="edge-line" x1="190.0" y1="1426.0" x2="1505.0" y2="1426.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="850.0" y="1417.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5: getScope</text>
+<line class="edge-line" x1="190.0" y1="1480.0" x2="845.0" y2="1480.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="520.0" y="1471.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">6: addNodeIfAbsent</text>
+<line class="edge-line" x1="190.0" y1="1534.0" x2="2165.0" y2="1534.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1180.0" y="1525.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">7: setLabel</text>
+<line class="edge-line" x1="190.0" y1="1588.0" x2="845.0" y2="1588.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="520.0" y="1579.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">8: addEdge</text>
+<line class="edge-line" x1="190.0" y1="1642.0" x2="2605.0" y2="1642.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1400.0" y="1633.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: isNameExpr</text>
+<line class="edge-line" x1="190.0" y1="1696.0" x2="2605.0" y2="1696.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1400.0" y="1687.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2: asNameExpr</text>
+<line class="edge-line" x1="190.0" y1="1750.0" x2="2605.0" y2="1750.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1400.0" y="1741.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3: isThisExpr</text>
+<line class="edge-line" x1="190.0" y1="1804.0" x2="2605.0" y2="1804.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1400.0" y="1795.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4: isObjectCreationExpr</text>
+<line class="edge-line" x1="190.0" y1="1858.0" x2="2605.0" y2="1858.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1400.0" y="1849.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5: asObjectCreationExpr</text>
+<line class="edge-line" x1="190.0" y1="1912.0" x2="2605.0" y2="1912.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1400.0" y="1903.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">6: isMethodCallExpr</text>
+<line class="edge-line" x1="190.0" y1="1966.0" x2="2605.0" y2="1966.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1400.0" y="1957.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">7: asMethodCallExpr</text>
+<line class="edge-line" x1="190.0" y1="2020.0" x2="2825.0" y2="2020.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1510.0" y="2011.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">8: getScope</text>
+<line class="edge-line" x1="190.0" y1="2074.0" x2="2825.0" y2="2074.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="1510.0" y="2065.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">9: getNameAsString</text>
+<rect class="node-rect" x="105.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="190.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">CallSequenceParser</text>
+<rect class="node-rect" x="325.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="410.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">PARSER</text>
+<rect class="node-rect" x="545.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="630.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">classDecl</text>
+<rect class="node-rect" x="765.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="850.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">graph</text>
+<rect class="node-rect" x="985.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="1070.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">m</text>
+<rect class="node-rect" x="1205.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="1290.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">method</text>
+<rect class="node-rect" x="1425.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="1510.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">call</text>
+<rect class="node-rect" x="1645.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="1730.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">SequenceFilterUtil</text>
+<rect class="node-rect" x="1865.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="1950.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">resolveScope</text>
+<rect class="node-rect" x="2085.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="2170.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">edge</text>
+<rect class="node-rect" x="2305.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="2390.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">cu</text>
+<rect class="node-rect" x="2525.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="2610.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">scope</text>
+<rect class="node-rect" x="2745.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="2830.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">inner</text>
+<a class="diagram-attribution" href="https://github.com/PIsberg/codekarta" target="_blank" rel="noopener noreferrer">
+  <text x="3004.0" y="2256.0" text-anchor="end" font-family="sans-serif" font-size="11" fill="#6b7280" text-decoration="underline">Created with https://github.com/PIsberg/codekarta</text>
+</a>
+</svg>
