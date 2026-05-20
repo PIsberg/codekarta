@@ -12,6 +12,7 @@ import se.deversity.vibetags.annotations.AIParallelTests;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static com.karta.input.parser.ClassDiagramParser.rawType;
+import static com.karta.input.parser.ClassDiagramParser.innerGenericType;
 
 @AIParallelTests
 class ClassDiagramParserTest {
@@ -185,6 +186,74 @@ class ClassDiagramParserTest {
         assertEquals("Map", rawType("Map<String,String>"));
         assertEquals("Foo", rawType("Foo"));
         assertEquals("Foo", rawType("Foo<A,B,C>"));
+    }
+
+    @Test
+    void parsesHasEdgeForDomainTypeInGenericCollection(@TempDir Path dir) throws Exception {
+        Files.writeString(dir.resolve("Item.java"), "public class Item {}");
+        Files.writeString(dir.resolve("Cart.java"), """
+                import java.util.List;
+                public class Cart {
+                    private List<Item> items;
+                }
+                """);
+
+        Graph graph = parser.parse(dir);
+
+        assertTrue(hasEdge(graph, "Cart", "Item", "HAS"),
+                "Cart should have a HAS edge to Item via List<Item>");
+        assertNotNull(graph.findNode("Item"), "Item domain node must be present");
+        var hasEdge = graph.getEdges().stream()
+                .filter(e -> "Cart".equals(e.getSourceId()) && "Item".equals(e.getTargetId())
+                        && "HAS".equals(e.getType()))
+                .findFirst();
+        assertTrue(hasEdge.isPresent());
+        assertEquals("items", hasEdge.get().getLabel(), "HAS edge label must be the field name");
+    }
+
+    @Test
+    void skipsStdlibInnerGenericType(@TempDir Path dir) throws Exception {
+        // List<String> — String is in SKIP_TYPES, must not produce a node
+        Files.writeString(dir.resolve("Names.java"), """
+                import java.util.List;
+                public class Names {
+                    private List<String> values;
+                }
+                """);
+
+        Graph graph = parser.parse(dir);
+
+        assertNull(graph.findNode("String"), "String should not produce a node from List<String>");
+        assertFalse(hasEdge(graph, "Names", "String", "HAS"));
+    }
+
+    @Test
+    void innerGenericTypeHelperExtractsParam() {
+        assertEquals("Node",   innerGenericType("List<Node>"));
+        assertEquals("Node",   innerGenericType("Set<Node>"));
+        assertEquals("Edge",   innerGenericType("Map<String, Edge>"));
+        assertEquals("String", innerGenericType("Map<String, String>"));
+        assertNull(innerGenericType("Node"));
+        assertNull(innerGenericType("String"));
+    }
+
+    @Test
+    void constantsClassGetsStereotypeProperty(@TempDir Path dir) throws Exception {
+        Files.writeString(dir.resolve("Status.java"), """
+                public final class Status {
+                    public static final String ACTIVE   = "ACTIVE";
+                    public static final String INACTIVE = "INACTIVE";
+                    private Status() {}
+                }
+                """);
+
+        Graph graph = parser.parse(dir);
+
+        var node = graph.findNode("Status");
+        assertNotNull(node);
+        String stereotype = node.getProperties() != null ? node.getProperties().get("stereotype") : null;
+        assertEquals("«constants»", stereotype,
+                "Constants-only class must carry «constants» stereotype property");
     }
 
     private boolean hasEdge(Graph graph, String src, String tgt, String type) {

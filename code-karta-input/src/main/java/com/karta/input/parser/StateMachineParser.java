@@ -6,6 +6,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.EnumDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
@@ -97,7 +98,7 @@ public class StateMachineParser {
 
             Set<String> targets = new LinkedHashSet<>();
             entry.findAll(AssignExpr.class).forEach(assign -> {
-                if (looksLikeStateTarget(assign.getTarget())) {
+                if (looksLikeStateTarget(assign.getTarget(), Set.of())) {
                     stateName(assign.getValue(), states).ifPresent(targets::add);
                 }
             });
@@ -134,9 +135,18 @@ public class StateMachineParser {
 
     private void parseLinearStateAssignments(MethodDeclaration method, Set<String> states,
                                              Graph graph, AtomicInteger edgeSeq) {
-        String[] previous = {initialStateName(method, states).orElse(null)};
+        // Collect names of variables (fields or locals) that are initialised to a known state value
+        Set<String> stateVarNames = new LinkedHashSet<>();
+        method.findAll(VariableDeclarator.class).forEach(v -> {
+            if (v.getInitializer().flatMap(expr -> stateName(expr, states)).isPresent()) {
+                stateVarNames.add(v.getNameAsString().toLowerCase());
+            }
+        });
+        String[] previous = {initialStateName(method, states)
+                .or(() -> localVarInitialState(method, states, stateVarNames))
+                .orElse(null)};
         method.findAll(AssignExpr.class).forEach(assign -> {
-            if (!looksLikeStateTarget(assign.getTarget())) {
+            if (!looksLikeStateTarget(assign.getTarget(), stateVarNames)) {
                 return;
             }
             Optional<String> target = stateName(assign.getValue(), states);
@@ -159,6 +169,17 @@ public class StateMachineParser {
                         .findFirst());
     }
 
+    private Optional<String> localVarInitialState(MethodDeclaration method, Set<String> states,
+                                                   Set<String> stateVarNames) {
+        return method.findAll(VariableDeclarator.class).stream()
+                .filter(v -> {
+                    String nameLower = v.getNameAsString().toLowerCase();
+                    return nameLower.contains("state") || stateVarNames.contains(nameLower);
+                })
+                .flatMap(v -> v.getInitializer().flatMap(expr -> stateName(expr, states)).stream())
+                .findFirst();
+    }
+
     private Optional<String> stateName(Expression expr, Set<String> states) {
         String candidate = null;
         if (expr.isNameExpr()) {
@@ -171,9 +192,10 @@ public class StateMachineParser {
         return candidate != null && states.contains(candidate) ? Optional.of(candidate) : Optional.empty();
     }
 
-    private boolean looksLikeStateTarget(Expression expr) {
+    private boolean looksLikeStateTarget(Expression expr, Set<String> stateVarNames) {
         String text = expr.toString().toLowerCase();
-        return text.equals("state") || text.endsWith(".state") || text.contains("state");
+        return text.equals("state") || text.endsWith(".state") || text.contains("state")
+                || stateVarNames.contains(text);
     }
 
     private void addTransition(Graph graph, String source, String target,

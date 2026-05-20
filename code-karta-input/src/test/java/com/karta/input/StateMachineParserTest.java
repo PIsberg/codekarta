@@ -85,6 +85,38 @@ class StateMachineParserTest {
         assertTransition(graph, "IDLE", "RUNNING", "start");
     }
 
+    @Test
+    void parsesLocalVariableInitializerAsInitialState(@TempDir Path dir) throws Exception {
+        Path source = dir.resolve("Pipeline.java");
+        Files.writeString(source, """
+                public class Pipeline {
+                    enum Stage { PARSING, LAYOUT, DONE }
+
+                    void run() {
+                        Stage stage = Stage.PARSING;   // local variable — not a field
+                        stage = Stage.LAYOUT;
+                        stage = Stage.DONE;
+                    }
+                }
+                """);
+
+        Graph graph = parser.parse(source);
+
+        assertTrue(graph.getEdges().stream().anyMatch(e ->
+                "TRANSITION".equals(e.getType())
+                        && "PARSING".equals(e.getSourceId())
+                        && "LAYOUT".equals(e.getTargetId())),
+                "PARSING→LAYOUT must be detected when initial state comes from a local variable declaration");
+        assertTrue(graph.getEdges().stream().anyMatch(e ->
+                "TRANSITION".equals(e.getType())
+                        && "LAYOUT".equals(e.getSourceId())
+                        && "DONE".equals(e.getTargetId())),
+                "LAYOUT→DONE must follow from subsequent assignments");
+        assertEquals(2, graph.getEdges().stream()
+                .filter(e -> "TRANSITION".equals(e.getType())).count(),
+                "exactly 2 transitions from a 3-state linear sequence");
+    }
+
     private void assertTransition(Graph graph, String source, String target, String label) {
         Edge edge = graph.getEdges().stream()
                 .filter(e -> "TRANSITION".equals(e.getType()))

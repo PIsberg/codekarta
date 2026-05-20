@@ -255,6 +255,38 @@ class SvgRendererTest {
         assertTrue(renderer.isInteractionGraph(graph), "METHOD graph with integer CALLS labels must be detected as interaction");
     }
 
+    @Test
+    void rendersCustomStereotypeFromNodeProperties() {
+        Graph graph = new Graph();
+        Node node = new Node("Status", "CLASS", "Status");
+        node.setX(20.0); node.setY(20.0); node.setWidth(180.0); node.setHeight(70.0);
+        node.setProperties(Map.of(
+            "fields",     "ACTIVE: String\nINACTIVE: String",
+            "stereotype", "«constants»"
+        ));
+        graph.addNode(node);
+
+        String svg = renderer.render(graph);
+
+        assertTrue(svg.contains("«constants»"),
+                "custom stereotype property must be rendered in SVG output");
+    }
+
+    @Test
+    void rendersStdlibModulesWithMutedPalette() {
+        Graph graph = new Graph();
+        Node stdlibMod = new Node("java.base", "MODULE", "java.base");
+        stdlibMod.setX(20.0); stdlibMod.setY(20.0); stdlibMod.setWidth(180.0); stdlibMod.setHeight(86.0);
+        graph.addNode(stdlibMod);
+
+        String svg = renderer.render(graph);
+
+        assertFalse(svg.contains("fill=\"#ede9fe\""),
+                "java.* module must not use the default purple MODULE fill");
+        assertTrue(svg.contains("fill=\"#f3f4f6\""),
+                "java.* module must use the muted gray fill");
+    }
+
     // --- helpers ---
 
     private Node laid(String id, String label, double x, double y) {
