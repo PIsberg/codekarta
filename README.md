@@ -27,12 +27,11 @@ java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \
   --input example-shipping-system/src/main/java/com/karta/shipping/core/OrderProcessor.java \
   --output output
 
-# Multi-file stitched call graph, better layout for larger diagrams
+# Multi-file stitched call graph — OrderProcessor→InventoryService across files
 java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \
-  --input code-karta-input/src/main/java \
+  --input example-shipping-system/src/main/java/com/karta/shipping/core \
   --output output \
-  --sequence-only \
-  --layout elk
+  --sequence-only
 
 # State transition diagram — KartaCli's own pipeline (PARSING→LAYOUT→RENDERING→WRITING→DONE)
 java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \

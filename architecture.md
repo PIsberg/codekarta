@@ -77,23 +77,22 @@ java -jar karta.jar \
 
 ![CallSequenceParser call-sequence diagram](docs/diagrams/callsequenceparser-sequence-diagram.svg)
 
-## 5. Input Layer Call Graph - Multi-File Stitched Sequence
+## 5. Cross-File Call Graph - Multi-File Stitched Sequence
 
-Generated from the full `code-karta-input` source root with `--sequence-only`:
+Generated from the shipping example `core` package with `--sequence-only`:
 
 ```bash
 java -jar karta.jar \
-  --input code-karta-input/src/main/java \
+  --input example-shipping-system/src/main/java/com/karta/shipping/core \
   --output docs/diagrams \
-  --sequence-only \
-  --layout elk
+  --sequence-only
 ```
 
-Directory input plus `--sequence-only` parses all Java files below the directory into one graph. JavaParser symbol solving is anchored at the input root, and resolved callees use qualified `ClassName.method` node IDs so calls can connect across files.
+Directory input plus `--sequence-only` parses all Java files below the directory into one graph. JavaParser's symbol solver is anchored at the input root so resolved callees use qualified `ClassName.method` node IDs — calls from `OrderProcessor` to `InventoryService` connect across file boundaries rather than dangling as unowned nodes.
 
-For accurate cross-package resolution, point `--input` at a source root such as `src/main/java`.
+For accurate cross-package resolution, point `--input` at a source root such as `src/main/java` rather than a nested package.
 
-![Input layer multi-file stitched sequence diagram](docs/diagrams/sequence-diagram.svg)
+![OrderProcessor→InventoryService cross-file stitched sequence](docs/diagrams/sequence-diagram.svg)
 
 ## 6. CLI Pipeline — State Transition Diagram
 
