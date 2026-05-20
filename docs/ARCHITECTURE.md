@@ -76,6 +76,7 @@ Example graph:
 | `ExceptionFlowParser` | one `.java` file | `CLASS`, `METHOD`, `EXCEPTION` | `CALLS`, `EXCEPTION_PROPAGATION`, try/catch `Group`s |
 | `CallSequenceParser` | one `.java` file | `CLASS`, `METHOD` | ordered `CALLS` |
 | `MultiFileSequenceParser` | source directory | `CLASS`, `METHOD` | ordered `CALLS`, cross-file callee IDs when symbol solving succeeds |
+| `StateMachineParser` | file or directory plus `--state-machine` | `STATE` | `TRANSITION` |
 
 Dispatch rules:
 
@@ -85,6 +86,7 @@ directory                     -> ClassDiagramParser
 single .java file             -> ExceptionFlowParser
 single .java file + sequence  -> CallSequenceParser
 directory + sequence          -> MultiFileSequenceParser, selected by KartaCli
+file/directory + state        -> StateMachineParser, selected by KartaCli
 ```
 
 The parsers are fault tolerant. Parse failures are logged and produce partial or empty graphs rather than crashing the pipeline.
@@ -92,6 +94,8 @@ The parsers are fault tolerant. Parse failures are logged and produce partial or
 Class diagrams filter obvious JDK types and primitives so associations stay focused on project types. Class and interface nodes can include `fields` and `methods` entries in `Node.properties`; the SVG renderer uses those properties for UML compartments.
 
 Multi-file sequence parsing anchors JavaParser's symbol solver at the supplied source root. For best results, pass a root such as `src/main/java` instead of a nested package directory.
+
+State-machine parsing targets enum-backed workflow code. Enum constants become `STATE` nodes. Switch entries, state assignments, returns/yields, and explicit `transition(from, to, event)` calls become `TRANSITION` edges.
 
 ## Layout Tier
 
@@ -130,6 +134,7 @@ Rendering behavior:
 |---|---|
 | Class/module graph | UML-like boxes, curved edges, groups, arrow markers, legend |
 | `METHOD` nodes plus integer-labelled `CALLS` edges | Delegates to `SequenceDiagramRenderer` |
+| `STATE` nodes plus `TRANSITION` edges | Rounded state nodes with labelled transition arrows |
 | Node `properties.fields` or `properties.methods` | Renders UML compartments |
 | `Group` entries | Renders bounding regions |
 | Missing node coordinates | Skips those nodes safely |
@@ -158,6 +163,7 @@ Public API:
 Path run(Path inputPath, Path outputDir) throws IOException
 Path run(Path inputPath, Path outputDir, boolean sequenceOnly) throws IOException
 Path run(Path inputPath, Path outputDir, boolean sequenceOnly, String layout) throws IOException
+Path run(Path inputPath, Path outputDir, boolean sequenceOnly, String layout, boolean stateMachine) throws IOException
 ```
 
 Output naming:
@@ -168,6 +174,8 @@ Output naming:
 | directory | `class-diagram.svg` |
 | directory plus `--sequence-only` | `sequence-diagram.svg` |
 | `.java` file | `<lowercase-classname>-sequence-diagram.svg` |
+| directory plus `--state-machine` | `state-machine-diagram.svg` |
+| `.java` file plus `--state-machine` | `<lowercase-classname>-state-machine-diagram.svg` |
 
 ## Example Diagrams
 

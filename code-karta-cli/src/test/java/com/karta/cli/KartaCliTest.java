@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 class KartaCliTest {
 
@@ -139,6 +140,45 @@ class KartaCliTest {
                 "SVG must reference parsed class labels");
     }
 
+    @Test
+    void stateMachineModeGeneratesStateTransitionDiagram(@TempDir Path inputDir, @TempDir Path outputDir) throws Exception {
+        Path javaFile = inputDir.resolve("Workflow.java");
+        Files.writeString(javaFile, """
+                public class Workflow {
+                    enum State { OPEN, CLOSED }
+                    void configure() { transition(State.OPEN, State.CLOSED, "close"); }
+                }
+                """);
+
+        Path result = KartaCli.run(javaFile, outputDir, false, "simple", true);
+
+        assertEquals("workflow-state-machine-diagram.svg", result.getFileName().toString());
+        String svg = Files.readString(result);
+        assertTrue(svg.contains("OPEN"), "state node label must appear");
+        assertTrue(svg.contains("close"), "transition label must appear");
+    }
+
+    @Test
+    void stateMachineModeOnKartaCliItself(@TempDir Path outputDir) throws Exception {
+        // KartaCli.java contains PipelineStage — this test is self-referential:
+        // the tool generates a state-transition diagram of its own pipeline.
+        Path kartaCliSrc = Path.of("src/main/java/com/karta/cli/KartaCli.java");
+        assumeTrue(Files.exists(kartaCliSrc),
+                "Skipping: KartaCli.java not found at " + kartaCliSrc.toAbsolutePath());
+
+        Path result = KartaCli.run(kartaCliSrc, outputDir, false, "simple", true);
+
+        assertEquals("kartacli-state-machine-diagram.svg", result.getFileName().toString());
+        assertTrue(Files.exists(result));
+        String svg = Files.readString(result);
+        assertTrue(svg.contains("<svg "),      "output must be SVG");
+        assertTrue(svg.contains("PARSING"),    "PARSING stage must appear as a state node");
+        assertTrue(svg.contains("LAYOUT"),     "LAYOUT stage must appear as a state node");
+        assertTrue(svg.contains("RENDERING"),  "RENDERING stage must appear as a state node");
+        assertTrue(svg.contains("WRITING"),    "WRITING stage must appear as a state node");
+        assertTrue(svg.contains("DONE"),       "DONE stage must appear as a state node");
+    }
+
     // --- deriveOutputName unit tests ---
 
     @Test
@@ -156,6 +196,12 @@ class KartaCliTest {
     @Test
     void deriveOutputNameForDirectoryUsesActualDir(@TempDir Path dir) {
         assertEquals("class-diagram.svg", KartaCli.deriveOutputName(dir));
+    }
+
+    @Test
+    void deriveOutputNameForStateMachineFile() {
+        assertEquals("workflow-state-machine-diagram.svg",
+                KartaCli.deriveOutputName(Path.of("Workflow.java"), false, true));
     }
 
     @Test

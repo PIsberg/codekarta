@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="1076" viewBox="0 0 960 1076">
+<defs>
+<style>
+svg { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+.node-rect { transition: filter 0.15s; }
+.node-rect:hover { stroke-width: 2.5 !important; }
+.edge-line { stroke-linecap: round; stroke-linejoin: round; }
+.edge-label { paint-order: stroke; stroke: #f9fafb; stroke-width: 3; }
+.diagram-attribution { fill: #6b7280; text-decoration: underline; }
+.diagram-attribution:hover { fill: #374151; text-decoration: underline; }
+.group-rect { }
+.node-label { pointer-events: none; }
+</style>
+<filter id="nodeShadow" x="-15%" y="-15%" width="130%" height="130%">
+  <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0000001a"/>
+</filter>
+<marker id="marker-filled-0369a1" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
+  <path d="M0,0 L8,4 L0,8 Z" fill="#0369a1"/>
+</marker>
+</defs>
+<rect width="960" height="1076" fill="#f9fafb"/>
+<path class="edge-line" d="M240.0 103.0 Q256.4 207.9 320.0 293.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
+<text class="edge-label" x="268.2" y="197.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">processReservation</text>
+<path class="edge-line" d="M320.0 293.0 Q256.4 378.1 240.0 483.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
+<text class="edge-label" x="268.2" y="377.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">processReservation</text>
+<path class="edge-line" d="M150.0 526.0 Q131.3 578.0 150.0 630.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
+<text class="edge-label" x="140.6" y="572.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">processReservation</text>
+<path class="edge-line" d="M150.0 716.0 Q131.3 768.0 150.0 820.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
+<text class="edge-label" x="140.6" y="762.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">processReservation</text>
+<path class="edge-line" d="M150.0 146.0 Q131.3 198.0 150.0 250.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
+<text class="edge-label" x="140.6" y="192.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">release</text>
+<g id="IDLE">
+  <title>IDLE [STATE]</title>
+  <rect class="node-rect" x="60.0" y="60.0" width="180.0" height="86.0" rx="28.0" fill="#e0f2fe" stroke="#0369a1" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="150.0" y="90.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">«state»</text>
+  <text class="node-label" x="150.0" y="115.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">IDLE</text>
+</g>
+<g id="CHECKING">
+  <title>CHECKING [STATE]</title>
+  <rect class="node-rect" x="320.0" y="250.0" width="180.0" height="86.0" rx="28.0" fill="#e0f2fe" stroke="#0369a1" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="410.0" y="280.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">«state»</text>
+  <text class="node-label" x="410.0" y="305.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">CHECKING</text>
+</g>
+<g id="RESERVED">
+  <title>RESERVED [STATE]</title>
+  <rect class="node-rect" x="60.0" y="440.0" width="180.0" height="86.0" rx="28.0" fill="#e0f2fe" stroke="#0369a1" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="150.0" y="470.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">«state»</text>
+  <text class="node-label" x="150.0" y="495.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">RESERVED</text>
+</g>
+<g id="ALLOCATED">
+  <title>ALLOCATED [STATE]</title>
+  <rect class="node-rect" x="60.0" y="630.0" width="180.0" height="86.0" rx="28.0" fill="#e0f2fe" stroke="#0369a1" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="150.0" y="660.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">«state»</text>
+  <text class="node-label" x="150.0" y="685.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">ALLOCATED</text>
+</g>
+<g id="COMMITTED">
+  <title>COMMITTED [STATE]</title>
+  <rect class="node-rect" x="60.0" y="820.0" width="180.0" height="86.0" rx="28.0" fill="#e0f2fe" stroke="#0369a1" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="150.0" y="850.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">«state»</text>
+  <text class="node-label" x="150.0" y="875.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">COMMITTED</text>
+</g>
+<g id="RELEASED">
+  <title>RELEASED [STATE]</title>
+  <rect class="node-rect" x="60.0" y="250.0" width="180.0" height="86.0" rx="28.0" fill="#e0f2fe" stroke="#0369a1" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="150.0" y="280.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">«state»</text>
+  <text class="node-label" x="150.0" y="305.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">RELEASED</text>
+</g>
+<rect x="724.0" y="966.0" width="220.0" height="76.0" rx="6" fill="#ffffff" stroke="#d1d5db" stroke-width="1" filter="url(#nodeShadow)"/>
+<text x="740.0" y="986.0" font-family="sans-serif" font-size="11" font-weight="bold" fill="#374151">Legend</text>
+<line x1="740.0" y1="1010.0" x2="776.0" y2="1010.0" stroke="#0369a1" stroke-width="2" marker-end="url(#marker-filled-0369a1)"/>
+<text x="784.0" y="1014.0" font-family="sans-serif" font-size="11" fill="#374151">transition</text>
+<a class="diagram-attribution" href="https://github.com/PIsberg/codekarta" target="_blank" rel="noopener noreferrer">
+  <text x="944.0" y="1060.0" text-anchor="end" font-family="sans-serif" font-size="11" fill="#6b7280" text-decoration="underline">Created with https://github.com/PIsberg/codekarta</text>
+</a>
+</svg>

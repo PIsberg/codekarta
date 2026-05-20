@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="1260" height="1030" viewBox="0 0 1260 1030">
+<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="1138" viewBox="0 0 1480 1138">
 <defs>
 <style>
 svg { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
@@ -22,15 +22,16 @@ svg { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
   <path d="M0,0 L8,4 L0,8 Z" fill="#dc2626"/>
 </marker>
 </defs>
-<rect width="1260" height="1030" fill="#f9fafb"/>
-<rect class="group-rect" x="91.0" y="220.0" width="198.0" height="632.0" rx="4" fill="#fef9c3" fill-opacity="0.35" stroke="#ca8a04" stroke-dasharray="6,3" stroke-width="1.2"/>
+<rect width="1480" height="1138" fill="#f9fafb"/>
+<rect class="group-rect" x="91.0" y="220.0" width="198.0" height="740.0" rx="4" fill="#fef9c3" fill-opacity="0.35" stroke="#ca8a04" stroke-dasharray="6,3" stroke-width="1.2"/>
 <rect x="91.0" y="220.0" width="138.0" height="16" rx="2" fill="#fef08a"/>
 <text x="95.0" y="231.0" font-family="sans-serif" font-size="10" fill="#713f12">catch(IOException)</text>
-<line x1="190.0" y1="98.0" x2="190.0" y2="936.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="410.0" y1="98.0" x2="410.0" y2="936.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="630.0" y1="98.0" x2="630.0" y2="936.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="850.0" y1="98.0" x2="850.0" y2="936.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="1070.0" y1="98.0" x2="1070.0" y2="936.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="190.0" y1="98.0" x2="190.0" y2="1044.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="410.0" y1="98.0" x2="410.0" y2="1044.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="630.0" y1="98.0" x2="630.0" y2="1044.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="850.0" y1="98.0" x2="850.0" y2="1044.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="1070.0" y1="98.0" x2="1070.0" y2="1044.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="1290.0" y1="98.0" x2="1290.0" y2="1044.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
 <rect x="185.0" y="123.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <rect x="185.0" y="177.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <rect x="185.0" y="231.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
@@ -38,10 +39,11 @@ svg { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
 <rect x="405.0" y="339.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <rect x="625.0" y="393.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <rect x="845.0" y="447.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="185.0" y="501.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1065.0" y="555.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="185.0" y="609.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1065.0" y="501.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="185.0" y="555.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1285.0" y="609.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <rect x="185.0" y="663.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="185.0" y="717.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <path class="edge-line" d="M195.0 130.0 C231.0 120.0 231.0 140.0 195.0 154.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
 <text class="edge-label" x="235.0" y="134.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: printUsage</text>
 <path class="edge-line" d="M195.0 184.0 C231.0 174.0 231.0 194.0 195.0 208.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
@@ -55,21 +57,25 @@ svg { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
 <line class="edge-line" x1="190.0" y1="400.0" x2="625.0" y2="400.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
 <text class="edge-label" x="410.0" y="391.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2: parse</text>
 <line class="edge-line" x1="190.0" y1="454.0" x2="845.0" y2="454.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="445.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3: layout</text>
-<path class="edge-line" d="M195.0 508.0 C231.0 498.0 231.0 518.0 195.0 532.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="235.0" y="512.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4: resolveLayout</text>
-<line class="edge-line" x1="190.0" y1="562.0" x2="1065.0" y2="562.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="630.0" y="553.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5: render</text>
-<path class="edge-line" d="M195.0 616.0 C231.0 606.0 231.0 626.0 195.0 640.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="235.0" y="620.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">6: deriveOutputName</text>
+<text class="edge-label" x="520.0" y="445.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3: parse</text>
+<line class="edge-line" x1="190.0" y1="508.0" x2="1065.0" y2="508.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="630.0" y="499.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4: layout</text>
+<path class="edge-line" d="M195.0 562.0 C231.0 552.0 231.0 572.0 195.0 586.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="235.0" y="566.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5: resolveLayout</text>
+<line class="edge-line" x1="190.0" y1="616.0" x2="1285.0" y2="616.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="740.0" y="607.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">6: render</text>
 <path class="edge-line" d="M195.0 670.0 C231.0 660.0 231.0 680.0 195.0 694.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="235.0" y="674.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: deriveOutputName</text>
-<path class="edge-line" d="M195.0 724.0 C231.0 714.0 231.0 734.0 195.0 748.3" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#seq-marker-exc)"/>
-<text class="edge-label" x="235.0" y="728.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#dc2626" font-style="italic">throws</text>
+<text class="edge-label" x="235.0" y="674.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">7: deriveOutputName</text>
+<path class="edge-line" d="M195.0 724.0 C231.0 714.0 231.0 734.0 195.0 748.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" x="235.0" y="728.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: deriveOutputName</text>
 <path class="edge-line" d="M195.0 778.0 C231.0 768.0 231.0 788.0 195.0 802.3" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#seq-marker-exc)"/>
 <text class="edge-label" x="235.0" y="782.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#dc2626" font-style="italic">throws</text>
 <path class="edge-line" d="M195.0 832.0 C231.0 822.0 231.0 842.0 195.0 856.3" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#seq-marker-exc)"/>
 <text class="edge-label" x="235.0" y="836.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#dc2626" font-style="italic">throws</text>
+<path class="edge-line" d="M195.0 886.0 C231.0 876.0 231.0 896.0 195.0 910.3" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#seq-marker-exc)"/>
+<text class="edge-label" x="235.0" y="890.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#dc2626" font-style="italic">throws</text>
+<path class="edge-line" d="M195.0 940.0 C231.0 930.0 231.0 950.0 195.0 964.3" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#seq-marker-exc)"/>
+<text class="edge-label" x="235.0" y="944.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#dc2626" font-style="italic">throws</text>
 <rect class="node-rect" x="105.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
 <text class="node-label" x="190.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">KartaCli</text>
 <rect class="node-rect" x="325.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
@@ -77,10 +83,12 @@ svg { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
 <rect class="node-rect" x="545.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
 <text class="node-label" x="630.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">MultiFileSequenceParser</text>
 <rect class="node-rect" x="765.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-<text class="node-label" x="850.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">LayoutEngine</text>
+<text class="node-label" x="850.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">StateMachineParser</text>
 <rect class="node-rect" x="985.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-<text class="node-label" x="1070.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">SvgRenderer</text>
+<text class="node-label" x="1070.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">LayoutEngine</text>
+<rect class="node-rect" x="1205.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="1290.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">SvgRenderer</text>
 <a class="diagram-attribution" href="https://github.com/PIsberg/codekarta" target="_blank" rel="noopener noreferrer">
-  <text x="1244.0" y="1014.0" text-anchor="end" font-family="sans-serif" font-size="11" fill="#6b7280" text-decoration="underline">Created with https://github.com/PIsberg/codekarta</text>
+  <text x="1464.0" y="1122.0" text-anchor="end" font-family="sans-serif" font-size="11" fill="#6b7280" text-decoration="underline">Created with https://github.com/PIsberg/codekarta</text>
 </a>
 </svg>

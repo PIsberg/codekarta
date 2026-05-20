@@ -11,6 +11,7 @@ public final class EdgeType {
     public static final String EXPORTS               = "EXPORTS";
     public static final String HAS                   = "HAS";
     public static final String EXCEPTION_PROPAGATION = "EXCEPTION_PROPAGATION";
+    public static final String TRANSITION            = "TRANSITION";
 
     private EdgeType() {}
 }

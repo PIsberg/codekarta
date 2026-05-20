@@ -10,6 +10,7 @@ public final class NodeType {
     public static final String MODULE    = "MODULE";
     public static final String PACKAGE   = "PACKAGE";
     public static final String EXCEPTION = "EXCEPTION";
+    public static final String STATE     = "STATE";
 
     private NodeType() {}
 }

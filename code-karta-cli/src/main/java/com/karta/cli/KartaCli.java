@@ -3,6 +3,7 @@ package com.karta.cli;
 import com.karta.core.model.Graph;
 import com.karta.input.JavaSourceInputParser;
 import com.karta.input.MultiFileSequenceParser;
+import com.karta.input.parser.StateMachineParser;
 import com.karta.layout.ElkLayoutEngine;
 import com.karta.layout.LayoutEngine;
 import com.karta.layout.SimpleLayoutEngine;
@@ -31,10 +32,21 @@ public class KartaCli {
 
     static final Path DEFAULT_OUTPUT = Path.of("output");
 
+    /**
+     * Stages of the parse → layout → render → write pipeline.
+     *
+     * <p>Tracked as a local variable in {@link #run(Path, Path, boolean, String, boolean)}
+     * so that {@code StateMachineParser} can extract the pipeline as a state-transition
+     * diagram — each constant becomes a {@code STATE} node and each sequential assignment
+     * becomes a {@code TRANSITION} edge.</p>
+     */
+    enum PipelineStage { PARSING, LAYOUT, RENDERING, WRITING, DONE }
+
     public static void main(String[] args) {
         Path inputPath = null;
         Path outputDir = DEFAULT_OUTPUT;
         boolean sequenceOnly = false;
+        boolean stateMachine = false;
         String layout = "simple";
 
         for (int i = 0; i < args.length; i++) {
@@ -43,6 +55,7 @@ public class KartaCli {
                 case "--output"        -> { if (i + 1 < args.length) outputDir = Path.of(args[++i]); }
                 case "--layout"        -> { if (i + 1 < args.length) layout = args[++i]; }
                 case "--sequence-only" -> sequenceOnly = true;
+                case "--state-machine" -> stateMachine = true;
                 case "--help", "-h"    -> { printUsage(); System.exit(0); }
             }
         }
@@ -54,7 +67,7 @@ public class KartaCli {
         }
 
         try {
-            Path output = run(inputPath, outputDir, sequenceOnly, layout);
+            Path output = run(inputPath, outputDir, sequenceOnly, layout, stateMachine);
             System.out.println("Generated: " + output.toAbsolutePath());
         } catch (IOException e) {
             System.err.println("Error: " + e.getMessage());
@@ -100,22 +113,45 @@ public class KartaCli {
      */
     public static Path run(Path inputPath, Path outputDir,
                            boolean sequenceOnly, String layout) throws IOException {
+        return run(inputPath, outputDir, sequenceOnly, layout, false);
+    }
+
+    /**
+     * Runs the full parse → layout → render pipeline and writes the SVG to outputDir.
+     *
+     * @param stateMachine when true, uses StateMachineParser to extract enum-backed
+     *                     STATE nodes and TRANSITION edges
+     * @return the path of the written SVG file
+     */
+    public static Path run(Path inputPath, Path outputDir,
+                           boolean sequenceOnly, String layout,
+                           boolean stateMachine) throws IOException {
         Files.createDirectories(outputDir);
 
+        PipelineStage state = PipelineStage.PARSING;
         Graph graph;
-        if (sequenceOnly && Files.isDirectory(inputPath)) {
+        if (stateMachine) {
+            log.fine(() -> "State-machine mode for input: " + inputPath);
+            graph = new StateMachineParser().parse(inputPath);
+        } else if (sequenceOnly && Files.isDirectory(inputPath)) {
             log.fine(() -> "Multi-file sequence mode for directory: " + inputPath);
             graph = new MultiFileSequenceParser().parse(inputPath);
         } else {
             graph = new JavaSourceInputParser(sequenceOnly).parse(inputPath);
         }
 
+        state = PipelineStage.LAYOUT;
         resolveLayout(layout).layout(graph);
+
+        state = PipelineStage.RENDERING;
         String svg = new SvgRenderer().render(graph);
 
-        Path outputFile = outputDir.resolve(deriveOutputName(inputPath, sequenceOnly));
+        state = PipelineStage.WRITING;
+        Path outputFile = outputDir.resolve(deriveOutputName(inputPath, sequenceOnly, stateMachine));
         Files.writeString(outputFile, svg);
-        log.fine("Wrote diagram: " + outputFile);
+
+        state = PipelineStage.DONE;
+        log.fine("Pipeline " + state + ": wrote " + outputFile);
         return outputFile;
     }
 
@@ -131,18 +167,28 @@ public class KartaCli {
     }
 
     static String deriveOutputName(Path inputPath, boolean sequenceOnly) {
+        return deriveOutputName(inputPath, sequenceOnly, false);
+    }
+
+    static String deriveOutputName(Path inputPath, boolean sequenceOnly, boolean stateMachine) {
         if (Files.isDirectory(inputPath)) {
+            if (stateMachine) {
+                return "state-machine-diagram.svg";
+            }
             return sequenceOnly ? "sequence-diagram.svg" : "class-diagram.svg";
         }
         String fileName = inputPath.getFileName().toString();
         if ("module-info.java".equals(fileName)) {
             return "module-diagram.svg";
         }
+        if (stateMachine) {
+            return fileName.replace(".java", "").toLowerCase() + "-state-machine-diagram.svg";
+        }
         return fileName.replace(".java", "").toLowerCase() + "-sequence-diagram.svg";
     }
 
     private static void printUsage() {
-        System.out.println("Usage: karta --input <path> [--output <dir>] [--sequence-only] [--layout simple|elk]");
+        System.out.println("Usage: karta --input <path> [--output <dir>] [--sequence-only] [--state-machine] [--layout simple|elk]");
         System.out.println();
         System.out.println("  --input  <path>      What to parse:");
         System.out.println("                         module-info.java  → module diagram");
@@ -150,6 +196,8 @@ public class KartaCli {
         System.out.println("                         *.java file       → sequence/exception diagram");
         System.out.println("                         directory + --sequence-only");
         System.out.println("                                           → multi-file stitched sequence diagram");
+        System.out.println("                         file/dir + --state-machine");
+        System.out.println("                                           → enum-backed state transition diagram");
         System.out.println("  --output <dir>       Output directory  (default: ./output)");
         System.out.println("  --sequence-only      Emit only CALLS edges (no exception-flow).");
         System.out.println("                         When combined with a directory input, parses");
@@ -158,6 +206,9 @@ public class KartaCli {
         System.out.println("                         Tip: point --input at the source package root");
         System.out.println("                         (e.g. src/main/java) so the symbol solver can");
         System.out.println("                         resolve cross-package references correctly.");
+        System.out.println("  --state-machine      Emit STATE nodes and TRANSITION edges from enum");
+        System.out.println("                         constants, switch cases, state assignments, and");
+        System.out.println("                         transition(from, to, event) calls.");
         System.out.println("  --layout <engine>    Layout algorithm:  simple (default) or elk.");
         System.out.println("                         elk uses the Eclipse Layout Kernel layered");
         System.out.println("                         algorithm for edge-crossing minimisation and");

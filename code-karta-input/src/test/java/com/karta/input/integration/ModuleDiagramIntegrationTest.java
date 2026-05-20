@@ -50,6 +50,7 @@ class ModuleDiagramIntegrationTest {
     void extractsExportedPackageNodes() {
         assertNotNull(graph.findNode("com.karta.shipping.domain"), "domain package must be exported");
         assertNotNull(graph.findNode("com.karta.shipping.core"),   "core package must be exported");
+        assertNotNull(graph.findNode("com.karta.shipping.state"),  "state package must be exported");
         assertEquals("PACKAGE", graph.findNode("com.karta.shipping.domain").getType());
     }
 
@@ -57,13 +58,14 @@ class ModuleDiagramIntegrationTest {
     void extractsExportsEdges() {
         assertTrue(hasEdge("com.karta.shipping", "com.karta.shipping.domain", "EXPORTS"));
         assertTrue(hasEdge("com.karta.shipping", "com.karta.shipping.core",   "EXPORTS"));
+        assertTrue(hasEdge("com.karta.shipping", "com.karta.shipping.state",  "EXPORTS"));
     }
 
     @Test
     void graphContainsExpectedNodeCount() {
-        // 1 module + 2 required modules + 2 exported packages = 5 nodes
-        assertEquals(5, graph.getNodes().size(),
-                "graph must contain exactly 5 nodes: 1 own + 2 required + 2 exported");
+        // 1 module + 2 required modules + 3 exported packages = 6 nodes
+        assertEquals(6, graph.getNodes().size(),
+                "graph must contain exactly 6 nodes: 1 own + 2 required + 3 exported");
     }
 
     // --- helpers ---

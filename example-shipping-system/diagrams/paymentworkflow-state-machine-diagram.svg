@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="1266" viewBox="0 0 960 1266">
+<defs>
+<style>
+svg { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+.node-rect { transition: filter 0.15s; }
+.node-rect:hover { stroke-width: 2.5 !important; }
+.edge-line { stroke-linecap: round; stroke-linejoin: round; }
+.edge-label { paint-order: stroke; stroke: #f9fafb; stroke-width: 3; }
+.diagram-attribution { fill: #6b7280; text-decoration: underline; }
+.diagram-attribution:hover { fill: #374151; text-decoration: underline; }
+.group-rect { }
+.node-label { pointer-events: none; }
+</style>
+<filter id="nodeShadow" x="-15%" y="-15%" width="130%" height="130%">
+  <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0000001a"/>
+</filter>
+<marker id="marker-filled-0369a1" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
+  <path d="M0,0 L8,4 L0,8 Z" fill="#0369a1"/>
+</marker>
+</defs>
+<rect width="960" height="1266" fill="#f9fafb"/>
+<path class="edge-line" d="M150.0 146.0 Q131.3 198.0 150.0 250.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
+<text class="edge-label" x="140.6" y="192.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">initiate</text>
+<path class="edge-line" d="M150.0 336.0 Q131.3 388.0 150.0 440.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
+<text class="edge-label" x="140.6" y="382.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">authOk</text>
+<path class="edge-line" d="M150.0 336.0 Q249.1 594.6 410.0 820.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
+<text class="edge-label" x="264.5" y="580.3" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">authDenied</text>
+<path class="edge-line" d="M150.0 526.0 Q131.3 578.0 150.0 630.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
+<text class="edge-label" x="140.6" y="572.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">capture</text>
+<path class="edge-line" d="M150.0 716.0 Q131.3 768.0 150.0 820.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
+<text class="edge-label" x="140.6" y="762.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">captureOk</text>
+<path class="edge-line" d="M240.0 673.0 Q256.4 777.9 320.0 863.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
+<text class="edge-label" x="268.2" y="767.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">captureFailed</text>
+<path class="edge-line" d="M150.0 906.0 Q131.3 958.0 150.0 1010.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
+<text class="edge-label" x="140.6" y="952.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">refund</text>
+<g id="PENDING">
+  <title>PENDING [STATE]</title>
+  <rect class="node-rect" x="60.0" y="60.0" width="180.0" height="86.0" rx="28.0" fill="#e0f2fe" stroke="#0369a1" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="150.0" y="90.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">«state»</text>
+  <text class="node-label" x="150.0" y="115.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">PENDING</text>
+</g>
+<g id="AUTHORIZING">
+  <title>AUTHORIZING [STATE]</title>
+  <rect class="node-rect" x="60.0" y="250.0" width="180.0" height="86.0" rx="28.0" fill="#e0f2fe" stroke="#0369a1" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="150.0" y="280.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">«state»</text>
+  <text class="node-label" x="150.0" y="305.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">AUTHORIZING</text>
+</g>
+<g id="AUTHORIZED">
+  <title>AUTHORIZED [STATE]</title>
+  <rect class="node-rect" x="60.0" y="440.0" width="180.0" height="86.0" rx="28.0" fill="#e0f2fe" stroke="#0369a1" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="150.0" y="470.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">«state»</text>
+  <text class="node-label" x="150.0" y="495.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">AUTHORIZED</text>
+</g>
+<g id="CAPTURING">
+  <title>CAPTURING [STATE]</title>
+  <rect class="node-rect" x="60.0" y="630.0" width="180.0" height="86.0" rx="28.0" fill="#e0f2fe" stroke="#0369a1" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="150.0" y="660.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">«state»</text>
+  <text class="node-label" x="150.0" y="685.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">CAPTURING</text>
+</g>
+<g id="CAPTURED">
+  <title>CAPTURED [STATE]</title>
+  <rect class="node-rect" x="60.0" y="820.0" width="180.0" height="86.0" rx="28.0" fill="#e0f2fe" stroke="#0369a1" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="150.0" y="850.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">«state»</text>
+  <text class="node-label" x="150.0" y="875.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">CAPTURED</text>
+</g>
+<g id="REFUNDED">
+  <title>REFUNDED [STATE]</title>
+  <rect class="node-rect" x="60.0" y="1010.0" width="180.0" height="86.0" rx="28.0" fill="#e0f2fe" stroke="#0369a1" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="150.0" y="1040.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">«state»</text>
+  <text class="node-label" x="150.0" y="1065.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">REFUNDED</text>
+</g>
+<g id="DECLINED">
+  <title>DECLINED [STATE]</title>
+  <rect class="node-rect" x="320.0" y="820.0" width="180.0" height="86.0" rx="28.0" fill="#e0f2fe" stroke="#0369a1" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="410.0" y="850.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">«state»</text>
+  <text class="node-label" x="410.0" y="875.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">DECLINED</text>
+</g>
+<rect x="724.0" y="1156.0" width="220.0" height="76.0" rx="6" fill="#ffffff" stroke="#d1d5db" stroke-width="1" filter="url(#nodeShadow)"/>
+<text x="740.0" y="1176.0" font-family="sans-serif" font-size="11" font-weight="bold" fill="#374151">Legend</text>
+<line x1="740.0" y1="1200.0" x2="776.0" y2="1200.0" stroke="#0369a1" stroke-width="2" marker-end="url(#marker-filled-0369a1)"/>
+<text x="784.0" y="1204.0" font-family="sans-serif" font-size="11" fill="#374151">transition</text>
+<a class="diagram-attribution" href="https://github.com/PIsberg/codekarta" target="_blank" rel="noopener noreferrer">
+  <text x="944.0" y="1250.0" text-anchor="end" font-family="sans-serif" font-size="11" fill="#6b7280" text-decoration="underline">Created with https://github.com/PIsberg/codekarta</text>
+</a>
+</svg>

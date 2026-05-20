@@ -1,6 +1,6 @@
 # code-karta
 
-code-karta turns Java source into SVG architecture diagrams. It can map JPMS modules, class relationships, single-file call flows, exception propagation, and multi-file call sequences.
+code-karta turns Java source into SVG architecture diagrams. It can map JPMS modules, class relationships, single-file call flows, exception propagation, multi-file call sequences, and enum-backed state transitions.
 
 The project is intentionally small and compiler-like:
 
@@ -51,6 +51,7 @@ java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \
   --input <path> \
   --output <dir> \
   [--sequence-only] \
+  [--state-machine] \
   [--layout simple|elk]
 ```
 
@@ -59,6 +60,7 @@ java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \
 | `--input <path>` | required | Java source path to parse. The path determines the diagram type. |
 | `--output <dir>` | `./output` | Directory where the SVG file is written. Created if missing. |
 | `--sequence-only` | off | Emits only `CALLS` edges. For directory input, parses all Java files together into one stitched sequence graph. |
+| `--state-machine` | off | Emits `STATE` nodes and `TRANSITION` edges from enum constants, switch cases, state assignments, and `transition(from, to, event)` calls. |
 | `--layout simple|elk` | `simple` | `simple` is the pure-Java BFS grid. `elk` uses Eclipse Layout Kernel layered layout and is better for larger graphs. |
 | `--help` | off | Prints CLI usage. |
 
@@ -81,6 +83,7 @@ mvn -pl code-karta-cli exec:java \
 | Single `.java` file | Exception-flow sequence diagram | `<lowercase-classname>-sequence-diagram.svg` |
 | Single `.java` file plus `--sequence-only` | Call-only sequence diagram | `<lowercase-classname>-sequence-diagram.svg` |
 | Directory plus `--sequence-only` | Multi-file stitched sequence diagram | `sequence-diagram.svg` |
+| File or directory plus `--state-machine` | State transition diagram | `<lowercase-classname>-state-machine-diagram.svg` or `state-machine-diagram.svg` |
 
 ### Module Diagram
 
@@ -135,6 +138,27 @@ java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \
   --layout elk
 ```
 
+### State Transition Diagram
+
+Use `--state-machine` for enum-backed workflow code. Enum constants become `STATE` nodes. The parser recognizes switch cases that assign, return, or yield another enum constant, plus explicit `transition(from, to, event)` calls.
+
+```java
+class Workflow {
+  enum State { OPEN, REVIEW, CLOSED }
+
+  void configure() {
+    transition(State.OPEN, State.REVIEW, "submit");
+    transition(State.REVIEW, State.CLOSED, "approve");
+  }
+}
+```
+
+```bash
+java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \
+  --input code-karta-cli/src/main/java/com/karta/cli/KartaCli.java \
+  --state-machine --output docs/diagrams
+```
+
 ## Generated Files
 
 SVG files are written to `--output`, or to `./output` when `--output` is omitted.
@@ -144,6 +168,7 @@ output/
 ├── module-diagram.svg
 ├── class-diagram.svg
 ├── kartacli-sequence-diagram.svg
+├── kartacli-state-machine-diagram.svg
 └── sequence-diagram.svg
 ```
 
@@ -168,17 +193,22 @@ new ElkLayoutEngine().layout(graph);
 String svg = new SvgRenderer().render(graph);
 ```
 
-Use `new JavaSourceInputParser(true)` for call-only single-file parsing. Use `new MultiFileSequenceParser().parse(sourceRoot)` for stitched sequence graphs.
+Use `new JavaSourceInputParser(true)` for call-only single-file parsing. Use `new MultiFileSequenceParser().parse(sourceRoot)` for stitched sequence graphs. Use `new StateMachineParser().parse(path)` for enum-backed state transition graphs.
 
 ## Example Project
 
 A complete fixture lives in [`example-shipping-system/`](../example-shipping-system/). Pre-generated diagrams are in [`example-shipping-system/diagrams/`](../example-shipping-system/diagrams/).
 
-| File | Shows |
-|---|---|
-| [`module-diagram.svg`](../example-shipping-system/diagrams/module-diagram.svg) | JPMS `requires` and `exports` from the shipping module descriptor |
-| [`class-diagram.svg`](../example-shipping-system/diagrams/class-diagram.svg) | `ShippingUnit`, `Cargo`, and `ExpressCargo` relationships |
-| [`orderprocessor-sequence-diagram.svg`](../example-shipping-system/diagrams/orderprocessor-sequence-diagram.svg) | `OrderProcessor` method calls |
+| File | Source | Shows |
+|---|---|---|
+| [`module-diagram.svg`](../example-shipping-system/diagrams/module-diagram.svg) | `module-info.java` | JPMS `requires` and `exports` from the shipping module descriptor |
+| [`class-diagram.svg`](../example-shipping-system/diagrams/class-diagram.svg) | `shipping/domain/` | `ShippingUnit`, `Cargo`, and `ExpressCargo` relationships |
+| [`orderprocessor-sequence-diagram.svg`](../example-shipping-system/diagrams/orderprocessor-sequence-diagram.svg) | `OrderProcessor.java` | `OrderProcessor` method calls and exception flow |
+| [`shipmentlifecycle-state-machine-diagram.svg`](../example-shipping-system/diagrams/shipmentlifecycle-state-machine-diagram.svg) | `state/ShipmentLifecycle.java` | Switch-case transitions: `CREATED → PROCESSING → IN_TRANSIT → DELIVERED / FAILED / CANCELLED` |
+| [`paymentworkflow-state-machine-diagram.svg`](../example-shipping-system/diagrams/paymentworkflow-state-machine-diagram.svg) | `state/PaymentWorkflow.java` | Explicit `transition(from, to, event)` DSL: payment states from `PENDING` through `CAPTURED` or `DECLINED` |
+| [`inventoryreservation-state-machine-diagram.svg`](../example-shipping-system/diagrams/inventoryreservation-state-machine-diagram.svg) | `state/InventoryReservation.java` | Linear state assignments: `IDLE → CHECKING → RESERVED → ALLOCATED → COMMITTED` |
+
+The three state machine files each demonstrate a different detection pattern in `StateMachineParser` — see [§ 6 of architecture.md](../architecture.md#6-state-machine-diagrams) for a full walkthrough.
 
 Regenerate those diagrams:
 
@@ -186,10 +216,17 @@ Regenerate those diagrams:
 mvn clean package -q
 
 JAR=code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar
+STATE=example-shipping-system/src/main/java/com/karta/shipping/state
 
+# Module, class, and sequence diagrams
 java -jar $JAR --input example-shipping-system/src/main/java/module-info.java --output example-shipping-system/diagrams
 java -jar $JAR --input example-shipping-system/src/main/java/com/karta/shipping/domain --output example-shipping-system/diagrams
 java -jar $JAR --input example-shipping-system/src/main/java/com/karta/shipping/core/OrderProcessor.java --output example-shipping-system/diagrams
+
+# State machine diagrams (one per pattern)
+java -jar $JAR --input $STATE/ShipmentLifecycle.java   --state-machine --output example-shipping-system/diagrams
+java -jar $JAR --input $STATE/PaymentWorkflow.java      --state-machine --output example-shipping-system/diagrams
+java -jar $JAR --input $STATE/InventoryReservation.java --state-machine --output example-shipping-system/diagrams
 ```
 
 Build the example itself:
