@@ -46,7 +46,8 @@ public class SvgRenderer {
         "MODULE",    "#ede9fe",
         "METHOD",    "#fef3c7",
         "PACKAGE",   "#d1fae5",
-        "EXCEPTION", "#fee2e2"
+        "EXCEPTION", "#fee2e2",
+        "STATE",     "#e0f2fe"
     );
     static final Map<String, String> NODE_STROKE = Map.of(
         "CLASS",     "#374151",
@@ -54,14 +55,16 @@ public class SvgRenderer {
         "MODULE",    "#6d28d9",
         "METHOD",    "#92400e",
         "PACKAGE",   "#065f46",
-        "EXCEPTION", "#dc2626"
+        "EXCEPTION", "#dc2626",
+        "STATE",     "#0369a1"
     );
     static final Map<String, String> STEREOTYPE = Map.of(
         "INTERFACE", "«interface»",
         "MODULE",    "«mod»",
         "METHOD",    "«method»",
         "PACKAGE",   "«pkg»",
-        "EXCEPTION", "«exception»"
+        "EXCEPTION", "«exception»",
+        "STATE",     "«state»"
     );
     static final Map<String, String> EDGE_COLOR = Map.ofEntries(
         Map.entry("EXTENDS",               "#374151"),
@@ -70,7 +73,8 @@ public class SvgRenderer {
         Map.entry("HAS",                   "#374151"),
         Map.entry("REQUIRES",              "#6d28d9"),
         Map.entry("EXPORTS",               "#065f46"),
-        Map.entry("EXCEPTION_PROPAGATION", "#dc2626")
+        Map.entry("EXCEPTION_PROPAGATION", "#dc2626"),
+        Map.entry("TRANSITION",            "#0369a1")
     );
     static final Map<String, String> EDGE_DASH = Map.of(
         "IMPLEMENTS",            "8,4",
@@ -84,7 +88,8 @@ public class SvgRenderer {
         Map.entry("REQUIRES",              "filled"),
         Map.entry("EXPORTS",               "open"),
         Map.entry("HAS",                   "open"),
-        Map.entry("EXCEPTION_PROPAGATION", "filled")
+        Map.entry("EXCEPTION_PROPAGATION", "filled"),
+        Map.entry("TRANSITION",            "filled")
     );
     private static final Map<String, String> EDGE_RELATION_LABEL = Map.of(
         "EXTENDS",               "extends",
@@ -159,10 +164,11 @@ public class SvgRenderer {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format(Locale.ROOT, "<g id=\"%s\">\n", escapeXml(node.getId())));
         sb.append("  <title>").append(label).append(" [").append(type).append("]</title>\n");
+        double rx = "STATE".equals(type) ? Math.min(28.0, h / 2.0) : 6.0;
         sb.append(String.format(Locale.ROOT,
             "  <rect class=\"node-rect\" x=\"%.1f\" y=\"%.1f\" width=\"%.1f\" height=\"%.1f\" " +
-            "rx=\"6\" fill=\"%s\" stroke=\"%s\" stroke-width=\"1.8\" filter=\"url(#nodeShadow)\"/>\n",
-            x, y, w, h, fill, stroke));
+            "rx=\"%.1f\" fill=\"%s\" stroke=\"%s\" stroke-width=\"1.8\" filter=\"url(#nodeShadow)\"/>\n",
+            x, y, w, h, rx, fill, stroke));
 
         if (compartments) {
             appendCompartments(sb, x, y, w, label, stereo, stroke, props);

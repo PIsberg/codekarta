@@ -95,6 +95,22 @@ For accurate cross-package resolution, point `--input` at a source root such as 
 
 ![Input layer multi-file stitched sequence diagram](docs/diagrams/sequence-diagram.svg)
 
+## 6. CLI Pipeline — State Transition Diagram
+
+Generated from `KartaCli.java` using `--state-machine`:
+
+```bash
+java -jar karta.jar \
+  --input code-karta-cli/src/main/java/com/karta/cli/KartaCli.java \
+  --state-machine --output docs/diagrams
+```
+
+`KartaCli` tracks its own execution as a `PipelineStage` enum with five constants.
+Sequential assignments in `run()` drive `StateMachineParser`'s linear-assignment detection:
+`PARSING → LAYOUT → RENDERING → WRITING → DONE`.
+
+![KartaCli pipeline state machine](docs/diagrams/kartacli-state-machine-diagram.svg)
+
 ## Layout Engines
 
 Two layout engines implement `LayoutEngine` and are selected with `--layout`.
@@ -115,3 +131,5 @@ ELK is recommended for large or dense graphs where the simple grid becomes too w
 | `.java` file | Exception-flow sequence | `<name>-sequence-diagram.svg` |
 | `.java` file plus `--sequence-only` | Call-only sequence | `<name>-sequence-diagram.svg` |
 | directory plus `--sequence-only` | Multi-file stitched sequence | `sequence-diagram.svg` |
+| `.java` file plus `--state-machine` | State transition | `<name>-state-machine-diagram.svg` |
+| directory plus `--state-machine` | State transition | `state-machine-diagram.svg` |

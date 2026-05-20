@@ -190,6 +190,27 @@ class SvgRendererTest {
     }
 
     @Test
+    void rendersStateTransitionDiagrams() {
+        Graph graph = new Graph();
+        Node open = new Node("OPEN", "STATE", "OPEN");
+        open.setX(20.0); open.setY(20.0); open.setWidth(150.0); open.setHeight(50.0);
+        Node closed = new Node("CLOSED", "STATE", "CLOSED");
+        closed.setX(240.0); closed.setY(20.0); closed.setWidth(150.0); closed.setHeight(50.0);
+        graph.addNode(open);
+        graph.addNode(closed);
+        Edge edge = new Edge("open-to-closed", "OPEN", "CLOSED", "TRANSITION");
+        edge.setLabel("close");
+        graph.addEdge(edge);
+
+        String svg = renderer.render(graph);
+
+        assertTrue(svg.contains("«state»"), "state nodes must use the state stereotype");
+        assertTrue(svg.contains("rx=\"28.0\""), "state nodes should render as rounded state pills");
+        assertTrue(svg.contains(">close<"), "transition labels should be rendered");
+        assertTrue(svg.contains("marker-filled-0369a1"), "transition edges should use the state transition marker");
+    }
+
+    @Test
     void rendersCompartmentsForNodeWithProperties() {
         Graph graph = new Graph();
         Node node = new Node("W", "CLASS", "Widget");

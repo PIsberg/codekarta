@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="694" viewBox="0 0 1080 694">
+<svg xmlns="http://www.w3.org/2000/svg" width="1340" height="694" viewBox="0 0 1340 694">
 <defs>
 <style>
 svg { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
@@ -22,52 +22,60 @@ svg { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
   <path d="M0,0 L8,4 L0,8" fill="none" stroke="#065f46" stroke-width="1.2"/>
 </marker>
 </defs>
-<rect width="1080" height="694" fill="#f9fafb"/>
-<path class="edge-line" d="M240.0 103.0 Q530.5 227.9 840.0 293.0" fill="none" stroke="#6d28d9" stroke-width="1.6" marker-end="url(#marker-filled-6d28d9)"/>
-<text class="edge-label" x="535.3" y="206.9" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#6d28d9" font-style="italic">requires</text>
-<path class="edge-line" d="M150.0 146.0 Q131.3 198.0 150.0 250.0" fill="none" stroke="#6d28d9" stroke-width="1.6" marker-end="url(#marker-filled-6d28d9)"/>
-<text class="edge-label" x="140.6" y="192.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#6d28d9" font-style="italic">requires</text>
+<rect width="1340" height="694" fill="#f9fafb"/>
+<path class="edge-line" d="M240.0 103.0 Q662.8 230.5 1100.0 293.0" fill="none" stroke="#6d28d9" stroke-width="1.6" marker-end="url(#marker-filled-6d28d9)"/>
+<text class="edge-label" x="666.4" y="208.3" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#6d28d9" font-style="italic">requires</text>
+<path class="edge-line" d="M240.0 103.0 Q256.4 207.9 320.0 293.0" fill="none" stroke="#6d28d9" stroke-width="1.6" marker-end="url(#marker-filled-6d28d9)"/>
+<text class="edge-label" x="268.2" y="197.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#6d28d9" font-style="italic">requires</text>
+<path class="edge-line" d="M240.0 103.0 Q530.5 227.9 840.0 293.0" fill="none" stroke="#065f46" stroke-width="1.6" stroke-dasharray="4,4" marker-end="url(#marker-open-065f46)"/>
+<text class="edge-label" x="535.3" y="206.9" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">exports</text>
 <path class="edge-line" d="M240.0 103.0 Q396.3 222.6 580.0 293.0" fill="none" stroke="#065f46" stroke-width="1.6" stroke-dasharray="4,4" marker-end="url(#marker-open-065f46)"/>
 <text class="edge-label" x="403.1" y="204.3" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">exports</text>
-<path class="edge-line" d="M240.0 103.0 Q256.4 207.9 320.0 293.0" fill="none" stroke="#065f46" stroke-width="1.6" stroke-dasharray="4,4" marker-end="url(#marker-open-065f46)"/>
-<text class="edge-label" x="268.2" y="197.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">exports</text>
+<path class="edge-line" d="M150.0 146.0 Q131.3 198.0 150.0 250.0" fill="none" stroke="#065f46" stroke-width="1.6" stroke-dasharray="4,4" marker-end="url(#marker-open-065f46)"/>
+<text class="edge-label" x="140.6" y="192.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">exports</text>
 <g id="com.karta.shipping">
   <title>com.karta.shipping [MODULE]</title>
-  <rect class="node-rect" x="60.0" y="60.0" width="180.0" height="86.0" rx="6" fill="#ede9fe" stroke="#6d28d9" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <rect class="node-rect" x="60.0" y="60.0" width="180.0" height="86.0" rx="6.0" fill="#ede9fe" stroke="#6d28d9" stroke-width="1.8" filter="url(#nodeShadow)"/>
   <text class="node-label" x="150.0" y="90.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#6d28d9" font-style="italic">«mod»</text>
   <text class="node-label" x="150.0" y="115.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">com.karta.shipping</text>
 </g>
 <g id="java.base">
   <title>java.base [MODULE]</title>
-  <rect class="node-rect" x="840.0" y="250.0" width="180.0" height="86.0" rx="6" fill="#ede9fe" stroke="#6d28d9" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="930.0" y="280.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#6d28d9" font-style="italic">«mod»</text>
-  <text class="node-label" x="930.0" y="305.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">java.base</text>
+  <rect class="node-rect" x="1100.0" y="250.0" width="180.0" height="86.0" rx="6.0" fill="#ede9fe" stroke="#6d28d9" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="1190.0" y="280.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#6d28d9" font-style="italic">«mod»</text>
+  <text class="node-label" x="1190.0" y="305.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">java.base</text>
 </g>
 <g id="java.logging">
   <title>java.logging [MODULE]</title>
-  <rect class="node-rect" x="60.0" y="250.0" width="180.0" height="86.0" rx="6" fill="#ede9fe" stroke="#6d28d9" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="150.0" y="280.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#6d28d9" font-style="italic">«mod»</text>
-  <text class="node-label" x="150.0" y="305.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">java.logging</text>
+  <rect class="node-rect" x="320.0" y="250.0" width="180.0" height="86.0" rx="6.0" fill="#ede9fe" stroke="#6d28d9" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="410.0" y="280.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#6d28d9" font-style="italic">«mod»</text>
+  <text class="node-label" x="410.0" y="305.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">java.logging</text>
 </g>
 <g id="com.karta.shipping.domain">
   <title>com.karta.shipping.domain [PACKAGE]</title>
-  <rect class="node-rect" x="580.0" y="250.0" width="180.0" height="86.0" rx="6" fill="#d1fae5" stroke="#065f46" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="670.0" y="280.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">«pkg»</text>
-  <text class="node-label" x="670.0" y="305.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">com.karta.shipping.domain</text>
+  <rect class="node-rect" x="840.0" y="250.0" width="180.0" height="86.0" rx="6.0" fill="#d1fae5" stroke="#065f46" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="930.0" y="280.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">«pkg»</text>
+  <text class="node-label" x="930.0" y="305.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">com.karta.shipping.domain</text>
 </g>
 <g id="com.karta.shipping.core">
   <title>com.karta.shipping.core [PACKAGE]</title>
-  <rect class="node-rect" x="320.0" y="250.0" width="180.0" height="86.0" rx="6" fill="#d1fae5" stroke="#065f46" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="410.0" y="280.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">«pkg»</text>
-  <text class="node-label" x="410.0" y="305.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">com.karta.shipping.core</text>
+  <rect class="node-rect" x="580.0" y="250.0" width="180.0" height="86.0" rx="6.0" fill="#d1fae5" stroke="#065f46" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="670.0" y="280.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">«pkg»</text>
+  <text class="node-label" x="670.0" y="305.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">com.karta.shipping.core</text>
 </g>
-<rect x="844.0" y="560.0" width="220.0" height="100.0" rx="6" fill="#ffffff" stroke="#d1d5db" stroke-width="1" filter="url(#nodeShadow)"/>
-<text x="860.0" y="580.0" font-family="sans-serif" font-size="11" font-weight="bold" fill="#374151">Legend</text>
-<line x1="860.0" y1="604.0" x2="896.0" y2="604.0" stroke="#6d28d9" stroke-width="2" marker-end="url(#marker-filled-6d28d9)"/>
-<text x="904.0" y="608.0" font-family="sans-serif" font-size="11" fill="#374151">requires</text>
-<line x1="860.0" y1="628.0" x2="896.0" y2="628.0" stroke="#065f46" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#marker-open-065f46)"/>
-<text x="904.0" y="632.0" font-family="sans-serif" font-size="11" fill="#374151">exports</text>
+<g id="com.karta.shipping.state">
+  <title>com.karta.shipping.state [PACKAGE]</title>
+  <rect class="node-rect" x="60.0" y="250.0" width="180.0" height="86.0" rx="6.0" fill="#d1fae5" stroke="#065f46" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="150.0" y="280.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">«pkg»</text>
+  <text class="node-label" x="150.0" y="305.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">com.karta.shipping.state</text>
+</g>
+<rect x="1104.0" y="560.0" width="220.0" height="100.0" rx="6" fill="#ffffff" stroke="#d1d5db" stroke-width="1" filter="url(#nodeShadow)"/>
+<text x="1120.0" y="580.0" font-family="sans-serif" font-size="11" font-weight="bold" fill="#374151">Legend</text>
+<line x1="1120.0" y1="604.0" x2="1156.0" y2="604.0" stroke="#6d28d9" stroke-width="2" marker-end="url(#marker-filled-6d28d9)"/>
+<text x="1164.0" y="608.0" font-family="sans-serif" font-size="11" fill="#374151">requires</text>
+<line x1="1120.0" y1="628.0" x2="1156.0" y2="628.0" stroke="#065f46" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#marker-open-065f46)"/>
+<text x="1164.0" y="632.0" font-family="sans-serif" font-size="11" fill="#374151">exports</text>
 <a class="diagram-attribution" href="https://github.com/PIsberg/codekarta" target="_blank" rel="noopener noreferrer">
-  <text x="1064.0" y="678.0" text-anchor="end" font-family="sans-serif" font-size="11" fill="#6b7280" text-decoration="underline">Created with https://github.com/PIsberg/codekarta</text>
+  <text x="1324.0" y="678.0" text-anchor="end" font-family="sans-serif" font-size="11" fill="#6b7280" text-decoration="underline">Created with https://github.com/PIsberg/codekarta</text>
 </a>
 </svg>

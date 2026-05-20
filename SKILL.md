@@ -27,6 +27,7 @@ java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \
   --input <path> \
   --output <dir> \
   [--sequence-only] \
+  [--state-machine] \
   [--layout simple|elk]
 ```
 
@@ -39,8 +40,10 @@ Input path decides the diagram:
 | single `.java` file | `<classname>-sequence-diagram.svg` with exception-flow analysis |
 | single `.java` file plus `--sequence-only` | call-only sequence diagram |
 | directory plus `--sequence-only` | `sequence-diagram.svg` stitched across files |
+| file or directory plus `--state-machine` | state transition diagram |
 
 Use `--layout elk` for large graphs. Use `--sequence-only` when exception propagation and try/catch regions are noise.
+Use `--state-machine` for enum-backed workflow code where enum constants represent states and switch assignments or `transition(from, to, event)` calls represent transitions.
 
 ## Library Usage
 
@@ -76,6 +79,14 @@ String svg = new SvgRenderer().render(graph);
 
 Pass the source root, not a deeply nested package, when cross-package symbol resolution matters.
 
+Use state-machine parsing:
+
+```java
+Graph graph = new StateMachineParser().parse(Path.of("src/main/java/com/example/Workflow.java"));
+new SimpleLayoutEngine().layout(graph);
+String svg = new SvgRenderer().render(graph);
+```
+
 ## Extension Rules
 
 Preserve the project boundaries:
@@ -101,7 +112,7 @@ directory        -> ClassDiagramParser
 .java + sequence -> CallSequenceParser
 ```
 
-The CLI handles directory plus `--sequence-only` separately with `MultiFileSequenceParser`.
+The CLI handles directory plus `--sequence-only` separately with `MultiFileSequenceParser`, and file/directory plus `--state-machine` with `StateMachineParser`.
 
 ## Output and Theming
 
