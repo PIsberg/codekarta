@@ -28,7 +28,9 @@ java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \
   --output <dir> \
   [--sequence-only] \
   [--state-machine] \
-  [--layout simple|elk]
+  [--layout simple|elk] \
+  [--exclude <patterns>] \
+  [--max-depth <depth>]
 ```
 
 Input path decides the diagram:
@@ -44,6 +46,8 @@ Input path decides the diagram:
 
 Use `--layout elk` for large graphs. Use `--sequence-only` when exception propagation and try/catch regions are noise.
 Use `--state-machine` for enum-backed workflow code where enum constants represent states and switch assignments or `transition(from, to, event)` calls represent transitions.
+Use `--exclude <patterns>` (comma-separated wildcards, e.g. `*Test,com.karta.util.*,Map`) to filter noisy types/methods under scale.
+Use `--max-depth <depth>` (integer) to limit call-sequence stitching hierarchy.
 
 ## Library Usage
 

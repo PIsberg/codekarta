@@ -52,7 +52,9 @@ java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \
   --output <dir> \
   [--sequence-only] \
   [--state-machine] \
-  [--layout simple|elk]
+  [--layout simple|elk] \
+  [--exclude <patterns>] \
+  [--max-depth <depth>]
 ```
 
 | Flag | Default | Description |
@@ -62,6 +64,8 @@ java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \
 | `--sequence-only` | off | Emits only `CALLS` edges. For directory input, parses all Java files together into one stitched sequence graph. |
 | `--state-machine` | off | Emits `STATE` nodes and `TRANSITION` edges from enum constants, switch cases, state assignments, and `transition(from, to, event)` calls. |
 | `--layout simple|elk` | `simple` | `simple` is the pure-Java BFS grid. `elk` uses Eclipse Layout Kernel layered layout and is better for larger graphs. |
+| `--exclude <patterns>` | off | Comma-separated wildcard patterns of classes or methods to exclude (e.g. `*Test,com.karta.util.*,Map`) to reduce visual clutter. |
+| `--max-depth <depth>` | off | Maximum call sequence depth to parse or stitch. |
 | `--help` | off | Prints CLI usage. |
 
 During development:
@@ -97,7 +101,9 @@ java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \
 
 ### Class Diagram
 
-Parses a directory of Java files into class and interface nodes with `EXTENDS`, `IMPLEMENTS`, and `HAS` edges. Standard library types such as `String`, primitives, and common collections are filtered out so diagrams focus on domain types.
+Parses a directory of Java files into class and interface nodes with `EXTENDS`, `IMPLEMENTS`, and `HAS` edges. Standard library types such as `String`, primitives, and common collections are filtered out so diagrams focus on domain types. 
+
+Classes are **automatically grouped by Java package** into nested compound blocks to enable clean visual grouping under scale. You can filter out specific classes, packages, or frameworks using the `--exclude` flag.
 
 ```bash
 java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \

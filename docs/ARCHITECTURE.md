@@ -72,7 +72,7 @@ Example graph:
 | Parser | Input | Nodes | Edges and groups |
 |---|---|---|---|
 | `ModuleInfoParser` | `module-info.java` | `MODULE`, `PACKAGE` | `REQUIRES`, `EXPORTS` |
-| `ClassDiagramParser` | directory | `CLASS`, `INTERFACE` | `EXTENDS`, `IMPLEMENTS`, `HAS` |
+| `ClassDiagramParser` | directory | `CLASS`, `INTERFACE` | `EXTENDS`, `IMPLEMENTS`, `HAS` edges, and `Group` (package clusters) |
 | `ExceptionFlowParser` | one `.java` file | `CLASS`, `METHOD`, `EXCEPTION` | `CALLS`, `EXCEPTION_PROPAGATION`, try/catch `Group`s |
 | `CallSequenceParser` | one `.java` file | `CLASS`, `METHOD` | ordered `CALLS` |
 | `MultiFileSequenceParser` | source directory | `CLASS`, `METHOD` | ordered `CALLS`, cross-file callee IDs when symbol solving succeeds |
@@ -93,7 +93,11 @@ The parsers are fault tolerant. Parse failures are logged and produce partial or
 
 Class diagrams filter obvious JDK types and primitives so associations stay focused on project types. Class and interface nodes can include `fields` and `methods` entries in `Node.properties`; the SVG renderer uses those properties for UML compartments.
 
-Multi-file sequence parsing anchors JavaParser's symbol solver at the supplied source root. For best results, pass a root such as `src/main/java` instead of a nested package directory.
+### Diagram Scaling Features
+To support clean diagramming in large codebases, several architectural scaling constraints are supported:
+*   **Package-Based Visual Clustering:** `ClassDiagramParser` automatically extracts package declarations and groups class nodes into nested `Group` blocks. These clusters are cleanly rendered by the compound routing engine, avoiding monolithic flat "hairballs".
+*   **Configurable Filtering:** Dynamic class and method filtering is supported via `FilterMatcher`. Users can exclude unwanted frameworks, utility classes, or test classes using simple wildcard patterns (e.g. `*Test`, `com.karta.util.*`).
+*   **Sequence Depth Limiting:** `MultiFileSequenceParser` supports depth-limited stitching. It performs a post-processing BFS from sequence entry points (methods with no incoming calls) and prunes any nodes/edges exceeding a user-defined `--max-depth`.
 
 State-machine parsing targets enum-backed workflow code. Enum constants become `STATE` nodes. Switch entries, state assignments, returns/yields, and explicit `transition(from, to, event)` calls become `TRANSITION` edges.
 
