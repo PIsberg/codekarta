@@ -10,6 +10,7 @@ import se.deversity.vibetags.annotations.AIContext;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Set;
 import java.util.logging.Logger;
 
 /**
@@ -33,20 +34,26 @@ public class JavaSourceInputParser implements InputParser {
     private ExceptionFlowParser exceptionFlowParser;
     private CallSequenceParser callSequenceParser;
     private final boolean sequenceOnly;
+    private final Set<String> customExcludes;
 
     public JavaSourceInputParser() {
         this(false);
     }
 
     public JavaSourceInputParser(boolean sequenceOnly) {
+        this(sequenceOnly, java.util.Collections.emptySet());
+    }
+
+    public JavaSourceInputParser(boolean sequenceOnly, Set<String> customExcludes) {
         this.sequenceOnly = sequenceOnly;
+        this.customExcludes = customExcludes != null ? customExcludes : java.util.Collections.emptySet();
     }
 
     @Override
     public Graph parse(Path path) {
         if (Files.isDirectory(path)) {
             log.fine(() -> "Delegating directory to ClassDiagramParser: " + path);
-            if (classDiagramParser == null) classDiagramParser = new ClassDiagramParser();
+            if (classDiagramParser == null) classDiagramParser = new ClassDiagramParser(customExcludes);
             return classDiagramParser.parse(path);
         }
         String fileName = path.getFileName().toString();
@@ -58,11 +65,11 @@ public class JavaSourceInputParser implements InputParser {
         if (fileName.endsWith(".java")) {
             if (sequenceOnly) {
                 log.fine(() -> "Delegating source file to CallSequenceParser (sequence-only): " + path);
-                if (callSequenceParser == null) callSequenceParser = new CallSequenceParser();
+                if (callSequenceParser == null) callSequenceParser = new CallSequenceParser(customExcludes);
                 return callSequenceParser.parse(path);
             }
             log.fine(() -> "Delegating source file to ExceptionFlowParser: " + path);
-            if (exceptionFlowParser == null) exceptionFlowParser = new ExceptionFlowParser();
+            if (exceptionFlowParser == null) exceptionFlowParser = new ExceptionFlowParser(customExcludes);
             return exceptionFlowParser.parse(path);
         }
         log.warning("Unrecognised path, returning empty graph: " + path);

@@ -103,6 +103,57 @@ class MultiFileSequenceParserTest {
         assertTrue(graph.getNodes().isEmpty());
     }
 
+    @Test
+    void excludesTypesAndMethods(@TempDir Path sourceRoot) throws Exception {
+        write(sourceRoot, "A.java", """
+                public class A {
+                    B b = new B();
+                    void go() { b.first(); b.second(); }
+                }
+                """);
+        write(sourceRoot, "B.java", """
+                public class B {
+                    public void first()  {}
+                    public void second() {}
+                }
+                """);
+
+        MultiFileSequenceParser customParser = new MultiFileSequenceParser(java.util.Set.of("B.second"));
+        Graph graph = customParser.parse(sourceRoot);
+
+        assertNotNull(graph.findNode("A.go"));
+        assertNotNull(graph.findNode("B.first"));
+        assertNull(graph.findNode("B.second"), "B.second should be excluded");
+    }
+
+    @Test
+    void limitsCallSequenceDepth(@TempDir Path sourceRoot) throws Exception {
+        write(sourceRoot, "A.java", """
+                public class A {
+                    B b = new B();
+                    void go() { b.first(); }
+                }
+                """);
+        write(sourceRoot, "B.java", """
+                public class B {
+                    C c = new C();
+                    public void first()  { c.second(); }
+                }
+                """);
+        write(sourceRoot, "C.java", """
+                public class C {
+                    public void second() {}
+                }
+                """);
+
+        MultiFileSequenceParser customParser = new MultiFileSequenceParser(java.util.Set.of(), 1);
+        Graph graph = customParser.parse(sourceRoot);
+
+        assertNotNull(graph.findNode("A.go"));
+        assertNotNull(graph.findNode("B.first"));
+        assertNull(graph.findNode("C.second"), "C.second should be pruned at depth 2");
+    }
+
     private Path write(Path dir, String name, String content) throws Exception {
         Path file = dir.resolve(name);
         Files.writeString(file, content);

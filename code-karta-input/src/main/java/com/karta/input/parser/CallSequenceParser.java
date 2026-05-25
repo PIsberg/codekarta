@@ -11,6 +11,7 @@ import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.karta.core.model.Edge;
 import com.karta.core.model.Graph;
 import com.karta.core.model.Node;
+import java.util.Set;
 import se.deversity.vibetags.annotations.AIArchitecture;
 import se.deversity.vibetags.annotations.AIContext;
 
@@ -31,6 +32,16 @@ public class CallSequenceParser {
     private static final JavaParser PARSER = new JavaParser(
             new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21));
 
+    private final Set<String> customExcludes;
+
+    public CallSequenceParser() {
+        this(java.util.Collections.emptySet());
+    }
+
+    public CallSequenceParser(Set<String> customExcludes) {
+        this.customExcludes = customExcludes != null ? customExcludes : java.util.Collections.emptySet();
+    }
+
     public Graph parse(Path sourceFile) {
         Graph graph = new Graph();
         try {
@@ -38,6 +49,9 @@ public class CallSequenceParser {
 
             cu.findAll(ClassOrInterfaceDeclaration.class).forEach(classDecl -> {
                 String className = classDecl.getNameAsString();
+                if (FilterMatcher.matchesAny(className, customExcludes)) {
+                    return;
+                }
                 graph.addNodeIfAbsent(new Node(className, "CLASS", className));
 
                 // Return-type map for resolving chained local calls, e.g. resolveLayout(x).layout(g)
@@ -50,6 +64,9 @@ public class CallSequenceParser {
 
                 classDecl.findAll(MethodDeclaration.class).forEach(method -> {
                     String qualifiedMethod = className + "." + method.getNameAsString();
+                    if (FilterMatcher.matchesAny(qualifiedMethod, customExcludes) || FilterMatcher.matchesAny(method.getNameAsString(), customExcludes)) {
+                        return;
+                    }
                     graph.addNodeIfAbsent(new Node(qualifiedMethod, "METHOD", method.getNameAsString()));
 
                     int[] order = { 0 };
@@ -57,6 +74,10 @@ public class CallSequenceParser {
                         @Override
                         public void visit(MethodCallExpr call, Void arg) {
                             String name = call.getNameAsString();
+                            if (FilterMatcher.matchesAny(name, customExcludes)) {
+                                super.visit(call, arg);
+                                return;
+                            }
                             String callee;
                             if (call.getScope().isPresent()) {
                                 if (SequenceFilterUtil.shouldSkipScopedCall(name)) {
@@ -71,6 +92,10 @@ public class CallSequenceParser {
                                 callee = scopeName + "." + name;
                             } else {
                                 callee = name;
+                            }
+                            if (FilterMatcher.matchesAny(callee, customExcludes)) {
+                                super.visit(call, arg);
+                                return;
                             }
                             graph.addNodeIfAbsent(new Node(callee, "METHOD", name));
                             int seq = ++order[0];
