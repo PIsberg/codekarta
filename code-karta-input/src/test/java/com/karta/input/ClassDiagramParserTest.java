@@ -256,6 +256,40 @@ class ClassDiagramParserTest {
                 "Constants-only class must carry «constants» stereotype property");
     }
 
+    @Test
+    void parsesPackageGroup(@TempDir Path dir) throws Exception {
+        Files.writeString(dir.resolve("Status.java"), """
+                package com.karta.shipping;
+                public class Status {}
+                """);
+
+        Graph graph = parser.parse(dir);
+
+        assertEquals(1, graph.getGroups().size(), "There should be one package group");
+        var group = graph.getGroups().get(0);
+        assertEquals("package-com.karta.shipping", group.getId());
+        assertEquals("com.karta.shipping", group.getLabel());
+        assertTrue(group.getMemberIds().contains("Status"), "Status must be a member of the package group");
+    }
+
+    @Test
+    void parsesWithCustomExcludes(@TempDir Path dir) throws Exception {
+        Files.writeString(dir.resolve("Engine.java"), "public class Engine {}");
+        Files.writeString(dir.resolve("Car.java"), """
+                public class Car {
+                    private Engine engine;
+                    private String notes;
+                }
+                """);
+
+        ClassDiagramParser customParser = new ClassDiagramParser(java.util.Set.of("Engine"));
+        Graph graph = customParser.parse(dir);
+
+        assertNotNull(graph.findNode("Car"));
+        assertNull(graph.findNode("Engine"), "Engine class should be excluded");
+        assertFalse(hasEdge(graph, "Car", "Engine", "HAS"), "Car should not have HAS edge to Engine");
+    }
+
     private boolean hasEdge(Graph graph, String src, String tgt, String type) {
         return graph.getEdges().stream().anyMatch(e ->
                 src.equals(e.getSourceId()) && tgt.equals(e.getTargetId()) && type.equals(e.getType()));

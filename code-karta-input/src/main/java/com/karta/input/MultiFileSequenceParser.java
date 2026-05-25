@@ -20,6 +20,8 @@ import com.karta.core.model.Graph;
 import com.karta.core.model.Group;
 import com.karta.core.model.Node;
 import com.karta.core.model.NodeType;
+import com.karta.input.parser.FilterMatcher;
+import java.util.Set;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -58,6 +60,22 @@ public class MultiFileSequenceParser {
 
     private static final Logger log = Logger.getLogger(MultiFileSequenceParser.class.getName());
 
+    private final Set<String> customExcludes;
+    private final int maxDepth;
+
+    public MultiFileSequenceParser() {
+        this(java.util.Collections.emptySet(), Integer.MAX_VALUE);
+    }
+
+    public MultiFileSequenceParser(Set<String> customExcludes) {
+        this(customExcludes, Integer.MAX_VALUE);
+    }
+
+    public MultiFileSequenceParser(Set<String> customExcludes, int maxDepth) {
+        this.customExcludes = customExcludes != null ? customExcludes : java.util.Collections.emptySet();
+        this.maxDepth = maxDepth > 0 ? maxDepth : Integer.MAX_VALUE;
+    }
+
     /**
      * Discovers all {@code .java} files under {@code sourceRoot} (excluding
      * {@code module-info.java}), resolves cross-file calls, and returns a
@@ -91,6 +109,7 @@ public class MultiFileSequenceParser {
             parseFile(parser, file, graph);
         }
 
+        pruneToMaxDepth(graph);
         return graph;
     }
 
@@ -105,6 +124,9 @@ public class MultiFileSequenceParser {
 
             cu.findAll(ClassOrInterfaceDeclaration.class).forEach(classDecl -> {
                 String className = classDecl.getNameAsString();
+                if (FilterMatcher.matchesAny(className, customExcludes)) {
+                    return;
+                }
                 graph.addNodeIfAbsent(new Node(className, NodeType.CLASS, className));
 
                 Set<String> localMethods = classDecl.findAll(MethodDeclaration.class).stream()
@@ -113,6 +135,9 @@ public class MultiFileSequenceParser {
 
                 classDecl.findAll(MethodDeclaration.class).forEach(method -> {
                     String methodId = className + "." + method.getNameAsString();
+                    if (FilterMatcher.matchesAny(methodId, customExcludes) || FilterMatcher.matchesAny(method.getNameAsString(), customExcludes)) {
+                        return;
+                    }
                     graph.addNodeIfAbsent(new Node(methodId, NodeType.METHOD, method.getNameAsString()));
 
                     int[] seq = { 0 };
@@ -120,6 +145,10 @@ public class MultiFileSequenceParser {
                         @Override
                         public void visit(MethodCallExpr call, Void arg) {
                             String calleeId = resolveCallee(call, className, localMethods);
+                            if (FilterMatcher.matchesAny(call.getNameAsString(), customExcludes) || FilterMatcher.matchesAny(calleeId, customExcludes)) {
+                                super.visit(call, arg);
+                                return;
+                            }
                             graph.addNodeIfAbsent(new Node(calleeId, NodeType.METHOD, call.getNameAsString()));
 
                             int n = ++seq[0];
@@ -175,6 +204,81 @@ public class MultiFileSequenceParser {
                 .orElse(localMethods.contains(call.getNameAsString())
                         ? ownerClass + "." + call.getNameAsString()
                         : call.getNameAsString());
+    }
+
+    private void pruneToMaxDepth(Graph graph) {
+        if (maxDepth == Integer.MAX_VALUE) {
+            return;
+        }
+        // 1. Identify all nodes that have incoming CALLS edges
+        java.util.Set<String> hasIncoming = new java.util.HashSet<>();
+        for (Edge edge : graph.getEdges()) {
+            if ("CALLS".equalsIgnoreCase(edge.getType())) {
+                hasIncoming.add(edge.getTargetId());
+            }
+        }
+
+        // 2. Entry points are METHOD nodes with no incoming CALLS edges
+        java.util.Queue<String> queue = new java.util.LinkedList<>();
+        java.util.Map<String, Integer> depths = new java.util.HashMap<>();
+        for (Node node : graph.getNodes()) {
+            if (NodeType.METHOD.equals(node.getType()) && !hasIncoming.contains(node.getId())) {
+                depths.put(node.getId(), 0);
+                queue.add(node.getId());
+            }
+        }
+
+        // BFS to find the minimum depth of each node
+        java.util.Set<String> visited = new java.util.HashSet<>();
+        while (!queue.isEmpty()) {
+            String current = queue.poll();
+            int currentDepth = depths.get(current);
+            if (!visited.add(current)) {
+                continue;
+            }
+            if (currentDepth >= maxDepth) {
+                continue;
+            }
+            for (Edge edge : graph.getEdges()) {
+                if ("CALLS".equalsIgnoreCase(edge.getType()) && current.equals(edge.getSourceId())) {
+                    String target = edge.getTargetId();
+                    int nextDepth = currentDepth + 1;
+                    if (nextDepth < depths.getOrDefault(target, Integer.MAX_VALUE)) {
+                        depths.put(target, nextDepth);
+                        queue.add(target);
+                    }
+                }
+            }
+        }
+
+        // 3. Keep class nodes, exception nodes, and method nodes with depth <= maxDepth
+        java.util.List<Node> keepNodes = new java.util.ArrayList<>();
+        java.util.Set<String> keepNodeIds = new java.util.HashSet<>();
+        for (Node node : graph.getNodes()) {
+            // Keep class nodes and non-method nodes, or method nodes within maxDepth
+            if (!NodeType.METHOD.equals(node.getType()) || depths.containsKey(node.getId())) {
+                keepNodes.add(node);
+                keepNodeIds.add(node.getId());
+            }
+        }
+        graph.setNodes(keepNodes);
+
+        // 4. Keep only edges between kept nodes
+        java.util.List<Edge> keepEdges = graph.getEdges().stream()
+                .filter(e -> keepNodeIds.contains(e.getSourceId()) && keepNodeIds.contains(e.getTargetId()))
+                .collect(java.util.stream.Collectors.toList());
+        graph.setEdges(keepEdges);
+
+        // 5. Keep groups (e.g. catch boundaries) containing only kept members
+        for (Group group : graph.getGroups()) {
+            java.util.List<String> keepMembers = group.getMemberIds().stream()
+                    .filter(keepNodeIds::contains)
+                    .collect(java.util.stream.Collectors.toList());
+            group.setMemberIds(keepMembers);
+        }
+        graph.setGroups(graph.getGroups().stream()
+                .filter(g -> !g.getMemberIds().isEmpty())
+                .collect(java.util.stream.Collectors.toList()));
     }
 
     private List<Path> collectJavaSources(Path root) {

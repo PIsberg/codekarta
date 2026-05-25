@@ -12,7 +12,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
-        <version>3.3.0</version>
+        <version>3.6.3</version>
         <executions>
           <execution>
             <id>gen-module-diagram</id>
@@ -121,7 +121,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.6.0</version>
+        <version>3.6.2</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -157,7 +157,7 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>5.11.0</version>
+      <version>6.1.0</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>

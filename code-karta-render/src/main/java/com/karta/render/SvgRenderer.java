@@ -125,17 +125,22 @@ public class SvgRenderer {
         sb.append("<defs>\n");
         sb.append("<style>\n").append(cssOverride != null ? cssOverride : defaultCss()).append("</style>\n");
         sb.append(dropShadowFilter());
+        sb.append(buildGradients());
+        sb.append(dotGridPattern());
         sb.append(buildMarkers(graph));
         sb.append("</defs>\n");
 
         sb.append(String.format(Locale.ROOT,
             "<rect width=\"%.0f\" height=\"%.0f\" fill=\"#f9fafb\"/>\n", svgW, svgH));
+        sb.append(String.format(Locale.ROOT,
+            "<rect width=\"%.0f\" height=\"%.0f\" fill=\"url(#dotGrid)\"/>\n", svgW, svgH));
 
         for (Group group : graph.getGroups()) sb.append(renderGroup(group, graph));
         for (Edge  edge  : graph.getEdges())  sb.append(renderEdge(edge, graph));
         for (Node  node  : graph.getNodes())  sb.append(renderNode(node));
 
         if (!legendTypes.isEmpty()) sb.append(renderLegend(legendTypes, svgW, bounds[1] + PADDING));
+        sb.append(embeddedJs());
         sb.append(renderAttribution(svgW, svgH));
         sb.append("</svg>");
         return sb.toString();
@@ -150,7 +155,10 @@ public class SvgRenderer {
         double w  = node.getWidth() != null ? node.getWidth() : RENDER_NODE_W;
         String type   = node.getType() != null ? node.getType() : "CLASS";
         String label  = escapeXml(node.getLabel() != null ? node.getLabel() : node.getId());
-        String fill   = NODE_FILL.getOrDefault(type, "#ffffff");
+        String fill = "url(#grad-" + type + ")";
+        if (!NODE_FILL.containsKey(type)) {
+            fill = "url(#grad-CLASS)";
+        }
         String stroke = NODE_STROKE.getOrDefault(type, "#374151");
         Map<String, String> props = node.getProperties();
         // JDK/stdlib modules get a muted palette so they don't visually compete with project modules
@@ -295,9 +303,9 @@ public class SvgRenderer {
         StringBuilder sb = new StringBuilder();
         String dashAttr = dash != null ? String.format(Locale.ROOT, " stroke-dasharray=\"%s\"", dash) : "";
         sb.append(String.format(Locale.ROOT,
-            "<path class=\"edge-line\" d=\"M%.1f %.1f Q%.1f %.1f %.1f %.1f\" " +
+            "<path class=\"edge-line\" data-source=\"%s\" data-target=\"%s\" data-type=\"%s\" d=\"M%.1f %.1f Q%.1f %.1f %.1f %.1f\" " +
             "fill=\"none\" stroke=\"%s\" stroke-width=\"1.6\"%s marker-end=\"url(#%s)\"/>\n",
-            sx, sy, cx, cy, tx, ty, color, dashAttr, markerId));
+            escapeXml(edge.getSourceId()), escapeXml(edge.getTargetId()), escapeXml(type), sx, sy, cx, cy, tx, ty, color, dashAttr, markerId));
 
         String relLabel = EDGE_RELATION_LABEL.getOrDefault(type,
                           edge.getLabel() != null ? edge.getLabel() : null);
@@ -305,10 +313,10 @@ public class SvgRenderer {
             double lx = (sx + 2 * cx + tx) / 4;
             double ly = (sy + 2 * cy + ty) / 4 - 6;
             sb.append(String.format(Locale.ROOT,
-                "<text class=\"edge-label\" x=\"%.1f\" y=\"%.1f\" text-anchor=\"middle\" " +
+                "<text class=\"edge-label\" data-source=\"%s\" data-target=\"%s\" data-type=\"%s\" x=\"%.1f\" y=\"%.1f\" text-anchor=\"middle\" " +
                 "font-family=\"sans-serif\" font-size=\"10\" fill=\"%s\" " +
                 "font-style=\"italic\">%s</text>\n",
-                lx, ly, color, escapeXml(relLabel)));
+                escapeXml(edge.getSourceId()), escapeXml(edge.getTargetId()), escapeXml(type), lx, ly, color, escapeXml(relLabel)));
         }
         return sb.toString();
     }
@@ -440,14 +448,16 @@ public class SvgRenderer {
     // ------------------------------------------------------------------ CSS & SVG filters
 
     String defaultCss() {
-        return "svg { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }\n"
-             + ".node-rect { transition: filter 0.15s; }\n"
-             + ".node-rect:hover { stroke-width: 2.5 !important; }\n"
-             + ".edge-line { stroke-linecap: round; stroke-linejoin: round; }\n"
-             + ".edge-label { paint-order: stroke; stroke: #f9fafb; stroke-width: 3; }\n"
-             + ".diagram-attribution { fill: #6b7280; text-decoration: underline; }\n"
-             + ".diagram-attribution:hover { fill: #374151; text-decoration: underline; }\n"
-             + ".group-rect { }\n"
+        return "svg { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }\n"
+             + "text { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important; }\n"
+             + ".node-rect { transition: filter 0.2s ease, stroke-width 0.2s ease, stroke 0.2s ease; }\n"
+             + ".node-rect:hover { stroke-width: 2.2 !important; filter: drop-shadow(0 8px 16px rgba(15, 23, 42, 0.12)) !important; }\n"
+             + ".edge-line { stroke-linecap: round; stroke-linejoin: round; transition: stroke-width 0.2s ease; }\n"
+             + ".edge-line:hover { stroke-width: 2.5 !important; }\n"
+             + ".edge-label { paint-order: stroke; stroke: #f9fafb; stroke-width: 3; font-weight: 500; }\n"
+             + ".diagram-attribution { fill: #9ca3af; text-decoration: none; transition: fill 0.2s ease; }\n"
+             + ".diagram-attribution:hover { fill: #4b5563; text-decoration: underline; }\n"
+             + ".group-rect { transition: stroke-width 0.2s ease; }\n"
              + ".node-label { pointer-events: none; }\n";
     }
 
@@ -464,9 +474,55 @@ public class SvgRenderer {
     }
 
     static String dropShadowFilter() {
-        return "<filter id=\"nodeShadow\" x=\"-15%\" y=\"-15%\" width=\"130%\" height=\"130%\">\n"
-             + "  <feDropShadow dx=\"0\" dy=\"2\" stdDeviation=\"3\" flood-color=\"#0000001a\"/>\n"
+        return "<filter id=\"nodeShadow\" x=\"-20%\" y=\"-20%\" width=\"140%\" height=\"140%\">\n"
+             + "  <feDropShadow dx=\"0\" dy=\"3\" stdDeviation=\"4\" flood-color=\"#0f172a\" flood-opacity=\"0.08\"/>\n"
              + "</filter>\n";
+    }
+
+    static String dotGridPattern() {
+        return "<pattern id=\"dotGrid\" width=\"24\" height=\"24\" patternUnits=\"userSpaceOnUse\">\n"
+             + "  <circle cx=\"2\" cy=\"2\" r=\"1\" fill=\"#e5e7eb\"/>\n"
+             + "</pattern>\n";
+    }
+
+    static String buildGradients() {
+        StringBuilder sb = new StringBuilder();
+        // CLASS
+        sb.append("<linearGradient id=\"grad-CLASS\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\">\n")
+          .append("  <stop offset=\"0%\" stop-color=\"#ffffff\"/>\n")
+          .append("  <stop offset=\"100%\" stop-color=\"#f3f4f6\"/>\n")
+          .append("</linearGradient>\n");
+        // INTERFACE
+        sb.append("<linearGradient id=\"grad-INTERFACE\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\">\n")
+          .append("  <stop offset=\"0%\" stop-color=\"#eff6ff\"/>\n")
+          .append("  <stop offset=\"100%\" stop-color=\"#dbeafe\"/>\n")
+          .append("</linearGradient>\n");
+        // MODULE
+        sb.append("<linearGradient id=\"grad-MODULE\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\">\n")
+          .append("  <stop offset=\"0%\" stop-color=\"#faf5ff\"/>\n")
+          .append("  <stop offset=\"100%\" stop-color=\"#ede9fe\"/>\n")
+          .append("</linearGradient>\n");
+        // METHOD
+        sb.append("<linearGradient id=\"grad-METHOD\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\">\n")
+          .append("  <stop offset=\"0%\" stop-color=\"#fffbeb\"/>\n")
+          .append("  <stop offset=\"100%\" stop-color=\"#fef3c7\"/>\n")
+          .append("</linearGradient>\n");
+        // PACKAGE
+        sb.append("<linearGradient id=\"grad-PACKAGE\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\">\n")
+          .append("  <stop offset=\"0%\" stop-color=\"#ecfdf5\"/>\n")
+          .append("  <stop offset=\"100%\" stop-color=\"#d1fae5\"/>\n")
+          .append("</linearGradient>\n");
+        // EXCEPTION
+        sb.append("<linearGradient id=\"grad-EXCEPTION\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\">\n")
+          .append("  <stop offset=\"0%\" stop-color=\"#fef2f2\"/>\n")
+          .append("  <stop offset=\"100%\" stop-color=\"#fee2e2\"/>\n")
+          .append("</linearGradient>\n");
+        // STATE
+        sb.append("<linearGradient id=\"grad-STATE\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\">\n")
+          .append("  <stop offset=\"0%\" stop-color=\"#f0f9ff\"/>\n")
+          .append("  <stop offset=\"100%\" stop-color=\"#e0f2fe\"/>\n")
+          .append("</linearGradient>\n");
+        return sb.toString();
     }
 
     // ------------------------------------------------------------------ sequence detection
@@ -531,5 +587,72 @@ public class SvgRenderer {
                 .replace(">", "&gt;")
                 .replace("\"", "&quot;")
                 .replace("'", "&apos;");
+    }
+
+    static String embeddedJs() {
+        return "<script type=\"text/javascript\">\n"
+             + "<![CDATA[\n"
+             + "document.addEventListener('DOMContentLoaded', () => {\n"
+             + "  const svg = document.querySelector('svg');\n"
+             + "  if (!svg) return;\n"
+             + "  const nodes = Array.from(svg.querySelectorAll('g')).filter(g => g.querySelector('.node-rect'));\n"
+             + "  const edges = Array.from(svg.querySelectorAll('.edge-line, .edge-label'));\n"
+             + "  nodes.forEach(node => {\n"
+             + "    node.style.cursor = 'pointer';\n"
+             + "    node.addEventListener('mouseenter', () => {\n"
+             + "      const nodeId = node.id;\n"
+             + "      nodes.forEach(n => {\n"
+             + "        if (n.id !== nodeId) {\n"
+             + "          n.style.opacity = '0.15';\n"
+             + "          n.style.transition = 'opacity 0.2s ease';\n"
+             + "        }\n"
+             + "      });\n"
+             + "      const connectedNodeIds = new Set([nodeId]);\n"
+             + "      edges.forEach(edge => {\n"
+             + "        const source = edge.getAttribute('data-source');\n"
+             + "        const target = edge.getAttribute('data-target');\n"
+             + "        const isConnected = (source === nodeId || target === nodeId || \n"
+             + "                             (source && source.startsWith(nodeId + '.')) || \n"
+             + "                             (target && target.startsWith(nodeId + '.')) ||\n"
+             + "                             (nodeId && nodeId.startsWith(source + '.')) ||\n"
+             + "                             (nodeId && nodeId.startsWith(target + '.')));\n"
+             + "        if (isConnected) {\n"
+             + "          if (source) connectedNodeIds.add(source);\n"
+             + "          if (target) connectedNodeIds.add(target);\n"
+             + "          const dotSrc = source ? source.lastIndexOf('.') : -1;\n"
+             + "          if (dotSrc > 0) connectedNodeIds.add(source.substring(0, dotSrc));\n"
+             + "          const dotTgt = target ? target.lastIndexOf('.') : -1;\n"
+             + "          if (dotTgt > 0) connectedNodeIds.add(target.substring(0, dotTgt));\n"
+             + "          edge.style.opacity = '1';\n"
+             + "          if (edge.classList.contains('edge-line')) {\n"
+             + "            edge.style.strokeWidth = '2.8px';\n"
+             + "          }\n"
+             + "          edge.style.fontWeight = 'bold';\n"
+             + "          edge.style.transition = 'opacity 0.2s ease, stroke-width 0.2s ease';\n"
+             + "        } else {\n"
+             + "          edge.style.opacity = '0.08';\n"
+             + "          edge.style.transition = 'opacity 0.2s ease';\n"
+             + "        }\n"
+             + "      });\n"
+             + "      nodes.forEach(n => {\n"
+             + "        if (connectedNodeIds.has(n.id)) {\n"
+             + "          n.style.opacity = '1';\n"
+             + "        }\n"
+             + "      });\n"
+             + "    });\n"
+             + "    node.addEventListener('mouseleave', () => {\n"
+             + "      nodes.forEach(n => {\n"
+             + "        n.style.opacity = '1';\n"
+             + "      });\n"
+             + "      edges.forEach(edge => {\n"
+             + "        edge.style.opacity = '1';\n"
+             + "        edge.style.strokeWidth = '';\n"
+             + "        edge.style.fontWeight = '';\n"
+             + "      });\n"
+             + "    });\n"
+             + "  });\n"
+             + "});\n"
+             + "]]>\n"
+             + "</script>\n";
     }
 }

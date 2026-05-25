@@ -48,6 +48,8 @@ public class KartaCli {
         boolean sequenceOnly = false;
         boolean stateMachine = false;
         String layout = "simple";
+        java.util.Set<String> customExcludes = java.util.Collections.emptySet();
+        int maxDepth = Integer.MAX_VALUE;
 
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
@@ -56,6 +58,24 @@ public class KartaCli {
                 case "--layout"        -> { if (i + 1 < args.length) layout = args[++i]; }
                 case "--sequence-only" -> sequenceOnly = true;
                 case "--state-machine" -> stateMachine = true;
+                case "--exclude"       -> {
+                    if (i + 1 < args.length) {
+                        String rawExcludes = args[++i];
+                        customExcludes = java.util.Arrays.stream(rawExcludes.split(","))
+                                .map(String::trim)
+                                .filter(s -> !s.isEmpty())
+                                .collect(java.util.stream.Collectors.toSet());
+                    }
+                }
+                case "--max-depth"     -> {
+                    if (i + 1 < args.length) {
+                        try {
+                            maxDepth = Integer.parseInt(args[++i]);
+                        } catch (NumberFormatException e) {
+                            System.err.println("Warning: --max-depth must be an integer, ignoring.");
+                        }
+                    }
+                }
                 case "--help", "-h"    -> { printUsage(); System.exit(0); }
             }
         }
@@ -67,7 +87,7 @@ public class KartaCli {
         }
 
         try {
-            Path output = run(inputPath, outputDir, sequenceOnly, layout, stateMachine);
+            Path output = run(inputPath, outputDir, sequenceOnly, layout, stateMachine, customExcludes, maxDepth);
             System.out.println("Generated: " + output.toAbsolutePath());
         } catch (IOException e) {
             System.err.println("Error: " + e.getMessage());
@@ -126,6 +146,20 @@ public class KartaCli {
     public static Path run(Path inputPath, Path outputDir,
                            boolean sequenceOnly, String layout,
                            boolean stateMachine) throws IOException {
+        return run(inputPath, outputDir, sequenceOnly, layout, stateMachine, java.util.Collections.emptySet(), Integer.MAX_VALUE);
+    }
+
+    /**
+     * Runs the full parse → layout → render pipeline with exclusions and depth limits and writes the SVG to outputDir.
+     *
+     * @param customExcludes set of type/package/method patterns to filter out from diagram nodes/edges
+     * @param maxDepth       maximum sequence depth limit (for depth-limited stitched sequence diagrams)
+     * @return the path of the written SVG file
+     */
+    public static Path run(Path inputPath, Path outputDir,
+                           boolean sequenceOnly, String layout,
+                           boolean stateMachine, java.util.Set<String> customExcludes,
+                           int maxDepth) throws IOException {
         Files.createDirectories(outputDir);
 
         PipelineStage state = PipelineStage.PARSING;
@@ -135,9 +169,9 @@ public class KartaCli {
             graph = new StateMachineParser().parse(inputPath);
         } else if (sequenceOnly && Files.isDirectory(inputPath)) {
             log.fine(() -> "Multi-file sequence mode for directory: " + inputPath);
-            graph = new MultiFileSequenceParser().parse(inputPath);
+            graph = new MultiFileSequenceParser(customExcludes, maxDepth).parse(inputPath);
         } else {
-            graph = new JavaSourceInputParser(sequenceOnly).parse(inputPath);
+            graph = new JavaSourceInputParser(sequenceOnly, customExcludes).parse(inputPath);
         }
 
         state = PipelineStage.LAYOUT;
@@ -188,7 +222,7 @@ public class KartaCli {
     }
 
     private static void printUsage() {
-        System.out.println("Usage: karta --input <path> [--output <dir>] [--sequence-only] [--state-machine] [--layout simple|elk]");
+        System.out.println("Usage: karta --input <path> [--output <dir>] [--sequence-only] [--state-machine] [--layout simple|elk] [--exclude <patterns>] [--max-depth <depth>]");
         System.out.println();
         System.out.println("  --input  <path>      What to parse:");
         System.out.println("                         module-info.java  → module diagram");
@@ -213,6 +247,10 @@ public class KartaCli {
         System.out.println("                         elk uses the Eclipse Layout Kernel layered");
         System.out.println("                         algorithm for edge-crossing minimisation and");
         System.out.println("                         orthogonal routing (recommended for large graphs).");
+        System.out.println("  --exclude <patterns> Comma-separated wildcard patterns of classes or methods");
+        System.out.println("                         to exclude (e.g. *Test,com.karta.util.*,Map) to");
+        System.out.println("                         reduce diagram clutter under scale.");
+        System.out.println("  --max-depth <depth>  Maximum call sequence depth to parse/stitch (integer).");
         System.out.println("  --help               Show this message");
     }
 }

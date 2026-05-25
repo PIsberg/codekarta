@@ -60,6 +60,16 @@ public class ExceptionFlowParser {
     private static final JavaParser PARSER = new JavaParser(
             new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21));
 
+    private final Set<String> customExcludes;
+
+    public ExceptionFlowParser() {
+        this(java.util.Collections.emptySet());
+    }
+
+    public ExceptionFlowParser(Set<String> customExcludes) {
+        this.customExcludes = customExcludes != null ? customExcludes : java.util.Collections.emptySet();
+    }
+
     public Graph parse(Path sourceFile) {
         Graph graph = new Graph();
         try {
@@ -67,6 +77,9 @@ public class ExceptionFlowParser {
 
             cu.findAll(ClassOrInterfaceDeclaration.class).forEach(classDecl -> {
                 String className = classDecl.getNameAsString();
+                if (FilterMatcher.matchesAny(className, customExcludes)) {
+                    return;
+                }
                 graph.addNodeIfAbsent(new Node(className, NodeType.CLASS, className));
 
                 // callee node-id → [caller method-ids] (used in pass 2)
@@ -89,6 +102,9 @@ public class ExceptionFlowParser {
                 // ── Pass 1 ────────────────────────────────────────────────
                 classDecl.findAll(MethodDeclaration.class).forEach(method -> {
                     String methodId = className + "." + method.getNameAsString();
+                    if (FilterMatcher.matchesAny(methodId, customExcludes) || FilterMatcher.matchesAny(method.getNameAsString(), customExcludes)) {
+                        return;
+                    }
                     graph.addNodeIfAbsent(new Node(methodId, NodeType.METHOD, method.getNameAsString()));
 
                     // Collect declared throws
@@ -102,6 +118,10 @@ public class ExceptionFlowParser {
                         @Override
                         public void visit(MethodCallExpr call, Void arg) {
                             String name = call.getNameAsString();
+                            if (FilterMatcher.matchesAny(name, customExcludes)) {
+                                super.visit(call, arg);
+                                return;
+                            }
                             String callee;
                             if (call.getScope().isPresent()) {
                                 if (SequenceFilterUtil.shouldSkipScopedCall(name)) {
@@ -117,6 +137,10 @@ public class ExceptionFlowParser {
                                 callee = scopeName + "." + name;
                             } else {
                                 callee = localMethodNames.contains(name) ? className + "." + name : name;
+                            }
+                            if (FilterMatcher.matchesAny(callee, customExcludes)) {
+                                super.visit(call, arg);
+                                return;
                             }
                             graph.addNodeIfAbsent(new Node(callee, NodeType.METHOD, call.getNameAsString()));
                             int n = ++seq[0];

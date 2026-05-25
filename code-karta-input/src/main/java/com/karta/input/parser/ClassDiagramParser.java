@@ -9,6 +9,7 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
 import com.karta.core.model.Edge;
 import com.karta.core.model.Graph;
+import com.karta.core.model.Group;
 import com.karta.core.model.Node;
 
 import java.io.IOException;
@@ -39,7 +40,16 @@ public class ClassDiagramParser {
             "Optional", "Stream", "Collection", "Iterable", "void", "Void",
             "StringBuilder", "StringBuffer", "Number", "Comparable", "Serializable");
 
+    private final Set<String> customExcludes;
     private static final int MAX_MEMBERS = 6;
+
+    public ClassDiagramParser() {
+        this(java.util.Collections.emptySet());
+    }
+
+    public ClassDiagramParser(Set<String> customExcludes) {
+        this.customExcludes = customExcludes != null ? customExcludes : java.util.Collections.emptySet();
+    }
 
     public Graph parse(Path sourceDirectory) {
         Graph graph = new Graph();
@@ -60,16 +70,22 @@ public class ClassDiagramParser {
         try {
             String source = Files.readString(file);
             CompilationUnit cu = PARSER.parse(source).getResult().orElseThrow();
+            String packageName = cu.getPackageDeclaration()
+                    .map(pd -> pd.getNameAsString())
+                    .orElse(null);
             for (TypeDeclaration<?> type : cu.getTypes()) {
-                processType(type, graph);
+                processType(type, graph, packageName);
             }
         } catch (Exception e) {
             log.warning("Failed to parse " + file + ": " + e.getMessage());
         }
     }
 
-    private void processType(TypeDeclaration<?> type, Graph graph) {
+    private void processType(TypeDeclaration<?> type, Graph graph, String packageName) {
         String name = type.getNameAsString();
+        if (FilterMatcher.matchesAny(name, customExcludes)) {
+            return;
+        }
         String nodeType = (type instanceof ClassOrInterfaceDeclaration coid && coid.isInterface())
                 ? "INTERFACE"
                 : "CLASS";
@@ -82,14 +98,35 @@ public class ClassDiagramParser {
             typeNode.setProperties(buildProperties(type));
         }
 
+        if (packageName != null) {
+            String groupId = "package-" + packageName;
+            Group pkgGroup = graph.getGroups().stream()
+                    .filter(g -> groupId.equals(g.getId()))
+                    .findFirst()
+                    .orElse(null);
+            if (pkgGroup == null) {
+                pkgGroup = new Group(groupId, packageName);
+                graph.addGroup(pkgGroup);
+            }
+            if (!pkgGroup.getMemberIds().contains(name)) {
+                pkgGroup.addMember(name);
+            }
+        }
+
         if (type instanceof ClassOrInterfaceDeclaration coid) {
             for (var extended : coid.getExtendedTypes()) {
                 String parent = extended.getNameAsString();
+                if (FilterMatcher.matchesAny(parent, customExcludes)) {
+                    continue;
+                }
                 graph.addNodeIfAbsent(new Node(parent, "CLASS", parent));
                 graph.addEdge(new Edge(name + "-extends-" + parent, name, parent, "EXTENDS"));
             }
             for (var implemented : coid.getImplementedTypes()) {
                 String iface = implemented.getNameAsString();
+                if (FilterMatcher.matchesAny(iface, customExcludes)) {
+                    continue;
+                }
                 graph.addNodeIfAbsent(new Node(iface, "INTERFACE", iface));
                 graph.addEdge(new Edge(name + "-implements-" + iface, name, iface, "IMPLEMENTS"));
             }
@@ -98,8 +135,8 @@ public class ClassDiagramParser {
                 String rawType   = rawType(fullType);
                 String fieldName = field.getVariables().get(0).getNameAsString();
 
-                if (!SKIP_TYPES.contains(rawType) && rawType.length() > 0
-                        && Character.isUpperCase(rawType.charAt(0))) {
+                if (!SKIP_TYPES.contains(rawType) && !FilterMatcher.matchesAny(rawType, customExcludes)
+                        && rawType.length() > 0 && Character.isUpperCase(rawType.charAt(0))) {
                     // Direct domain type: Engine engine → HAS Engine
                     graph.addNodeIfAbsent(new Node(rawType, "CLASS", rawType));
                     Edge hasEdge = new Edge(
@@ -111,6 +148,7 @@ public class ClassDiagramParser {
                     // Container of domain type: List<Node> → HAS Node, Map<String,Node> → HAS Node
                     String innerType = innerGenericType(fullType);
                     if (innerType != null && !SKIP_TYPES.contains(innerType)
+                            && !FilterMatcher.matchesAny(innerType, customExcludes)
                             && innerType.length() > 0 && Character.isUpperCase(innerType.charAt(0))) {
                         graph.addNodeIfAbsent(new Node(innerType, "CLASS", innerType));
                         Edge hasEdge = new Edge(

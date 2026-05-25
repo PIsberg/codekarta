@@ -1,20 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="3020" height="3730" viewBox="0 0 3020 3730">
+<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="598" viewBox="0 0 1480 598">
 <defs>
 <style>
-svg { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-.node-rect { transition: filter 0.15s; }
-.node-rect:hover { stroke-width: 2.5 !important; }
-.edge-line { stroke-linecap: round; stroke-linejoin: round; }
-.edge-label { paint-order: stroke; stroke: #f9fafb; stroke-width: 3; }
-.diagram-attribution { fill: #6b7280; text-decoration: underline; }
-.diagram-attribution:hover { fill: #374151; text-decoration: underline; }
-.group-rect { }
+svg { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+text { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important; }
+.node-rect { transition: filter 0.2s ease, stroke-width 0.2s ease, stroke 0.2s ease; }
+.node-rect:hover { stroke-width: 2.2 !important; filter: drop-shadow(0 8px 16px rgba(15, 23, 42, 0.12)) !important; }
+.edge-line { stroke-linecap: round; stroke-linejoin: round; transition: stroke-width 0.2s ease; }
+.edge-line:hover { stroke-width: 2.5 !important; }
+.edge-label { paint-order: stroke; stroke: #f9fafb; stroke-width: 3; font-weight: 500; }
+.diagram-attribution { fill: #9ca3af; text-decoration: none; transition: fill 0.2s ease; }
+.diagram-attribution:hover { fill: #4b5563; text-decoration: underline; }
+.group-rect { transition: stroke-width 0.2s ease; }
 .node-label { pointer-events: none; }
 </style>
-<filter id="nodeShadow" x="-15%" y="-15%" width="130%" height="130%">
-  <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0000001a"/>
+<filter id="nodeShadow" x="-20%" y="-20%" width="140%" height="140%">
+  <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.08"/>
 </filter>
+<linearGradient id="grad-CLASS" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#ffffff"/>
+  <stop offset="100%" stop-color="#f3f4f6"/>
+</linearGradient>
+<linearGradient id="grad-INTERFACE" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#eff6ff"/>
+  <stop offset="100%" stop-color="#dbeafe"/>
+</linearGradient>
+<linearGradient id="grad-MODULE" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#faf5ff"/>
+  <stop offset="100%" stop-color="#ede9fe"/>
+</linearGradient>
+<linearGradient id="grad-METHOD" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#fffbeb"/>
+  <stop offset="100%" stop-color="#fef3c7"/>
+</linearGradient>
+<linearGradient id="grad-PACKAGE" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#ecfdf5"/>
+  <stop offset="100%" stop-color="#d1fae5"/>
+</linearGradient>
+<linearGradient id="grad-EXCEPTION" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#fef2f2"/>
+  <stop offset="100%" stop-color="#fee2e2"/>
+</linearGradient>
+<linearGradient id="grad-STATE" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#f0f9ff"/>
+  <stop offset="100%" stop-color="#e0f2fe"/>
+</linearGradient>
+<pattern id="dotGrid" width="24" height="24" patternUnits="userSpaceOnUse">
+  <circle cx="2" cy="2" r="1" fill="#e5e7eb"/>
+</pattern>
 <marker id="seq-marker-call" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
   <path d="M0,0 L8,4 L0,8 Z" fill="#92400e"/>
 </marker>
@@ -22,242 +55,112 @@ svg { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
   <path d="M0,0 L8,4 L0,8 Z" fill="#dc2626"/>
 </marker>
 </defs>
-<rect width="3020" height="3730" fill="#f9fafb"/>
-<rect class="group-rect" x="91.0" y="274.0" width="858.0" height="3278.0" rx="4" fill="#fef9c3" fill-opacity="0.35" stroke="#ca8a04" stroke-dasharray="6,3" stroke-width="1.2"/>
-<rect x="91.0" y="274.0" width="138.0" height="16" rx="2" fill="#fef08a"/>
-<text x="95.0" y="285.0" font-family="sans-serif" font-size="10" fill="#713f12">catch(IOException)</text>
-<line x1="190.0" y1="98.0" x2="190.0" y2="3636.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="410.0" y1="98.0" x2="410.0" y2="3636.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="630.0" y1="98.0" x2="630.0" y2="3636.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="850.0" y1="98.0" x2="850.0" y2="3636.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="1070.0" y1="98.0" x2="1070.0" y2="3636.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="1290.0" y1="98.0" x2="1290.0" y2="3636.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="1510.0" y1="98.0" x2="1510.0" y2="3636.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="1730.0" y1="98.0" x2="1730.0" y2="3636.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="1950.0" y1="98.0" x2="1950.0" y2="3636.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="2170.0" y1="98.0" x2="2170.0" y2="3636.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="2390.0" y1="98.0" x2="2390.0" y2="3636.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="2610.0" y1="98.0" x2="2610.0" y2="3636.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="2830.0" y1="98.0" x2="2830.0" y2="3636.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<rect x="405.0" y="123.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="405.0" y="177.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="185.0" y="231.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="285.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect width="1480" height="598" fill="#f9fafb"/>
+<rect width="1480" height="598" fill="url(#dotGrid)"/>
+<rect class="group-rect" x="751.0" y="166.0" width="418.0" height="254.0" rx="4" fill="#fef9c3" fill-opacity="0.35" stroke="#ca8a04" stroke-dasharray="6,3" stroke-width="1.2"/>
+<rect x="751.0" y="166.0" width="187.0" height="16" rx="2" fill="#fef08a"/>
+<text x="755.0" y="177.0" font-family="sans-serif" font-size="10" fill="#713f12">catch(InventoryException)</text>
+<line x1="190.0" y1="98.0" x2="190.0" y2="504.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="410.0" y1="98.0" x2="410.0" y2="504.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="630.0" y1="98.0" x2="630.0" y2="504.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="850.0" y1="98.0" x2="850.0" y2="504.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="1070.0" y1="98.0" x2="1070.0" y2="504.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="1290.0" y1="98.0" x2="1290.0" y2="504.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<rect x="625.0" y="123.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1065.0" y="177.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1065.0" y="231.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1065.0" y="285.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <rect x="845.0" y="339.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="393.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="447.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="501.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="555.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="609.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="663.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="717.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="771.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="825.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="879.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="933.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="987.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="1041.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="1095.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="1149.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="1203.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="1257.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="1311.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="1365.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="1419.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="1473.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="1527.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="1581.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="1635.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="625.0" y="1689.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="1743.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="185.0" y="1797.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="625.0" y="1851.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="1905.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1065.0" y="1959.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="625.0" y="2013.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="185.0" y="2067.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="185.0" y="2121.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1285.0" y="2175.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1285.0" y="2229.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1505.0" y="2283.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1725.0" y="2337.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1945.0" y="2391.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1725.0" y="2445.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="2165.0" y="2499.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="2385.0" y="2553.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="185.0" y="2607.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="2825.0" y="2661.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="2605.0" y="2715.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="405.0" y="2769.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="185.0" y="2823.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="185.0" y="2877.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1285.0" y="2931.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="405.0" y="2985.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="405.0" y="3039.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="2825.0" y="3093.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="2825.0" y="3147.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="2825.0" y="3201.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="2825.0" y="3255.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="2825.0" y="3309.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1285.0" y="3363.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1725.0" y="3417.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="3471.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="405.0" y="3525.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<line class="edge-line" x1="190.0" y1="130.0" x2="405.0" y2="130.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="300.0" y="121.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: of</text>
-<line class="edge-line" x1="190.0" y1="184.0" x2="405.0" y2="184.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="300.0" y="175.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2: of</text>
-<path class="edge-line" d="M195.0 238.0 C231.0 228.0 231.0 248.0 195.0 262.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="235.0" y="242.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3: printUsage</text>
-<line class="edge-line" x1="190.0" y1="292.0" x2="845.0" y2="292.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="283.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: println</text>
-<line class="edge-line" x1="190.0" y1="346.0" x2="845.0" y2="346.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="337.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2: println</text>
-<line class="edge-line" x1="190.0" y1="400.0" x2="845.0" y2="400.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="391.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3: println</text>
-<line class="edge-line" x1="190.0" y1="454.0" x2="845.0" y2="454.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="445.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4: println</text>
-<line class="edge-line" x1="190.0" y1="508.0" x2="845.0" y2="508.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="499.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5: println</text>
-<line class="edge-line" x1="190.0" y1="562.0" x2="845.0" y2="562.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="553.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">6: println</text>
-<line class="edge-line" x1="190.0" y1="616.0" x2="845.0" y2="616.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="607.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">7: println</text>
-<line class="edge-line" x1="190.0" y1="670.0" x2="845.0" y2="670.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="661.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">8: println</text>
-<line class="edge-line" x1="190.0" y1="724.0" x2="845.0" y2="724.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="715.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">9: println</text>
-<line class="edge-line" x1="190.0" y1="778.0" x2="845.0" y2="778.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="769.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">10: println</text>
-<line class="edge-line" x1="190.0" y1="832.0" x2="845.0" y2="832.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="823.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">11: println</text>
-<line class="edge-line" x1="190.0" y1="886.0" x2="845.0" y2="886.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="877.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">12: println</text>
-<line class="edge-line" x1="190.0" y1="940.0" x2="845.0" y2="940.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="931.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">13: println</text>
-<line class="edge-line" x1="190.0" y1="994.0" x2="845.0" y2="994.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="985.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">14: println</text>
-<line class="edge-line" x1="190.0" y1="1048.0" x2="845.0" y2="1048.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="1039.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">15: println</text>
-<line class="edge-line" x1="190.0" y1="1102.0" x2="845.0" y2="1102.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="1093.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">16: println</text>
-<line class="edge-line" x1="190.0" y1="1156.0" x2="845.0" y2="1156.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="1147.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">17: println</text>
-<line class="edge-line" x1="190.0" y1="1210.0" x2="845.0" y2="1210.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="1201.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">18: println</text>
-<line class="edge-line" x1="190.0" y1="1264.0" x2="845.0" y2="1264.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="1255.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">19: println</text>
-<line class="edge-line" x1="190.0" y1="1318.0" x2="845.0" y2="1318.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="1309.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">20: println</text>
-<line class="edge-line" x1="190.0" y1="1372.0" x2="845.0" y2="1372.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="1363.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">21: println</text>
-<line class="edge-line" x1="190.0" y1="1426.0" x2="845.0" y2="1426.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="1417.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">22: println</text>
-<line class="edge-line" x1="190.0" y1="1480.0" x2="845.0" y2="1480.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="1471.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">23: println</text>
-<line class="edge-line" x1="190.0" y1="1534.0" x2="845.0" y2="1534.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="1525.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">24: println</text>
-<line class="edge-line" x1="190.0" y1="1588.0" x2="845.0" y2="1588.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="1579.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">25: println</text>
-<line class="edge-line" x1="190.0" y1="1642.0" x2="845.0" y2="1642.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="1633.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">26: println</text>
-<line class="edge-line" x1="190.0" y1="1696.0" x2="625.0" y2="1696.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="410.0" y="1687.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4: exit</text>
-<line class="edge-line" x1="190.0" y1="1750.0" x2="845.0" y2="1750.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="1741.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5: println</text>
-<path class="edge-line" d="M195.0 1804.0 C231.0 1794.0 231.0 1814.0 195.0 1828.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="235.0" y="1808.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">6: printUsage</text>
-<line class="edge-line" x1="190.0" y1="1858.0" x2="625.0" y2="1858.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="410.0" y="1849.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">7: exit</text>
-<line class="edge-line" x1="190.0" y1="1912.0" x2="845.0" y2="1912.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="1903.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">8: println</text>
-<line class="edge-line" x1="190.0" y1="1966.0" x2="1065.0" y2="1966.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="630.0" y="1957.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">9: getMessage</text>
-<line class="edge-line" x1="190.0" y1="2020.0" x2="625.0" y2="2020.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="410.0" y="2011.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">10: exit</text>
-<path class="edge-line" d="M195.0 2074.0 C231.0 2064.0 231.0 2084.0 195.0 2098.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="235.0" y="2078.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">11: run</text>
-<path class="edge-line" d="M195.0 2128.0 C231.0 2118.0 231.0 2138.0 195.0 2152.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="235.0" y="2132.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: run</text>
-<line class="edge-line" x1="190.0" y1="2182.0" x2="1285.0" y2="2182.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="740.0" y="2173.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: createDirectories</text>
-<line class="edge-line" x1="190.0" y1="2236.0" x2="1285.0" y2="2236.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="740.0" y="2227.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2: isDirectory</text>
-<line class="edge-line" x1="190.0" y1="2290.0" x2="1505.0" y2="2290.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="850.0" y="2281.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3: parse</text>
-<line class="edge-line" x1="190.0" y1="2344.0" x2="1725.0" y2="2344.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="960.0" y="2335.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4: fine</text>
-<line class="edge-line" x1="190.0" y1="2398.0" x2="1945.0" y2="2398.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="1070.0" y="2389.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5: parse</text>
-<line class="edge-line" x1="190.0" y1="2452.0" x2="1725.0" y2="2452.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="960.0" y="2443.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">6: fine</text>
-<line class="edge-line" x1="190.0" y1="2506.0" x2="2165.0" y2="2506.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="1180.0" y="2497.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">7: parse</text>
-<line class="edge-line" x1="190.0" y1="2560.0" x2="2385.0" y2="2560.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="1290.0" y="2551.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">8: layout</text>
-<path class="edge-line" d="M195.0 2614.0 C231.0 2604.0 231.0 2624.0 195.0 2638.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="235.0" y="2618.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">9: resolveLayout</text>
-<line class="edge-line" x1="190.0" y1="2668.0" x2="2825.0" y2="2668.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="1510.0" y="2659.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: equalsIgnoreCase</text>
-<line class="edge-line" x1="190.0" y1="2722.0" x2="2605.0" y2="2722.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="1400.0" y="2713.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">10: render</text>
-<line class="edge-line" x1="190.0" y1="2776.0" x2="405.0" y2="2776.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="300.0" y="2767.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">11: resolve</text>
-<path class="edge-line" d="M195.0 2830.0 C231.0 2820.0 231.0 2840.0 195.0 2854.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="235.0" y="2834.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">12: deriveOutputName</text>
-<path class="edge-line" d="M195.0 2884.0 C231.0 2874.0 231.0 2894.0 195.0 2908.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="235.0" y="2888.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: deriveOutputName</text>
-<line class="edge-line" x1="190.0" y1="2938.0" x2="1285.0" y2="2938.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="740.0" y="2929.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: isDirectory</text>
-<line class="edge-line" x1="190.0" y1="2992.0" x2="405.0" y2="2992.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="300.0" y="2983.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2: toString</text>
-<line class="edge-line" x1="190.0" y1="3046.0" x2="405.0" y2="3046.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="300.0" y="3037.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3: getFileName</text>
-<line class="edge-line" x1="190.0" y1="3100.0" x2="2825.0" y2="3100.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="1510.0" y="3091.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4: equals</text>
-<line class="edge-line" x1="190.0" y1="3154.0" x2="2825.0" y2="3154.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="1510.0" y="3145.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5: toLowerCase</text>
-<line class="edge-line" x1="190.0" y1="3208.0" x2="2825.0" y2="3208.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="1510.0" y="3199.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">6: replace</text>
-<line class="edge-line" x1="190.0" y1="3262.0" x2="2825.0" y2="3262.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="1510.0" y="3253.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">7: toLowerCase</text>
-<line class="edge-line" x1="190.0" y1="3316.0" x2="2825.0" y2="3316.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="1510.0" y="3307.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">8: replace</text>
-<line class="edge-line" x1="190.0" y1="3370.0" x2="1285.0" y2="3370.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="740.0" y="3361.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">13: writeString</text>
-<line class="edge-line" x1="190.0" y1="3424.0" x2="1725.0" y2="3424.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="960.0" y="3415.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">14: fine</text>
-<line class="edge-line" x1="190.0" y1="3478.0" x2="845.0" y2="3478.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="520.0" y="3469.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">12: println</text>
-<line class="edge-line" x1="190.0" y1="3532.0" x2="405.0" y2="3532.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" x="300.0" y="3523.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">13: toAbsolutePath</text>
-<rect class="node-rect" x="105.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-<text class="node-label" x="190.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">KartaCli</text>
-<rect class="node-rect" x="325.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-<text class="node-label" x="410.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">Path</text>
-<rect class="node-rect" x="545.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-<text class="node-label" x="630.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">System</text>
-<rect class="node-rect" x="765.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-<text class="node-label" x="850.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">PrintStream</text>
-<rect class="node-rect" x="985.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-<text class="node-label" x="1070.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">Throwable</text>
-<rect class="node-rect" x="1205.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-<text class="node-label" x="1290.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">Files</text>
-<rect class="node-rect" x="1425.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-<text class="node-label" x="1510.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">JavaSourceInputParser</text>
-<rect class="node-rect" x="1645.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-<text class="node-label" x="1730.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">Logger</text>
-<rect class="node-rect" x="1865.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-<text class="node-label" x="1950.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">MultiFileSequenceParser</text>
-<rect class="node-rect" x="2085.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-<text class="node-label" x="2170.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">StateMachineParser</text>
-<rect class="node-rect" x="2305.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-<text class="node-label" x="2390.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">LayoutEngine</text>
-<rect class="node-rect" x="2525.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-<text class="node-label" x="2610.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">SvgRenderer</text>
-<rect class="node-rect" x="2745.0" y="40.0" width="170.0" height="58.0" rx="6" fill="#ffffff" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-<text class="node-label" x="2830.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">String</text>
+<rect x="1065.0" y="393.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<line class="edge-line" data-source="InventoryService.checkStock" data-target="String.isEmpty" data-type="CALLS" x1="410.0" y1="130.0" x2="625.0" y2="130.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="InventoryService.checkStock" data-target="String.isEmpty" data-type="CALLS" x="520.0" y="121.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: isEmpty</text>
+<line class="edge-line" data-source="OrderProcessor.submit" data-target="inventoryService.checkStock" data-type="CALLS" x1="850.0" y1="184.0" x2="1065.0" y2="184.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="OrderProcessor.submit" data-target="inventoryService.checkStock" data-type="CALLS" x="960.0" y="175.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: checkStock</text>
+<line class="edge-line" data-source="OrderProcessor.submit" data-target="inventoryService.reserveStock" data-type="CALLS" x1="850.0" y1="238.0" x2="1065.0" y2="238.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="OrderProcessor.submit" data-target="inventoryService.reserveStock" data-type="CALLS" x="960.0" y="229.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2: reserveStock</text>
+<line class="edge-line" data-source="OrderProcessor.cancel" data-target="inventoryService.releaseStock" data-type="CALLS" x1="850.0" y1="292.0" x2="1065.0" y2="292.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="OrderProcessor.cancel" data-target="inventoryService.releaseStock" data-type="CALLS" x="960.0" y="283.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: releaseStock</text>
+<path class="edge-line" data-source="OrderProcessor.submitOrder" data-target="OrderProcessor.processOrder" data-type="CALLS" d="M855.0 346.0 C891.0 336.0 891.0 356.0 855.0 370.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="OrderProcessor.submitOrder" data-target="OrderProcessor.processOrder" data-type="CALLS" x="895.0" y="350.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: processOrder</text>
+<line class="edge-line" data-source="OrderProcessor.processOrder" data-target="inventoryService.checkStock" data-type="CALLS" x1="850.0" y1="400.0" x2="1065.0" y2="400.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="OrderProcessor.processOrder" data-target="inventoryService.checkStock" data-type="CALLS" x="960.0" y="391.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: checkStock</text>
+<rect class="node-rect" x="105.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="190.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">InventoryException</text>
+<rect class="node-rect" x="325.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="410.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">InventoryService</text>
+<rect class="node-rect" x="545.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="630.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">String</text>
+<rect class="node-rect" x="765.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="850.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">OrderProcessor</text>
+<rect class="node-rect" x="985.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="1070.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">inventoryService</text>
+<rect class="node-rect" x="1205.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+<text class="node-label" x="1290.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">OrderValidationException</text>
 <a class="diagram-attribution" href="https://github.com/PIsberg/codekarta" target="_blank" rel="noopener noreferrer">
-  <text x="3004.0" y="3714.0" text-anchor="end" font-family="sans-serif" font-size="11" fill="#6b7280" text-decoration="underline">Created with https://github.com/PIsberg/codekarta</text>
+  <text x="1464.0" y="582.0" text-anchor="end" font-family="sans-serif" font-size="11" fill="#6b7280" text-decoration="underline">Created with https://github.com/PIsberg/codekarta</text>
 </a>
+<script type="text/javascript">
+<![CDATA[
+document.addEventListener('DOMContentLoaded', () => {
+  const svg = document.querySelector('svg');
+  if (!svg) return;
+  const nodes = Array.from(svg.querySelectorAll('g')).filter(g => g.querySelector('.node-rect'));
+  const edges = Array.from(svg.querySelectorAll('.edge-line, .edge-label'));
+  nodes.forEach(node => {
+    node.style.cursor = 'pointer';
+    node.addEventListener('mouseenter', () => {
+      const nodeId = node.id;
+      nodes.forEach(n => {
+        if (n.id !== nodeId) {
+          n.style.opacity = '0.15';
+          n.style.transition = 'opacity 0.2s ease';
+        }
+      });
+      const connectedNodeIds = new Set([nodeId]);
+      edges.forEach(edge => {
+        const source = edge.getAttribute('data-source');
+        const target = edge.getAttribute('data-target');
+        const isConnected = (source === nodeId || target === nodeId || 
+                             (source && source.startsWith(nodeId + '.')) || 
+                             (target && target.startsWith(nodeId + '.')) ||
+                             (nodeId && nodeId.startsWith(source + '.')) ||
+                             (nodeId && nodeId.startsWith(target + '.')));
+        if (isConnected) {
+          if (source) connectedNodeIds.add(source);
+          if (target) connectedNodeIds.add(target);
+          const dotSrc = source ? source.lastIndexOf('.') : -1;
+          if (dotSrc > 0) connectedNodeIds.add(source.substring(0, dotSrc));
+          const dotTgt = target ? target.lastIndexOf('.') : -1;
+          if (dotTgt > 0) connectedNodeIds.add(target.substring(0, dotTgt));
+          edge.style.opacity = '1';
+          if (edge.classList.contains('edge-line')) {
+            edge.style.strokeWidth = '2.8px';
+          }
+          edge.style.fontWeight = 'bold';
+          edge.style.transition = 'opacity 0.2s ease, stroke-width 0.2s ease';
+        } else {
+          edge.style.opacity = '0.08';
+          edge.style.transition = 'opacity 0.2s ease';
+        }
+      });
+      nodes.forEach(n => {
+        if (connectedNodeIds.has(n.id)) {
+          n.style.opacity = '1';
+        }
+      });
+    });
+    node.addEventListener('mouseleave', () => {
+      nodes.forEach(n => {
+        n.style.opacity = '1';
+      });
+      edges.forEach(edge => {
+        edge.style.opacity = '1';
+        edge.style.strokeWidth = '';
+        edge.style.fontWeight = '';
+      });
+    });
+  });
+});
+]]>
+</script>
 </svg>
