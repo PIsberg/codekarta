@@ -54,14 +54,14 @@ text { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe
 </defs>
 <rect width="960" height="1076" fill="#f9fafb"/>
 <rect width="960" height="1076" fill="url(#dotGrid)"/>
-<path class="edge-line" d="M150.0 146.0 Q131.3 198.0 150.0 250.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
-<text class="edge-label" x="140.6" y="192.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">run</text>
-<path class="edge-line" d="M150.0 336.0 Q131.3 388.0 150.0 440.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
-<text class="edge-label" x="140.6" y="382.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">run</text>
-<path class="edge-line" d="M150.0 526.0 Q131.3 578.0 150.0 630.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
-<text class="edge-label" x="140.6" y="572.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">run</text>
-<path class="edge-line" d="M150.0 716.0 Q131.3 768.0 150.0 820.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
-<text class="edge-label" x="140.6" y="762.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">run</text>
+<path class="edge-line" data-source="PARSING" data-target="LAYOUT" data-type="TRANSITION" d="M150.0 146.0 Q131.3 198.0 150.0 250.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
+<text class="edge-label" data-source="PARSING" data-target="LAYOUT" data-type="TRANSITION" x="140.6" y="192.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">run</text>
+<path class="edge-line" data-source="LAYOUT" data-target="RENDERING" data-type="TRANSITION" d="M150.0 336.0 Q131.3 388.0 150.0 440.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
+<text class="edge-label" data-source="LAYOUT" data-target="RENDERING" data-type="TRANSITION" x="140.6" y="382.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">run</text>
+<path class="edge-line" data-source="RENDERING" data-target="WRITING" data-type="TRANSITION" d="M150.0 526.0 Q131.3 578.0 150.0 630.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
+<text class="edge-label" data-source="RENDERING" data-target="WRITING" data-type="TRANSITION" x="140.6" y="572.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">run</text>
+<path class="edge-line" data-source="WRITING" data-target="DONE" data-type="TRANSITION" d="M150.0 716.0 Q131.3 768.0 150.0 820.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
+<text class="edge-label" data-source="WRITING" data-target="DONE" data-type="TRANSITION" x="140.6" y="762.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">run</text>
 <g id="PARSING">
   <title>PARSING [STATE]</title>
   <rect class="node-rect" x="60.0" y="60.0" width="180.0" height="86.0" rx="28.0" fill="url(#grad-STATE)" stroke="#0369a1" stroke-width="1.8" filter="url(#nodeShadow)"/>
@@ -96,6 +96,70 @@ text { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe
 <text x="740.0" y="986.0" font-family="sans-serif" font-size="11" font-weight="bold" fill="#374151">Legend</text>
 <line x1="740.0" y1="1010.0" x2="776.0" y2="1010.0" stroke="#0369a1" stroke-width="2" marker-end="url(#marker-filled-0369a1)"/>
 <text x="784.0" y="1014.0" font-family="sans-serif" font-size="11" fill="#374151">transition</text>
+<script type="text/javascript">
+<![CDATA[
+document.addEventListener('DOMContentLoaded', () => {
+  const svg = document.querySelector('svg');
+  if (!svg) return;
+  const nodes = Array.from(svg.querySelectorAll('g')).filter(g => g.querySelector('.node-rect'));
+  const edges = Array.from(svg.querySelectorAll('.edge-line, .edge-label'));
+  nodes.forEach(node => {
+    node.style.cursor = 'pointer';
+    node.addEventListener('mouseenter', () => {
+      const nodeId = node.id;
+      nodes.forEach(n => {
+        if (n.id !== nodeId) {
+          n.style.opacity = '0.15';
+          n.style.transition = 'opacity 0.2s ease';
+        }
+      });
+      const connectedNodeIds = new Set([nodeId]);
+      edges.forEach(edge => {
+        const source = edge.getAttribute('data-source');
+        const target = edge.getAttribute('data-target');
+        const isConnected = (source === nodeId || target === nodeId || 
+                             (source && source.startsWith(nodeId + '.')) || 
+                             (target && target.startsWith(nodeId + '.')) ||
+                             (nodeId && nodeId.startsWith(source + '.')) ||
+                             (nodeId && nodeId.startsWith(target + '.')));
+        if (isConnected) {
+          if (source) connectedNodeIds.add(source);
+          if (target) connectedNodeIds.add(target);
+          const dotSrc = source ? source.lastIndexOf('.') : -1;
+          if (dotSrc > 0) connectedNodeIds.add(source.substring(0, dotSrc));
+          const dotTgt = target ? target.lastIndexOf('.') : -1;
+          if (dotTgt > 0) connectedNodeIds.add(target.substring(0, dotTgt));
+          edge.style.opacity = '1';
+          if (edge.classList.contains('edge-line')) {
+            edge.style.strokeWidth = '2.8px';
+          }
+          edge.style.fontWeight = 'bold';
+          edge.style.transition = 'opacity 0.2s ease, stroke-width 0.2s ease';
+        } else {
+          edge.style.opacity = '0.08';
+          edge.style.transition = 'opacity 0.2s ease';
+        }
+      });
+      nodes.forEach(n => {
+        if (connectedNodeIds.has(n.id)) {
+          n.style.opacity = '1';
+        }
+      });
+    });
+    node.addEventListener('mouseleave', () => {
+      nodes.forEach(n => {
+        n.style.opacity = '1';
+      });
+      edges.forEach(edge => {
+        edge.style.opacity = '1';
+        edge.style.strokeWidth = '';
+        edge.style.fontWeight = '';
+      });
+    });
+  });
+});
+]]>
+</script>
 <a class="diagram-attribution" href="https://github.com/PIsberg/codekarta" target="_blank" rel="noopener noreferrer">
   <text x="944.0" y="1060.0" text-anchor="end" font-family="sans-serif" font-size="11" fill="#6b7280" text-decoration="underline">Created with https://github.com/PIsberg/codekarta</text>
 </a>

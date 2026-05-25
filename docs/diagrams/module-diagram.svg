@@ -57,16 +57,16 @@ text { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe
 </defs>
 <rect width="1340" height="694" fill="#f9fafb"/>
 <rect width="1340" height="694" fill="url(#dotGrid)"/>
-<path class="edge-line" d="M240.0 103.0 Q662.8 230.5 1100.0 293.0" fill="none" stroke="#6d28d9" stroke-width="1.6" marker-end="url(#marker-filled-6d28d9)"/>
-<text class="edge-label" x="666.4" y="208.3" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#6d28d9" font-style="italic">requires</text>
-<path class="edge-line" d="M240.0 103.0 Q256.4 207.9 320.0 293.0" fill="none" stroke="#6d28d9" stroke-width="1.6" marker-end="url(#marker-filled-6d28d9)"/>
-<text class="edge-label" x="268.2" y="197.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#6d28d9" font-style="italic">requires</text>
-<path class="edge-line" d="M240.0 103.0 Q530.5 227.9 840.0 293.0" fill="none" stroke="#065f46" stroke-width="1.6" stroke-dasharray="4,4" marker-end="url(#marker-open-065f46)"/>
-<text class="edge-label" x="535.3" y="206.9" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">exports</text>
-<path class="edge-line" d="M240.0 103.0 Q396.3 222.6 580.0 293.0" fill="none" stroke="#065f46" stroke-width="1.6" stroke-dasharray="4,4" marker-end="url(#marker-open-065f46)"/>
-<text class="edge-label" x="403.1" y="204.3" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">exports</text>
-<path class="edge-line" d="M150.0 146.0 Q131.3 198.0 150.0 250.0" fill="none" stroke="#065f46" stroke-width="1.6" stroke-dasharray="4,4" marker-end="url(#marker-open-065f46)"/>
-<text class="edge-label" x="140.6" y="192.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">exports</text>
+<path class="edge-line" data-source="com.karta.shipping" data-target="java.base" data-type="REQUIRES" d="M240.0 103.0 Q662.8 230.5 1100.0 293.0" fill="none" stroke="#6d28d9" stroke-width="1.6" marker-end="url(#marker-filled-6d28d9)"/>
+<text class="edge-label" data-source="com.karta.shipping" data-target="java.base" data-type="REQUIRES" x="666.4" y="208.3" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#6d28d9" font-style="italic">requires</text>
+<path class="edge-line" data-source="com.karta.shipping" data-target="java.logging" data-type="REQUIRES" d="M240.0 103.0 Q256.4 207.9 320.0 293.0" fill="none" stroke="#6d28d9" stroke-width="1.6" marker-end="url(#marker-filled-6d28d9)"/>
+<text class="edge-label" data-source="com.karta.shipping" data-target="java.logging" data-type="REQUIRES" x="268.2" y="197.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#6d28d9" font-style="italic">requires</text>
+<path class="edge-line" data-source="com.karta.shipping" data-target="com.karta.shipping.domain" data-type="EXPORTS" d="M240.0 103.0 Q530.5 227.9 840.0 293.0" fill="none" stroke="#065f46" stroke-width="1.6" stroke-dasharray="4,4" marker-end="url(#marker-open-065f46)"/>
+<text class="edge-label" data-source="com.karta.shipping" data-target="com.karta.shipping.domain" data-type="EXPORTS" x="535.3" y="206.9" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">exports</text>
+<path class="edge-line" data-source="com.karta.shipping" data-target="com.karta.shipping.core" data-type="EXPORTS" d="M240.0 103.0 Q396.3 222.6 580.0 293.0" fill="none" stroke="#065f46" stroke-width="1.6" stroke-dasharray="4,4" marker-end="url(#marker-open-065f46)"/>
+<text class="edge-label" data-source="com.karta.shipping" data-target="com.karta.shipping.core" data-type="EXPORTS" x="403.1" y="204.3" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">exports</text>
+<path class="edge-line" data-source="com.karta.shipping" data-target="com.karta.shipping.state" data-type="EXPORTS" d="M150.0 146.0 Q131.3 198.0 150.0 250.0" fill="none" stroke="#065f46" stroke-width="1.6" stroke-dasharray="4,4" marker-end="url(#marker-open-065f46)"/>
+<text class="edge-label" data-source="com.karta.shipping" data-target="com.karta.shipping.state" data-type="EXPORTS" x="140.6" y="192.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">exports</text>
 <g id="com.karta.shipping">
   <title>com.karta.shipping [MODULE]</title>
   <rect class="node-rect" x="60.0" y="60.0" width="180.0" height="86.0" rx="6.0" fill="url(#grad-MODULE)" stroke="#6d28d9" stroke-width="1.8" filter="url(#nodeShadow)"/>
@@ -109,6 +109,70 @@ text { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe
 <text x="1164.0" y="608.0" font-family="sans-serif" font-size="11" fill="#374151">requires</text>
 <line x1="1120.0" y1="628.0" x2="1156.0" y2="628.0" stroke="#065f46" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#marker-open-065f46)"/>
 <text x="1164.0" y="632.0" font-family="sans-serif" font-size="11" fill="#374151">exports</text>
+<script type="text/javascript">
+<![CDATA[
+document.addEventListener('DOMContentLoaded', () => {
+  const svg = document.querySelector('svg');
+  if (!svg) return;
+  const nodes = Array.from(svg.querySelectorAll('g')).filter(g => g.querySelector('.node-rect'));
+  const edges = Array.from(svg.querySelectorAll('.edge-line, .edge-label'));
+  nodes.forEach(node => {
+    node.style.cursor = 'pointer';
+    node.addEventListener('mouseenter', () => {
+      const nodeId = node.id;
+      nodes.forEach(n => {
+        if (n.id !== nodeId) {
+          n.style.opacity = '0.15';
+          n.style.transition = 'opacity 0.2s ease';
+        }
+      });
+      const connectedNodeIds = new Set([nodeId]);
+      edges.forEach(edge => {
+        const source = edge.getAttribute('data-source');
+        const target = edge.getAttribute('data-target');
+        const isConnected = (source === nodeId || target === nodeId || 
+                             (source && source.startsWith(nodeId + '.')) || 
+                             (target && target.startsWith(nodeId + '.')) ||
+                             (nodeId && nodeId.startsWith(source + '.')) ||
+                             (nodeId && nodeId.startsWith(target + '.')));
+        if (isConnected) {
+          if (source) connectedNodeIds.add(source);
+          if (target) connectedNodeIds.add(target);
+          const dotSrc = source ? source.lastIndexOf('.') : -1;
+          if (dotSrc > 0) connectedNodeIds.add(source.substring(0, dotSrc));
+          const dotTgt = target ? target.lastIndexOf('.') : -1;
+          if (dotTgt > 0) connectedNodeIds.add(target.substring(0, dotTgt));
+          edge.style.opacity = '1';
+          if (edge.classList.contains('edge-line')) {
+            edge.style.strokeWidth = '2.8px';
+          }
+          edge.style.fontWeight = 'bold';
+          edge.style.transition = 'opacity 0.2s ease, stroke-width 0.2s ease';
+        } else {
+          edge.style.opacity = '0.08';
+          edge.style.transition = 'opacity 0.2s ease';
+        }
+      });
+      nodes.forEach(n => {
+        if (connectedNodeIds.has(n.id)) {
+          n.style.opacity = '1';
+        }
+      });
+    });
+    node.addEventListener('mouseleave', () => {
+      nodes.forEach(n => {
+        n.style.opacity = '1';
+      });
+      edges.forEach(edge => {
+        edge.style.opacity = '1';
+        edge.style.strokeWidth = '';
+        edge.style.fontWeight = '';
+      });
+    });
+  });
+});
+]]>
+</script>
 <a class="diagram-attribution" href="https://github.com/PIsberg/codekarta" target="_blank" rel="noopener noreferrer">
   <text x="1324.0" y="678.0" text-anchor="end" font-family="sans-serif" font-size="11" fill="#6b7280" text-decoration="underline">Created with https://github.com/PIsberg/codekarta</text>
 </a>

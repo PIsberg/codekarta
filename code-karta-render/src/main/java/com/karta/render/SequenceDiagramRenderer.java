@@ -123,6 +123,7 @@ class SequenceDiagramRenderer {
         }
 
         sb.append(parent.renderAttribution(svgWidth, svgHeight));
+        sb.append(SvgRenderer.embeddedJs());
         sb.append("</svg>");
         return sb.toString();
     }
@@ -268,30 +269,34 @@ class SequenceDiagramRenderer {
             double lx = fromX + ACTIVATION_W / 2;
             double loopW = 36, yEnd = arrowY + STEP_GAP * 0.45;
             sb.append(String.format(Locale.ROOT,
-                "<path class=\"edge-line\" d=\"M%.1f %.1f C%.1f %.1f %.1f %.1f %.1f %.1f\" " +
+                "<path class=\"edge-line\" data-source=\"%s\" data-target=\"%s\" data-type=\"%s\" d=\"M%.1f %.1f C%.1f %.1f %.1f %.1f %.1f %.1f\" " +
                 "fill=\"none\" stroke=\"%s\" stroke-width=\"1.6\"%s marker-end=\"url(#%s)\"/>\n",
+                parent.escapeXml(msg.fromId), parent.escapeXml(msg.toId), parent.escapeXml(msg.type),
                 lx, arrowY,
                 lx + loopW, arrowY - 10,
                 lx + loopW, arrowY + 10,
                 lx, yEnd,
                 color, dashAttr, markerId));
             sb.append(String.format(Locale.ROOT,
-                "<text class=\"edge-label\" x=\"%.1f\" y=\"%.1f\" text-anchor=\"start\" " +
+                "<text class=\"edge-label\" data-source=\"%s\" data-target=\"%s\" data-type=\"%s\" x=\"%.1f\" y=\"%.1f\" text-anchor=\"start\" " +
                 "font-family=\"sans-serif\" font-size=\"10\" fill=\"%s\" " +
                 "font-style=\"italic\">%s</text>\n",
+                parent.escapeXml(msg.fromId), parent.escapeXml(msg.toId), parent.escapeXml(msg.type),
                 lx + loopW + 4, arrowY + 4, color, parent.escapeXml(msg.label)));
         } else {
             boolean goRight = toX > fromX;
             double arrowToX = toX + (goRight ? -ACTIVATION_W / 2 : ACTIVATION_W / 2);
             sb.append(String.format(Locale.ROOT,
-                "<line class=\"edge-line\" x1=\"%.1f\" y1=\"%.1f\" x2=\"%.1f\" y2=\"%.1f\" " +
+                "<line class=\"edge-line\" data-source=\"%s\" data-target=\"%s\" data-type=\"%s\" x1=\"%.1f\" y1=\"%.1f\" x2=\"%.1f\" y2=\"%.1f\" " +
                 "stroke=\"%s\" stroke-width=\"1.6\"%s marker-end=\"url(#%s)\"/>\n",
+                parent.escapeXml(msg.fromId), parent.escapeXml(msg.toId), parent.escapeXml(msg.type),
                 fromX, arrowY, arrowToX, arrowY, color, dashAttr, markerId));
             double lx = (fromX + toX) / 2;
             sb.append(String.format(Locale.ROOT,
-                "<text class=\"edge-label\" x=\"%.1f\" y=\"%.1f\" text-anchor=\"middle\" " +
+                "<text class=\"edge-label\" data-source=\"%s\" data-target=\"%s\" data-type=\"%s\" x=\"%.1f\" y=\"%.1f\" text-anchor=\"middle\" " +
                 "font-family=\"sans-serif\" font-size=\"10\" fill=\"%s\" " +
                 "font-style=\"italic\">%s</text>\n",
+                parent.escapeXml(msg.fromId), parent.escapeXml(msg.toId), parent.escapeXml(msg.type),
                 lx, arrowY - LABEL_OFFSET, color, parent.escapeXml(msg.label)));
         }
         return sb.toString();

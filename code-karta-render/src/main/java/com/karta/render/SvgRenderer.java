@@ -140,6 +140,7 @@ public class SvgRenderer {
         for (Node  node  : graph.getNodes())  sb.append(renderNode(node));
 
         if (!legendTypes.isEmpty()) sb.append(renderLegend(legendTypes, svgW, bounds[1] + PADDING));
+        sb.append(embeddedJs());
         sb.append(renderAttribution(svgW, svgH));
         sb.append("</svg>");
         return sb.toString();
@@ -302,9 +303,9 @@ public class SvgRenderer {
         StringBuilder sb = new StringBuilder();
         String dashAttr = dash != null ? String.format(Locale.ROOT, " stroke-dasharray=\"%s\"", dash) : "";
         sb.append(String.format(Locale.ROOT,
-            "<path class=\"edge-line\" d=\"M%.1f %.1f Q%.1f %.1f %.1f %.1f\" " +
+            "<path class=\"edge-line\" data-source=\"%s\" data-target=\"%s\" data-type=\"%s\" d=\"M%.1f %.1f Q%.1f %.1f %.1f %.1f\" " +
             "fill=\"none\" stroke=\"%s\" stroke-width=\"1.6\"%s marker-end=\"url(#%s)\"/>\n",
-            sx, sy, cx, cy, tx, ty, color, dashAttr, markerId));
+            escapeXml(edge.getSourceId()), escapeXml(edge.getTargetId()), escapeXml(type), sx, sy, cx, cy, tx, ty, color, dashAttr, markerId));
 
         String relLabel = EDGE_RELATION_LABEL.getOrDefault(type,
                           edge.getLabel() != null ? edge.getLabel() : null);
@@ -312,10 +313,10 @@ public class SvgRenderer {
             double lx = (sx + 2 * cx + tx) / 4;
             double ly = (sy + 2 * cy + ty) / 4 - 6;
             sb.append(String.format(Locale.ROOT,
-                "<text class=\"edge-label\" x=\"%.1f\" y=\"%.1f\" text-anchor=\"middle\" " +
+                "<text class=\"edge-label\" data-source=\"%s\" data-target=\"%s\" data-type=\"%s\" x=\"%.1f\" y=\"%.1f\" text-anchor=\"middle\" " +
                 "font-family=\"sans-serif\" font-size=\"10\" fill=\"%s\" " +
                 "font-style=\"italic\">%s</text>\n",
-                lx, ly, color, escapeXml(relLabel)));
+                escapeXml(edge.getSourceId()), escapeXml(edge.getTargetId()), escapeXml(type), lx, ly, color, escapeXml(relLabel)));
         }
         return sb.toString();
     }
@@ -586,5 +587,72 @@ public class SvgRenderer {
                 .replace(">", "&gt;")
                 .replace("\"", "&quot;")
                 .replace("'", "&apos;");
+    }
+
+    static String embeddedJs() {
+        return "<script type=\"text/javascript\">\n"
+             + "<![CDATA[\n"
+             + "document.addEventListener('DOMContentLoaded', () => {\n"
+             + "  const svg = document.querySelector('svg');\n"
+             + "  if (!svg) return;\n"
+             + "  const nodes = Array.from(svg.querySelectorAll('g')).filter(g => g.querySelector('.node-rect'));\n"
+             + "  const edges = Array.from(svg.querySelectorAll('.edge-line, .edge-label'));\n"
+             + "  nodes.forEach(node => {\n"
+             + "    node.style.cursor = 'pointer';\n"
+             + "    node.addEventListener('mouseenter', () => {\n"
+             + "      const nodeId = node.id;\n"
+             + "      nodes.forEach(n => {\n"
+             + "        if (n.id !== nodeId) {\n"
+             + "          n.style.opacity = '0.15';\n"
+             + "          n.style.transition = 'opacity 0.2s ease';\n"
+             + "        }\n"
+             + "      });\n"
+             + "      const connectedNodeIds = new Set([nodeId]);\n"
+             + "      edges.forEach(edge => {\n"
+             + "        const source = edge.getAttribute('data-source');\n"
+             + "        const target = edge.getAttribute('data-target');\n"
+             + "        const isConnected = (source === nodeId || target === nodeId || \n"
+             + "                             (source && source.startsWith(nodeId + '.')) || \n"
+             + "                             (target && target.startsWith(nodeId + '.')) ||\n"
+             + "                             (nodeId && nodeId.startsWith(source + '.')) ||\n"
+             + "                             (nodeId && nodeId.startsWith(target + '.')));\n"
+             + "        if (isConnected) {\n"
+             + "          if (source) connectedNodeIds.add(source);\n"
+             + "          if (target) connectedNodeIds.add(target);\n"
+             + "          const dotSrc = source ? source.lastIndexOf('.') : -1;\n"
+             + "          if (dotSrc > 0) connectedNodeIds.add(source.substring(0, dotSrc));\n"
+             + "          const dotTgt = target ? target.lastIndexOf('.') : -1;\n"
+             + "          if (dotTgt > 0) connectedNodeIds.add(target.substring(0, dotTgt));\n"
+             + "          edge.style.opacity = '1';\n"
+             + "          if (edge.classList.contains('edge-line')) {\n"
+             + "            edge.style.strokeWidth = '2.8px';\n"
+             + "          }\n"
+             + "          edge.style.fontWeight = 'bold';\n"
+             + "          edge.style.transition = 'opacity 0.2s ease, stroke-width 0.2s ease';\n"
+             + "        } else {\n"
+             + "          edge.style.opacity = '0.08';\n"
+             + "          edge.style.transition = 'opacity 0.2s ease';\n"
+             + "        }\n"
+             + "      });\n"
+             + "      nodes.forEach(n => {\n"
+             + "        if (connectedNodeIds.has(n.id)) {\n"
+             + "          n.style.opacity = '1';\n"
+             + "        }\n"
+             + "      });\n"
+             + "    });\n"
+             + "    node.addEventListener('mouseleave', () => {\n"
+             + "      nodes.forEach(n => {\n"
+             + "        n.style.opacity = '1';\n"
+             + "      });\n"
+             + "      edges.forEach(edge => {\n"
+             + "        edge.style.opacity = '1';\n"
+             + "        edge.style.strokeWidth = '';\n"
+             + "        edge.style.fontWeight = '';\n"
+             + "      });\n"
+             + "    });\n"
+             + "  });\n"
+             + "});\n"
+             + "]]>\n"
+             + "</script>\n";
     }
 }
