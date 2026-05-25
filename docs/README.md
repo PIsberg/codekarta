@@ -244,6 +244,16 @@ mvn compile
 ./gradlew compileJava
 ```
 
+## Interactive Diagram Viewer
+
+To easily navigate large or complex architecture maps, code-karta includes a self-contained, high-fidelity **Interactive Diagram Viewer** at [`docs/diagrams/viewer.html`](diagrams/viewer.html).
+
+Simply open [`viewer.html`](diagrams/viewer.html) in any modern web browser to access premium exploration controls:
+*   🔍 **Real-Time Search & Highlight:** Highlight matching classes, methods, or packages; non-matching elements are automatically dimmed to $15\%$ opacity to isolate dependencies.
+*   ⚙️ **Relationship Toggles:** Hide or show specific edge types (e.g. Method Calls, Composition, Exceptions, or Inheritance) with simple checkable switches to isolate structural concerns.
+*   🔬 **Responsive Zoom & Pan:** Use your mouse wheel, touchpad, or HUD buttons for fluid zoom and click-and-drag panning.
+*   🔄 **Tab Switcher:** Switch between all six system diagrams seamlessly in a single page.
+
 ## Architecture
 
 For module responsibilities, graph schema, rendering rules, and extension points, read [`ARCHITECTURE.md`](ARCHITECTURE.md).

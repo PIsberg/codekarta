@@ -145,6 +145,12 @@ Rendering behavior:
 
 `SequenceDiagramRenderer` derives participant lanes from method node IDs, renders ordered messages, self-calls, activation bars, exception propagation arrows, and try/catch frames when present.
 
+### Svg Interactive Capabilities
+To support the single-page diagram viewer (`viewer.html`), the rendered SVG embeds structured markup:
+*   **Stable CSS Classes:** Elements are styled using `.node-rect`, `.edge-line`, `.group-rect`, and other standard class names.
+*   **Edge Metadata:** Rendered edges carry a `data-type` attribute (e.g. `data-type="CALLS"`, `data-type="EXTENDS"`) corresponding to the `EdgeType` or relationship enum. The diagram viewer's sidebar toggles query these selectors to hide or show relationships dynamically.
+*   **Node Text & Search:** Nodes contain readable labels that are queried by the viewer's real-time search engine. When a search query is active, non-matching nodes are dimmed to $15\%$ opacity, and matching nodes are highlighted with a glowing blue border.
+
 All user-visible text is XML escaped. SVG elements use stable CSS class names, including `.node-rect`, `.node-label`, `.edge-line`, and `.group-rect`.
 
 ## CLI
