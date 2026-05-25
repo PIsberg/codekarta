@@ -125,11 +125,15 @@ public class SvgRenderer {
         sb.append("<defs>\n");
         sb.append("<style>\n").append(cssOverride != null ? cssOverride : defaultCss()).append("</style>\n");
         sb.append(dropShadowFilter());
+        sb.append(buildGradients());
+        sb.append(dotGridPattern());
         sb.append(buildMarkers(graph));
         sb.append("</defs>\n");
 
         sb.append(String.format(Locale.ROOT,
             "<rect width=\"%.0f\" height=\"%.0f\" fill=\"#f9fafb\"/>\n", svgW, svgH));
+        sb.append(String.format(Locale.ROOT,
+            "<rect width=\"%.0f\" height=\"%.0f\" fill=\"url(#dotGrid)\"/>\n", svgW, svgH));
 
         for (Group group : graph.getGroups()) sb.append(renderGroup(group, graph));
         for (Edge  edge  : graph.getEdges())  sb.append(renderEdge(edge, graph));
@@ -150,7 +154,10 @@ public class SvgRenderer {
         double w  = node.getWidth() != null ? node.getWidth() : RENDER_NODE_W;
         String type   = node.getType() != null ? node.getType() : "CLASS";
         String label  = escapeXml(node.getLabel() != null ? node.getLabel() : node.getId());
-        String fill   = NODE_FILL.getOrDefault(type, "#ffffff");
+        String fill = "url(#grad-" + type + ")";
+        if (!NODE_FILL.containsKey(type)) {
+            fill = "url(#grad-CLASS)";
+        }
         String stroke = NODE_STROKE.getOrDefault(type, "#374151");
         Map<String, String> props = node.getProperties();
         // JDK/stdlib modules get a muted palette so they don't visually compete with project modules
@@ -440,14 +447,16 @@ public class SvgRenderer {
     // ------------------------------------------------------------------ CSS & SVG filters
 
     String defaultCss() {
-        return "svg { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }\n"
-             + ".node-rect { transition: filter 0.15s; }\n"
-             + ".node-rect:hover { stroke-width: 2.5 !important; }\n"
-             + ".edge-line { stroke-linecap: round; stroke-linejoin: round; }\n"
-             + ".edge-label { paint-order: stroke; stroke: #f9fafb; stroke-width: 3; }\n"
-             + ".diagram-attribution { fill: #6b7280; text-decoration: underline; }\n"
-             + ".diagram-attribution:hover { fill: #374151; text-decoration: underline; }\n"
-             + ".group-rect { }\n"
+        return "svg { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }\n"
+             + "text { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important; }\n"
+             + ".node-rect { transition: filter 0.2s ease, stroke-width 0.2s ease, stroke 0.2s ease; }\n"
+             + ".node-rect:hover { stroke-width: 2.2 !important; filter: drop-shadow(0 8px 16px rgba(15, 23, 42, 0.12)) !important; }\n"
+             + ".edge-line { stroke-linecap: round; stroke-linejoin: round; transition: stroke-width 0.2s ease; }\n"
+             + ".edge-line:hover { stroke-width: 2.5 !important; }\n"
+             + ".edge-label { paint-order: stroke; stroke: #f9fafb; stroke-width: 3; font-weight: 500; }\n"
+             + ".diagram-attribution { fill: #9ca3af; text-decoration: none; transition: fill 0.2s ease; }\n"
+             + ".diagram-attribution:hover { fill: #4b5563; text-decoration: underline; }\n"
+             + ".group-rect { transition: stroke-width 0.2s ease; }\n"
              + ".node-label { pointer-events: none; }\n";
     }
 
@@ -464,9 +473,55 @@ public class SvgRenderer {
     }
 
     static String dropShadowFilter() {
-        return "<filter id=\"nodeShadow\" x=\"-15%\" y=\"-15%\" width=\"130%\" height=\"130%\">\n"
-             + "  <feDropShadow dx=\"0\" dy=\"2\" stdDeviation=\"3\" flood-color=\"#0000001a\"/>\n"
+        return "<filter id=\"nodeShadow\" x=\"-20%\" y=\"-20%\" width=\"140%\" height=\"140%\">\n"
+             + "  <feDropShadow dx=\"0\" dy=\"3\" stdDeviation=\"4\" flood-color=\"#0f172a\" flood-opacity=\"0.08\"/>\n"
              + "</filter>\n";
+    }
+
+    static String dotGridPattern() {
+        return "<pattern id=\"dotGrid\" width=\"24\" height=\"24\" patternUnits=\"userSpaceOnUse\">\n"
+             + "  <circle cx=\"2\" cy=\"2\" r=\"1\" fill=\"#e5e7eb\"/>\n"
+             + "</pattern>\n";
+    }
+
+    static String buildGradients() {
+        StringBuilder sb = new StringBuilder();
+        // CLASS
+        sb.append("<linearGradient id=\"grad-CLASS\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\">\n")
+          .append("  <stop offset=\"0%\" stop-color=\"#ffffff\"/>\n")
+          .append("  <stop offset=\"100%\" stop-color=\"#f3f4f6\"/>\n")
+          .append("</linearGradient>\n");
+        // INTERFACE
+        sb.append("<linearGradient id=\"grad-INTERFACE\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\">\n")
+          .append("  <stop offset=\"0%\" stop-color=\"#eff6ff\"/>\n")
+          .append("  <stop offset=\"100%\" stop-color=\"#dbeafe\"/>\n")
+          .append("</linearGradient>\n");
+        // MODULE
+        sb.append("<linearGradient id=\"grad-MODULE\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\">\n")
+          .append("  <stop offset=\"0%\" stop-color=\"#faf5ff\"/>\n")
+          .append("  <stop offset=\"100%\" stop-color=\"#ede9fe\"/>\n")
+          .append("</linearGradient>\n");
+        // METHOD
+        sb.append("<linearGradient id=\"grad-METHOD\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\">\n")
+          .append("  <stop offset=\"0%\" stop-color=\"#fffbeb\"/>\n")
+          .append("  <stop offset=\"100%\" stop-color=\"#fef3c7\"/>\n")
+          .append("</linearGradient>\n");
+        // PACKAGE
+        sb.append("<linearGradient id=\"grad-PACKAGE\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\">\n")
+          .append("  <stop offset=\"0%\" stop-color=\"#ecfdf5\"/>\n")
+          .append("  <stop offset=\"100%\" stop-color=\"#d1fae5\"/>\n")
+          .append("</linearGradient>\n");
+        // EXCEPTION
+        sb.append("<linearGradient id=\"grad-EXCEPTION\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\">\n")
+          .append("  <stop offset=\"0%\" stop-color=\"#fef2f2\"/>\n")
+          .append("  <stop offset=\"100%\" stop-color=\"#fee2e2\"/>\n")
+          .append("</linearGradient>\n");
+        // STATE
+        sb.append("<linearGradient id=\"grad-STATE\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\">\n")
+          .append("  <stop offset=\"0%\" stop-color=\"#f0f9ff\"/>\n")
+          .append("  <stop offset=\"100%\" stop-color=\"#e0f2fe\"/>\n")
+          .append("</linearGradient>\n");
+        return sb.toString();
     }
 
     // ------------------------------------------------------------------ sequence detection

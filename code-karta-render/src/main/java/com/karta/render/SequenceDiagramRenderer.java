@@ -71,11 +71,15 @@ class SequenceDiagramRenderer {
         sb.append("<defs>\n");
         sb.append("<style>\n").append(cssOverride != null ? cssOverride : parent.defaultCss()).append("</style>\n");
         sb.append(SvgRenderer.dropShadowFilter());
+        sb.append(SvgRenderer.buildGradients());
+        sb.append(SvgRenderer.dotGridPattern());
         sb.append(seqMarkers());
         sb.append("</defs>\n");
 
         sb.append(String.format(Locale.ROOT,
             "<rect width=\"%.0f\" height=\"%.0f\" fill=\"#f9fafb\"/>\n", svgWidth, svgHeight));
+        sb.append(String.format(Locale.ROOT,
+            "<rect width=\"%.0f\" height=\"%.0f\" fill=\"url(#dotGrid)\"/>\n", svgWidth, svgHeight));
 
         double lifelineBottom = diagramY + Math.max(1, messages.size()) * STEP_GAP + LIFELINE_EXTRA;
 
@@ -210,7 +214,10 @@ class SequenceDiagramRenderer {
     private String renderHeader(Participant p) {
         double cx     = laneX(p.lane);
         double x      = cx - HEADER_W / 2;
-        String fill   = SvgRenderer.NODE_FILL.getOrDefault(p.type, "#ffffff");
+        String fill = "url(#grad-" + p.type + ")";
+        if (!SvgRenderer.NODE_FILL.containsKey(p.type)) {
+            fill = "url(#grad-CLASS)";
+        }
         String stroke = SvgRenderer.NODE_STROKE.getOrDefault(p.type, "#374151");
         String stereo = SvgRenderer.STEREOTYPE.get(p.type);
         String label  = parent.escapeXml(p.label);
