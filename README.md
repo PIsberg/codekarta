@@ -1,5 +1,12 @@
 # code-karta
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Build and Test](https://github.com/PIsberg/codekarta/actions/workflows/build.yml/badge.svg)](https://github.com/PIsberg/codekarta/actions/workflows/build.yml)
+[![Java 21+](https://img.shields.io/badge/Java-21+-orange?logo=openjdk)](https://github.com/PIsberg/codekarta)
+[![Maven](https://img.shields.io/badge/build-Maven-blue?logo=apachemaven)](https://github.com/PIsberg/codekarta)
+[![Gradle](https://img.shields.io/badge/build-Gradle-blue?logo=gradle)](https://github.com/PIsberg/codekarta)
+[![Lines of Code](https://www.aschey.tech/tokei/github/PIsberg/codekarta?languages=Java&category=code)](https://github.com/PIsberg/codekarta)
+
 code-karta is a Java architecture mapping tool. It parses Java source and emits SVG diagrams for modules, class relationships, method call sequences, exception flow, stitched multi-file call graphs, and enum-backed state machines.
 
 Start with the full guide in [`docs/README.md`](docs/README.md). The architecture notes are in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
