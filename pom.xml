@@ -24,7 +24,7 @@
         <jackson.version>2.21.3</jackson.version>
         <javaparser.version>3.28.2</javaparser.version>
         <junit.version>6.1.0</junit.version>
-        <elk.version>0.9.1</elk.version>
+        <elk.version>0.11.0</elk.version>
         <vibetags.version>0.9.9</vibetags.version>
     </properties>
 
