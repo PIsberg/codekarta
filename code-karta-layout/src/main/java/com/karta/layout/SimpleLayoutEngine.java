@@ -10,18 +10,13 @@ import se.deversity.vibetags.annotations.AIContext;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
 
-@AIContext(
-    focus = "BFS from root nodes (no incoming edges) assigns depth levels → rows; siblings within a row become columns. Isolated nodes fall back to level 0. Cyclic graphs seed BFS from the first node. Row Y positions are computed dynamically from the tallest estimated node height in each row so that compartment-heavy class nodes never overlap the row below.",
-    avoids = "Changing NodeDimensions.DEFAULT_WIDTH/HEIGHT — those constants are @AILocked and consumed by both layout engines and SvgRenderer."
-)
-@AIArchitecture(belongsTo = "layout", cannotReference = {"input", "render", "cli"})
 /**
  * Pure-Java BFS hierarchical layout.
  *
@@ -33,6 +28,11 @@ import java.util.TreeMap;
  *  4. Row Y positions are computed from the tallest estimated rendered height in each
  *     row so that class-diagram compartment nodes never bleed into the row below.
  */
+@AIContext(
+    focus = "BFS from root nodes (no incoming edges) assigns depth levels → rows; siblings within a row become columns. Isolated nodes fall back to level 0. Cyclic graphs seed BFS from the first node. Row Y positions are computed dynamically from the tallest estimated node height in each row so that compartment-heavy class nodes never overlap the row below.",
+    avoids = "Changing NodeDimensions.DEFAULT_WIDTH/HEIGHT — those constants are @AILocked and consumed by both layout engines and SvgRenderer."
+)
+@AIArchitecture(belongsTo = "layout", cannotReference = {"input", "render", "cli"})
 public class SimpleLayoutEngine implements LayoutEngine {
 
     private static final double NODE_WIDTH  = NodeDimensions.DEFAULT_WIDTH;
@@ -120,7 +120,7 @@ public class SimpleLayoutEngine implements LayoutEngine {
         }
 
         Map<String, Integer> levels = new HashMap<>();
-        Queue<String> queue = new LinkedList<>();
+        Queue<String> queue = new ArrayDeque<>();
 
         for (Node node : graph.getNodes()) {
             if (!hasIncoming.contains(node.getId())) {

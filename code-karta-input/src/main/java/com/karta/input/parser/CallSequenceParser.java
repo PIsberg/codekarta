@@ -64,18 +64,18 @@ public class CallSequenceParser {
                         public void visit(MethodCallExpr call, Void arg) {
                             String name = call.getNameAsString();
                             if (FilterMatcher.matchesAny(name, customExcludes)) {
-                                super.visit(call, arg);
+                                super.visit(call, null);
                                 return;
                             }
                             String callee;
                             if (call.getScope().isPresent()) {
                                 if (SequenceFilterUtil.shouldSkipScopedCall(name)) {
-                                    super.visit(call, arg);
+                                    super.visit(call, null);
                                     return;
                                 }
                                 String scopeName = resolveScope(call.getScope().get(), returnTypes, className);
                                 if (scopeName == null) {
-                                    super.visit(call, arg);
+                                    super.visit(call, null);
                                     return;
                                 }
                                 callee = scopeName + "." + name;
@@ -83,7 +83,7 @@ public class CallSequenceParser {
                                 callee = name;
                             }
                             if (FilterMatcher.matchesAny(callee, customExcludes)) {
-                                super.visit(call, arg);
+                                super.visit(call, null);
                                 return;
                             }
                             graph.addNodeIfAbsent(new Node(callee, "METHOD", name));
@@ -92,7 +92,7 @@ public class CallSequenceParser {
                                     qualifiedMethod, callee, "CALLS");
                             edge.setLabel(String.valueOf(seq));
                             graph.addEdge(edge);
-                            super.visit(call, arg);
+                            super.visit(call, null);
                         }
                     }, null);
                 });

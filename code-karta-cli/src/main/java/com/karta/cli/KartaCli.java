@@ -161,7 +161,7 @@ public class KartaCli {
      * @return the path of the written SVG file
      */
     @AIIdempotent(reason = "Re-running with the same inputs regenerates byte-identical SVG output — the verify-phase diagram generation and doc regeneration rely on repeated runs converging.")
-    @SuppressWarnings("PMD.UnusedAssignment") // 'state' assignments are extracted by StateMachineParser as the pipeline diagram
+    @SuppressWarnings({"PMD.UnusedAssignment", "UnusedVariable"}) // 'state' assignments are extracted by StateMachineParser as the pipeline diagram
     public static Path run(Path inputPath, Path outputDir,
                            boolean sequenceOnly, String layout,
                            boolean stateMachine, java.util.Set<String> customExcludes,

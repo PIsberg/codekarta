@@ -24,6 +24,7 @@
         <spotbugs.plugin.version>4.10.3.0</spotbugs.plugin.version>
         <checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
         <checkstyle.version>13.8.0</checkstyle.version>
+        <errorprone.version>2.50.0</errorprone.version>
         <skipDiagrams>false</skipDiagrams>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jackson.version>2.22.1</jackson.version>
@@ -106,6 +107,37 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.15.0</version>
+                    <configuration>
+                        <!-- annotationProcessorPaths replaces classpath processor discovery,
+                             so the vibetags processor must be listed here alongside Error Prone
+                             or guardrail generation silently stops. -->
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>com.google.errorprone</groupId>
+                                <artifactId>error_prone_core</artifactId>
+                                <version>${errorprone.version}</version>
+                            </path>
+                            <path>
+                                <groupId>se.deversity.vibetags</groupId>
+                                <artifactId>vibetags-processor</artifactId>
+                                <version>${vibetags.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
+                    </configuration>
+                    <executions>
+                        <!-- Error Prone runs on main sources only; test sources keep plain compilation -->
+                        <execution>
+                            <id>default-compile</id>
+                            <configuration>
+                                <compilerArgs>
+                                    <arg>-XDcompilePolicy=simple</arg>
+                                    <arg>-XDaddTypeAnnotationsToSymbol=true</arg>
+                                    <arg>-Xplugin:ErrorProne</arg>
+                                    <arg>-XDshould-stop.ifError=FLOW</arg>
+                                </compilerArgs>
+                            </configuration>
+                        </execution>
+                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

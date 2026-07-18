@@ -107,19 +107,19 @@ public class ExceptionFlowParser {
                         public void visit(MethodCallExpr call, Void arg) {
                             String name = call.getNameAsString();
                             if (FilterMatcher.matchesAny(name, customExcludes)) {
-                                super.visit(call, arg);
+                                super.visit(call, null);
                                 return;
                             }
                             String callee;
                             if (call.getScope().isPresent()) {
                                 if (SequenceFilterUtil.shouldSkipScopedCall(name)) {
-                                    super.visit(call, arg);
+                                    super.visit(call, null);
                                     return;
                                 }
                                 String scopeName = CallSequenceParser.resolveScope(
                                         call.getScope().get(), returnTypes, className);
                                 if (scopeName == null) {
-                                    super.visit(call, arg);
+                                    super.visit(call, null);
                                     return;
                                 }
                                 callee = scopeName + "." + name;
@@ -127,7 +127,7 @@ public class ExceptionFlowParser {
                                 callee = localMethodNames.contains(name) ? className + "." + name : name;
                             }
                             if (FilterMatcher.matchesAny(callee, customExcludes)) {
-                                super.visit(call, arg);
+                                super.visit(call, null);
                                 return;
                             }
                             graph.addNodeIfAbsent(new Node(callee, NodeType.METHOD, call.getNameAsString()));
@@ -137,7 +137,7 @@ public class ExceptionFlowParser {
                             edge.setLabel(String.valueOf(n));
                             graph.addEdge(edge);
                             callersOf.computeIfAbsent(callee, k -> new ArrayList<>()).add(methodId);
-                            super.visit(call, arg);
+                            super.visit(call, null);
                         }
                     }, null);
 

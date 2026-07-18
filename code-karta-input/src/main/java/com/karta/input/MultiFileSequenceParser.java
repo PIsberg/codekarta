@@ -145,7 +145,7 @@ public class MultiFileSequenceParser {
                         public void visit(MethodCallExpr call, Void arg) {
                             String calleeId = resolveCallee(call, className, localMethods);
                             if (FilterMatcher.matchesAny(call.getNameAsString(), customExcludes) || FilterMatcher.matchesAny(calleeId, customExcludes)) {
-                                super.visit(call, arg);
+                                super.visit(call, null);
                                 return;
                             }
                             graph.addNodeIfAbsent(new Node(calleeId, NodeType.METHOD, call.getNameAsString()));
@@ -156,7 +156,7 @@ public class MultiFileSequenceParser {
                             edge.setLabel(String.valueOf(n));
                             graph.addEdge(edge);
 
-                            super.visit(call, arg);
+                            super.visit(call, null);
                         }
                     }, null);
 
@@ -199,7 +199,7 @@ public class MultiFileSequenceParser {
         }
 
         // 2. Entry points are METHOD nodes with no incoming CALLS edges
-        java.util.Queue<String> queue = new java.util.LinkedList<>();
+        java.util.Queue<String> queue = new java.util.ArrayDeque<>();
         java.util.Map<String, Integer> depths = new java.util.HashMap<>();
         for (Node node : graph.getNodes()) {
             if (NodeType.METHOD.equals(node.getType()) && !hasIncoming.contains(node.getId())) {

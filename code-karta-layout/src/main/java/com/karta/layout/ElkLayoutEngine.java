@@ -98,7 +98,7 @@ public class ElkLayoutEngine implements LayoutEngine {
         for (Edge edge : graph.getEdges()) {
             ElkNode src = elkNodes.get(edge.getSourceId());
             ElkNode tgt = elkNodes.get(edge.getTargetId());
-            if (src != null && tgt != null && src != tgt) { // NOPMD - identity check is intended: skip self-edges
+            if (src != null && tgt != null && !edge.getSourceId().equals(edge.getTargetId())) { // skip self-edges
                 ElkGraphUtil.createSimpleEdge(src, tgt);
             }
         }
