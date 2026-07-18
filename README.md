@@ -9,6 +9,9 @@
 [![PMD](https://img.shields.io/badge/PMD-passing-brightgreen)](https://pmd.github.io/)
 [![SpotBugs](https://img.shields.io/badge/SpotBugs-passing-brightgreen)](https://spotbugs.github.io/)
 [![JSpecify](https://img.shields.io/badge/JSpecify-null--marked-blue)](https://jspecify.dev/)
+[![Checkstyle](https://img.shields.io/badge/Checkstyle-passing-brightgreen)](https://checkstyle.org/)
+[![Error Prone](https://img.shields.io/badge/Error%20Prone-passing-brightgreen)](https://errorprone.info/)
+[![SBOM](https://img.shields.io/badge/SBOM-CycloneDX-blue)](https://cyclonedx.org/)
 [![PIT Mutation Testing](https://img.shields.io/badge/PIT%20Mutation-enabled-brightgreen?logo=apachemaven&logoColor=white)](https://github.com/PIsberg/codekarta/actions/workflows/build.yml)
 [![Lines of Code](https://www.aschey.tech/tokei/github/PIsberg/codekarta?languages=Java&category=code)](https://github.com/PIsberg/codekarta)
 
@@ -168,7 +171,7 @@ Simply open [`viewer.html`](docs/diagrams/viewer.html) in any modern web browser
 
 ## Code Quality
 
-Every `mvn verify` runs the full quality gate: PMD + CPD ([`pmd-ruleset.xml`](pmd-ruleset.xml)), SpotBugs ([`spotbugs-exclude.xml`](spotbugs-exclude.xml) documents the intentional patterns), and the ArchUnit fitness functions in [`ArchitectureRulesTest`](code-karta-cli/src/test/java/com/karta/cli/ArchitectureRulesTest.java) that enforce the 3-tier architecture. All main packages are [JSpecify](https://jspecify.dev/) `@NullMarked`.
+Every `mvn verify` runs the full quality gate: Checkstyle ([`checkstyle.xml`](checkstyle.xml)), PMD + CPD ([`pmd-ruleset.xml`](pmd-ruleset.xml)), SpotBugs ([`spotbugs-exclude.xml`](spotbugs-exclude.xml) documents the intentional patterns), [Error Prone](https://errorprone.info/) on main-source compilation, and the ArchUnit fitness functions in [`ArchitectureRulesTest`](code-karta-cli/src/test/java/com/karta/cli/ArchitectureRulesTest.java) that enforce the 3-tier architecture. All main packages are [JSpecify](https://jspecify.dev/) `@NullMarked`, and `mvn package` emits a [CycloneDX](https://cyclonedx.org/) SBOM (`target/bom.json`).
 
 Mutation testing (PIT) is opt-in:
 
