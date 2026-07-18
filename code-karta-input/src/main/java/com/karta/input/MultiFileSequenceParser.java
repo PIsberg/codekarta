@@ -265,7 +265,7 @@ public class MultiFileSequenceParser {
         try (Stream<Path> stream = Files.walk(root)) {
             return stream
                     .filter(p -> p.toString().endsWith(".java"))
-                    .filter(p -> !"module-info.java".equals(p.getFileName().toString()))
+                    .filter(p -> !"module-info.java".equals(String.valueOf(p.getFileName())))
                     .collect(Collectors.toList());
         } catch (IOException e) {
             log.warning("Cannot walk source root " + root + ": " + e.getMessage());

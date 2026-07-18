@@ -157,7 +157,7 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>6.1.0</version>
+      <version>6.1.2</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -177,7 +177,7 @@
     <dependency>
       <groupId>se.deversity.vibetags</groupId>
       <artifactId>vibetags-processor</artifactId>
-      <version>0.9.5</version>
+      <version>1.0.0-RC3</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>

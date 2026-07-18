@@ -214,7 +214,7 @@ public class KartaCli {
             }
             return sequenceOnly ? "sequence-diagram.svg" : "class-diagram.svg";
         }
-        String fileName = inputPath.getFileName().toString();
+        String fileName = String.valueOf(inputPath.getFileName());
         if ("module-info.java".equals(fileName)) {
             return "module-diagram.svg";
         }

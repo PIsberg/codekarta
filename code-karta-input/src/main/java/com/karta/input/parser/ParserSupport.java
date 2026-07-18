@@ -42,9 +42,10 @@ public final class ParserSupport {
     /**
      * Parses {@code sourceFile} at the Java 21 language level.
      * Callers keep their own try/catch — the fault-tolerance contract
-     * (log a warning, return a partial graph) belongs to the parser.
+     * (log a warning, return a partial graph) belongs to the parser;
+     * unparseable sources surface as {@link java.util.NoSuchElementException}.
      */
-    public static CompilationUnit parseJava21(Path sourceFile) throws Exception {
+    public static CompilationUnit parseJava21(Path sourceFile) throws java.io.IOException {
         return PARSER.parse(Files.readString(sourceFile)).getResult().orElseThrow();
     }
 

@@ -47,7 +47,7 @@ public class StateMachineParser {
             if (Files.isDirectory(path)) {
                 try (var stream = Files.walk(path)) {
                     stream.filter(p -> p.toString().endsWith(".java"))
-                            .filter(p -> !"module-info.java".equals(p.getFileName().toString()))
+                            .filter(p -> !"module-info.java".equals(String.valueOf(p.getFileName())))
                             .forEach(p -> parseFile(p, graph));
                 }
             } else {
