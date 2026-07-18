@@ -21,7 +21,7 @@
         <maven.compiler.release>21</maven.compiler.release>
         <skipDiagrams>false</skipDiagrams>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jackson.version>2.22.0</jackson.version>
+        <jackson.version>2.22.1</jackson.version>
         <javaparser.version>3.28.2</javaparser.version>
         <junit.version>6.1.2</junit.version>
         <elk.version>0.9.1</elk.version>
