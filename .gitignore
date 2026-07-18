@@ -1,5 +1,6 @@
 .gradle
 build/
+target/
 example-shipping-system/target
 example-shipping-system/.gradle
 example-shipping-system/build
