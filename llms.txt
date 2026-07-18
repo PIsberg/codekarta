@@ -1,0 +1,50 @@
+# code-karta
+
+> Java architecture mapping tool. Parses Java source with JavaParser and emits SVG diagrams for JPMS modules, class relationships, method call sequences, exception flow, stitched multi-file call graphs, and enum-backed state machines. Strict 3-tier pipeline (input → layout → render) communicating only through a shared graph IR.
+
+Orientation facts: tiers never import from a tier beside them — `code-karta-core` is the only shared dependency; all parsers are fault-tolerant (catch, log a warning, return a partial graph — never crash); layout mutates `Node.x/y/width/height` in place; `SvgRenderer` CSS class names (`.node-rect`, `.edge-line`, `.group-rect`) are a stable theming contract.
+
+## Docs
+
+- [CLAUDE.md](CLAUDE.md): agent briefing — build commands, architecture invariants, project guardrails
+- [README.md](README.md): project intro, quick start, example diagrams, interactive viewer
+- [SKILL.md](SKILL.md): compact operating guide for using and extending the library
+- [SPEC.md](SPEC.md): behavior specification
+- [docs/README.md](docs/README.md): full user guide
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): technical deep dive — tier diagram, data flow, design decisions
+
+## Source
+
+- [code-karta-core/](code-karta-core/): the graph IR — `Node`, `Edge`, `Group`, `Graph` (pure data model, no logic)
+- [code-karta-input/](code-karta-input/): Tier 1 — `JavaSourceInputParser` auto-detects input type and delegates to `ModuleInfoParser`, `ClassDiagramParser`, `CallSequenceParser`, `ExceptionFlowParser`, `StateMachineParser`, `MultiFileSequenceParser`
+- [code-karta-layout/](code-karta-layout/): Tier 2 — `SimpleLayoutEngine` (BFS grid) and `ElkLayoutEngine` (ELK layered), both behind the `LayoutEngine` interface
+- [code-karta-render/](code-karta-render/): Tier 3 — `SvgRenderer` and `SequenceDiagramRenderer`, pure SVG string generation
+- [code-karta-cli/](code-karta-cli/): wires the tiers; `KartaCli.run(...)` is a public static method tested without spawning a process
+- [example-shipping-system/](example-shipping-system/): canonical integration-test fixture with pre-generated diagrams
+
+## Optional
+
+- [docs/diagrams/](docs/diagrams/): generated diagrams of code-karta itself, plus the interactive viewer.html
+- [architecture.md](architecture.md): working notes
+- [PLAN.md](PLAN.md): roadmap notes
+
+<!-- VIBETAGS-START -->
+# This Project
+
+> AI guardrail rules generated from source annotations by VibeTags.
+
+AI tools reading this file should respect the guardrails defined below. These rules were extracted from Java source annotations at compile time and apply to all AI assistants including Windsurf Cascade, Cursor, Claude, GitHub Copilot, and Gemini.
+
+## Locked Files
+
+## Contextual Rules
+
+## Security Audit Requirements
+- [KartaCli](com.karta.cli.KartaCli): check for Path traversal, Unauthorized file write
+
+## 🔐 Contract-Frozen Signatures
+- [KartaCli](com.karta.cli.KartaCli): run(Path, Path, boolean, String) is a public static method tested directly by KartaCliTest without spawning a process. Its signature and output filename conventions (module-diagram.svg, class-diagram.svg, <name>-sequence-diagram.svg) must remain stable.
+
+## 🧪 Test-Driven Requirements
+- [KartaCli](com.karta.cli.KartaCli): Coverage goal: 90%. Framework: JUNIT_5. Test file: code-karta-cli/src/test/java/com/karta/cli/KartaCliTest.java. Mock policy: Do not mock parsers or layout engines — KartaCliTest calls run() directly against the example-shipping-system fixture for end-to-end coverage.
+<!-- VIBETAGS-END -->
