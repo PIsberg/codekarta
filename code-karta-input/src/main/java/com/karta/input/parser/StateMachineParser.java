@@ -24,6 +24,7 @@ import se.deversity.vibetags.annotations.AIContext;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashSet;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -139,7 +140,7 @@ public class StateMachineParser {
         Set<String> stateVarNames = new LinkedHashSet<>();
         method.findAll(VariableDeclarator.class).forEach(v -> {
             if (v.getInitializer().flatMap(expr -> stateName(expr, states)).isPresent()) {
-                stateVarNames.add(v.getNameAsString().toLowerCase());
+                stateVarNames.add(v.getNameAsString().toLowerCase(Locale.ROOT));
             }
         });
         String[] previous = {initialStateName(method, states)
@@ -164,7 +165,7 @@ public class StateMachineParser {
         return method.findAncestor(com.github.javaparser.ast.body.TypeDeclaration.class)
                 .flatMap(type -> type.findAll(FieldDeclaration.class).stream()
                         .flatMap(field -> field.getVariables().stream())
-                        .filter(var -> var.getNameAsString().toLowerCase().contains("state"))
+                        .filter(var -> var.getNameAsString().toLowerCase(Locale.ROOT).contains("state"))
                         .flatMap(var -> var.getInitializer().flatMap(expr -> stateName(expr, states)).stream())
                         .findFirst());
     }
@@ -173,7 +174,7 @@ public class StateMachineParser {
                                                    Set<String> stateVarNames) {
         return method.findAll(VariableDeclarator.class).stream()
                 .filter(v -> {
-                    String nameLower = v.getNameAsString().toLowerCase();
+                    String nameLower = v.getNameAsString().toLowerCase(Locale.ROOT);
                     return nameLower.contains("state") || stateVarNames.contains(nameLower);
                 })
                 .flatMap(v -> v.getInitializer().flatMap(expr -> stateName(expr, states)).stream())
@@ -193,7 +194,7 @@ public class StateMachineParser {
     }
 
     private boolean looksLikeStateTarget(Expression expr, Set<String> stateVarNames) {
-        String text = expr.toString().toLowerCase();
+        String text = expr.toString().toLowerCase(Locale.ROOT);
         return text.equals("state") || text.endsWith(".state") || text.contains("state")
                 || stateVarNames.contains(text);
     }

@@ -6,6 +6,7 @@ import se.deversity.vibetags.annotations.AIContract;
 
 @AIContract(reason = "layout(Graph) must return the same Graph instance (mutated in-place) so callers can chain. Implementations must set x, y, width, height on every Node. Nodes with unresolvable positions must be left at null — SvgRenderer silently skips them.")
 @AIArchitecture(belongsTo = "layout", cannotReference = {"input", "render", "cli"})
+@FunctionalInterface
 public interface LayoutEngine {
     /**
      * Assigns x, y, width, height to every Node in the graph and returns

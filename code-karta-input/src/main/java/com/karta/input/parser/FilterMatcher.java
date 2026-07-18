@@ -22,11 +22,11 @@ public final class FilterMatcher {
     /**
      * Checks if a name matches a single pattern (supporting basic wildcards like *, suffix*, *prefix, *sub*).
      */
-    public static boolean matches(String name, String pattern) {
-        if (name == null || pattern == null) {
+    public static boolean matches(String name, String rawPattern) {
+        if (name == null || rawPattern == null) {
             return false;
         }
-        pattern = pattern.trim();
+        String pattern = rawPattern.trim();
         if (pattern.isEmpty()) {
             return false;
         }

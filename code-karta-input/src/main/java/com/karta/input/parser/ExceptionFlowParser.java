@@ -1,13 +1,9 @@
 package com.karta.input.parser;
 
-import com.github.javaparser.JavaParser;
-import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.stmt.TryStmt;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.karta.core.model.Edge;
 import com.karta.core.model.EdgeType;
@@ -16,7 +12,6 @@ import com.karta.core.model.Group;
 import com.karta.core.model.Node;
 import com.karta.core.model.NodeType;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,23 +52,21 @@ import se.deversity.vibetags.annotations.AIContext;
 public class ExceptionFlowParser {
 
     private static final Logger log = Logger.getLogger(ExceptionFlowParser.class.getName());
-    private static final JavaParser PARSER = new JavaParser(
-            new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21));
 
     private final Set<String> customExcludes;
 
     public ExceptionFlowParser() {
-        this(java.util.Collections.emptySet());
+        this(Collections.emptySet());
     }
 
     public ExceptionFlowParser(Set<String> customExcludes) {
-        this.customExcludes = customExcludes != null ? customExcludes : java.util.Collections.emptySet();
+        this.customExcludes = ParserSupport.normalizeExcludes(customExcludes);
     }
 
     public Graph parse(Path sourceFile) {
         Graph graph = new Graph();
         try {
-            CompilationUnit cu = PARSER.parse(Files.readString(sourceFile)).getResult().orElseThrow();
+            CompilationUnit cu = ParserSupport.parseJava21(sourceFile);
 
             cu.findAll(ClassOrInterfaceDeclaration.class).forEach(classDecl -> {
                 String className = classDecl.getNameAsString();
@@ -92,12 +85,7 @@ public class ExceptionFlowParser {
                         .map(MethodDeclaration::getNameAsString)
                         .collect(Collectors.toSet());
 
-                Map<String, String> returnTypes = new HashMap<>();
-                classDecl.findAll(MethodDeclaration.class).forEach(m -> {
-                    String rt = m.getType().asString();
-                    int lt = rt.indexOf('<');
-                    returnTypes.put(m.getNameAsString(), lt > 0 ? rt.substring(0, lt).trim() : rt.trim());
-                });
+                Map<String, String> returnTypes = ParserSupport.returnTypesOf(classDecl);
 
                 // ── Pass 1 ────────────────────────────────────────────────
                 classDecl.findAll(MethodDeclaration.class).forEach(method -> {
@@ -154,36 +142,17 @@ public class ExceptionFlowParser {
                     }, null);
 
                     // Walk for try-catch → catch-boundary groups
-                    int[] tryIdx = { 0 };
-                    method.findAll(TryStmt.class).forEach(tryStmt -> {
-                        String catchTypes = tryStmt.getCatchClauses().stream()
-                                .map(c -> c.getParameter().getType().asString())
-                                .reduce((a, b) -> a + ", " + b)
-                                .orElse("Exception");
-
-                        Group group = new Group(
-                                "catch-boundary-" + methodId + "-" + tryIdx[0]++,
-                                "catch(" + catchTypes + ")");
-
-                        tryStmt.getTryBlock().findAll(MethodCallExpr.class).forEach(call -> {
-                            String cname = call.getNameAsString();
-                            String callee;
-                            if (call.getScope().isPresent()) {
-                                if (SequenceFilterUtil.shouldSkipScopedCall(cname)) return;
-                                String sn = CallSequenceParser.resolveScope(
-                                        call.getScope().get(), returnTypes, className);
-                                if (sn == null) return;
-                                callee = sn + "." + cname;
-                            } else {
-                                callee = localMethodNames.contains(cname) ? className + "." + cname : cname;
+                    ParserSupport.addCatchBoundaryGroups(graph, method, methodId, call -> {
+                        String cname = call.getNameAsString();
+                        if (call.getScope().isPresent()) {
+                            if (SequenceFilterUtil.shouldSkipScopedCall(cname)) {
+                                return null;
                             }
-                            graph.addNodeIfAbsent(new Node(callee, NodeType.METHOD, cname));
-                            group.addMember(callee);
-                        });
-
-                        if (!group.getMemberIds().isEmpty()) {
-                            graph.addGroup(group);
+                            String sn = CallSequenceParser.resolveScope(
+                                    call.getScope().get(), returnTypes, className);
+                            return sn == null ? null : sn + "." + cname;
                         }
+                        return localMethodNames.contains(cname) ? className + "." + cname : cname;
                     });
                 });
 

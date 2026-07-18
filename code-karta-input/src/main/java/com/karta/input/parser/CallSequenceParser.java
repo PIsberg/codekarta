@@ -1,7 +1,5 @@
 package com.karta.input.parser;
 
-import com.github.javaparser.JavaParser;
-import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
@@ -15,9 +13,7 @@ import java.util.Set;
 import se.deversity.vibetags.annotations.AIArchitecture;
 import se.deversity.vibetags.annotations.AIContext;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -29,8 +25,6 @@ import java.util.logging.Logger;
 public class CallSequenceParser {
 
     private static final Logger log = Logger.getLogger(CallSequenceParser.class.getName());
-    private static final JavaParser PARSER = new JavaParser(
-            new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21));
 
     private final Set<String> customExcludes;
 
@@ -39,13 +33,13 @@ public class CallSequenceParser {
     }
 
     public CallSequenceParser(Set<String> customExcludes) {
-        this.customExcludes = customExcludes != null ? customExcludes : java.util.Collections.emptySet();
+        this.customExcludes = ParserSupport.normalizeExcludes(customExcludes);
     }
 
     public Graph parse(Path sourceFile) {
         Graph graph = new Graph();
         try {
-            CompilationUnit cu = PARSER.parse(Files.readString(sourceFile)).getResult().orElseThrow();
+            CompilationUnit cu = ParserSupport.parseJava21(sourceFile);
 
             cu.findAll(ClassOrInterfaceDeclaration.class).forEach(classDecl -> {
                 String className = classDecl.getNameAsString();
@@ -55,12 +49,7 @@ public class CallSequenceParser {
                 graph.addNodeIfAbsent(new Node(className, "CLASS", className));
 
                 // Return-type map for resolving chained local calls, e.g. resolveLayout(x).layout(g)
-                Map<String, String> returnTypes = new HashMap<>();
-                classDecl.findAll(MethodDeclaration.class).forEach(m -> {
-                    String rt = m.getType().asString();
-                    int lt = rt.indexOf('<');
-                    returnTypes.put(m.getNameAsString(), lt > 0 ? rt.substring(0, lt).trim() : rt.trim());
-                });
+                Map<String, String> returnTypes = ParserSupport.returnTypesOf(classDecl);
 
                 classDecl.findAll(MethodDeclaration.class).forEach(method -> {
                     String qualifiedMethod = className + "." + method.getNameAsString();

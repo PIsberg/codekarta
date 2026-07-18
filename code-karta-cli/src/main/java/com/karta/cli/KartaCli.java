@@ -42,6 +42,7 @@ public class KartaCli {
      */
     enum PipelineStage { PARSING, LAYOUT, RENDERING, WRITING, DONE }
 
+    @SuppressWarnings("PMD.AvoidReassigningLoopVariables") // args[++i] is the standard flag-value idiom
     public static void main(String[] args) {
         Path inputPath = null;
         Path outputDir = DEFAULT_OUTPUT;
@@ -77,6 +78,7 @@ public class KartaCli {
                     }
                 }
                 case "--help", "-h"    -> { printUsage(); System.exit(0); }
+                default -> { /* unknown args are ignored */ }
             }
         }
 
@@ -156,6 +158,7 @@ public class KartaCli {
      * @param maxDepth       maximum sequence depth limit (for depth-limited stitched sequence diagrams)
      * @return the path of the written SVG file
      */
+    @SuppressWarnings("PMD.UnusedAssignment") // 'state' assignments are extracted by StateMachineParser as the pipeline diagram
     public static Path run(Path inputPath, Path outputDir,
                            boolean sequenceOnly, String layout,
                            boolean stateMachine, java.util.Set<String> customExcludes,
@@ -216,9 +219,9 @@ public class KartaCli {
             return "module-diagram.svg";
         }
         if (stateMachine) {
-            return fileName.replace(".java", "").toLowerCase() + "-state-machine-diagram.svg";
+            return fileName.replace(".java", "").toLowerCase(java.util.Locale.ROOT) + "-state-machine-diagram.svg";
         }
-        return fileName.replace(".java", "").toLowerCase() + "-sequence-diagram.svg";
+        return fileName.replace(".java", "").toLowerCase(java.util.Locale.ROOT) + "-sequence-diagram.svg";
     }
 
     private static void printUsage() {

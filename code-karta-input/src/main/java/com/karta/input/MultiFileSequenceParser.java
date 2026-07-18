@@ -7,7 +7,6 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.stmt.TryStmt;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
@@ -21,7 +20,7 @@ import com.karta.core.model.Group;
 import com.karta.core.model.Node;
 import com.karta.core.model.NodeType;
 import com.karta.input.parser.FilterMatcher;
-import java.util.Set;
+import com.karta.input.parser.ParserSupport;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -72,7 +71,7 @@ public class MultiFileSequenceParser {
     }
 
     public MultiFileSequenceParser(Set<String> customExcludes, int maxDepth) {
-        this.customExcludes = customExcludes != null ? customExcludes : java.util.Collections.emptySet();
+        this.customExcludes = ParserSupport.normalizeExcludes(customExcludes);
         this.maxDepth = maxDepth > 0 ? maxDepth : Integer.MAX_VALUE;
     }
 
@@ -162,27 +161,8 @@ public class MultiFileSequenceParser {
                     }, null);
 
                     // Catch-boundary groups (structural context, no exception edges)
-                    int[] tryIdx = { 0 };
-                    method.findAll(TryStmt.class).forEach(tryStmt -> {
-                        String catchTypes = tryStmt.getCatchClauses().stream()
-                                .map(c -> c.getParameter().getType().asString())
-                                .reduce((a, b) -> a + ", " + b)
-                                .orElse("Exception");
-
-                        Group group = new Group(
-                                "catch-boundary-" + methodId + "-" + tryIdx[0]++,
-                                "catch(" + catchTypes + ")");
-
-                        tryStmt.getTryBlock().findAll(MethodCallExpr.class).forEach(call -> {
-                            String callee = resolveCallee(call, className, localMethods);
-                            graph.addNodeIfAbsent(new Node(callee, NodeType.METHOD, call.getNameAsString()));
-                            group.addMember(callee);
-                        });
-
-                        if (!group.getMemberIds().isEmpty()) {
-                            graph.addGroup(group);
-                        }
-                    });
+                    ParserSupport.addCatchBoundaryGroups(graph, method, methodId,
+                            call -> resolveCallee(call, className, localMethods));
                 });
             });
 
