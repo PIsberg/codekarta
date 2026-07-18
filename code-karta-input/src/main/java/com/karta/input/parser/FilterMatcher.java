@@ -1,5 +1,7 @@
 package com.karta.input.parser;
 
+import se.deversity.vibetags.annotations.AIPure;
+
 import java.util.Set;
 
 public final class FilterMatcher {
@@ -7,6 +9,7 @@ public final class FilterMatcher {
     /**
      * Checks if the given name matches any pattern in the patterns set.
      */
+    @AIPure(reason = "Called once per node/edge candidate during parsing — deterministic string matching with no side effects; callers assume referential transparency")
     public static boolean matchesAny(String name, Set<String> patterns) {
         if (name == null || patterns == null || patterns.isEmpty()) {
             return false;
@@ -22,6 +25,7 @@ public final class FilterMatcher {
     /**
      * Checks if a name matches a single pattern (supporting basic wildcards like *, suffix*, *prefix, *sub*).
      */
+    @AIPure(reason = "Deterministic wildcard matching with no side effects")
     public static boolean matches(String name, String rawPattern) {
         if (name == null || rawPattern == null) {
             return false;

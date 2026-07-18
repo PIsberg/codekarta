@@ -108,6 +108,22 @@ Four model classes: `Node`, `Edge`, `Group`, `Graph`. Jackson `@JsonInclude(NON_
   </test_driven_requirements>
 
 <rule>For any element listed in <test_driven_requirements>, you MUST provide both the implementation change AND the corresponding test code update in a single response. Changes without tests are incomplete and must not be proposed.</rule>
+  <idempotent_elements>
+    <element path="com.karta.cli.KartaCli.run(java.nio.file.Path,java.nio.file.Path,boolean,java.lang.String,boolean,java.util.Set&lt;java.lang.String&gt;,int)">
+      <idempotent>true</idempotent>
+      <reason>Re-running with the same inputs regenerates byte-identical SVG output — the verify-phase diagram generation and doc regeneration rely on repeated runs converging.</reason>
+    </element>
+  </idempotent_elements>
+
+<rule>Operations listed in <idempotent_elements> must remain idempotent. Never introduce side effects that cause repeated invocations to produce different results.</rule>
+  <pure_functions>
+    <file path="com.karta.cli.KartaCli.deriveOutputName(java.nio.file.Path,boolean,boolean)">
+      <policy>Pure function: no side effects, deterministic.</policy>
+      <reason>Deterministic filename mapping — KartaCliTest and the exec-maven-plugin diagram targets both depend on the exact names produced</reason>
+    </file>
+  </pure_functions>
+
+<rule>Methods in <pure_functions> must remain mathematically pure. Side effects, mutations of class/static state, or blocking operations are strictly forbidden.</rule>
 </project_guardrails>
 
 <rule>Never propose edits to files listed in <locked_files>.</rule>

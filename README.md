@@ -186,4 +186,4 @@ mvn -B -Pmutation test-compile org.pitest:pitest-maven:mutationCoverage
 | `code-karta-render` | SVG rendering |
 | `code-karta-cli` | Command-line wrapper |
 
-Agents and contributors can use [`SKILL.md`](SKILL.md) as a compact operating guide for using and extending the library.
+Agents and contributors can use [`docs/SKILL.md`](docs/SKILL.md) as a compact operating guide for using and extending the library.

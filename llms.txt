@@ -8,8 +8,8 @@ Orientation facts: tiers never import from a tier beside them — `code-karta-co
 
 - [CLAUDE.md](CLAUDE.md): agent briefing — build commands, architecture invariants, project guardrails
 - [README.md](README.md): project intro, quick start, example diagrams, interactive viewer
-- [SKILL.md](SKILL.md): compact operating guide for using and extending the library
-- [SPEC.md](SPEC.md): behavior specification
+- [docs/SKILL.md](docs/SKILL.md): compact operating guide for using and extending the library
+- [docs/SPEC.md](docs/SPEC.md): behavior specification
 - [docs/README.md](docs/README.md): full user guide
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): technical deep dive — tier diagram, data flow, design decisions
 
@@ -26,7 +26,7 @@ Orientation facts: tiers never import from a tier beside them — `code-karta-co
 
 - [docs/diagrams/](docs/diagrams/): generated diagrams of code-karta itself, plus the interactive viewer.html
 - [architecture.md](architecture.md): working notes
-- [PLAN.md](PLAN.md): roadmap notes
+- [docs/PLAN.md](docs/PLAN.md): roadmap notes
 
 <!-- VIBETAGS-START -->
 # This Project
@@ -47,4 +47,10 @@ AI tools reading this file should respect the guardrails defined below. These ru
 
 ## 🧪 Test-Driven Requirements
 - [KartaCli](com.karta.cli.KartaCli): Coverage goal: 90%. Framework: JUNIT_5. Test file: code-karta-cli/src/test/java/com/karta/cli/KartaCliTest.java. Mock policy: Do not mock parsers or layout engines — KartaCliTest calls run() directly against the example-shipping-system fixture for end-to-end coverage.
+
+## ♻️ Idempotency Guarantees
+- [KartaCli.run(java.nio.file.Path,java.nio.file.Path,boolean,java.lang.String,boolean,java.util.Set<java.lang.String>,int)](com.karta.cli.KartaCli.run(java.nio.file.Path,java.nio.file.Path,boolean,java.lang.String,boolean,java.util.Set<java.lang.String>,int)): Idempotency guaranteed. Multiple invocations must produce the same result as one. Reason: Re-running with the same inputs regenerates byte-identical SVG output — the verify-phase diagram generation and doc regeneration rely on repeated runs converging.
+
+## Deterministic Pure Functions
+- [KartaCli.deriveOutputName(java.nio.file.Path,boolean,boolean)](com.karta.cli.KartaCli.deriveOutputName(java.nio.file.Path,boolean,boolean)): Must remain a pure function. Forbid assignments to enclosing state, fields, or static members. Reason: Deterministic filename mapping — KartaCliTest and the exec-maven-plugin diagram targets both depend on the exact names produced
 <!-- VIBETAGS-END -->

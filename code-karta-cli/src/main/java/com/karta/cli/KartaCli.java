@@ -11,6 +11,8 @@ import com.karta.render.SvgRenderer;
 
 import se.deversity.vibetags.annotations.AIAudit;
 import se.deversity.vibetags.annotations.AIContract;
+import se.deversity.vibetags.annotations.AIIdempotent;
+import se.deversity.vibetags.annotations.AIPure;
 import se.deversity.vibetags.annotations.AITestDriven;
 
 import java.io.IOException;
@@ -158,6 +160,7 @@ public class KartaCli {
      * @param maxDepth       maximum sequence depth limit (for depth-limited stitched sequence diagrams)
      * @return the path of the written SVG file
      */
+    @AIIdempotent(reason = "Re-running with the same inputs regenerates byte-identical SVG output — the verify-phase diagram generation and doc regeneration rely on repeated runs converging.")
     @SuppressWarnings("PMD.UnusedAssignment") // 'state' assignments are extracted by StateMachineParser as the pipeline diagram
     public static Path run(Path inputPath, Path outputDir,
                            boolean sequenceOnly, String layout,
@@ -207,6 +210,7 @@ public class KartaCli {
         return deriveOutputName(inputPath, sequenceOnly, false);
     }
 
+    @AIPure(reason = "Deterministic filename mapping — KartaCliTest and the exec-maven-plugin diagram targets both depend on the exact names produced")
     static String deriveOutputName(Path inputPath, boolean sequenceOnly, boolean stateMachine) {
         if (Files.isDirectory(inputPath)) {
             if (stateMachine) {

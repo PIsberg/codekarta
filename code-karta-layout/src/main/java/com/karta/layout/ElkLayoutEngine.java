@@ -15,6 +15,7 @@ import org.eclipse.elk.graph.util.ElkGraphUtil;
 
 import se.deversity.vibetags.annotations.AIArchitecture;
 import se.deversity.vibetags.annotations.AIContext;
+import se.deversity.vibetags.annotations.AIExplain;
 import se.deversity.vibetags.annotations.AIPerformance;
 import se.deversity.vibetags.annotations.AIStrictClasspath;
 
@@ -56,6 +57,7 @@ public class ElkLayoutEngine implements LayoutEngine {
         }
     }
 
+    @AIExplain(AIExplain.ComplexityLevel.MEDIUM)
     private Graph layoutWithElk(Graph graph) {
         ElkNode root = ElkGraphUtil.createGraph();
         root.setProperty(CoreOptions.ALGORITHM, "org.eclipse.elk.layered");

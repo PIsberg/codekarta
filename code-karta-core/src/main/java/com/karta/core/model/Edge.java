@@ -3,12 +3,14 @@ package com.karta.core.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.jspecify.annotations.Nullable;
 import se.deversity.vibetags.annotations.AICore;
+import se.deversity.vibetags.annotations.AIDomainModel;
 import se.deversity.vibetags.annotations.AISchemaSafe;
 import se.deversity.vibetags.annotations.AIStrictTypes;
 
 @AICore(sensitivity = "High", note = "IR directed edge. id/sourceId/targetId/type are required; label is optional (sequence number for CALLS, field name for HAS).")
 @AISchemaSafe
 @AIStrictTypes
+@AIDomainModel(allow = {"com.fasterxml.jackson.annotation.JsonInclude", "org.jspecify.annotations.Nullable"})
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Edge {
 
