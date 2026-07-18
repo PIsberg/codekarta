@@ -19,13 +19,21 @@
 
     <properties>
         <maven.compiler.release>21</maven.compiler.release>
+        <pmd.plugin.version>3.28.0</pmd.plugin.version>
+        <pmd.version>7.26.0</pmd.version>
+        <spotbugs.plugin.version>4.10.3.0</spotbugs.plugin.version>
+        <checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
+        <checkstyle.version>13.8.0</checkstyle.version>
+        <errorprone.version>2.50.0</errorprone.version>
         <skipDiagrams>false</skipDiagrams>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jackson.version>2.22.1</jackson.version>
         <javaparser.version>3.28.2</javaparser.version>
         <junit.version>6.1.2</junit.version>
-        <elk.version>0.9.1</elk.version>
-        <vibetags.version>0.9.9</vibetags.version>
+        <elk.version>0.12.0</elk.version>
+        <!-- ELK 0.12.x no longer drags in xbase.lib transitively but still needs it at runtime -->
+        <xtext.version>2.43.0</xtext.version>
+        <vibetags.version>1.0.0-RC3</vibetags.version>
     </properties>
 
     <dependencyManagement>
@@ -67,6 +75,23 @@
                 <version>${elk.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.eclipse.xtext</groupId>
+                <artifactId>org.eclipse.xtext.xbase.lib</artifactId>
+                <version>${xtext.version}</version>
+            </dependency>
+            <!-- JSpecify null annotations (@NullMarked, @Nullable) — source-only, zero runtime overhead -->
+            <dependency>
+                <groupId>org.jspecify</groupId>
+                <artifactId>jspecify</artifactId>
+                <version>1.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.tngtech.archunit</groupId>
+                <artifactId>archunit-junit5</artifactId>
+                <version>1.4.2</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
                 <groupId>se.deversity.vibetags</groupId>
                 <artifactId>vibetags-processor</artifactId>
                 <version>${vibetags.version}</version>
@@ -82,13 +107,212 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.15.0</version>
+                    <configuration>
+                        <!-- annotationProcessorPaths replaces classpath processor discovery,
+                             so the vibetags processor must be listed here alongside Error Prone
+                             or guardrail generation silently stops. -->
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>com.google.errorprone</groupId>
+                                <artifactId>error_prone_core</artifactId>
+                                <version>${errorprone.version}</version>
+                            </path>
+                            <path>
+                                <groupId>se.deversity.vibetags</groupId>
+                                <artifactId>vibetags-processor</artifactId>
+                                <version>${vibetags.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
+                    </configuration>
+                    <executions>
+                        <!-- Error Prone runs on main sources only; test sources keep plain compilation -->
+                        <execution>
+                            <id>default-compile</id>
+                            <configuration>
+                                <compilerArgs>
+                                    <arg>-XDcompilePolicy=simple</arg>
+                                    <arg>-XDaddTypeAnnotationsToSymbol=true</arg>
+                                    <arg>-Xplugin:ErrorProne</arg>
+                                    <arg>-XDshould-stop.ifError=FLOW</arg>
+                                </compilerArgs>
+                            </configuration>
+                        </execution>
+                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>3.5.6</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-pmd-plugin</artifactId>
+                    <version>${pmd.plugin.version}</version>
+                    <configuration>
+                        <failOnViolation>true</failOnViolation>
+                        <printFailingErrors>true</printFailingErrors>
+                        <includeTests>false</includeTests>
+                        <rulesets>
+                            <ruleset>${maven.multiModuleProjectDirectory}/pmd-ruleset.xml</ruleset>
+                        </rulesets>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>check</goal>
+                                <goal>cpd-check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>net.sourceforge.pmd</groupId>
+                            <artifactId>pmd-core</artifactId>
+                            <version>${pmd.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>net.sourceforge.pmd</groupId>
+                            <artifactId>pmd-java</artifactId>
+                            <version>${pmd.version}</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>${checkstyle.plugin.version}</version>
+                    <configuration>
+                        <configLocation>${maven.multiModuleProjectDirectory}/checkstyle.xml</configLocation>
+                        <consoleOutput>true</consoleOutput>
+                        <failsOnError>true</failsOnError>
+                        <linkXRef>false</linkXRef>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>validate</id>
+                            <phase>validate</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>com.puppycrawl.tools</groupId>
+                            <artifactId>checkstyle</artifactId>
+                            <version>${checkstyle.version}</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+                <plugin>
+                    <groupId>com.github.spotbugs</groupId>
+                    <artifactId>spotbugs-maven-plugin</artifactId>
+                    <version>${spotbugs.plugin.version}</version>
+                    <configuration>
+                        <effort>Max</effort>
+                        <threshold>Low</threshold>
+                        <includeTests>false</includeTests>
+                        <failOnError>true</failOnError>
+                        <excludeFilterFile>${maven.multiModuleProjectDirectory}/spotbugs-exclude.xml</excludeFilterFile>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+            </plugin>
+            <!-- SBOM: generates CycloneDX BOM at package phase (target/bom.json, bom.xml) -->
+            <plugin>
+                <groupId>org.cyclonedx</groupId>
+                <artifactId>cyclonedx-maven-plugin</artifactId>
+                <version>2.9.2</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>makeAggregateBom</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <projectType>application</projectType>
+                    <schemaVersion>1.6</schemaVersion>
+                    <includeBomSerialNumber>true</includeBomSerialNumber>
+                    <includeCompileScope>true</includeCompileScope>
+                    <includeProvidedScope>false</includeProvidedScope>
+                    <includeRuntimeScope>true</includeRuntimeScope>
+                    <includeSystemScope>false</includeSystemScope>
+                    <includeTestScope>false</includeTestScope>
+                    <includeLicenseText>false</includeLicenseText>
+                    <outputFormat>all</outputFormat>
+                    <outputName>bom</outputName>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
+
+    <profiles>
+        <!-- Mutation testing: mvn -B -Pmutation test-compile org.pitest:pitest-maven:mutationCoverage
+             pitest-junit5-plugin 1.2.2 marks its own junit-platform-launcher dependency "provided"
+             rather than shading a fixed version, so the host build must supply one matching
+             ${junit.version} on the plugin's classpath (same setup as vibetags). -->
+        <profile>
+            <id>mutation</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.pitest</groupId>
+                        <artifactId>pitest-maven</artifactId>
+                        <version>1.25.7</version>
+                        <configuration>
+                            <targetClasses>
+                                <param>com.karta.*</param>
+                            </targetClasses>
+                            <targetTests>
+                                <param>com.karta.*</param>
+                            </targetTests>
+                            <outputFormats>
+                                <param>HTML</param>
+                                <param>XML</param>
+                            </outputFormats>
+                            <timestampedReports>false</timestampedReports>
+                            <threads>4</threads>
+                            <!-- code-karta-core has tests but they live with each tier; a module
+                                 whose tests produce no mutant kills must not fail the reactor -->
+                            <failWhenNoMutations>false</failWhenNoMutations>
+                        </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.pitest</groupId>
+                                <artifactId>pitest-junit5-plugin</artifactId>
+                                <version>1.2.2</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.junit.platform</groupId>
+                                <artifactId>junit-platform-launcher</artifactId>
+                                <version>${junit.version}</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

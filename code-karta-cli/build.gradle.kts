@@ -1,6 +1,6 @@
 plugins {
     application
-    id("com.gradleup.shadow") version "8.3.6"
+    id("com.gradleup.shadow") version "9.6.0"
 }
 
 application {
@@ -12,6 +12,7 @@ dependencies {
     implementation(project(":code-karta-input"))
     implementation(project(":code-karta-layout"))
     implementation(project(":code-karta-render"))
+    testImplementation("com.tngtech.archunit:archunit-junit5:1.4.2")
 }
 
 // Fat JAR via shadow plugin — merges META-INF/services so ELK algorithm SPI is found.

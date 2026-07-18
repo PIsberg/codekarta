@@ -56,7 +56,7 @@ public class JavaSourceInputParser implements InputParser {
             if (classDiagramParser == null) classDiagramParser = new ClassDiagramParser(customExcludes);
             return classDiagramParser.parse(path);
         }
-        String fileName = path.getFileName().toString();
+        String fileName = String.valueOf(path.getFileName());
         if ("module-info.java".equals(fileName)) {
             log.fine(() -> "Delegating module-info.java to ModuleInfoParser: " + path);
             if (moduleInfoParser == null) moduleInfoParser = new ModuleInfoParser();

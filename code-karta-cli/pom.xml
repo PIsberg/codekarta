@@ -40,6 +40,14 @@
             <groupId>se.deversity.vibetags</groupId>
             <artifactId>vibetags-processor</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.tngtech.archunit</groupId>
+            <artifactId>archunit-junit5</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

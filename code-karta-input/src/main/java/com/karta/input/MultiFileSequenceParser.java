@@ -7,7 +7,6 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.stmt.TryStmt;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
@@ -21,7 +20,7 @@ import com.karta.core.model.Group;
 import com.karta.core.model.Node;
 import com.karta.core.model.NodeType;
 import com.karta.input.parser.FilterMatcher;
-import java.util.Set;
+import com.karta.input.parser.ParserSupport;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -72,7 +71,7 @@ public class MultiFileSequenceParser {
     }
 
     public MultiFileSequenceParser(Set<String> customExcludes, int maxDepth) {
-        this.customExcludes = customExcludes != null ? customExcludes : java.util.Collections.emptySet();
+        this.customExcludes = ParserSupport.normalizeExcludes(customExcludes);
         this.maxDepth = maxDepth > 0 ? maxDepth : Integer.MAX_VALUE;
     }
 
@@ -146,7 +145,7 @@ public class MultiFileSequenceParser {
                         public void visit(MethodCallExpr call, Void arg) {
                             String calleeId = resolveCallee(call, className, localMethods);
                             if (FilterMatcher.matchesAny(call.getNameAsString(), customExcludes) || FilterMatcher.matchesAny(calleeId, customExcludes)) {
-                                super.visit(call, arg);
+                                super.visit(call, null);
                                 return;
                             }
                             graph.addNodeIfAbsent(new Node(calleeId, NodeType.METHOD, call.getNameAsString()));
@@ -157,32 +156,13 @@ public class MultiFileSequenceParser {
                             edge.setLabel(String.valueOf(n));
                             graph.addEdge(edge);
 
-                            super.visit(call, arg);
+                            super.visit(call, null);
                         }
                     }, null);
 
                     // Catch-boundary groups (structural context, no exception edges)
-                    int[] tryIdx = { 0 };
-                    method.findAll(TryStmt.class).forEach(tryStmt -> {
-                        String catchTypes = tryStmt.getCatchClauses().stream()
-                                .map(c -> c.getParameter().getType().asString())
-                                .reduce((a, b) -> a + ", " + b)
-                                .orElse("Exception");
-
-                        Group group = new Group(
-                                "catch-boundary-" + methodId + "-" + tryIdx[0]++,
-                                "catch(" + catchTypes + ")");
-
-                        tryStmt.getTryBlock().findAll(MethodCallExpr.class).forEach(call -> {
-                            String callee = resolveCallee(call, className, localMethods);
-                            graph.addNodeIfAbsent(new Node(callee, NodeType.METHOD, call.getNameAsString()));
-                            group.addMember(callee);
-                        });
-
-                        if (!group.getMemberIds().isEmpty()) {
-                            graph.addGroup(group);
-                        }
-                    });
+                    ParserSupport.addCatchBoundaryGroups(graph, method, methodId,
+                            call -> resolveCallee(call, className, localMethods));
                 });
             });
 
@@ -219,7 +199,7 @@ public class MultiFileSequenceParser {
         }
 
         // 2. Entry points are METHOD nodes with no incoming CALLS edges
-        java.util.Queue<String> queue = new java.util.LinkedList<>();
+        java.util.Queue<String> queue = new java.util.ArrayDeque<>();
         java.util.Map<String, Integer> depths = new java.util.HashMap<>();
         for (Node node : graph.getNodes()) {
             if (NodeType.METHOD.equals(node.getType()) && !hasIncoming.contains(node.getId())) {
@@ -285,7 +265,7 @@ public class MultiFileSequenceParser {
         try (Stream<Path> stream = Files.walk(root)) {
             return stream
                     .filter(p -> p.toString().endsWith(".java"))
-                    .filter(p -> !"module-info.java".equals(p.getFileName().toString()))
+                    .filter(p -> !"module-info.java".equals(String.valueOf(p.getFileName())))
                     .collect(Collectors.toList());
         } catch (IOException e) {
             log.warning("Cannot walk source root " + root + ": " + e.getMessage());

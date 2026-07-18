@@ -5,6 +5,14 @@
 [![Java 21+](https://img.shields.io/badge/Java-21+-orange?logo=openjdk)](https://github.com/PIsberg/codekarta)
 [![Maven](https://img.shields.io/badge/build-Maven-blue?logo=apachemaven)](https://github.com/PIsberg/codekarta)
 [![Gradle](https://img.shields.io/badge/build-Gradle-blue?logo=gradle)](https://github.com/PIsberg/codekarta)
+[![ArchUnit](https://img.shields.io/badge/ArchUnit-passing-brightgreen?logo=apachemaven&logoColor=white)](https://github.com/PIsberg/codekarta/blob/main/code-karta-cli/src/test/java/com/karta/cli/ArchitectureRulesTest.java)
+[![PMD](https://img.shields.io/badge/PMD-passing-brightgreen)](https://pmd.github.io/)
+[![SpotBugs](https://img.shields.io/badge/SpotBugs-passing-brightgreen)](https://spotbugs.github.io/)
+[![JSpecify](https://img.shields.io/badge/JSpecify-null--marked-blue)](https://jspecify.dev/)
+[![Checkstyle](https://img.shields.io/badge/Checkstyle-passing-brightgreen)](https://checkstyle.org/)
+[![Error Prone](https://img.shields.io/badge/Error%20Prone-passing-brightgreen)](https://errorprone.info/)
+[![SBOM](https://img.shields.io/badge/SBOM-CycloneDX-blue)](https://cyclonedx.org/)
+[![PIT Mutation Testing](https://img.shields.io/badge/PIT%20Mutation-enabled-brightgreen?logo=apachemaven&logoColor=white)](https://github.com/PIsberg/codekarta/actions/workflows/build.yml)
 [![Lines of Code](https://www.aschey.tech/tokei/github/PIsberg/codekarta?languages=Java&category=code)](https://github.com/PIsberg/codekarta)
 
 code-karta is a Java architecture mapping tool. It parses Java source and emits SVG diagrams for modules, class relationships, method call sequences, exception flow, stitched multi-file call graphs, and enum-backed state machines.
@@ -161,6 +169,16 @@ Simply open [`viewer.html`](docs/diagrams/viewer.html) in any modern web browser
 *   🔬 **Responsive Zoom & Pan:** Use your mouse wheel, touchpad, or HUD buttons for fluid zoom and click-and-drag panning.
 *   🔄 **Tab Switcher:** Switch between all six system diagrams seamlessly in a single page.
 
+## Code Quality
+
+Every `mvn verify` runs the full quality gate: Checkstyle ([`checkstyle.xml`](checkstyle.xml)), PMD + CPD ([`pmd-ruleset.xml`](pmd-ruleset.xml)), SpotBugs ([`spotbugs-exclude.xml`](spotbugs-exclude.xml) documents the intentional patterns), [Error Prone](https://errorprone.info/) on main-source compilation, and the ArchUnit fitness functions in [`ArchitectureRulesTest`](code-karta-cli/src/test/java/com/karta/cli/ArchitectureRulesTest.java) that enforce the 3-tier architecture. All main packages are [JSpecify](https://jspecify.dev/) `@NullMarked`, and `mvn package` emits a [CycloneDX](https://cyclonedx.org/) SBOM (`target/bom.json`).
+
+Mutation testing (PIT) is opt-in:
+
+```bash
+mvn -B -Pmutation test-compile org.pitest:pitest-maven:mutationCoverage
+```
+
 ## Modules
 
 | Module | Purpose |
@@ -171,4 +189,4 @@ Simply open [`viewer.html`](docs/diagrams/viewer.html) in any modern web browser
 | `code-karta-render` | SVG rendering |
 | `code-karta-cli` | Command-line wrapper |
 
-Agents and contributors can use [`SKILL.md`](SKILL.md) as a compact operating guide for using and extending the library.
+Agents and contributors can use [`docs/SKILL.md`](docs/SKILL.md) as a compact operating guide for using and extending the library.

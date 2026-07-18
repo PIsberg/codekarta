@@ -11,6 +11,8 @@ import com.karta.render.SvgRenderer;
 
 import se.deversity.vibetags.annotations.AIAudit;
 import se.deversity.vibetags.annotations.AIContract;
+import se.deversity.vibetags.annotations.AIIdempotent;
+import se.deversity.vibetags.annotations.AIPure;
 import se.deversity.vibetags.annotations.AITestDriven;
 
 import java.io.IOException;
@@ -21,7 +23,7 @@ import java.util.logging.Logger;
 @AIContract(reason = "run(Path, Path, boolean, String) is a public static method tested directly by KartaCliTest without spawning a process. Its signature and output filename conventions (module-diagram.svg, class-diagram.svg, <name>-sequence-diagram.svg) must remain stable.")
 @AIAudit(checkFor = {"Path traversal", "Unauthorized file write"})
 @AITestDriven(
-    framework = {AITestDriven.Framework.JUNIT_5},
+    framework = AITestDriven.Framework.JUNIT_5,
     coverageGoal = 90,
     testLocation = "code-karta-cli/src/test/java/com/karta/cli/KartaCliTest.java",
     mockPolicy = "Do not mock parsers or layout engines — KartaCliTest calls run() directly against the example-shipping-system fixture for end-to-end coverage"
@@ -42,6 +44,7 @@ public class KartaCli {
      */
     enum PipelineStage { PARSING, LAYOUT, RENDERING, WRITING, DONE }
 
+    @SuppressWarnings("PMD.AvoidReassigningLoopVariables") // args[++i] is the standard flag-value idiom
     public static void main(String[] args) {
         Path inputPath = null;
         Path outputDir = DEFAULT_OUTPUT;
@@ -77,6 +80,7 @@ public class KartaCli {
                     }
                 }
                 case "--help", "-h"    -> { printUsage(); System.exit(0); }
+                default -> { /* unknown args are ignored */ }
             }
         }
 
@@ -156,6 +160,8 @@ public class KartaCli {
      * @param maxDepth       maximum sequence depth limit (for depth-limited stitched sequence diagrams)
      * @return the path of the written SVG file
      */
+    @AIIdempotent(reason = "Re-running with the same inputs regenerates byte-identical SVG output — the verify-phase diagram generation and doc regeneration rely on repeated runs converging.")
+    @SuppressWarnings({"PMD.UnusedAssignment", "UnusedVariable"}) // 'state' assignments are extracted by StateMachineParser as the pipeline diagram
     public static Path run(Path inputPath, Path outputDir,
                            boolean sequenceOnly, String layout,
                            boolean stateMachine, java.util.Set<String> customExcludes,
@@ -204,6 +210,7 @@ public class KartaCli {
         return deriveOutputName(inputPath, sequenceOnly, false);
     }
 
+    @AIPure(reason = "Deterministic filename mapping — KartaCliTest and the exec-maven-plugin diagram targets both depend on the exact names produced")
     static String deriveOutputName(Path inputPath, boolean sequenceOnly, boolean stateMachine) {
         if (Files.isDirectory(inputPath)) {
             if (stateMachine) {
@@ -211,14 +218,14 @@ public class KartaCli {
             }
             return sequenceOnly ? "sequence-diagram.svg" : "class-diagram.svg";
         }
-        String fileName = inputPath.getFileName().toString();
+        String fileName = String.valueOf(inputPath.getFileName());
         if ("module-info.java".equals(fileName)) {
             return "module-diagram.svg";
         }
         if (stateMachine) {
-            return fileName.replace(".java", "").toLowerCase() + "-state-machine-diagram.svg";
+            return fileName.replace(".java", "").toLowerCase(java.util.Locale.ROOT) + "-state-machine-diagram.svg";
         }
-        return fileName.replace(".java", "").toLowerCase() + "-sequence-diagram.svg";
+        return fileName.replace(".java", "").toLowerCase(java.util.Locale.ROOT) + "-sequence-diagram.svg";
     }
 
     private static void printUsage() {
