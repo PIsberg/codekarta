@@ -93,7 +93,7 @@ Four model classes: `Node`, `Edge`, `Group`, `Graph`. Jackson `@JsonInclude(NON_
 </rule>
   <contract_signatures>
     <element path="com.karta.cli.KartaCli">
-      <reason>run(Path, Path, boolean, String) is a public static method tested directly by KartaCliTest without spawning a process. Its signature and output filename conventions (module-diagram.svg, class-diagram.svg, <name>-sequence-diagram.svg) must remain stable.</reason>
+      <reason>run(Path, Path, boolean, String) is a public static method tested directly by KartaCliTest without spawning a process. Its signature and output filename conventions (module-diagram.svg, class-diagram.svg, &lt;name&gt;-sequence-diagram.svg) must remain stable.</reason>
     </element>
   </contract_signatures>
 

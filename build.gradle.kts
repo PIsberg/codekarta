@@ -18,11 +18,11 @@ subprojects {
     }
 
     dependencies {
-        "testImplementation"("org.junit.jupiter:junit-jupiter:5.11.0")
-        "testRuntimeOnly"("org.junit.platform:junit-platform-launcher:1.11.0")
-        "compileOnly"("se.deversity.vibetags:vibetags-annotations:0.9.5")
-        "testCompileOnly"("se.deversity.vibetags:vibetags-annotations:0.9.5")
-        "annotationProcessor"("se.deversity.vibetags:vibetags-processor:0.9.5")
+        "testImplementation"("org.junit.jupiter:junit-jupiter:6.1.2")
+        "testRuntimeOnly"("org.junit.platform:junit-platform-launcher:6.1.2")
+        "compileOnly"("se.deversity.vibetags:vibetags-annotations:1.0.0-RC3")
+        "testCompileOnly"("se.deversity.vibetags:vibetags-annotations:1.0.0-RC3")
+        "annotationProcessor"("se.deversity.vibetags:vibetags-processor:1.0.0-RC3")
     }
 
     tasks.named<Test>("test") {

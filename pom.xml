@@ -24,8 +24,10 @@
         <jackson.version>2.22.1</jackson.version>
         <javaparser.version>3.28.2</javaparser.version>
         <junit.version>6.1.2</junit.version>
-        <elk.version>0.9.1</elk.version>
-        <vibetags.version>0.9.9</vibetags.version>
+        <elk.version>0.12.0</elk.version>
+        <!-- ELK 0.12.x no longer drags in xbase.lib transitively but still needs it at runtime -->
+        <xtext.version>2.43.0</xtext.version>
+        <vibetags.version>1.0.0-RC3</vibetags.version>
     </properties>
 
     <dependencyManagement>
@@ -65,6 +67,11 @@
                 <groupId>org.eclipse.elk</groupId>
                 <artifactId>org.eclipse.elk.alg.layered</artifactId>
                 <version>${elk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.xtext</groupId>
+                <artifactId>org.eclipse.xtext.xbase.lib</artifactId>
+                <version>${xtext.version}</version>
             </dependency>
             <dependency>
                 <groupId>se.deversity.vibetags</groupId>
