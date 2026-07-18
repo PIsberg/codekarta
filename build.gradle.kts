@@ -18,6 +18,7 @@ subprojects {
     }
 
     dependencies {
+        "implementation"("org.jspecify:jspecify:1.0.0")
         "testImplementation"("org.junit.jupiter:junit-jupiter:6.1.2")
         "testRuntimeOnly"("org.junit.platform:junit-platform-launcher:6.1.2")
         "compileOnly"("se.deversity.vibetags:vibetags-annotations:1.0.0-RC3")

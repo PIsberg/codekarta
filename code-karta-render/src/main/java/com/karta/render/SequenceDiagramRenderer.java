@@ -4,6 +4,7 @@ import com.karta.core.model.Edge;
 import com.karta.core.model.Graph;
 import com.karta.core.model.Group;
 import com.karta.core.model.Node;
+import org.jspecify.annotations.Nullable;
 import se.deversity.vibetags.annotations.AIArchitecture;
 import se.deversity.vibetags.annotations.AIContext;
 
@@ -51,7 +52,7 @@ class SequenceDiagramRenderer {
 
     // ------------------------------------------------------------------ public entry
 
-    String render(Graph graph, String cssOverride) {
+    String render(Graph graph, @Nullable String cssOverride) {
         List<Participant> participants = buildParticipants(graph);
         List<Message>     messages    = orderMessages(graph);
 

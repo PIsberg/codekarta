@@ -2,6 +2,7 @@ package com.karta.render;
 
 import com.karta.core.model.Edge;
 import com.karta.core.model.Graph;
+import org.jspecify.annotations.Nullable;
 import com.karta.core.model.Group;
 import com.karta.core.model.Node;
 import com.karta.core.model.NodeDimensions;
@@ -105,7 +106,7 @@ public class SvgRenderer {
         return render(graph, null);
     }
 
-    public String render(Graph graph, String cssOverride) {
+    public String render(Graph graph, @Nullable String cssOverride) {
         if (isInteractionGraph(graph)) {
             return new SequenceDiagramRenderer(this).render(graph, cssOverride);
         }

@@ -26,6 +26,17 @@
     <Bug pattern="VA_FORMAT_STRING_USES_NEWLINE"/>
   </Match>
 
+  <!-- NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE: with the JSpecify @Nullable
+       annotations on Node coordinate getters and Edge.getLabel(), SpotBugs flags
+       every re-read after a null check (`getX() != null ? getX() : ...` and the
+       "x != null implies y/width/height != null" layout invariant — Tier 2 sets
+       all four or none, see CLAUDE.md). The renderers guard on getX()/findNode()
+       before dereferencing; SpotBugs cannot track the cross-getter invariant. -->
+  <Match>
+    <Package name="com.karta.render"/>
+    <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+  </Match>
+
   <!-- REC_CATCH_EXCEPTION: the fault-tolerance rule (CLAUDE.md) requires every
        parser to wrap JavaParser calls in a broad try/catch, log a warning, and
        return a partial graph — never crash. Catching Exception is the contract. -->

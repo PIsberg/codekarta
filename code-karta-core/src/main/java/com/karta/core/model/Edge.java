@@ -1,6 +1,7 @@
 package com.karta.core.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.jspecify.annotations.Nullable;
 import se.deversity.vibetags.annotations.AICore;
 import se.deversity.vibetags.annotations.AISchemaSafe;
 import se.deversity.vibetags.annotations.AIStrictTypes;
@@ -15,7 +16,7 @@ public class Edge {
     private String sourceId;
     private String targetId;
     private String type;
-    private String label;
+    private @Nullable String label;
 
     public Edge() {}
 
@@ -38,6 +39,6 @@ public class Edge {
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
 
-    public String getLabel() { return label; }
-    public void setLabel(String label) { this.label = label; }
+    public @Nullable String getLabel() { return label; }
+    public void setLabel(@Nullable String label) { this.label = label; }
 }

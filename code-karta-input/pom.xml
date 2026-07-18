@@ -33,5 +33,9 @@
             <groupId>se.deversity.vibetags</groupId>
             <artifactId>vibetags-processor</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+        </dependency>
     </dependencies>
 </project>

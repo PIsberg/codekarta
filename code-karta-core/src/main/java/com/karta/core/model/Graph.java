@@ -1,6 +1,7 @@
 package com.karta.core.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.jspecify.annotations.Nullable;
 import se.deversity.vibetags.annotations.AIArchitecture;
 import se.deversity.vibetags.annotations.AICore;
 import se.deversity.vibetags.annotations.AISchemaSafe;
@@ -43,7 +44,7 @@ public class Graph {
         groups.add(group);
     }
 
-    public Node findNode(String id) {
+    public @Nullable Node findNode(String id) {
         return nodes.stream().filter(n -> id.equals(n.getId())).findFirst().orElse(null);
     }
 

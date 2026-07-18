@@ -76,6 +76,12 @@
                 <artifactId>org.eclipse.xtext.xbase.lib</artifactId>
                 <version>${xtext.version}</version>
             </dependency>
+            <!-- JSpecify null annotations (@NullMarked, @Nullable) — source-only, zero runtime overhead -->
+            <dependency>
+                <groupId>org.jspecify</groupId>
+                <artifactId>jspecify</artifactId>
+                <version>1.0.0</version>
+            </dependency>
             <dependency>
                 <groupId>se.deversity.vibetags</groupId>
                 <artifactId>vibetags-processor</artifactId>
