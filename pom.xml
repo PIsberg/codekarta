@@ -83,6 +83,12 @@
                 <version>1.0.0</version>
             </dependency>
             <dependency>
+                <groupId>com.tngtech.archunit</groupId>
+                <artifactId>archunit-junit5</artifactId>
+                <version>1.4.2</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
                 <groupId>se.deversity.vibetags</groupId>
                 <artifactId>vibetags-processor</artifactId>
                 <version>${vibetags.version}</version>
