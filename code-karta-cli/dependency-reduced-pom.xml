@@ -180,5 +180,21 @@
       <version>1.0.0-RC3</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>com.tngtech.archunit</groupId>
+      <artifactId>archunit-junit5</artifactId>
+      <version>1.4.2</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>archunit-junit5-api</artifactId>
+          <groupId>com.tngtech.archunit</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>archunit-junit5-engine</artifactId>
+          <groupId>com.tngtech.archunit</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
   </dependencies>
 </project>
