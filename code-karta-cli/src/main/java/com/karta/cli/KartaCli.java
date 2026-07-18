@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 @AIContract(reason = "run(Path, Path, boolean, String) is a public static method tested directly by KartaCliTest without spawning a process. Its signature and output filename conventions (module-diagram.svg, class-diagram.svg, <name>-sequence-diagram.svg) must remain stable.")
 @AIAudit(checkFor = {"Path traversal", "Unauthorized file write"})
 @AITestDriven(
-    framework = {AITestDriven.Framework.JUNIT_5},
+    framework = AITestDriven.Framework.JUNIT_5,
     coverageGoal = 90,
     testLocation = "code-karta-cli/src/test/java/com/karta/cli/KartaCliTest.java",
     mockPolicy = "Do not mock parsers or layout engines — KartaCliTest calls run() directly against the example-shipping-system fixture for end-to-end coverage"
