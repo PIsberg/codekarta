@@ -62,7 +62,7 @@
         <elk.version>0.12.0</elk.version>
         <!-- ELK 0.12.x no longer drags in xbase.lib transitively but still needs it at runtime -->
         <xtext.version>2.43.0</xtext.version>
-        <vibetags.version>1.0.0-RC3</vibetags.version>
+        <vibetags.version>1.0.0-RC6</vibetags.version>
     </properties>
 
     <dependencyManagement>
