@@ -12,7 +12,6 @@ import com.karta.render.SvgRenderer;
 import se.deversity.vibetags.annotations.AIAudit;
 import se.deversity.vibetags.annotations.AIContract;
 import se.deversity.vibetags.annotations.AIIdempotent;
-import se.deversity.vibetags.annotations.AIPure;
 import se.deversity.vibetags.annotations.AITestDriven;
 
 import java.io.IOException;
@@ -50,6 +49,7 @@ public class KartaCli {
         Path outputDir = DEFAULT_OUTPUT;
         boolean sequenceOnly = false;
         boolean stateMachine = false;
+        boolean modulesOnly = false;
         String layout = "simple";
         java.util.Set<String> customExcludes = java.util.Collections.emptySet();
         int maxDepth = Integer.MAX_VALUE;
@@ -61,6 +61,7 @@ public class KartaCli {
                 case "--layout"        -> { if (i + 1 < args.length) layout = args[++i]; }
                 case "--sequence-only" -> sequenceOnly = true;
                 case "--state-machine" -> stateMachine = true;
+                case "--modules-only"  -> modulesOnly = true;
                 case "--exclude"       -> {
                     if (i + 1 < args.length) {
                         String rawExcludes = args[++i];
@@ -91,8 +92,12 @@ public class KartaCli {
         }
 
         try {
-            Path output = run(inputPath, outputDir, sequenceOnly, layout, stateMachine, customExcludes, maxDepth);
-            System.out.println("Generated: " + output.toAbsolutePath());
+            Path output = run(inputPath, outputDir, sequenceOnly, layout, stateMachine, customExcludes, maxDepth, modulesOnly);
+            if (output != null) {
+                System.out.println("Generated: " + output.toAbsolutePath());
+            } else {
+                System.out.println("Skipped generating diagram because the parsed graph was empty.");
+            }
         } catch (IOException e) {
             System.err.println("Error: " + e.getMessage());
             System.exit(2);
@@ -161,11 +166,18 @@ public class KartaCli {
      * @return the path of the written SVG file
      */
     @AIIdempotent(reason = "Re-running with the same inputs regenerates byte-identical SVG output — the verify-phase diagram generation and doc regeneration rely on repeated runs converging.")
-    @SuppressWarnings({"PMD.UnusedAssignment", "UnusedVariable"}) // 'state' assignments are extracted by StateMachineParser as the pipeline diagram
     public static Path run(Path inputPath, Path outputDir,
                            boolean sequenceOnly, String layout,
                            boolean stateMachine, java.util.Set<String> customExcludes,
                            int maxDepth) throws IOException {
+        return run(inputPath, outputDir, sequenceOnly, layout, stateMachine, customExcludes, maxDepth, false);
+    }
+
+    @SuppressWarnings({"PMD.UnusedAssignment", "UnusedVariable"}) // 'state' assignments are extracted by StateMachineParser as the pipeline diagram
+    public static Path run(Path inputPath, Path outputDir,
+                           boolean sequenceOnly, String layout,
+                           boolean stateMachine, java.util.Set<String> customExcludes,
+                           int maxDepth, boolean modulesOnly) throws IOException {
         Files.createDirectories(outputDir);
 
         PipelineStage state = PipelineStage.PARSING;
@@ -173,6 +185,9 @@ public class KartaCli {
         if (stateMachine) {
             log.fine(() -> "State-machine mode for input: " + inputPath);
             graph = new StateMachineParser().parse(inputPath);
+        } else if (modulesOnly && Files.isDirectory(inputPath)) {
+            log.fine(() -> "Multi-module mode for directory: " + inputPath);
+            graph = new com.karta.input.parser.ModuleInfoParser().parseDirectory(inputPath);
         } else if (sequenceOnly && Files.isDirectory(inputPath)) {
             log.fine(() -> "Multi-file sequence mode for directory: " + inputPath);
             graph = new MultiFileSequenceParser(customExcludes, maxDepth).parse(inputPath);
@@ -183,11 +198,16 @@ public class KartaCli {
         state = PipelineStage.LAYOUT;
         resolveLayout(layout).layout(graph);
 
+        if (graph.getNodes().isEmpty() && graph.getEdges().isEmpty()) {
+            log.info("Graph is empty for input " + inputPath + ", skipping diagram generation.");
+            return null;
+        }
+
         state = PipelineStage.RENDERING;
         String svg = new SvgRenderer().render(graph);
 
         state = PipelineStage.WRITING;
-        Path outputFile = outputDir.resolve(deriveOutputName(inputPath, sequenceOnly, stateMachine));
+        Path outputFile = outputDir.resolve(deriveOutputName(inputPath, sequenceOnly, stateMachine, modulesOnly));
         Files.writeString(outputFile, svg);
 
         state = PipelineStage.DONE;
@@ -210,11 +230,17 @@ public class KartaCli {
         return deriveOutputName(inputPath, sequenceOnly, false);
     }
 
-    @AIPure(reason = "Deterministic filename mapping — KartaCliTest and the exec-maven-plugin diagram targets both depend on the exact names produced")
     static String deriveOutputName(Path inputPath, boolean sequenceOnly, boolean stateMachine) {
+        return deriveOutputName(inputPath, sequenceOnly, stateMachine, false);
+    }
+
+    static String deriveOutputName(Path inputPath, boolean sequenceOnly, boolean stateMachine, boolean modulesOnly) {
         if (Files.isDirectory(inputPath)) {
             if (stateMachine) {
                 return "state-machine-diagram.svg";
+            }
+            if (modulesOnly) {
+                return "modules-diagram.svg";
             }
             return sequenceOnly ? "sequence-diagram.svg" : "class-diagram.svg";
         }
@@ -229,7 +255,7 @@ public class KartaCli {
     }
 
     private static void printUsage() {
-        System.out.println("Usage: karta --input <path> [--output <dir>] [--sequence-only] [--state-machine] [--layout simple|elk] [--exclude <patterns>] [--max-depth <depth>]");
+        System.out.println("Usage: karta --input <path> [--output <dir>] [--sequence-only] [--state-machine] [--modules-only] [--layout simple|elk] [--exclude <patterns>] [--max-depth <depth>]");
         System.out.println();
         System.out.println("  --input  <path>      What to parse:");
         System.out.println("                         module-info.java  → module diagram");
@@ -237,6 +263,8 @@ public class KartaCli {
         System.out.println("                         *.java file       → sequence/exception diagram");
         System.out.println("                         directory + --sequence-only");
         System.out.println("                                           → multi-file stitched sequence diagram");
+        System.out.println("                         directory + --modules-only");
+        System.out.println("                                           → cross-module communication diagram");
         System.out.println("                         file/dir + --state-machine");
         System.out.println("                                           → enum-backed state transition diagram");
         System.out.println("  --output <dir>       Output directory  (default: ./output)");

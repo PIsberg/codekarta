@@ -96,9 +96,11 @@ public class MultiFileSequenceParser {
     public Graph parse(Path sourceRoot, List<Path> files) {
         Graph graph = new Graph();
 
-        CombinedTypeSolver typeSolver = new CombinedTypeSolver(
-                new ReflectionTypeSolver(false),
-                new JavaParserTypeSolver(sourceRoot));
+        CombinedTypeSolver typeSolver = new CombinedTypeSolver(new ReflectionTypeSolver(false));
+        for (Path root : findSourceRoots(sourceRoot)) {
+            typeSolver.add(new JavaParserTypeSolver(root));
+        }
+
         ParserConfiguration config = new ParserConfiguration()
                 .setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21)
                 .setSymbolResolver(new JavaSymbolSolver(typeSolver));
@@ -122,7 +124,7 @@ public class MultiFileSequenceParser {
             CompilationUnit cu = result.getResult().get();
 
             cu.findAll(ClassOrInterfaceDeclaration.class).forEach(classDecl -> {
-                String className = classDecl.getNameAsString();
+                String className = classDecl.getFullyQualifiedName().orElse(classDecl.getNameAsString());
                 if (FilterMatcher.matchesAny(className, customExcludes)) {
                     return;
                 }
@@ -174,7 +176,7 @@ public class MultiFileSequenceParser {
     private String resolveCallee(MethodCallExpr call, String ownerClass, Set<String> localMethods) {
         try {
             ResolvedMethodDeclaration resolved = call.resolve();
-            String declaringType = resolved.declaringType().getClassName();
+            String declaringType = resolved.declaringType().getQualifiedName();
             return declaringType + "." + resolved.getName();
         } catch (Exception ignored) {
             // Symbol resolution unavailable for this call — fall back to scope-based naming
@@ -271,5 +273,29 @@ public class MultiFileSequenceParser {
             log.warning("Cannot walk source root " + root + ": " + e.getMessage());
             return List.of();
         }
+    }
+
+    private List<Path> findSourceRoots(Path root) {
+        List<Path> roots = new java.util.ArrayList<>();
+        try (Stream<Path> stream = Files.walk(root)) {
+            stream.filter(Files::isDirectory)
+                  .filter(p -> {
+                      Path fn = p.getFileName();
+                      return fn != null && "java".equals(fn.toString());
+                  })
+                  .filter(p -> {
+                      Path parent = p.getParent();
+                      if (parent == null) return false;
+                      Path pfn = parent.getFileName();
+                      return pfn != null && ("main".equals(pfn.toString()) || "test".equals(pfn.toString()));
+                  })
+                  .forEach(roots::add);
+        } catch (IOException e) {
+            log.warning("Cannot walk source root to find type solver roots: " + e.getMessage());
+        }
+        if (roots.isEmpty()) {
+            roots.add(root);
+        }
+        return roots;
     }
 }

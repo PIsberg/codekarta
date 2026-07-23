@@ -274,8 +274,8 @@ class SequenceDiagramRenderer {
                 "fill=\"none\" stroke=\"%s\" stroke-width=\"1.6\"%s marker-end=\"url(#%s)\"/>\n",
                 parent.escapeXml(msg.fromId), parent.escapeXml(msg.toId), parent.escapeXml(msg.type),
                 lx, arrowY,
-                lx + loopW, arrowY - 10,
-                lx + loopW, arrowY + 10,
+                lx + loopW, arrowY - 5,
+                lx + loopW, yEnd + 5,
                 lx, yEnd,
                 color, dashAttr, markerId));
             sb.append(String.format(Locale.ROOT,
@@ -326,7 +326,7 @@ class SequenceDiagramRenderer {
         double fx   = laneX(minLane) - HEADER_W / 2 - pad;
         double fy   = diagramY + minStep * STEP_GAP - 18;
         double fw   = laneX(maxLane) - laneX(minLane) + HEADER_W + pad * 2;
-        double fh   = Math.max(36, (maxStep - minStep) * STEP_GAP + 38);
+        double fh   = Math.max(36, (maxStep - minStep + 1) * STEP_GAP + 20);
         String lbl  = parent.escapeXml(group.getLabel() != null ? group.getLabel() : group.getId());
         double tabW = Math.min(fw - 4, lbl.length() * 7.0 + 12);
 

@@ -42,6 +42,25 @@ public class ModuleInfoParser {
         return graph;
     }
 
+    public Graph parseDirectory(Path root) {
+        Graph graph = new Graph();
+        try (java.util.stream.Stream<Path> stream = Files.walk(root)) {
+            stream.filter(p -> "module-info.java".equals(String.valueOf(p.getFileName())))
+                  .forEach(p -> {
+                      try {
+                          String source = Files.readString(p);
+                          CompilationUnit cu = PARSER.parse(source).getResult().orElseThrow();
+                          cu.getModule().ifPresent(module -> buildGraph(module, graph));
+                      } catch (Exception e) {
+                          log.warning("Failed to parse " + p + ": " + e.getMessage());
+                      }
+                  });
+        } catch (java.io.IOException e) {
+            log.warning("Failed to walk directory " + root + ": " + e.getMessage());
+        }
+        return graph;
+    }
+
     private void buildGraph(ModuleDeclaration module, Graph graph) {
         String moduleName = module.getNameAsString();
         graph.addNode(new Node(moduleName, "MODULE", moduleName));
