@@ -96,7 +96,7 @@ Class diagrams filter obvious JDK types and primitives so associations stay focu
 ### Diagram Scaling Features
 To support clean diagramming in large codebases, several architectural scaling constraints are supported:
 *   **Package-Based Visual Clustering:** `ClassDiagramParser` automatically extracts package declarations and groups class nodes into nested `Group` blocks. These clusters are cleanly rendered by the compound routing engine, avoiding monolithic flat "hairballs".
-*   **Configurable Filtering:** Dynamic class and method filtering is supported via `FilterMatcher`. Users can exclude unwanted frameworks, utility classes, or test classes using simple wildcard patterns (e.g. `*Test`, `com.karta.util.*`).
+*   **Configurable Filtering:** Dynamic class and method filtering is supported via `FilterMatcher`. Users can exclude unwanted frameworks, utility classes, or test classes using simple wildcard patterns (e.g. `*Test`, `se.deversity.codekarta.util.*`).
 *   **Sequence Depth Limiting:** `MultiFileSequenceParser` supports depth-limited stitching. It performs a post-processing BFS from sequence entry points (methods with no incoming calls) and prunes any nodes/edges exceeding a user-defined `--max-depth`.
 
 State-machine parsing targets enum-backed workflow code. Enum constants become `STATE` nodes. Switch entries, state assignments, returns/yields, and explicit `transition(from, to, event)` calls become `TRANSITION` edges.

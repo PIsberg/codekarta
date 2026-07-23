@@ -1,4 +1,4 @@
-package com.karta.shipping.core;
+package se.deversity.codekarta.shipping.core;
 
 /** Checked exception thrown when an order fails business validation. */
 public class OrderValidationException extends Exception {

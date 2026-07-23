@@ -4,10 +4,39 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.karta</groupId>
+    <groupId>se.deversity.codekarta</groupId>
     <artifactId>code-karta</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
     <packaging>pom</packaging>
+
+    <name>CodeKarta</name>
+    <description>A fast Java source code parsing and UML sequence diagram generation tool</description>
+    <url>https://github.com/PIsberg/codekarta</url>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>PIsberg</id>
+            <name>Peter Isberg</name>
+            <url>https://github.com/PIsberg</url>
+            <organization>Deversity</organization>
+            <organizationUrl>https://deversity.se</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:https://github.com/PIsberg/codekarta.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/PIsberg/codekarta.git</developerConnection>
+        <url>https://github.com/PIsberg/codekarta</url>
+        <tag>HEAD</tag>
+    </scm>
 
     <modules>
         <module>code-karta-core</module>
@@ -39,7 +68,7 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.karta</groupId>
+                <groupId>se.deversity.codekarta</groupId>
                 <artifactId>code-karta-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -283,10 +312,10 @@
                         <version>1.25.7</version>
                         <configuration>
                             <targetClasses>
-                                <param>com.karta.*</param>
+                                <param>se.deversity.codekarta.*</param>
                             </targetClasses>
                             <targetTests>
-                                <param>com.karta.*</param>
+                                <param>se.deversity.codekarta.*</param>
                             </targetTests>
                             <outputFormats>
                                 <param>HTML</param>
@@ -310,6 +339,69 @@
                                 <version>${junit.version}</version>
                             </dependency>
                         </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.4.0</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals><goal>jar-no-fork</goal></goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.11.2</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals><goal>jar</goal></goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <release>21</release>
+                            <doclint>none</doclint>
+                            <quiet>true</quiet>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>3.2.8</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals><goal>sign</goal></goals>
+                                <configuration>
+                                    <gpgArguments>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.11.0</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                            <autoPublish>false</autoPublish>
+                            <waitUntil>validated</waitUntil>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>

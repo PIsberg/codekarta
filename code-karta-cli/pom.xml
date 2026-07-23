@@ -5,30 +5,30 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.karta</groupId>
+        <groupId>se.deversity.codekarta</groupId>
         <artifactId>code-karta</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>0.1.0</version>
     </parent>
 
     <artifactId>code-karta-cli</artifactId>
 
     <dependencies>
         <dependency>
-            <groupId>com.karta</groupId>
+            <groupId>se.deversity.codekarta</groupId>
             <artifactId>code-karta-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.karta</groupId>
+            <groupId>se.deversity.codekarta</groupId>
             <artifactId>code-karta-input</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.karta</groupId>
+            <groupId>se.deversity.codekarta</groupId>
             <artifactId>code-karta-layout</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.karta</groupId>
+            <groupId>se.deversity.codekarta</groupId>
             <artifactId>code-karta-render</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -60,7 +60,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.6.3</version>
                 <configuration>
-                    <mainClass>com.karta.cli.KartaCli</mainClass>
+                    <mainClass>se.deversity.codekarta.cli.KartaCli</mainClass>
                     <workingDirectory>${project.basedir}/..</workingDirectory>
                 </configuration>
                 <executions>
@@ -94,7 +94,7 @@
                                 <argument>-jar</argument>
                                 <argument>${project.build.directory}/${project.artifactId}-${project.version}-all.jar</argument>
                                 <argument>--input</argument>
-                                <argument>code-karta-core/src/main/java/com/karta/core/model</argument>
+                                <argument>code-karta-core/src/main/java/se/deversity/codekarta/core/model</argument>
                                 <argument>--output</argument>
                                 <argument>docs/diagrams</argument>
                             </arguments>
@@ -112,7 +112,7 @@
                                 <argument>-jar</argument>
                                 <argument>${project.build.directory}/${project.artifactId}-${project.version}-all.jar</argument>
                                 <argument>--input</argument>
-                                <argument>code-karta-cli/src/main/java/com/karta/cli/KartaCli.java</argument>
+                                <argument>code-karta-cli/src/main/java/se/deversity/codekarta/cli/KartaCli.java</argument>
                                 <argument>--output</argument>
                                 <argument>docs/diagrams</argument>
                             </arguments>
@@ -130,7 +130,7 @@
                                 <argument>-jar</argument>
                                 <argument>${project.build.directory}/${project.artifactId}-${project.version}-all.jar</argument>
                                 <argument>--input</argument>
-                                <argument>code-karta-input/src/main/java/com/karta/input/parser/CallSequenceParser.java</argument>
+                                <argument>code-karta-input/src/main/java/se/deversity/codekarta/input/parser/CallSequenceParser.java</argument>
                                 <argument>--output</argument>
                                 <argument>docs/diagrams</argument>
                                 <argument>--sequence-only</argument>
@@ -149,7 +149,7 @@
                                 <argument>-jar</argument>
                                 <argument>${project.build.directory}/${project.artifactId}-${project.version}-all.jar</argument>
                                 <argument>--input</argument>
-                                <argument>code-karta-input/src/main/java/com/karta/input</argument>
+                                <argument>code-karta-input/src/main/java/se/deversity/codekarta/input</argument>
                                 <argument>--output</argument>
                                 <argument>docs/diagrams</argument>
                                 <argument>--sequence-only</argument>
@@ -174,7 +174,7 @@
                             <shadedClassifierName>all</shadedClassifierName>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.karta.cli.KartaCli</mainClass>
+                                    <mainClass>se.deversity.codekarta.cli.KartaCli</mainClass>
                                 </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                             </transformers>

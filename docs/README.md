@@ -64,7 +64,7 @@ java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \
 | `--sequence-only` | off | Emits only `CALLS` edges. For directory input, parses all Java files together into one stitched sequence graph. |
 | `--state-machine` | off | Emits `STATE` nodes and `TRANSITION` edges from enum constants, switch cases, state assignments, and `transition(from, to, event)` calls. |
 | `--layout simple|elk` | `simple` | `simple` is the pure-Java BFS grid. `elk` uses Eclipse Layout Kernel layered layout and is better for larger graphs. |
-| `--exclude <patterns>` | off | Comma-separated wildcard patterns of classes or methods to exclude (e.g. `*Test,com.karta.util.*,Map`) to reduce visual clutter. |
+| `--exclude <patterns>` | off | Comma-separated wildcard patterns of classes or methods to exclude (e.g. `*Test,se.deversity.codekarta.util.*,Map`) to reduce visual clutter. |
 | `--max-depth <depth>` | off | Maximum call sequence depth to parse or stitch. |
 | `--help` | off | Prints CLI usage. |
 
@@ -72,7 +72,7 @@ During development:
 
 ```bash
 mvn -pl code-karta-cli exec:java \
-  -Dexec.mainClass=com.karta.cli.KartaCli \
+  -Dexec.mainClass=se.deversity.codekarta.cli.KartaCli \
   "-Dexec.args=--input example-shipping-system/src/main/java/com/karta/shipping/domain --output target/diagrams"
 
 ./gradlew :code-karta-cli:run --args="--input example-shipping-system/src/main/java/com/karta/shipping/domain --output build/diagrams"

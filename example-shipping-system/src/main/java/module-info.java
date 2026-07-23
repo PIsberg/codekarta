@@ -1,7 +1,7 @@
-module com.karta.shipping {
+module se.deversity.codekarta.shipping {
     requires java.base;
     requires java.logging;
-    exports com.karta.shipping.domain;
-    exports com.karta.shipping.core;
-    exports com.karta.shipping.state;
+    exports se.deversity.codekarta.shipping.domain;
+    exports se.deversity.codekarta.shipping.core;
+    exports se.deversity.codekarta.shipping.state;
 }

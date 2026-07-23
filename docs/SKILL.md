@@ -10,7 +10,7 @@ code-karta converts Java source into SVG diagrams through a three-stage pipeline
 2. `code-karta-layout` assigns coordinates to that graph.
 3. `code-karta-render` renders the graph as SVG.
 
-The shared type is `com.karta.core.model.Graph`. Keep parser, layout, and rendering responsibilities separate.
+The shared type is `se.deversity.codekarta.core.model.Graph`. Keep parser, layout, and rendering responsibilities separate.
 
 ## Fast CLI Usage
 
@@ -46,7 +46,7 @@ Input path decides the diagram:
 
 Use `--layout elk` for large graphs. Use `--sequence-only` when exception propagation and try/catch regions are noise.
 Use `--state-machine` for enum-backed workflow code where enum constants represent states and switch assignments or `transition(from, to, event)` calls represent transitions.
-Use `--exclude <patterns>` (comma-separated wildcards, e.g. `*Test,com.karta.util.*,Map`) to filter noisy types/methods under scale.
+Use `--exclude <patterns>` (comma-separated wildcards, e.g. `*Test,se.deversity.codekarta.util.*,Map`) to filter noisy types/methods under scale.
 Use `--max-depth <depth>` (integer) to limit call-sequence stitching hierarchy.
 
 ## Library Usage

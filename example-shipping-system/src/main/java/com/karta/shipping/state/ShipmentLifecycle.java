@@ -1,4 +1,4 @@
-package com.karta.shipping.state;
+package se.deversity.codekarta.shipping.state;
 
 /**
  * Shipment lifecycle state machine — demonstrates the <b>switch-case transition</b> pattern.

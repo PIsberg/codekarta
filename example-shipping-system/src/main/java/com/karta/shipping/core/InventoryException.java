@@ -1,4 +1,4 @@
-package com.karta.shipping.core;
+package se.deversity.codekarta.shipping.core;
 
 /** Unchecked exception thrown when inventory stock cannot be confirmed. */
 public class InventoryException extends RuntimeException {
