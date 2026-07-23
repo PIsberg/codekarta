@@ -14,6 +14,7 @@
 [![SBOM](https://img.shields.io/badge/SBOM-CycloneDX-blue)](https://cyclonedx.org/)
 [![PIT Mutation Testing](https://img.shields.io/badge/PIT%20Mutation-enabled-brightgreen?logo=apachemaven&logoColor=white)](https://github.com/PIsberg/codekarta/actions/workflows/build.yml)
 [![Lines of Code](https://www.aschey.tech/tokei/github/PIsberg/codekarta?languages=Java&category=code)](https://github.com/PIsberg/codekarta)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-0079C1?logo=paypal&logoColor=white)](https://paypal.me/isbergpeter)
 
 code-karta is a Java architecture mapping tool. It parses Java source and emits SVG diagrams for modules, class relationships, method call sequences, exception flow, stitched multi-file call graphs, and enum-backed state machines.
 
@@ -190,3 +191,10 @@ mvn -B -Pmutation test-compile org.pitest:pitest-maven:mutationCoverage
 | `code-karta-cli` | Command-line wrapper |
 
 Agents and contributors can use [`docs/SKILL.md`](docs/SKILL.md) as a compact operating guide for using and extending the library.
+
+## 💛 Support code-karta
+
+code-karta is built and maintained by a single developer in his spare time. If it saves you time, a small donation helps keep the project alive:
+
+- **[Donate via PayPal](https://paypal.me/isbergpeter)** — every contribution, however small, is appreciated.
+- Don't have PayPal yet? **[Sign up with this invite link](https://www.paypal.com/webapps/mch/cmd/?v=3.0&t=1784460151&fdata=OBcGAzRHBBYcHAQeSFRMKk90PRgwNE9jVWhoGjAsS0gtRmZpYAd8bEJTbQlgWnlVaFVQX3cFTEdaUUwTRBFMSy50aF1xaV11Q357XWt5UlFdUX5sbQtpdFdGdFcnAS9HcCRJR3QDVVVORltJHUVcU19nfFtzZF9jV2poTjYhDkhMJ2Z5bwZwZkNRYwFhWHpfYFZdV3UCXEdYU0xRTlRMKk90BiQWGDoHV2hqTng4BAgAAmZ5GBNpOBUOOwImCScKNBAfAyENHhMUHQwCVE9XBw88J1B.a09jVWhoHzUhDkhMJ2Z5aQV4ZURWdBlySWoFOQVJRwMWTCk3IyQkaFRMSU90Kgs1cE8CV2h5TnhrS0gICSM8LBNpFVVGZABiWHheYVdcVmIWTkdYEwwZSVRMKk90fl59Yll0QHFwV2F4XlBfVXNhbBNpdlVGIUg9AS9HcCRJR3UCXl5NRFVAHkVeWVthfFNyaFljV2poTi9pSylMRnR2aBNpdlVGIUtwSQtHcFVfXncDW1ZIRVxRDFZMSwc7PRwgDgcmV2gJTnh-Ul9VV3JgaQZ-ZEVTZw1kUX9WcEVLR2JeAxIPFTITQhEIS08VaEsLNBY2VgssHC1oKwoZDig2eRNrdFUKJl8OAzsPcEUoR2J-IDYrNT4jZDojOU90aktkMA02HyYnMDAsS0gtRmZvaQN8YUFQZgxmX3lfZFBbV3METEdaUUwRTgEEBQAKKgUhNE9jNmhoPTwuDxsfBisHMVw-PAACClkODjkPNAoMR2IUTEcQHhkVXyoeDx8KOw82NBpjVwloTj8pBhoIRmZ7eRMhOwAGNkwiDTpHcCRJR3MZXUdYU0xRThoYBBonMEtkEU9jJQxoTnppSxweAiMHPUo8MAYJNFQ9EWpHEUVJACJbHgNYUU5RDDw-NS0ZACkOBSYQI2hoL3hpDAgBFCJ5eRFpdAQVMEs0BioSOAsGOTdOHQNYUS1RDENYWVZhfV98YF5xT3h9Wm17Xl5MRmR5eUYvJx0DdBkRSWpRZVxbUXYAWVJJR11JGUNfU11laEtmcE8vHT0uHTw5Aw1MRgd5eQUpZBdUNA9jWXIAZldeX3QHXlcbEV0UThMLDAgzLwwjNE9jVWhoGSo8Aw1MRgd5eQEtZ0VeYAFpWXIAZ1BfA3MFWQJNSAwVGxMIW1Y2fg50cE9hV2g7Cj8hDkhMJ2Z5bwZwZkNRYwFhWHpfYFZdV3UCXEdYU0xRSA0dAxwsFh42cE8CV2h4WGF8Xl9cV3JpeRNrdFUCIRlwKGpHEighJQgWTEVYURkXWVRMKk90IR4xIR1nRQhsXR9tWC8aEDB2KFMxJRULe1s-BW5UFwcPFmYFKwseHUhCawcIDAsnOw83dF0EHyc9Cjc8T1opCiwsPxd6YwAUJ1s0TXgiaQYJCi8&cks=ZjgxYjY4YjRlNDZjYWM1NWM4NTU1YWViMmI3YThmYjI&e=1.0)** — free for you, and PayPal gives the project a referral bonus.
