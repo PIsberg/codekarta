@@ -11,6 +11,8 @@
     </parent>
 
     <artifactId>code-karta-input</artifactId>
+    <name>CodeKarta Input</name>
+    <description>JavaParser-based source analysis for CodeKarta</description>
 
     <dependencies>
         <dependency>

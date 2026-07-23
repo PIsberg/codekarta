@@ -11,6 +11,8 @@
     </parent>
 
     <artifactId>code-karta-core</artifactId>
+    <name>CodeKarta Core</name>
+    <description>Core IR graph model for CodeKarta</description>
 
     <dependencies>
         <dependency>

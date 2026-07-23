@@ -11,6 +11,8 @@
     </parent>
 
     <artifactId>code-karta-cli</artifactId>
+    <name>CodeKarta CLI</name>
+    <description>Command line interface wrapper for CodeKarta</description>
 
     <dependencies>
         <dependency>

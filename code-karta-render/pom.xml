@@ -11,6 +11,8 @@
     </parent>
 
     <artifactId>code-karta-render</artifactId>
+    <name>CodeKarta Render</name>
+    <description>SVG rendering for CodeKarta</description>
 
     <dependencies>
         <dependency>

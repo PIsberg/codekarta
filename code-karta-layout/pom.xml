@@ -11,6 +11,8 @@
     </parent>
 
     <artifactId>code-karta-layout</artifactId>
+    <name>CodeKarta Layout</name>
+    <description>Layout engines (ELK) for CodeKarta</description>
 
     <dependencies>
         <dependency>
