@@ -1,5 +1,5 @@
 allprojects {
-    group = "com.karta"
+    group = "se.deversity.codekarta"
     version = "1.0-SNAPSHOT"
 
     repositories {

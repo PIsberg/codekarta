@@ -4,7 +4,7 @@ plugins {
 }
 
 application {
-    mainClass = "com.karta.cli.KartaCli"
+    mainClass = "se.deversity.codekarta.cli.KartaCli"
 }
 
 dependencies {
@@ -21,7 +21,7 @@ tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJ
     archiveClassifier.set("all")
     mergeServiceFiles()
     manifest {
-        attributes["Main-Class"] = "com.karta.cli.KartaCli"
+        attributes["Main-Class"] = "se.deversity.codekarta.cli.KartaCli"
     }
 }
 
@@ -53,16 +53,16 @@ tasks.register("generateDiagrams") {
             listOf("--input", "$root/example-shipping-system/src/main/java/module-info.java",
                    "--output", "$out"),
             // 2. Class diagram — core IR model
-            listOf("--input", "$root/code-karta-core/src/main/java/com/karta/core/model",
+            listOf("--input", "$root/code-karta-core/src/main/java/se/deversity/codekarta/core/model",
                    "--output", "$out"),
             // 3. Exception-flow sequence — CLI entry point
-            listOf("--input", "$root/code-karta-cli/src/main/java/com/karta/cli/KartaCli.java",
+            listOf("--input", "$root/code-karta-cli/src/main/java/se/deversity/codekarta/cli/KartaCli.java",
                    "--output", "$out"),
             // 4. Call-sequence-only — demonstrates --sequence-only flag
-            listOf("--input", "$root/code-karta-input/src/main/java/com/karta/input/parser/CallSequenceParser.java",
+            listOf("--input", "$root/code-karta-input/src/main/java/se/deversity/codekarta/input/parser/CallSequenceParser.java",
                    "--output", "$out", "--sequence-only"),
             // 5. Multi-file stitched sequence — input parsers with ELK layout
-            listOf("--input", "$root/code-karta-input/src/main/java/com/karta/input",
+            listOf("--input", "$root/code-karta-input/src/main/java/se/deversity/codekarta/input",
                    "--output", "$out", "--sequence-only", "--layout", "elk")
         ).forEach { args ->
             val pb = ProcessBuilder(listOf("java", "-jar", jar.absolutePath) + args)
