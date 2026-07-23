@@ -41,8 +41,6 @@ public class CallSequenceParser {
         try {
             CompilationUnit cu = ParserSupport.parseJava21(sourceFile);
 
-            java.util.Set<String> projectClasses = ParserSupport.collectProjectClasses(cu);
-
             cu.findAll(ClassOrInterfaceDeclaration.class).forEach(classDecl -> {
                 String className = classDecl.getNameAsString();
                 if (FilterMatcher.matchesAny(className, customExcludes)) {
@@ -83,16 +81,6 @@ public class CallSequenceParser {
                                 callee = scopeName + "." + name;
                             } else {
                                 callee = name;
-                            }
-
-                            String calleeClass = callee;
-                            int dotIdx = callee.lastIndexOf('.');
-                            if (dotIdx != -1) {
-                                calleeClass = callee.substring(0, dotIdx);
-                            }
-                            if (dotIdx != -1 && !projectClasses.contains(calleeClass)) {
-                                super.visit(call, null);
-                                return;
                             }
 
                             if (FilterMatcher.matchesAny(callee, customExcludes)) {
