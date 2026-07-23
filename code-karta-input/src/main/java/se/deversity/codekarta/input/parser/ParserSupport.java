@@ -95,4 +95,13 @@ public final class ParserSupport {
             }
         });
     }
+
+    public static java.util.Set<String> collectProjectClasses(CompilationUnit cu) {
+        java.util.Set<String> projectClasses = new java.util.HashSet<>();
+        cu.findAll(com.github.javaparser.ast.body.ClassOrInterfaceDeclaration.class).forEach(cd -> {
+            projectClasses.add(cd.getFullyQualifiedName().orElse(cd.getNameAsString()));
+            projectClasses.add(cd.getNameAsString());
+        });
+        return projectClasses;
+    }
 }

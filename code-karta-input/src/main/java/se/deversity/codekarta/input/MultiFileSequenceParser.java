@@ -106,22 +106,34 @@ public class MultiFileSequenceParser {
                 .setSymbolResolver(new JavaSymbolSolver(typeSolver));
 
         JavaParser parser = new JavaParser(config);
+        java.util.List<CompilationUnit> cus = new java.util.ArrayList<>();
+        java.util.Set<String> projectClasses = new java.util.HashSet<>();
+
         for (Path file : files) {
-            parseFile(parser, file, graph);
+            try {
+                ParseResult<CompilationUnit> result = parser.parse(Files.readString(file));
+                if (result.isSuccessful() && result.getResult().isPresent()) {
+                    CompilationUnit cu = result.getResult().get();
+                    cus.add(cu);
+                    projectClasses.addAll(ParserSupport.collectProjectClasses(cu));
+                } else {
+                    log.warning("Failed to parse " + file);
+                }
+            } catch (Exception e) {
+                log.warning("Failed to parse " + file + ": " + e.getMessage());
+            }
+        }
+
+        for (CompilationUnit cu : cus) {
+            parseFile(cu, graph, projectClasses);
         }
 
         pruneToMaxDepth(graph);
         return graph;
     }
 
-    private void parseFile(JavaParser parser, Path file, Graph graph) {
+    private void parseFile(CompilationUnit cu, Graph graph, Set<String> projectClasses) {
         try {
-            ParseResult<CompilationUnit> result = parser.parse(Files.readString(file));
-            if (!result.isSuccessful() || result.getResult().isEmpty()) {
-                log.warning("Failed to parse " + file);
-                return;
-            }
-            CompilationUnit cu = result.getResult().get();
 
             cu.findAll(ClassOrInterfaceDeclaration.class).forEach(classDecl -> {
                 String className = classDecl.getFullyQualifiedName().orElse(classDecl.getNameAsString());
@@ -146,6 +158,17 @@ public class MultiFileSequenceParser {
                         @Override
                         public void visit(MethodCallExpr call, Void arg) {
                             String calleeId = resolveCallee(call, className, localMethods);
+
+                            String calleeClass = calleeId;
+                            int dotIdx = calleeId.lastIndexOf('.');
+                            if (dotIdx != -1) {
+                                calleeClass = calleeId.substring(0, dotIdx);
+                            }
+                            if (dotIdx != -1 && !projectClasses.contains(calleeClass)) {
+                                super.visit(call, null);
+                                return;
+                            }
+
                             if (FilterMatcher.matchesAny(call.getNameAsString(), customExcludes) || FilterMatcher.matchesAny(calleeId, customExcludes)) {
                                 super.visit(call, null);
                                 return;
@@ -169,7 +192,7 @@ public class MultiFileSequenceParser {
             });
 
         } catch (Exception e) {
-            log.warning("Failed to parse " + file + ": " + e.getMessage());
+            log.warning("Failed to process CU: " + e.getMessage());
         }
     }
 

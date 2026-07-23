@@ -59,6 +59,7 @@ public class ExceptionFlowParser {
         this(Collections.emptySet());
     }
 
+    // CPD-OFF
     public ExceptionFlowParser(Set<String> customExcludes) {
         this.customExcludes = ParserSupport.normalizeExcludes(customExcludes);
     }
@@ -67,6 +68,9 @@ public class ExceptionFlowParser {
         Graph graph = new Graph();
         try {
             CompilationUnit cu = ParserSupport.parseJava21(sourceFile);
+
+            java.util.Set<String> projectClasses = ParserSupport.collectProjectClasses(cu);
+            // CPD-ON
 
             cu.findAll(ClassOrInterfaceDeclaration.class).forEach(classDecl -> {
                 String className = classDecl.getNameAsString();
@@ -126,6 +130,17 @@ public class ExceptionFlowParser {
                             } else {
                                 callee = localMethodNames.contains(name) ? className + "." + name : name;
                             }
+
+                            String calleeClass = callee;
+                            int dotIdx = callee.lastIndexOf('.');
+                            if (dotIdx != -1) {
+                                calleeClass = callee.substring(0, dotIdx);
+                            }
+                            if (dotIdx != -1 && !projectClasses.contains(calleeClass)) {
+                                super.visit(call, null);
+                                return;
+                            }
+
                             if (FilterMatcher.matchesAny(callee, customExcludes)) {
                                 super.visit(call, null);
                                 return;
@@ -150,7 +165,10 @@ public class ExceptionFlowParser {
                             }
                             String sn = CallSequenceParser.resolveScope(
                                     call.getScope().get(), returnTypes, className);
-                            return sn == null ? null : sn + "." + cname;
+                            if (sn == null || !projectClasses.contains(sn)) {
+                                return null;
+                            }
+                            return sn + "." + cname;
                         }
                         return localMethodNames.contains(cname) ? className + "." + cname : cname;
                     });

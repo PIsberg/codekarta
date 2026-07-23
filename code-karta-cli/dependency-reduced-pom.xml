@@ -46,7 +46,7 @@
                 <argument>-jar</argument>
                 <argument>${project.build.directory}/${project.artifactId}-${project.version}-all.jar</argument>
                 <argument>--input</argument>
-                <argument>code-karta-core/src/main/java/com/karta/core/model</argument>
+                <argument>code-karta-core/src/main/java/se/deversity/codekarta/core/model</argument>
                 <argument>--output</argument>
                 <argument>docs/diagrams</argument>
               </arguments>
@@ -65,7 +65,7 @@
                 <argument>-jar</argument>
                 <argument>${project.build.directory}/${project.artifactId}-${project.version}-all.jar</argument>
                 <argument>--input</argument>
-                <argument>code-karta-cli/src/main/java/com/karta/cli/KartaCli.java</argument>
+                <argument>code-karta-cli/src/main/java/se/deversity/codekarta/cli/KartaCli.java</argument>
                 <argument>--output</argument>
                 <argument>docs/diagrams</argument>
               </arguments>
@@ -84,7 +84,7 @@
                 <argument>-jar</argument>
                 <argument>${project.build.directory}/${project.artifactId}-${project.version}-all.jar</argument>
                 <argument>--input</argument>
-                <argument>code-karta-input/src/main/java/com/karta/input/parser/CallSequenceParser.java</argument>
+                <argument>code-karta-input/src/main/java/se/deversity/codekarta/input/parser/CallSequenceParser.java</argument>
                 <argument>--output</argument>
                 <argument>docs/diagrams</argument>
                 <argument>--sequence-only</argument>
@@ -104,7 +104,7 @@
                 <argument>-jar</argument>
                 <argument>${project.build.directory}/${project.artifactId}-${project.version}-all.jar</argument>
                 <argument>--input</argument>
-                <argument>code-karta-input/src/main/java/com/karta/input</argument>
+                <argument>code-karta-input/src/main/java/se/deversity/codekarta/input</argument>
                 <argument>--output</argument>
                 <argument>docs/diagrams</argument>
                 <argument>--sequence-only</argument>
