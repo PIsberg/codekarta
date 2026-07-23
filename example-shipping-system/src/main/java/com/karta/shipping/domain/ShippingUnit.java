@@ -1,4 +1,4 @@
-package com.karta.shipping.domain;
+package se.deversity.codekarta.shipping.domain;
 
 public interface ShippingUnit {
     String getTrackingId();

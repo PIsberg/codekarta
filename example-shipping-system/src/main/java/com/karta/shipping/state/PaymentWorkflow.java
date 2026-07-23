@@ -1,4 +1,4 @@
-package com.karta.shipping.state;
+package se.deversity.codekarta.shipping.state;
 
 /**
  * Payment workflow state machine — demonstrates the <b>explicit {@code transition()} DSL</b>

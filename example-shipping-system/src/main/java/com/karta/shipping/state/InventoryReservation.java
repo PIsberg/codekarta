@@ -1,4 +1,4 @@
-package com.karta.shipping.state;
+package se.deversity.codekarta.shipping.state;
 
 /**
  * Inventory reservation state machine — demonstrates the <b>linear state assignment</b>

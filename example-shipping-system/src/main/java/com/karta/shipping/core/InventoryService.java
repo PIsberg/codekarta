@@ -1,4 +1,4 @@
-package com.karta.shipping.core;
+package se.deversity.codekarta.shipping.core;
 
 public class InventoryService {
 

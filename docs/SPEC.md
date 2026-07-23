@@ -232,7 +232,7 @@ example-shipping-system/
 
 ##### Integration Test Reference Fixture
 ```java
-package com.karta.shipping.core;
+package se.deversity.codekarta.shipping.core;
 
 public class OrderProcessor {
     private final InventoryService inventory;
@@ -300,6 +300,6 @@ Pre-generated example diagrams are committed at `example-shipping-system/diagram
 - Gradle: `./gradlew :code-karta-cli:fatJar` → `code-karta-cli/build/libs/code-karta-cli-1.0-SNAPSHOT-all.jar`
 
 **Running during development:**
-- Maven: `mvn -pl code-karta-cli exec:java -Dexec.mainClass=com.karta.cli.KartaCli "-Dexec.args=--input src/domain --output target/diagrams"`
+- Maven: `mvn -pl code-karta-cli exec:java -Dexec.mainClass=se.deversity.codekarta.cli.KartaCli "-Dexec.args=--input src/domain --output target/diagrams"`
 - Gradle: `./gradlew :code-karta-cli:run --args="--input src/domain --output build/diagrams"`
 

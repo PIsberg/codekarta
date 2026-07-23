@@ -57,27 +57,27 @@ text { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe
 </defs>
 <rect width="1340" height="694" fill="#f9fafb"/>
 <rect width="1340" height="694" fill="url(#dotGrid)"/>
-<path class="edge-line" data-source="com.karta.shipping" data-target="java.base" data-type="REQUIRES" d="M240.0 103.0 Q662.8 230.5 1100.0 293.0" fill="none" stroke="#6d28d9" stroke-width="1.6" marker-end="url(#marker-filled-6d28d9)"/>
-<text class="edge-label" data-source="com.karta.shipping" data-target="java.base" data-type="REQUIRES" x="666.4" y="208.3" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#6d28d9" font-style="italic">requires</text>
-<path class="edge-line" data-source="com.karta.shipping" data-target="java.logging" data-type="REQUIRES" d="M240.0 103.0 Q256.4 207.9 320.0 293.0" fill="none" stroke="#6d28d9" stroke-width="1.6" marker-end="url(#marker-filled-6d28d9)"/>
-<text class="edge-label" data-source="com.karta.shipping" data-target="java.logging" data-type="REQUIRES" x="268.2" y="197.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#6d28d9" font-style="italic">requires</text>
-<path class="edge-line" data-source="com.karta.shipping" data-target="com.karta.shipping.domain" data-type="EXPORTS" d="M240.0 103.0 Q530.5 227.9 840.0 293.0" fill="none" stroke="#065f46" stroke-width="1.6" stroke-dasharray="4,4" marker-end="url(#marker-open-065f46)"/>
-<text class="edge-label" data-source="com.karta.shipping" data-target="com.karta.shipping.domain" data-type="EXPORTS" x="535.3" y="206.9" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">exports</text>
-<path class="edge-line" data-source="com.karta.shipping" data-target="com.karta.shipping.core" data-type="EXPORTS" d="M240.0 103.0 Q396.3 222.6 580.0 293.0" fill="none" stroke="#065f46" stroke-width="1.6" stroke-dasharray="4,4" marker-end="url(#marker-open-065f46)"/>
-<text class="edge-label" data-source="com.karta.shipping" data-target="com.karta.shipping.core" data-type="EXPORTS" x="403.1" y="204.3" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">exports</text>
-<path class="edge-line" data-source="com.karta.shipping" data-target="com.karta.shipping.state" data-type="EXPORTS" d="M150.0 146.0 Q131.3 198.0 150.0 250.0" fill="none" stroke="#065f46" stroke-width="1.6" stroke-dasharray="4,4" marker-end="url(#marker-open-065f46)"/>
-<text class="edge-label" data-source="com.karta.shipping" data-target="com.karta.shipping.state" data-type="EXPORTS" x="140.6" y="192.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">exports</text>
-<g id="com.karta.shipping">
-  <title>com.karta.shipping [MODULE]</title>
+<path class="edge-line" data-source="se.deversity.codekarta.shipping" data-target="java.base" data-type="REQUIRES" d="M240.0 103.0 Q530.5 227.9 840.0 293.0" fill="none" stroke="#6d28d9" stroke-width="1.6" marker-end="url(#marker-filled-6d28d9)"/>
+<text class="edge-label" data-source="se.deversity.codekarta.shipping" data-target="java.base" data-type="REQUIRES" x="535.3" y="206.9" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#6d28d9" font-style="italic">requires</text>
+<path class="edge-line" data-source="se.deversity.codekarta.shipping" data-target="java.logging" data-type="REQUIRES" d="M240.0 103.0 Q256.4 207.9 320.0 293.0" fill="none" stroke="#6d28d9" stroke-width="1.6" marker-end="url(#marker-filled-6d28d9)"/>
+<text class="edge-label" data-source="se.deversity.codekarta.shipping" data-target="java.logging" data-type="REQUIRES" x="268.2" y="197.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#6d28d9" font-style="italic">requires</text>
+<path class="edge-line" data-source="se.deversity.codekarta.shipping" data-target="se.deversity.codekarta.shipping.domain" data-type="EXPORTS" d="M240.0 103.0 Q396.3 222.6 580.0 293.0" fill="none" stroke="#065f46" stroke-width="1.6" stroke-dasharray="4,4" marker-end="url(#marker-open-065f46)"/>
+<text class="edge-label" data-source="se.deversity.codekarta.shipping" data-target="se.deversity.codekarta.shipping.domain" data-type="EXPORTS" x="403.1" y="204.3" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">exports</text>
+<path class="edge-line" data-source="se.deversity.codekarta.shipping" data-target="se.deversity.codekarta.shipping.core" data-type="EXPORTS" d="M240.0 103.0 Q662.8 230.5 1100.0 293.0" fill="none" stroke="#065f46" stroke-width="1.6" stroke-dasharray="4,4" marker-end="url(#marker-open-065f46)"/>
+<text class="edge-label" data-source="se.deversity.codekarta.shipping" data-target="se.deversity.codekarta.shipping.core" data-type="EXPORTS" x="666.4" y="208.3" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">exports</text>
+<path class="edge-line" data-source="se.deversity.codekarta.shipping" data-target="se.deversity.codekarta.shipping.state" data-type="EXPORTS" d="M150.0 146.0 Q131.3 198.0 150.0 250.0" fill="none" stroke="#065f46" stroke-width="1.6" stroke-dasharray="4,4" marker-end="url(#marker-open-065f46)"/>
+<text class="edge-label" data-source="se.deversity.codekarta.shipping" data-target="se.deversity.codekarta.shipping.state" data-type="EXPORTS" x="140.6" y="192.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">exports</text>
+<g id="se.deversity.codekarta.shipping">
+  <title>se.deversity.codekarta.shipping [MODULE]</title>
   <rect class="node-rect" x="60.0" y="60.0" width="180.0" height="86.0" rx="6.0" fill="url(#grad-MODULE)" stroke="#6d28d9" stroke-width="1.8" filter="url(#nodeShadow)"/>
   <text class="node-label" x="150.0" y="90.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#6d28d9" font-style="italic">«mod»</text>
-  <text class="node-label" x="150.0" y="115.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">com.karta.shipping</text>
+  <text class="node-label" x="150.0" y="115.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">se.deversity.codekarta.shipping</text>
 </g>
 <g id="java.base">
   <title>java.base [MODULE]</title>
-  <rect class="node-rect" x="1100.0" y="250.0" width="180.0" height="86.0" rx="6.0" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="1190.0" y="280.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#9ca3af" font-style="italic">«mod»</text>
-  <text class="node-label" x="1190.0" y="305.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">java.base</text>
+  <rect class="node-rect" x="840.0" y="250.0" width="180.0" height="86.0" rx="6.0" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="930.0" y="280.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#9ca3af" font-style="italic">«mod»</text>
+  <text class="node-label" x="930.0" y="305.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">java.base</text>
 </g>
 <g id="java.logging">
   <title>java.logging [MODULE]</title>
@@ -85,23 +85,23 @@ text { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe
   <text class="node-label" x="410.0" y="280.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#9ca3af" font-style="italic">«mod»</text>
   <text class="node-label" x="410.0" y="305.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">java.logging</text>
 </g>
-<g id="com.karta.shipping.domain">
-  <title>com.karta.shipping.domain [PACKAGE]</title>
-  <rect class="node-rect" x="840.0" y="250.0" width="180.0" height="86.0" rx="6.0" fill="url(#grad-PACKAGE)" stroke="#065f46" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="930.0" y="280.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">«pkg»</text>
-  <text class="node-label" x="930.0" y="305.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">com.karta.shipping.domain</text>
-</g>
-<g id="com.karta.shipping.core">
-  <title>com.karta.shipping.core [PACKAGE]</title>
+<g id="se.deversity.codekarta.shipping.domain">
+  <title>se.deversity.codekarta.shipping.domain [PACKAGE]</title>
   <rect class="node-rect" x="580.0" y="250.0" width="180.0" height="86.0" rx="6.0" fill="url(#grad-PACKAGE)" stroke="#065f46" stroke-width="1.8" filter="url(#nodeShadow)"/>
   <text class="node-label" x="670.0" y="280.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">«pkg»</text>
-  <text class="node-label" x="670.0" y="305.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">com.karta.shipping.core</text>
+  <text class="node-label" x="670.0" y="305.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">se.deversity.codekarta.shipping.domain</text>
 </g>
-<g id="com.karta.shipping.state">
-  <title>com.karta.shipping.state [PACKAGE]</title>
+<g id="se.deversity.codekarta.shipping.core">
+  <title>se.deversity.codekarta.shipping.core [PACKAGE]</title>
+  <rect class="node-rect" x="1100.0" y="250.0" width="180.0" height="86.0" rx="6.0" fill="url(#grad-PACKAGE)" stroke="#065f46" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="1190.0" y="280.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">«pkg»</text>
+  <text class="node-label" x="1190.0" y="305.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">se.deversity.codekarta.shipping.core</text>
+</g>
+<g id="se.deversity.codekarta.shipping.state">
+  <title>se.deversity.codekarta.shipping.state [PACKAGE]</title>
   <rect class="node-rect" x="60.0" y="250.0" width="180.0" height="86.0" rx="6.0" fill="url(#grad-PACKAGE)" stroke="#065f46" stroke-width="1.8" filter="url(#nodeShadow)"/>
   <text class="node-label" x="150.0" y="280.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">«pkg»</text>
-  <text class="node-label" x="150.0" y="305.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">com.karta.shipping.state</text>
+  <text class="node-label" x="150.0" y="305.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">se.deversity.codekarta.shipping.state</text>
 </g>
 <rect x="1104.0" y="560.0" width="220.0" height="100.0" rx="6" fill="#ffffff" stroke="#d1d5db" stroke-width="1" filter="url(#nodeShadow)"/>
 <text x="1120.0" y="580.0" font-family="sans-serif" font-size="11" font-weight="bold" fill="#374151">Legend</text>

@@ -29,6 +29,7 @@ Orientation facts: tiers never import from a tier beside them — `code-karta-co
 - [docs/PLAN.md](docs/PLAN.md): roadmap notes
 
 <!-- VIBETAGS-START -->
+<!-- VIBETAGS-MODULE: code-karta-cli -->
 # This Project
 
 > AI guardrail rules generated from source annotations by VibeTags.
@@ -40,17 +41,120 @@ AI tools reading this file should respect the guardrails defined below. These ru
 ## Contextual Rules
 
 ## Security Audit Requirements
-- [KartaCli](com.karta.cli.KartaCli): check for Path traversal, Unauthorized file write
+- [KartaCli](se.deversity.codekarta.cli.KartaCli): check for Path traversal, Unauthorized file write
 
 ## 🔐 Contract-Frozen Signatures
-- [KartaCli](com.karta.cli.KartaCli): run(Path, Path, boolean, String) is a public static method tested directly by KartaCliTest without spawning a process. Its signature and output filename conventions (module-diagram.svg, class-diagram.svg, <name>-sequence-diagram.svg) must remain stable.
+- [KartaCli](se.deversity.codekarta.cli.KartaCli): run(Path, Path, boolean, String) is a public static method tested directly by KartaCliTest without spawning a process. Its signature and output filename conventions (module-diagram.svg, class-diagram.svg, <name>-sequence-diagram.svg) must remain stable.
 
 ## 🧪 Test-Driven Requirements
-- [KartaCli](com.karta.cli.KartaCli): Coverage goal: 90%. Framework: JUNIT_5. Test file: code-karta-cli/src/test/java/com/karta/cli/KartaCliTest.java. Mock policy: Do not mock parsers or layout engines — KartaCliTest calls run() directly against the example-shipping-system fixture for end-to-end coverage.
+- [KartaCli](se.deversity.codekarta.cli.KartaCli): Coverage goal: 90%. Framework: JUNIT_5. Test file: code-karta-cli/src/test/java/com/karta/cli/KartaCliTest.java. Mock policy: Do not mock parsers or layout engines — KartaCliTest calls run() directly against the example-shipping-system fixture for end-to-end coverage.
 
 ## ♻️ Idempotency Guarantees
-- [KartaCli.run(java.nio.file.Path,java.nio.file.Path,boolean,java.lang.String,boolean,java.util.Set<java.lang.String>,int)](com.karta.cli.KartaCli.run(java.nio.file.Path,java.nio.file.Path,boolean,java.lang.String,boolean,java.util.Set<java.lang.String>,int)): Idempotency guaranteed. Multiple invocations must produce the same result as one. Reason: Re-running with the same inputs regenerates byte-identical SVG output — the verify-phase diagram generation and doc regeneration rely on repeated runs converging.
+- [KartaCli.run(java.nio.file.Path,java.nio.file.Path,boolean,java.lang.String,boolean,java.util.Set<java.lang.String>,int)](se.deversity.codekarta.cli.KartaCli.run(java.nio.file.Path,java.nio.file.Path,boolean,java.lang.String,boolean,java.util.Set<java.lang.String>,int)): Idempotency guaranteed. Multiple invocations must produce the same result as one. Reason: Re-running with the same inputs regenerates byte-identical SVG output — the verify-phase diagram generation and doc regeneration rely on repeated runs converging.
+<!-- VIBETAGS-MODULE-END: code-karta-cli -->
+<!-- VIBETAGS-MODULE: code-karta-core -->
+# This Project
 
-## Deterministic Pure Functions
-- [KartaCli.deriveOutputName(java.nio.file.Path,boolean,boolean)](com.karta.cli.KartaCli.deriveOutputName(java.nio.file.Path,boolean,boolean)): Must remain a pure function. Forbid assignments to enclosing state, fields, or static members. Reason: Deterministic filename mapping — KartaCliTest and the exec-maven-plugin diagram targets both depend on the exact names produced
+> AI guardrail rules generated from source annotations by VibeTags.
+
+AI tools reading this file should respect the guardrails defined below. These rules were extracted from Java source annotations at compile time and apply to all AI assistants including Windsurf Cascade, Cursor, Claude, GitHub Copilot, and Gemini.
+
+## Locked Files
+- [EdgeType](se.deversity.codekarta.core.model.EdgeType): String values are used as CSS class selectors in SvgRenderer and as edge-type identifiers emitted by all parsers. Adding, removing, or renaming a constant requires coordinated changes across the entire pipeline.
+- [NodeDimensions](se.deversity.codekarta.core.model.NodeDimensions): Shared sizing constants consumed by all three tiers — SimpleLayoutEngine, ElkLayoutEngine, and SvgRenderer. Changing these values shifts node dimensions globally and will break layout tests.
+- [NodeType](se.deversity.codekarta.core.model.NodeType): String values are matched by identity in SvgRenderer's CSS class-name map and in all four parsers. Renaming or adding a constant requires updating SvgRenderer, all parser switch/if chains, and integration tests simultaneously.
+
+## Contextual Rules
+
+## 🧠 Core Functionality
+- [Edge](se.deversity.codekarta.core.model.Edge): Sensitivity: High. Note: IR directed edge. id/sourceId/targetId/type are required; label is optional (sequence number for CALLS, field name for HAS).
+- [Graph](se.deversity.codekarta.core.model.Graph): Sensitivity: Critical. Note: Central IR that flows between all three pipeline tiers. Contains only structural data — no business logic, no tier-specific knowledge. Layout coordinates (x/y/width/height) are the only mutable state, written exclusively by Tier 2 engines.
+- [Group](se.deversity.codekarta.core.model.Group): Sensitivity: Medium. Note: IR cluster — maps a label (package, module boundary, try/catch region) to a set of node IDs. Used by the render tier to draw bounding frames.
+- [Node](se.deversity.codekarta.core.model.Node): Sensitivity: High. Note: IR vertex. Fields id/type/label/properties are the stable serialised schema; x/y/width/height are layout-only and may be null before Tier 2 runs.
+
+## ❄️ Immutable Types
+- [NodeDimensions](se.deversity.codekarta.core.model.NodeDimensions): immutable type — Constants-only holder. No instance state may ever be added — this class is used across all three pipeline tiers.
+
+## Architectural Boundary Constraints
+- [Graph](se.deversity.codekarta.core.model.Graph): Belongs to layer: `core`. Prohibited from referencing: [input, layout, render, cli]
+
+## Strict Type Safety
+- [Edge](se.deversity.codekarta.core.model.Edge): Loose typing (Object, Map<String, Object>, raw types) is prohibited. Enforce type safety.
+- [Group](se.deversity.codekarta.core.model.Group): Loose typing (Object, Map<String, Object>, raw types) is prohibited. Enforce type safety.
+- [Node](se.deversity.codekarta.core.model.Node): Loose typing (Object, Map<String, Object>, raw types) is prohibited. Enforce type safety.
+
+## Schema & Serialization Safety
+- [Edge](se.deversity.codekarta.core.model.Edge): Schema/serialization safety guaranteed. Prohibit altering data formats or fields without migration plan.
+- [Graph](se.deversity.codekarta.core.model.Graph): Schema/serialization safety guaranteed. Prohibit altering data formats or fields without migration plan.
+- [Group](se.deversity.codekarta.core.model.Group): Schema/serialization safety guaranteed. Prohibit altering data formats or fields without migration plan.
+- [Node](se.deversity.codekarta.core.model.Node): Schema/serialization safety guaranteed. Prohibit altering data formats or fields without migration plan.
+
+## Framework-Free Domain Entities
+- [Edge](se.deversity.codekarta.core.model.Edge): Pure Domain Model. Banned imports: [Spring, JPA, Hibernate, Jackson, etc.]. Allowed imports: [com.fasterxml.jackson.annotation.JsonInclude, org.jspecify.annotations.Nullable]
+- [Graph](se.deversity.codekarta.core.model.Graph): Pure Domain Model. Banned imports: [Spring, JPA, Hibernate, Jackson, etc.]. Allowed imports: [com.fasterxml.jackson.annotation.JsonInclude, org.jspecify.annotations.Nullable]
+- [Group](se.deversity.codekarta.core.model.Group): Pure Domain Model. Banned imports: [Spring, JPA, Hibernate, Jackson, etc.]. Allowed imports: [com.fasterxml.jackson.annotation.JsonInclude, org.jspecify.annotations.Nullable]
+- [Node](se.deversity.codekarta.core.model.Node): Pure Domain Model. Banned imports: [Spring, JPA, Hibernate, Jackson, etc.]. Allowed imports: [com.fasterxml.jackson.annotation.JsonInclude, org.jspecify.annotations.Nullable]
+<!-- VIBETAGS-MODULE-END: code-karta-core -->
+<!-- VIBETAGS-MODULE: code-karta-input -->
+# This Project
+
+> AI guardrail rules generated from source annotations by VibeTags.
+
+AI tools reading this file should respect the guardrails defined below. These rules were extracted from Java source annotations at compile time and apply to all AI assistants including Windsurf Cascade, Cursor, Claude, GitHub Copilot, and Gemini.
+
+## Locked Files
+
+## Contextual Rules
+
+## Strict Test Isolation
+- [ClassDiagramParserTest](se.deversity.codekarta.input.ClassDiagramParserTest): Strict test isolation required. No shared mutable state or external resource conflicts.
+<!-- VIBETAGS-MODULE-END: code-karta-input -->
+<!-- VIBETAGS-MODULE: code-karta-layout -->
+# This Project
+
+> AI guardrail rules generated from source annotations by VibeTags.
+
+AI tools reading this file should respect the guardrails defined below. These rules were extracted from Java source annotations at compile time and apply to all AI assistants including Windsurf Cascade, Cursor, Claude, GitHub Copilot, and Gemini.
+
+## Locked Files
+
+## Contextual Rules
+- [ElkLayoutEngine](se.deversity.codekarta.layout.ElkLayoutEngine): Focus - Group members must be laid out as children of compound ElkNodes; absolute coordinates are compound.x + child.x. ELK's SPI entries must be merged in the fat JAR.. Avoid - Adding ELK options that are unsupported by the layered algorithm — any unknown property silently breaks layout and triggers the SimpleLayoutEngine fallback.
+- [SimpleLayoutEngine](se.deversity.codekarta.layout.SimpleLayoutEngine): Focus - BFS from root nodes (no incoming edges) assigns depth levels → rows; siblings within a row become columns. Isolated nodes fall back to level 0. Cyclic graphs seed BFS from the first node. Row Y positions are computed dynamically from the tallest estimated node height in each row so that compartment-heavy class nodes never overlap the row below.. Avoid - Changing NodeDimensions.DEFAULT_WIDTH/HEIGHT — those constants are @AILocked and consumed by both layout engines and SvgRenderer.
+
+## ⚡ Performance Constraints
+- [ElkLayoutEngine.layout(se.deversity.codekarta.core.model.Graph)](se.deversity.codekarta.layout.ElkLayoutEngine.layout(se.deversity.codekarta.core.model.Graph)): Layout runs synchronously in the CLI pipeline — avoid O(n²) or heap-allocating operations on the full node list. ELK's layered algorithm is already O(n log n); the fallback SimpleLayoutEngine is O(n).
+
+## 🔐 Contract-Frozen Signatures
+- [LayoutEngine](se.deversity.codekarta.layout.LayoutEngine): layout(Graph) must return the same Graph instance (mutated in-place) so callers can chain. Implementations must set x, y, width, height on every Node. Nodes with unresolvable positions must be left at null — SvgRenderer silently skips them.
+
+## Architectural Boundary Constraints
+- [ElkLayoutEngine](se.deversity.codekarta.layout.ElkLayoutEngine): Belongs to layer: `layout`. Prohibited from referencing: [input, render, cli]
+- [LayoutEngine](se.deversity.codekarta.layout.LayoutEngine): Belongs to layer: `layout`. Prohibited from referencing: [input, render, cli]
+- [SimpleLayoutEngine](se.deversity.codekarta.layout.SimpleLayoutEngine): Belongs to layer: `layout`. Prohibited from referencing: [input, render, cli]
+
+## Strict Classpath Integrity
+- [ElkLayoutEngine](se.deversity.codekarta.layout.ElkLayoutEngine): Strict compile-time dependency/classpath constraints. Dynamic loading and reflection hacks prohibited.
+
+## open-closed Extension Patterns
+- [LayoutEngine](se.deversity.codekarta.layout.LayoutEngine): Designed for extension via strategy/polymorphism. Do not expand conditionals/switch chains. Required Pattern: STRATEGY_PATTERN
+
+## Required Chain-of-Thought Explanations
+- [ElkLayoutEngine.layoutWithElk(se.deversity.codekarta.core.model.Graph)](se.deversity.codekarta.layout.ElkLayoutEngine.layoutWithElk(se.deversity.codekarta.core.model.Graph)): Requires step-by-step mathematical or logical explanation (Chain-of-Thought) of all changes. Complexity: MEDIUM
+<!-- VIBETAGS-MODULE-END: code-karta-layout -->
+<!-- VIBETAGS-MODULE: code-karta-render -->
+# This Project
+
+> AI guardrail rules generated from source annotations by VibeTags.
+
+AI tools reading this file should respect the guardrails defined below. These rules were extracted from Java source annotations at compile time and apply to all AI assistants including Windsurf Cascade, Cursor, Claude, GitHub Copilot, and Gemini.
+
+## Locked Files
+
+## Contextual Rules
+
+## Strict Test Isolation
+- [SequenceDiagramRendererTest](se.deversity.codekarta.render.SequenceDiagramRendererTest): Strict test isolation required. No shared mutable state or external resource conflicts.
+- [SvgRendererTest](se.deversity.codekarta.render.SvgRendererTest): Strict test isolation required. No shared mutable state or external resource conflicts.
+<!-- VIBETAGS-MODULE-END: code-karta-render -->
 <!-- VIBETAGS-END -->
