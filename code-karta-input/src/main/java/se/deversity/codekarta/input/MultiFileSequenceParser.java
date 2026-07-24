@@ -6,6 +6,7 @@ import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
@@ -158,13 +159,17 @@ public class MultiFileSequenceParser {
                         @Override
                         public void visit(MethodCallExpr call, Void arg) {
                             String calleeId = resolveCallee(call, className, localMethods);
+                            if (calleeId == null) {
+                                super.visit(call, null);
+                                return;
+                            }
 
                             String calleeClass = calleeId;
                             int dotIdx = calleeId.lastIndexOf('.');
                             if (dotIdx != -1) {
                                 calleeClass = calleeId.substring(0, dotIdx);
                             }
-                            if (dotIdx != -1 && !projectClasses.contains(calleeClass)) {
+                            if (dotIdx == -1 || !projectClasses.contains(calleeClass)) {
                                 super.visit(call, null);
                                 return;
                             }
@@ -196,6 +201,13 @@ public class MultiFileSequenceParser {
         }
     }
 
+    /**
+     * Resolves a call to a {@code Class.method} node id, or {@code null} when the
+     * callee cannot be attributed to a named type. Callers filter the result
+     * against the project-class set, so returning a variable name, a raw
+     * expression string, or a bare static-import name here would leak
+     * non-project participants into the diagram — skip those instead.
+     */
     private String resolveCallee(MethodCallExpr call, String ownerClass, Set<String> localMethods) {
         try {
             ResolvedMethodDeclaration resolved = call.resolve();
@@ -204,11 +216,19 @@ public class MultiFileSequenceParser {
         } catch (Exception ignored) {
             // Symbol resolution unavailable for this call — fall back to scope-based naming
         }
-        return call.getScope()
-                .map(s -> s + "." + call.getNameAsString())
-                .orElse(localMethods.contains(call.getNameAsString())
-                        ? ownerClass + "." + call.getNameAsString()
-                        : call.getNameAsString());
+        if (call.getScope().isPresent()) {
+            Expression scope = call.getScope().get();
+            if (scope.isNameExpr()) {
+                return scope.asNameExpr().getNameAsString() + "." + call.getNameAsString();
+            }
+            if (scope.isThisExpr()) {
+                return ownerClass + "." + call.getNameAsString();
+            }
+            return null; // constructor/cast/chained expression scopes — not attributable
+        }
+        return localMethods.contains(call.getNameAsString())
+                ? ownerClass + "." + call.getNameAsString()
+                : null; // unscoped non-local call (e.g. static import) — skip
     }
 
     private void pruneToMaxDepth(Graph graph) {

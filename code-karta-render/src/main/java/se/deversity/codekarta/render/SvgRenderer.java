@@ -188,51 +188,19 @@ public class SvgRenderer {
             x, y, w, h, rx, fill, stroke));
 
         if (compartments) {
-            appendCompartments(sb, x, y, w, label, stereo, stroke, props);
-        } else if (stereo != null) {
-            sb.append(String.format(Locale.ROOT,
-                "  <text class=\"node-label\" x=\"%.1f\" y=\"%.1f\" text-anchor=\"middle\" " +
-                "font-family=\"sans-serif\" font-size=\"10\" fill=\"%s\" " +
-                "font-style=\"italic\">%s</text>\n",
-                x + w / 2, y + h * 0.35, stroke, escapeXml(stereo)));
-            sb.append(String.format(Locale.ROOT,
-                "  <text class=\"node-label\" x=\"%.1f\" y=\"%.1f\" text-anchor=\"middle\" " +
-                "dominant-baseline=\"central\" font-family=\"sans-serif\" font-size=\"13\" " +
-                "font-weight=\"bold\" fill=\"#1f2937\">%s</text>\n",
-                x + w / 2, y + h * 0.65, label));
+            appendCompartments(sb, x, y, w, rawLabel, stereo, stroke, props);
         } else {
-            sb.append(String.format(Locale.ROOT,
-                "  <text class=\"node-label\" x=\"%.1f\" y=\"%.1f\" text-anchor=\"middle\" " +
-                "dominant-baseline=\"central\" font-family=\"sans-serif\" font-size=\"13\" " +
-                "font-weight=\"bold\" fill=\"#1f2937\">%s</text>\n",
-                x + w / 2, y + h / 2, label));
+            appendBoxLabel(sb, x + w / 2, y, h, w, rawLabel, stereo, stroke);
         }
         sb.append("</g>\n");
         return sb.toString();
     }
 
     private void appendCompartments(StringBuilder sb, double x, double y, double w,
-                                     String label, String stereo, String stroke,
+                                     String rawLabel, String stereo, String stroke,
                                      Map<String, String> props) {
         double headerH = COMPARTMENT_HEADER_H;
-        if (stereo != null) {
-            sb.append(String.format(Locale.ROOT,
-                "  <text class=\"node-label\" x=\"%.1f\" y=\"%.1f\" text-anchor=\"middle\" " +
-                "font-family=\"sans-serif\" font-size=\"10\" fill=\"%s\" " +
-                "font-style=\"italic\">%s</text>\n",
-                x + w / 2, y + headerH * 0.38, stroke, escapeXml(stereo)));
-            sb.append(String.format(Locale.ROOT,
-                "  <text class=\"node-label\" x=\"%.1f\" y=\"%.1f\" text-anchor=\"middle\" " +
-                "dominant-baseline=\"central\" font-family=\"sans-serif\" font-size=\"13\" " +
-                "font-weight=\"bold\" fill=\"#1f2937\">%s</text>\n",
-                x + w / 2, y + headerH * 0.72, label));
-        } else {
-            sb.append(String.format(Locale.ROOT,
-                "  <text class=\"node-label\" x=\"%.1f\" y=\"%.1f\" text-anchor=\"middle\" " +
-                "dominant-baseline=\"central\" font-family=\"sans-serif\" font-size=\"13\" " +
-                "font-weight=\"bold\" fill=\"#1f2937\">%s</text>\n",
-                x + w / 2, y + headerH / 2, label));
-        }
+        appendBoxLabel(sb, x + w / 2, y, headerH, w, rawLabel, stereo, stroke);
         double curY = y + headerH;
         for (String section : new String[]{"fields", "methods"}) {
             String text = props.get(section);
@@ -246,7 +214,7 @@ public class SvgRenderer {
                 sb.append(String.format(Locale.ROOT,
                     "  <text x=\"%.1f\" y=\"%.1f\" font-family=\"sans-serif\" font-size=\"10\" " +
                     "fill=\"#374151\" dominant-baseline=\"central\">%s</text>\n",
-                    x + 8, curY + COMPARTMENT_LINE_H / 2, escapeXml(truncate(line, 32))));
+                    x + 8, curY + COMPARTMENT_LINE_H / 2, escapeXml(truncate(line, maxCompartmentChars(w)))));
                 curY += COMPARTMENT_LINE_H;
             }
             curY += COMPARTMENT_PADDING;
@@ -264,6 +232,84 @@ public class SvgRenderer {
         return Math.max(h, RENDER_NODE_H);
     }
 
+    // ------------------------------------------------------------------ box labels
+
+    private static final double NAME_FONT     = 13.0;
+    private static final double MIN_NAME_FONT = 8.0;
+    private static final double PKG_FONT      = 9.0;
+    // Approximate glyph-width/font-size ratios for the sans-serif stack
+    private static final double BOLD_CHAR_W   = 0.62;
+    private static final double REG_CHAR_W    = 0.55;
+
+    /**
+     * Emits a centred label block for a node box: optional stereotype line,
+     * optional package line (small, muted — split off a dot-qualified label),
+     * and the simple name (bold, font auto-shrunk and ellipsized to fit the
+     * box width). Keeps long qualified names inside the box instead of
+     * overflowing it; the full name stays available via the node's title.
+     */
+    void appendBoxLabel(StringBuilder sb, double cx, double top, double h, double w,
+                        String rawLabel, @Nullable String stereo, String stroke) {
+        double maxW    = w - 12.0;
+        int    lastDot = rawLabel.lastIndexOf('.');
+        String pkg     = lastDot > 0 ? rawLabel.substring(0, lastDot) : null;
+        String simple  = lastDot > 0 ? rawLabel.substring(lastDot + 1) : rawLabel;
+
+        double nameFont = clamp(maxW / (Math.max(1, simple.length()) * BOLD_CHAR_W),
+                                MIN_NAME_FONT, NAME_FONT);
+        String nameText = ellipsizeRight(simple, nameFont * BOLD_CHAR_W, maxW);
+
+        double stereoH = stereo != null ? 13.0 : 0.0;
+        double pkgH    = pkg    != null ? 11.0 : 0.0;
+        double nameH   = nameFont + 4.0;
+        double yCursor = top + (h - (stereoH + pkgH + nameH)) / 2.0;
+
+        if (stereo != null) {
+            sb.append(String.format(Locale.ROOT,
+                "  <text class=\"node-label\" x=\"%.1f\" y=\"%.1f\" text-anchor=\"middle\" " +
+                "dominant-baseline=\"central\" font-family=\"sans-serif\" font-size=\"10\" " +
+                "fill=\"%s\" font-style=\"italic\">%s</text>\n",
+                cx, yCursor + stereoH / 2, stroke, escapeXml(stereo)));
+            yCursor += stereoH;
+        }
+        if (pkg != null) {
+            sb.append(String.format(Locale.ROOT,
+                "  <text class=\"node-label\" x=\"%.1f\" y=\"%.1f\" text-anchor=\"middle\" " +
+                "dominant-baseline=\"central\" font-family=\"sans-serif\" font-size=\"%.1f\" " +
+                "fill=\"#6b7280\">%s</text>\n",
+                cx, yCursor + pkgH / 2, PKG_FONT,
+                escapeXml(ellipsizeLeft(pkg, PKG_FONT * REG_CHAR_W, maxW))));
+            yCursor += pkgH;
+        }
+        sb.append(String.format(Locale.ROOT,
+            "  <text class=\"node-label\" x=\"%.1f\" y=\"%.1f\" text-anchor=\"middle\" " +
+            "dominant-baseline=\"central\" font-family=\"sans-serif\" font-size=\"%.1f\" " +
+            "font-weight=\"bold\" fill=\"#1f2937\">%s</text>\n",
+            cx, yCursor + nameH / 2, nameFont, escapeXml(nameText)));
+    }
+
+    private static double clamp(double v, double lo, double hi) {
+        return Math.max(lo, Math.min(hi, v));
+    }
+
+    /** Truncates the tail, keeping the start: {@code VeryLongClassNa…}. */
+    static String ellipsizeRight(String text, double charW, double maxW) {
+        int maxChars = (int) (maxW / charW);
+        if (text.length() <= maxChars) return text;
+        return maxChars <= 1 ? "…" : text.substring(0, maxChars - 1) + "…";
+    }
+
+    /** Truncates the head, keeping trailing package segments: {@code …blindbean.fhe}. */
+    static String ellipsizeLeft(String text, double charW, double maxW) {
+        int maxChars = (int) (maxW / charW);
+        if (text.length() <= maxChars) return text;
+        return maxChars <= 1 ? "…" : "…" + text.substring(text.length() - (maxChars - 1));
+    }
+
+    /** Character budget for a compartment text line at font-size 10 with 8px inset. */
+    private static int maxCompartmentChars(double w) {
+        return Math.max(8, (int) ((w - 16) / 6.0));
+    }
     // ------------------------------------------------------------------ edge
 
     String renderEdge(Edge edge, Graph graph) {

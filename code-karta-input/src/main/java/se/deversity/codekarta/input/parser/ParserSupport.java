@@ -50,6 +50,24 @@ public final class ParserSupport {
     }
 
     /**
+     * Shared per-class prologue of the single-file parsers: iterates the
+     * compilation unit's class/interface declarations, skips excluded names,
+     * adds a CLASS node for each accepted declaration, and hands the
+     * declaration plus its name to {@code body}.
+     */
+    public static void forEachIncludedClass(CompilationUnit cu, Set<String> customExcludes,
+            Graph graph, java.util.function.BiConsumer<ClassOrInterfaceDeclaration, String> body) {
+        cu.findAll(ClassOrInterfaceDeclaration.class).forEach(classDecl -> {
+            String className = classDecl.getNameAsString();
+            if (FilterMatcher.matchesAny(className, customExcludes)) {
+                return;
+            }
+            graph.addNodeIfAbsent(new Node(className, NodeType.CLASS, className));
+            body.accept(classDecl, className);
+        });
+    }
+
+    /**
      * Method name → raw return type (generics stripped), used to resolve
      * chained local calls such as {@code resolveLayout(x).layout(g)}.
      */
@@ -83,10 +101,12 @@ public final class ParserSupport {
 
             tryStmt.getTryBlock().findAll(MethodCallExpr.class).forEach(call -> {
                 String callee = calleeResolver.apply(call);
-                if (callee == null) {
+                // Only reference nodes the calling parser already accepted — creating
+                // nodes here would bypass the parser's project/stdlib filters and leak
+                // JDK types or raw variable names into the diagram as participants.
+                if (callee == null || graph.findNode(callee) == null) {
                     return;
                 }
-                graph.addNodeIfAbsent(new Node(callee, NodeType.METHOD, call.getNameAsString()));
                 group.addMember(callee);
             });
 

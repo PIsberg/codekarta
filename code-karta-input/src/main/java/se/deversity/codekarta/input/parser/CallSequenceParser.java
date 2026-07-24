@@ -1,7 +1,6 @@
 package se.deversity.codekarta.input.parser;
 
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
@@ -40,13 +39,8 @@ public class CallSequenceParser {
         Graph graph = new Graph();
         try {
             CompilationUnit cu = ParserSupport.parseJava21(sourceFile);
-
-            cu.findAll(ClassOrInterfaceDeclaration.class).forEach(classDecl -> {
-                String className = classDecl.getNameAsString();
-                if (FilterMatcher.matchesAny(className, customExcludes)) {
-                    return;
-                }
-                graph.addNodeIfAbsent(new Node(className, "CLASS", className));
+            Set<String> externalTypes = SequenceFilterUtil.externalTypeNames(cu);
+            ParserSupport.forEachIncludedClass(cu, customExcludes, graph, (classDecl, className) -> {
 
                 // Return-type map for resolving chained local calls, e.g. resolveLayout(x).layout(g)
                 Map<String, String> returnTypes = ParserSupport.returnTypesOf(classDecl);
@@ -74,13 +68,18 @@ public class CallSequenceParser {
                                     return;
                                 }
                                 String scopeName = resolveScope(call.getScope().get(), returnTypes, className);
-                                if (scopeName == null) {
+                                if (scopeName == null || externalTypes.contains(scopeName)) {
                                     super.visit(call, null);
                                     return;
                                 }
                                 callee = scopeName + "." + name;
+                            } else if (returnTypes.containsKey(name)) {
+                                // local method call — qualify so it joins this class's lifeline
+                                callee = className + "." + name;
                             } else {
-                                callee = name;
+                                // unscoped non-local call (static import etc.) — not attributable
+                                super.visit(call, null);
+                                return;
                             }
 
                             if (FilterMatcher.matchesAny(callee, customExcludes)) {

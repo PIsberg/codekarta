@@ -55,6 +55,7 @@ class SequenceDiagramRenderer {
     String render(Graph graph, @Nullable String cssOverride) {
         List<Participant> participants = buildParticipants(graph);
         List<Message>     messages    = orderMessages(graph);
+        participants = pruneUnreferenced(participants, messages);
 
         double svgWidth  = Math.max(960.0, MARGIN_X * 2 + participants.size() * LANE_W);
         double diagramY  = MARGIN_TOP + HEADER_H + DIAGRAM_OFFSET;
@@ -159,6 +160,34 @@ class SequenceDiagramRenderer {
         return result;
     }
 
+    /**
+     * Drops participants that never send or receive a message — every CLASS
+     * node in the graph becomes a candidate lane, but classes with no calls
+     * would render as empty lifelines. Lanes are re-indexed to stay compact.
+     * When there are no messages at all, the original list is kept so the
+     * diagram still shows its participants.
+     */
+    private static List<Participant> pruneUnreferenced(List<Participant> participants,
+                                                       List<Message> messages) {
+        if (messages.isEmpty()) return participants;
+        Set<Participant> referenced = new HashSet<>();
+        for (Message m : messages) {
+            Participant from = participantFor(m.fromId(), participants);
+            Participant to   = participantFor(m.toId(),   participants);
+            if (from != null) referenced.add(from);
+            if (to   != null) referenced.add(to);
+        }
+        if (referenced.isEmpty()) return participants;
+        List<Participant> kept = new ArrayList<>();
+        int lane = 0;
+        for (Participant p : participants) {
+            if (referenced.contains(p)) {
+                kept.add(new Participant(p.id(), p.label(), p.type(), lane++));
+            }
+        }
+        return kept;
+    }
+
     // ------------------------------------------------------------------ message ordering
 
     List<Message> orderMessages(Graph graph) {
@@ -222,31 +251,16 @@ class SequenceDiagramRenderer {
         }
         String stroke = SvgRenderer.NODE_STROKE.getOrDefault(p.type, "#374151");
         String stereo = SvgRenderer.STEREOTYPE.get(p.type);
-        String label  = parent.escapeXml(p.label);
 
         StringBuilder sb = new StringBuilder();
+        sb.append(String.format(Locale.ROOT, "<g id=\"%s\">\n", parent.escapeXml(p.id())));
+        sb.append("  <title>").append(parent.escapeXml(p.label)).append("</title>\n");
         sb.append(String.format(Locale.ROOT,
-            "<rect class=\"node-rect\" x=\"%.1f\" y=\"%.1f\" width=\"%.1f\" height=\"%.1f\" " +
+            "  <rect class=\"node-rect\" x=\"%.1f\" y=\"%.1f\" width=\"%.1f\" height=\"%.1f\" " +
             "rx=\"6\" fill=\"%s\" stroke=\"%s\" stroke-width=\"1.8\" filter=\"url(#nodeShadow)\"/>\n",
             x, MARGIN_TOP, HEADER_W, HEADER_H, fill, stroke));
-        if (stereo != null) {
-            sb.append(String.format(Locale.ROOT,
-                "<text class=\"node-label\" x=\"%.1f\" y=\"%.1f\" text-anchor=\"middle\" " +
-                "font-family=\"sans-serif\" font-size=\"10\" fill=\"%s\" " +
-                "font-style=\"italic\">%s</text>\n",
-                cx, MARGIN_TOP + HEADER_H * 0.34, stroke, parent.escapeXml(stereo)));
-            sb.append(String.format(Locale.ROOT,
-                "<text class=\"node-label\" x=\"%.1f\" y=\"%.1f\" text-anchor=\"middle\" " +
-                "dominant-baseline=\"central\" font-family=\"sans-serif\" font-size=\"13\" " +
-                "font-weight=\"bold\" fill=\"#1f2937\">%s</text>\n",
-                cx, MARGIN_TOP + HEADER_H * 0.7, label));
-        } else {
-            sb.append(String.format(Locale.ROOT,
-                "<text class=\"node-label\" x=\"%.1f\" y=\"%.1f\" text-anchor=\"middle\" " +
-                "dominant-baseline=\"central\" font-family=\"sans-serif\" font-size=\"13\" " +
-                "font-weight=\"bold\" fill=\"#1f2937\">%s</text>\n",
-                cx, MARGIN_TOP + HEADER_H / 2, label));
-        }
+        parent.appendBoxLabel(sb, cx, MARGIN_TOP, HEADER_H, HEADER_W, p.label, stereo, stroke);
+        sb.append("</g>\n");
         return sb.toString();
     }
 

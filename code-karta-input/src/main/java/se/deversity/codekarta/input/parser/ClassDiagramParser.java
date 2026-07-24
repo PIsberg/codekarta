@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,35 +54,46 @@ public class ClassDiagramParser {
 
     public Graph parse(Path sourceDirectory) {
         Graph graph = new Graph();
+        List<CompilationUnit> units = new ArrayList<>();
         try (var stream = Files.walk(sourceDirectory)) {
             List<Path> javaFiles = stream
                     .filter(p -> p.toString().endsWith(".java"))
                     .toList();
             for (Path file : javaFiles) {
-                parseFile(file, graph);
+                try {
+                    units.add(PARSER.parse(Files.readString(file)).getResult().orElseThrow());
+                } catch (Exception e) {
+                    log.warning("Failed to parse " + file + ": " + e.getMessage());
+                }
             }
         } catch (IOException e) {
             log.warning("Error walking directory " + sourceDirectory + ": " + e.getMessage());
         }
+
+        // Pass 1: types declared in this parse run — relationship targets outside
+        // this set are external (JDK, third-party) and are kept out of the diagram
+        Set<String> declaredTypes = new HashSet<>();
+        for (CompilationUnit cu : units) {
+            cu.getTypes().forEach(t -> declaredTypes.add(t.getNameAsString()));
+        }
+
+        // Pass 2: nodes, package groups, and edges
+        for (CompilationUnit cu : units) {
+            try {
+                String packageName = cu.getPackageDeclaration()
+                        .map(pd -> pd.getNameAsString())
+                        .orElse(null);
+                for (TypeDeclaration<?> type : cu.getTypes()) {
+                    processType(type, graph, packageName, declaredTypes);
+                }
+            } catch (Exception e) {
+                log.warning("Failed to process compilation unit: " + e.getMessage());
+            }
+        }
         return graph;
     }
 
-    private void parseFile(Path file, Graph graph) {
-        try {
-            String source = Files.readString(file);
-            CompilationUnit cu = PARSER.parse(source).getResult().orElseThrow();
-            String packageName = cu.getPackageDeclaration()
-                    .map(pd -> pd.getNameAsString())
-                    .orElse(null);
-            for (TypeDeclaration<?> type : cu.getTypes()) {
-                processType(type, graph, packageName);
-            }
-        } catch (Exception e) {
-            log.warning("Failed to parse " + file + ": " + e.getMessage());
-        }
-    }
-
-    private void processType(TypeDeclaration<?> type, Graph graph, String packageName) {
+    private void processType(TypeDeclaration<?> type, Graph graph, String packageName, Set<String> declaredTypes) {
         String name = type.getNameAsString();
         if (FilterMatcher.matchesAny(name, customExcludes)) {
             return;
@@ -116,7 +128,9 @@ public class ClassDiagramParser {
         if (type instanceof ClassOrInterfaceDeclaration coid) {
             for (var extended : coid.getExtendedTypes()) {
                 String parent = extended.getNameAsString();
-                if (FilterMatcher.matchesAny(parent, customExcludes)) {
+                // Only link to types declared in this parse run — external supertypes
+                // (RuntimeException, AutoCloseable, …) would clutter the diagram
+                if (!declaredTypes.contains(parent) || FilterMatcher.matchesAny(parent, customExcludes)) {
                     continue;
                 }
                 graph.addNodeIfAbsent(new Node(parent, "CLASS", parent));
@@ -124,7 +138,7 @@ public class ClassDiagramParser {
             }
             for (var implemented : coid.getImplementedTypes()) {
                 String iface = implemented.getNameAsString();
-                if (FilterMatcher.matchesAny(iface, customExcludes)) {
+                if (!declaredTypes.contains(iface) || FilterMatcher.matchesAny(iface, customExcludes)) {
                     continue;
                 }
                 graph.addNodeIfAbsent(new Node(iface, "INTERFACE", iface));
@@ -135,8 +149,8 @@ public class ClassDiagramParser {
                 String rawType   = rawType(fullType);
                 String fieldName = field.getVariables().get(0).getNameAsString();
 
-                if (!SKIP_TYPES.contains(rawType) && !FilterMatcher.matchesAny(rawType, customExcludes)
-                        && rawType.length() > 0 && Character.isUpperCase(rawType.charAt(0))) {
+                if (declaredTypes.contains(rawType) && !SKIP_TYPES.contains(rawType)
+                        && !FilterMatcher.matchesAny(rawType, customExcludes)) {
                     // Direct domain type: Engine engine → HAS Engine
                     graph.addNodeIfAbsent(new Node(rawType, "CLASS", rawType));
                     Edge hasEdge = new Edge(
@@ -147,9 +161,9 @@ public class ClassDiagramParser {
                 } else {
                     // Container of domain type: List<Node> → HAS Node, Map<String,Node> → HAS Node
                     String innerType = innerGenericType(fullType);
-                    if (innerType != null && !SKIP_TYPES.contains(innerType)
-                            && !FilterMatcher.matchesAny(innerType, customExcludes)
-                            && innerType.length() > 0 && Character.isUpperCase(innerType.charAt(0))) {
+                    if (innerType != null && declaredTypes.contains(innerType)
+                            && !SKIP_TYPES.contains(innerType)
+                            && !FilterMatcher.matchesAny(innerType, customExcludes)) {
                         graph.addNodeIfAbsent(new Node(innerType, "CLASS", innerType));
                         Edge hasEdge = new Edge(
                                 name + "-has-" + fieldName + "-" + innerType,

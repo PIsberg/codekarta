@@ -95,9 +95,10 @@ class CallSequenceParserTest {
                 """);
         Graph graph = parser.parse(file);
 
-        // add() has no scope, so callee id is just "add"
-        assertTrue(hasCallEdge(graph, "Calc.compute", "add"),
-                "compute() must have a CALLS edge to add");
+        // add() has no scope but is declared locally, so it is qualified with the
+        // owning class and joins Calc's lifeline instead of a phantom "add" lane
+        assertTrue(hasCallEdge(graph, "Calc.compute", "Calc.add"),
+                "compute() must have a CALLS edge to Calc.add");
     }
 
     @Test
