@@ -67,6 +67,7 @@ public class ExceptionFlowParser {
         Graph graph = new Graph();
         try {
             CompilationUnit cu = ParserSupport.parseJava21(sourceFile);
+            Set<String> externalTypes = SequenceFilterUtil.externalTypeNames(cu);
 
             cu.findAll(ClassOrInterfaceDeclaration.class).forEach(classDecl -> {
                 String className = classDecl.getNameAsString();
@@ -118,13 +119,17 @@ public class ExceptionFlowParser {
                                 }
                                 String scopeName = CallSequenceParser.resolveScope(
                                         call.getScope().get(), returnTypes, className);
-                                if (scopeName == null) {
+                                if (scopeName == null || externalTypes.contains(scopeName)) {
                                     super.visit(call, null);
                                     return;
                                 }
                                 callee = scopeName + "." + name;
+                            } else if (localMethodNames.contains(name)) {
+                                callee = className + "." + name;
                             } else {
-                                callee = localMethodNames.contains(name) ? className + "." + name : name;
+                                // unscoped non-local call (static import etc.) — not attributable
+                                super.visit(call, null);
+                                return;
                             }
 
                             if (FilterMatcher.matchesAny(callee, customExcludes)) {

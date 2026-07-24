@@ -9,8 +9,6 @@ import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.stmt.TryStmt;
 import se.deversity.codekarta.core.model.Graph;
 import se.deversity.codekarta.core.model.Group;
-import se.deversity.codekarta.core.model.Node;
-import se.deversity.codekarta.core.model.NodeType;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -83,10 +81,12 @@ public final class ParserSupport {
 
             tryStmt.getTryBlock().findAll(MethodCallExpr.class).forEach(call -> {
                 String callee = calleeResolver.apply(call);
-                if (callee == null) {
+                // Only reference nodes the calling parser already accepted — creating
+                // nodes here would bypass the parser's project/stdlib filters and leak
+                // JDK types or raw variable names into the diagram as participants.
+                if (callee == null || graph.findNode(callee) == null) {
                     return;
                 }
-                graph.addNodeIfAbsent(new Node(callee, NodeType.METHOD, call.getNameAsString()));
                 group.addMember(callee);
             });
 

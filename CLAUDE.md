@@ -108,7 +108,7 @@ Four model classes: `Node`, `Edge`, `Group`, `Graph`. Jackson `@JsonInclude(NON_
     </element>
   </test_driven_requirements>
 
-<rule>For any element listed in <test_driven_requirements>, you MUST provide both the implementation change AND the corresponding test code update in a single response. Changes without tests are incomplete and must not be proposed.</rule>
+<rule>For any element listed in <test_driven_requirements>, you MUST provide both the implementation change AND the corresponding test code update in a single response. Changes without tests are incomplete and must not be proposed. Every name under <applies-to> in a <test_driven_default> block inherits that block's coverage goal, frameworks, and test-location convention (with {path} standing for the element's package path).</rule>
   <idempotent_elements>
     <element path="se.deversity.codekarta.cli.KartaCli.run(java.nio.file.Path,java.nio.file.Path,boolean,java.lang.String,boolean,java.util.Set&lt;java.lang.String&gt;,int)">
       <idempotent>true</idempotent>

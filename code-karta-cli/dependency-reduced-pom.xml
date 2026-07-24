@@ -7,6 +7,8 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>code-karta-cli</artifactId>
+  <name>CodeKarta CLI</name>
+  <description>Command line interface wrapper for CodeKarta</description>
   <build>
     <plugins>
       <plugin>
@@ -177,7 +179,7 @@
     <dependency>
       <groupId>se.deversity.vibetags</groupId>
       <artifactId>vibetags-processor</artifactId>
-      <version>1.0.0-RC3</version>
+      <version>1.0.0-RC6</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

@@ -2,78 +2,176 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="960" height="886" viewBox="0 0 960 886">
 <defs>
 <style>
-svg { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-.node-rect { transition: filter 0.15s; }
-.node-rect:hover { stroke-width: 2.5 !important; }
-.edge-line { stroke-linecap: round; stroke-linejoin: round; }
-.edge-label { paint-order: stroke; stroke: #f9fafb; stroke-width: 3; }
-.diagram-attribution { fill: #6b7280; text-decoration: underline; }
-.diagram-attribution:hover { fill: #374151; text-decoration: underline; }
-.group-rect { }
+svg { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+text { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important; }
+.node-rect { transition: filter 0.2s ease, stroke-width 0.2s ease, stroke 0.2s ease; }
+.node-rect:hover { stroke-width: 2.2 !important; filter: drop-shadow(0 8px 16px rgba(15, 23, 42, 0.12)) !important; }
+.edge-line { stroke-linecap: round; stroke-linejoin: round; transition: stroke-width 0.2s ease; }
+.edge-line:hover { stroke-width: 2.5 !important; }
+.edge-label { paint-order: stroke; stroke: #f9fafb; stroke-width: 3; font-weight: 500; }
+.diagram-attribution { fill: #9ca3af; text-decoration: none; transition: fill 0.2s ease; }
+.diagram-attribution:hover { fill: #4b5563; text-decoration: underline; }
+.group-rect { transition: stroke-width 0.2s ease; }
 .node-label { pointer-events: none; }
 </style>
-<filter id="nodeShadow" x="-15%" y="-15%" width="130%" height="130%">
-  <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0000001a"/>
+<filter id="nodeShadow" x="-20%" y="-20%" width="140%" height="140%">
+  <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.08"/>
 </filter>
+<linearGradient id="grad-CLASS" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#ffffff"/>
+  <stop offset="100%" stop-color="#f3f4f6"/>
+</linearGradient>
+<linearGradient id="grad-INTERFACE" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#eff6ff"/>
+  <stop offset="100%" stop-color="#dbeafe"/>
+</linearGradient>
+<linearGradient id="grad-MODULE" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#faf5ff"/>
+  <stop offset="100%" stop-color="#ede9fe"/>
+</linearGradient>
+<linearGradient id="grad-METHOD" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#fffbeb"/>
+  <stop offset="100%" stop-color="#fef3c7"/>
+</linearGradient>
+<linearGradient id="grad-PACKAGE" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#ecfdf5"/>
+  <stop offset="100%" stop-color="#d1fae5"/>
+</linearGradient>
+<linearGradient id="grad-EXCEPTION" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#fef2f2"/>
+  <stop offset="100%" stop-color="#fee2e2"/>
+</linearGradient>
+<linearGradient id="grad-STATE" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#f0f9ff"/>
+  <stop offset="100%" stop-color="#e0f2fe"/>
+</linearGradient>
+<pattern id="dotGrid" width="24" height="24" patternUnits="userSpaceOnUse">
+  <circle cx="2" cy="2" r="1" fill="#e5e7eb"/>
+</pattern>
 <marker id="marker-filled-0369a1" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
   <path d="M0,0 L8,4 L0,8 Z" fill="#0369a1"/>
 </marker>
 </defs>
 <rect width="960" height="886" fill="#f9fafb"/>
-<path class="edge-line" d="M150.0 146.0 Q131.3 198.0 150.0 250.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
-<text class="edge-label" x="140.6" y="192.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">advance</text>
-<path class="edge-line" d="M240.0 293.0 Q256.4 397.9 320.0 483.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
-<text class="edge-label" x="268.2" y="387.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">advance</text>
-<path class="edge-line" d="M320.0 483.0 Q256.4 568.1 240.0 673.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
-<text class="edge-label" x="268.2" y="567.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">advance</text>
-<path class="edge-line" d="M150.0 336.0 Q254.5 505.6 410.0 630.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
-<text class="edge-label" x="267.2" y="488.3" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">fail</text>
-<path class="edge-line" d="M410.0 526.0 Q391.3 578.0 410.0 630.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
-<text class="edge-label" x="400.6" y="572.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">fail</text>
-<path class="edge-line" d="M150.0 146.0 Q119.1 293.0 150.0 440.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
-<text class="edge-label" x="134.5" y="287.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">cancel</text>
-<path class="edge-line" d="M150.0 336.0 Q131.3 388.0 150.0 440.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
-<text class="edge-label" x="140.6" y="382.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">cancel</text>
+<rect width="960" height="886" fill="url(#dotGrid)"/>
+<path class="edge-line" data-source="CREATED" data-target="PROCESSING" data-type="TRANSITION" d="M150.0 146.0 Q131.3 198.0 150.0 250.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
+<text class="edge-label" data-source="CREATED" data-target="PROCESSING" data-type="TRANSITION" x="140.6" y="192.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">advance</text>
+<path class="edge-line" data-source="PROCESSING" data-target="IN_TRANSIT" data-type="TRANSITION" d="M240.0 293.0 Q256.4 397.9 320.0 483.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
+<text class="edge-label" data-source="PROCESSING" data-target="IN_TRANSIT" data-type="TRANSITION" x="268.2" y="387.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">advance</text>
+<path class="edge-line" data-source="IN_TRANSIT" data-target="DELIVERED" data-type="TRANSITION" d="M320.0 483.0 Q256.4 568.1 240.0 673.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
+<text class="edge-label" data-source="IN_TRANSIT" data-target="DELIVERED" data-type="TRANSITION" x="268.2" y="567.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">advance</text>
+<path class="edge-line" data-source="PROCESSING" data-target="FAILED" data-type="TRANSITION" d="M150.0 336.0 Q254.5 505.6 410.0 630.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
+<text class="edge-label" data-source="PROCESSING" data-target="FAILED" data-type="TRANSITION" x="267.2" y="488.3" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">fail</text>
+<path class="edge-line" data-source="IN_TRANSIT" data-target="FAILED" data-type="TRANSITION" d="M410.0 526.0 Q391.3 578.0 410.0 630.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
+<text class="edge-label" data-source="IN_TRANSIT" data-target="FAILED" data-type="TRANSITION" x="400.6" y="572.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">fail</text>
+<path class="edge-line" data-source="CREATED" data-target="CANCELLED" data-type="TRANSITION" d="M150.0 146.0 Q119.1 293.0 150.0 440.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
+<text class="edge-label" data-source="CREATED" data-target="CANCELLED" data-type="TRANSITION" x="134.5" y="287.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">cancel</text>
+<path class="edge-line" data-source="PROCESSING" data-target="CANCELLED" data-type="TRANSITION" d="M150.0 336.0 Q131.3 388.0 150.0 440.0" fill="none" stroke="#0369a1" stroke-width="1.6" marker-end="url(#marker-filled-0369a1)"/>
+<text class="edge-label" data-source="PROCESSING" data-target="CANCELLED" data-type="TRANSITION" x="140.6" y="382.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">cancel</text>
 <g id="CREATED">
   <title>CREATED [STATE]</title>
-  <rect class="node-rect" x="60.0" y="60.0" width="180.0" height="86.0" rx="28.0" fill="#e0f2fe" stroke="#0369a1" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="150.0" y="90.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">«state»</text>
-  <text class="node-label" x="150.0" y="115.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">CREATED</text>
+  <rect class="node-rect" x="60.0" y="60.0" width="180.0" height="86.0" rx="28.0" fill="url(#grad-STATE)" stroke="#0369a1" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="150.0" y="94.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">«state»</text>
+  <text class="node-label" x="150.0" y="109.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">CREATED</text>
 </g>
 <g id="PROCESSING">
   <title>PROCESSING [STATE]</title>
-  <rect class="node-rect" x="60.0" y="250.0" width="180.0" height="86.0" rx="28.0" fill="#e0f2fe" stroke="#0369a1" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="150.0" y="280.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">«state»</text>
-  <text class="node-label" x="150.0" y="305.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">PROCESSING</text>
+  <rect class="node-rect" x="60.0" y="250.0" width="180.0" height="86.0" rx="28.0" fill="url(#grad-STATE)" stroke="#0369a1" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="150.0" y="284.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">«state»</text>
+  <text class="node-label" x="150.0" y="299.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">PROCESSING</text>
 </g>
 <g id="IN_TRANSIT">
   <title>IN_TRANSIT [STATE]</title>
-  <rect class="node-rect" x="320.0" y="440.0" width="180.0" height="86.0" rx="28.0" fill="#e0f2fe" stroke="#0369a1" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="410.0" y="470.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">«state»</text>
-  <text class="node-label" x="410.0" y="495.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">IN_TRANSIT</text>
+  <rect class="node-rect" x="320.0" y="440.0" width="180.0" height="86.0" rx="28.0" fill="url(#grad-STATE)" stroke="#0369a1" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="410.0" y="474.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">«state»</text>
+  <text class="node-label" x="410.0" y="489.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">IN_TRANSIT</text>
 </g>
 <g id="DELIVERED">
   <title>DELIVERED [STATE]</title>
-  <rect class="node-rect" x="60.0" y="630.0" width="180.0" height="86.0" rx="28.0" fill="#e0f2fe" stroke="#0369a1" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="150.0" y="660.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">«state»</text>
-  <text class="node-label" x="150.0" y="685.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">DELIVERED</text>
+  <rect class="node-rect" x="60.0" y="630.0" width="180.0" height="86.0" rx="28.0" fill="url(#grad-STATE)" stroke="#0369a1" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="150.0" y="664.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">«state»</text>
+  <text class="node-label" x="150.0" y="679.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">DELIVERED</text>
 </g>
 <g id="FAILED">
   <title>FAILED [STATE]</title>
-  <rect class="node-rect" x="320.0" y="630.0" width="180.0" height="86.0" rx="28.0" fill="#e0f2fe" stroke="#0369a1" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="410.0" y="660.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">«state»</text>
-  <text class="node-label" x="410.0" y="685.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">FAILED</text>
+  <rect class="node-rect" x="320.0" y="630.0" width="180.0" height="86.0" rx="28.0" fill="url(#grad-STATE)" stroke="#0369a1" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="410.0" y="664.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">«state»</text>
+  <text class="node-label" x="410.0" y="679.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">FAILED</text>
 </g>
 <g id="CANCELLED">
   <title>CANCELLED [STATE]</title>
-  <rect class="node-rect" x="60.0" y="440.0" width="180.0" height="86.0" rx="28.0" fill="#e0f2fe" stroke="#0369a1" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="150.0" y="470.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">«state»</text>
-  <text class="node-label" x="150.0" y="495.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">CANCELLED</text>
+  <rect class="node-rect" x="60.0" y="440.0" width="180.0" height="86.0" rx="28.0" fill="url(#grad-STATE)" stroke="#0369a1" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="150.0" y="474.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="10" fill="#0369a1" font-style="italic">«state»</text>
+  <text class="node-label" x="150.0" y="489.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">CANCELLED</text>
 </g>
 <rect x="724.0" y="776.0" width="220.0" height="76.0" rx="6" fill="#ffffff" stroke="#d1d5db" stroke-width="1" filter="url(#nodeShadow)"/>
 <text x="740.0" y="796.0" font-family="sans-serif" font-size="11" font-weight="bold" fill="#374151">Legend</text>
 <line x1="740.0" y1="820.0" x2="776.0" y2="820.0" stroke="#0369a1" stroke-width="2" marker-end="url(#marker-filled-0369a1)"/>
 <text x="784.0" y="824.0" font-family="sans-serif" font-size="11" fill="#374151">transition</text>
+<script type="text/javascript">
+<![CDATA[
+document.addEventListener('DOMContentLoaded', () => {
+  const svg = document.querySelector('svg');
+  if (!svg) return;
+  const nodes = Array.from(svg.querySelectorAll('g')).filter(g => g.querySelector('.node-rect'));
+  const edges = Array.from(svg.querySelectorAll('.edge-line, .edge-label'));
+  nodes.forEach(node => {
+    node.style.cursor = 'pointer';
+    node.addEventListener('mouseenter', () => {
+      const nodeId = node.id;
+      nodes.forEach(n => {
+        if (n.id !== nodeId) {
+          n.style.opacity = '0.15';
+          n.style.transition = 'opacity 0.2s ease';
+        }
+      });
+      const connectedNodeIds = new Set([nodeId]);
+      edges.forEach(edge => {
+        const source = edge.getAttribute('data-source');
+        const target = edge.getAttribute('data-target');
+        const isConnected = (source === nodeId || target === nodeId || 
+                             (source && source.startsWith(nodeId + '.')) || 
+                             (target && target.startsWith(nodeId + '.')) ||
+                             (nodeId && nodeId.startsWith(source + '.')) ||
+                             (nodeId && nodeId.startsWith(target + '.')));
+        if (isConnected) {
+          if (source) connectedNodeIds.add(source);
+          if (target) connectedNodeIds.add(target);
+          const dotSrc = source ? source.lastIndexOf('.') : -1;
+          if (dotSrc > 0) connectedNodeIds.add(source.substring(0, dotSrc));
+          const dotTgt = target ? target.lastIndexOf('.') : -1;
+          if (dotTgt > 0) connectedNodeIds.add(target.substring(0, dotTgt));
+          edge.style.opacity = '1';
+          if (edge.classList.contains('edge-line')) {
+            edge.style.strokeWidth = '2.8px';
+          }
+          edge.style.fontWeight = 'bold';
+          edge.style.transition = 'opacity 0.2s ease, stroke-width 0.2s ease';
+        } else {
+          edge.style.opacity = '0.08';
+          edge.style.transition = 'opacity 0.2s ease';
+        }
+      });
+      nodes.forEach(n => {
+        if (connectedNodeIds.has(n.id)) {
+          n.style.opacity = '1';
+        }
+      });
+    });
+    node.addEventListener('mouseleave', () => {
+      nodes.forEach(n => {
+        n.style.opacity = '1';
+      });
+      edges.forEach(edge => {
+        edge.style.opacity = '1';
+        edge.style.strokeWidth = '';
+        edge.style.fontWeight = '';
+      });
+    });
+  });
+});
+]]>
+</script>
 <a class="diagram-attribution" href="https://github.com/PIsberg/codekarta" target="_blank" rel="noopener noreferrer">
   <text x="944.0" y="870.0" text-anchor="end" font-family="sans-serif" font-size="11" fill="#6b7280" text-decoration="underline">Created with https://github.com/PIsberg/codekarta</text>
 </a>

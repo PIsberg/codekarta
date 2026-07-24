@@ -70,5 +70,40 @@ final class SequenceFilterUtil {
         return SKIP_METHODS.contains(methodName);
     }
 
+    // java.lang types are importable without an import statement, so they can't be
+    // detected via the compilation unit's import list.
+    private static final Set<String> JAVA_LANG_TYPES = Set.of(
+            "Object", "Class", "String", "StringBuilder", "StringBuffer",
+            "Integer", "Long", "Short", "Byte", "Double", "Float", "Boolean",
+            "Character", "Number", "Void", "Math", "StrictMath", "System",
+            "Thread", "Runtime", "Process", "ProcessBuilder", "Runnable",
+            "Throwable", "Exception", "Error", "RuntimeException",
+            "IllegalArgumentException", "IllegalStateException",
+            "UnsupportedOperationException", "NullPointerException",
+            "Iterable", "Comparable", "CharSequence", "Enum", "Record");
+
+    private static final Set<String> EXTERNAL_PACKAGE_PREFIXES = Set.of(
+            "java.", "javax.", "jdk.", "sun.", "com.sun.");
+
+    /**
+     * Simple names of types the compilation unit imports from the JDK/platform,
+     * plus the implicit java.lang types. Used by the single-file parsers (which
+     * have no symbol resolution) to keep stdlib receivers such as
+     * {@code System}, {@code Files}, or {@code MemorySegment} out of diagrams.
+     */
+    static Set<String> externalTypeNames(com.github.javaparser.ast.CompilationUnit cu) {
+        Set<String> names = new java.util.HashSet<>(JAVA_LANG_TYPES);
+        cu.getImports().forEach(imp -> {
+            String qualified = imp.getNameAsString();
+            for (String prefix : EXTERNAL_PACKAGE_PREFIXES) {
+                if (qualified.startsWith(prefix)) {
+                    names.add(qualified.substring(qualified.lastIndexOf('.') + 1));
+                    break;
+                }
+            }
+        });
+        return names;
+    }
+
     private SequenceFilterUtil() {}
 }
