@@ -1,6 +1,7 @@
 # code-karta
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Maven Central](https://img.shields.io/maven-central/v/se.deversity.codekarta/code-karta.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/se.deversity.codekarta/code-karta/0.1.0)
 [![Build and Test](https://github.com/PIsberg/codekarta/actions/workflows/build.yml/badge.svg)](https://github.com/PIsberg/codekarta/actions/workflows/build.yml)
 [![Java 21+](https://img.shields.io/badge/Java-21+-orange?logo=openjdk)](https://github.com/PIsberg/codekarta)
 [![Maven](https://img.shields.io/badge/build-Maven-blue?logo=apachemaven)](https://github.com/PIsberg/codekarta)
