@@ -1,7 +1,6 @@
 package se.deversity.codekarta.input.parser;
 
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
@@ -41,12 +40,7 @@ public class CallSequenceParser {
         try {
             CompilationUnit cu = ParserSupport.parseJava21(sourceFile);
             Set<String> externalTypes = SequenceFilterUtil.externalTypeNames(cu);
-            cu.findAll(ClassOrInterfaceDeclaration.class).forEach(classDecl -> {
-                String className = classDecl.getNameAsString();
-                if (FilterMatcher.matchesAny(className, customExcludes)) {
-                    return;
-                }
-                graph.addNodeIfAbsent(new Node(className, "CLASS", className));
+            ParserSupport.forEachIncludedClass(cu, customExcludes, graph, (classDecl, className) -> {
 
                 // Return-type map for resolving chained local calls, e.g. resolveLayout(x).layout(g)
                 Map<String, String> returnTypes = ParserSupport.returnTypesOf(classDecl);

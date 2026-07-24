@@ -9,6 +9,8 @@ import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.stmt.TryStmt;
 import se.deversity.codekarta.core.model.Graph;
 import se.deversity.codekarta.core.model.Group;
+import se.deversity.codekarta.core.model.Node;
+import se.deversity.codekarta.core.model.NodeType;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -45,6 +47,24 @@ public final class ParserSupport {
      */
     public static CompilationUnit parseJava21(Path sourceFile) throws java.io.IOException {
         return PARSER.parse(Files.readString(sourceFile)).getResult().orElseThrow();
+    }
+
+    /**
+     * Shared per-class prologue of the single-file parsers: iterates the
+     * compilation unit's class/interface declarations, skips excluded names,
+     * adds a CLASS node for each accepted declaration, and hands the
+     * declaration plus its name to {@code body}.
+     */
+    public static void forEachIncludedClass(CompilationUnit cu, Set<String> customExcludes,
+            Graph graph, java.util.function.BiConsumer<ClassOrInterfaceDeclaration, String> body) {
+        cu.findAll(ClassOrInterfaceDeclaration.class).forEach(classDecl -> {
+            String className = classDecl.getNameAsString();
+            if (FilterMatcher.matchesAny(className, customExcludes)) {
+                return;
+            }
+            graph.addNodeIfAbsent(new Node(className, NodeType.CLASS, className));
+            body.accept(classDecl, className);
+        });
     }
 
     /**

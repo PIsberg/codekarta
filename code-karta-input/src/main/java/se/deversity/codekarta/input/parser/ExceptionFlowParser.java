@@ -1,7 +1,6 @@
 package se.deversity.codekarta.input.parser;
 
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -69,12 +68,7 @@ public class ExceptionFlowParser {
             CompilationUnit cu = ParserSupport.parseJava21(sourceFile);
             Set<String> externalTypes = SequenceFilterUtil.externalTypeNames(cu);
 
-            cu.findAll(ClassOrInterfaceDeclaration.class).forEach(classDecl -> {
-                String className = classDecl.getNameAsString();
-                if (FilterMatcher.matchesAny(className, customExcludes)) {
-                    return;
-                }
-                graph.addNodeIfAbsent(new Node(className, NodeType.CLASS, className));
+            ParserSupport.forEachIncludedClass(cu, customExcludes, graph, (classDecl, className) -> {
 
                 // callee node-id → [caller method-ids] (used in pass 2)
                 Map<String, List<String>> callersOf = new HashMap<>();
