@@ -252,6 +252,71 @@ class KartaCliTest {
         }
     }
 
+    // ------------------------------------------------------------------
+    // --split-packages
+    // ------------------------------------------------------------------
+
+    /**
+     * A tree of three packages must yield three diagrams laid out to mirror the packages, not one
+     * diagram of everything. This is the readable-at-scale path: a wide tree stays wide whatever
+     * --max-depth says, so the split is what makes the output usable.
+     */
+    @Test
+    void splitPackagesEmitsOneDiagramPerPackageMirroringTheTree(@TempDir Path dir) throws Exception {
+        Path src = dir.resolve("src");
+        writeClass(src.resolve("com/example/core"), "Engine");
+        writeClass(src.resolve("com/example/core"), "Piston");
+        writeClass(src.resolve("com/example/io"), "Reader");
+        Files.createDirectories(src.resolve("com/example/empty"));
+
+        Path out = dir.resolve("out");
+        java.util.List<Path> written = KartaCli.runPerPackage(
+                src, out, false, "simple", false, java.util.Set.of(), Integer.MAX_VALUE, false);
+
+        assertFalse(written.isEmpty(), "a tree with sources must produce diagrams");
+        assertTrue(Files.exists(out.resolve("com/example/core")),
+                "output must mirror the package structure for com.example.core");
+        assertTrue(Files.exists(out.resolve("com/example/io")),
+                "output must mirror the package structure for com.example.io");
+        assertFalse(Files.exists(out.resolve("com/example/empty")),
+                "a package with no sources must not produce an output directory");
+    }
+
+    /** A directory holding no Java at all is a no-op, not a failure. */
+    @Test
+    void splitPackagesOnAnEmptyTreeWritesNothing(@TempDir Path dir) throws Exception {
+        Path src = dir.resolve("src");
+        Files.createDirectories(src.resolve("com/example/nothing"));
+
+        java.util.List<Path> written = KartaCli.runPerPackage(
+                src, dir.resolve("out"), false, "simple", false, java.util.Set.of(),
+                Integer.MAX_VALUE, false);
+
+        assertTrue(written.isEmpty(), "no sources means no diagrams, and no exception");
+    }
+
+    /** Pointed at a single file, the split path falls back to rendering that file. */
+    @Test
+    void splitPackagesOnAFileFallsBackToASingleDiagram(@TempDir Path dir) throws Exception {
+        Path pkg = dir.resolve("src/com/example");
+        writeClass(pkg, "Solo");
+
+        java.util.List<Path> written = KartaCli.runPerPackage(
+                pkg.resolve("Solo.java"), dir.resolve("out"), false, "simple", false,
+                java.util.Set.of(), Integer.MAX_VALUE, false);
+
+        assertEquals(1, written.size(), "a single file input must still produce its one diagram");
+    }
+
+    private static void writeClass(Path packageDir, String name) throws java.io.IOException {
+        Files.createDirectories(packageDir);
+        String pkg = packageDir.toString().replace('\\', '/');
+        pkg = pkg.substring(pkg.indexOf("com/")).replace('/', '.');
+        Files.writeString(packageDir.resolve(name + ".java"),
+                "package " + pkg + ";\n\npublic class " + name + " {\n"
+                        + "    public void work() { }\n}\n");
+    }
+
     /** Minimal SVG root carrying the canvas dimensions the warning reads back. */
     private static String svgOfSize(int width, int height) {
         return """
