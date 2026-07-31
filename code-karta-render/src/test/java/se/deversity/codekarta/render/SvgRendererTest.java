@@ -28,7 +28,53 @@ class SvgRendererTest {
         Graph graph = new Graph();
         String svg = renderer.render(graph);
         assertTrue(svg.contains("<svg "), "output must contain <svg> element");
-        assertTrue(svg.endsWith("</svg>"), "output must end with </svg>");
+        assertTrue(svg.endsWith("</svg>\n"), "output must end with </svg> and a newline");
+    }
+
+    /**
+     * Generated diagrams get committed, so they meet the same repository hygiene hooks as
+     * hand-written files. A file without a final newline is rewritten by every
+     * end-of-file-fixer, producing a diff on every regeneration that nobody made — which in
+     * one real consumer cost an exclusion entry in .pre-commit-config.yaml.
+     */
+    @Test
+    void outputEndsWithExactlyOneTrailingNewline() {
+        Graph graph = new Graph();
+        graph.addNode(nodeAt("A", 10, 10));
+        String svg = renderer.render(graph);
+        assertTrue(svg.endsWith("</svg>\n"), "output must end with a newline");
+        assertFalse(svg.endsWith("\n\n"), "output must not end with a blank line");
+    }
+
+    /** Same reason as above, for the trailing-whitespace hook rather than the newline one. */
+    @Test
+    void noEmittedLineCarriesTrailingWhitespace() {
+        Graph graph = new Graph();
+        Node a = nodeAt("A", 10, 10);
+        Node b = nodeAt("B", 300, 200);
+        graph.addNode(a);
+        graph.addNode(b);
+        graph.addEdge(new Edge("a-b", "A", "B", "EXTENDS"));
+        Group group = new Group("g", "pkg");
+        group.getMemberIds().add("A");
+        group.getMemberIds().add("B");
+        graph.addGroup(group);
+
+        String[] lines = renderer.render(graph).split("\n", -1);
+        for (int i = 0; i < lines.length; i++) {
+            String line = lines[i];
+            assertEquals(line.stripTrailing(), line,
+                    "line " + (i + 1) + " has trailing whitespace: [" + line + "]");
+        }
+    }
+
+    private static Node nodeAt(String id, double x, double y) {
+        Node node = new Node(id, "CLASS", id);
+        node.setX(x);
+        node.setY(y);
+        node.setWidth(160.0);
+        node.setHeight(86.0);
+        return node;
     }
 
     @Test

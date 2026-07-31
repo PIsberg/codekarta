@@ -290,6 +290,60 @@ class ClassDiagramParserTest {
         assertFalse(hasEdge(graph, "Car", "Engine", "HAS"), "Car should not have HAS edge to Engine");
     }
 
+    // ------------------------------------------------------------------ member cap
+
+    @Test
+    void capsCompartmentMembersAtSixByDefault(@TempDir Path dir) throws Exception {
+        Files.writeString(dir.resolve("Wide.java"), wideClass());
+
+        Graph graph = new ClassDiagramParser().parse(dir);
+
+        String methods = graph.findNode("Wide").getProperties().get("methods");
+        assertEquals(7, methods.split("\n").length, "six members plus the summary line");
+        assertTrue(methods.contains("…(+4 more)"), "the remainder must be counted, not silently dropped");
+    }
+
+    @Test
+    void raisesTheCapWhenAskedTo(@TempDir Path dir) throws Exception {
+        Files.writeString(dir.resolve("Wide.java"), wideClass());
+
+        Graph graph = new ClassDiagramParser(java.util.Set.of(), 8).parse(dir);
+
+        String methods = graph.findNode("Wide").getProperties().get("methods");
+        assertEquals(9, methods.split("\n").length, "eight members plus the summary line");
+        assertTrue(methods.contains("…(+2 more)"));
+    }
+
+    @Test
+    void showsEveryMemberWhenTheCapIsDisabled(@TempDir Path dir) throws Exception {
+        Files.writeString(dir.resolve("Wide.java"), wideClass());
+
+        Graph graph = new ClassDiagramParser(
+                java.util.Set.of(), ClassDiagramParser.UNLIMITED_MEMBERS).parse(dir);
+
+        String methods = graph.findNode("Wide").getProperties().get("methods");
+        assertEquals(10, methods.split("\n").length);
+        assertFalse(methods.contains("more)"), "nothing was truncated, so nothing to report");
+    }
+
+    @Test
+    void aNegativeCapIsTreatedAsUnlimitedRatherThanAsAnError(@TempDir Path dir) throws Exception {
+        Files.writeString(dir.resolve("Wide.java"), wideClass());
+
+        Graph graph = new ClassDiagramParser(java.util.Set.of(), -1).parse(dir);
+
+        assertEquals(10, graph.findNode("Wide").getProperties().get("methods").split("\n").length);
+    }
+
+    /** Ten methods — enough to be truncated by the default cap and by a raised one. */
+    private String wideClass() {
+        StringBuilder sb = new StringBuilder("public class Wide {\n");
+        for (int i = 0; i < 10; i++) {
+            sb.append("    void m").append(i).append("() {}\n");
+        }
+        return sb.append("}\n").toString();
+    }
+
     private boolean hasEdge(Graph graph, String src, String tgt, String type) {
         return graph.getEdges().stream().anyMatch(e ->
                 src.equals(e.getSourceId()) && tgt.equals(e.getTargetId()) && type.equals(e.getType()));

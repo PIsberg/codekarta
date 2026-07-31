@@ -236,6 +236,9 @@ Four model classes: `Node`, `Edge`, `Group`, `Graph`. Jackson `@JsonInclude(NON_
   <contextual_instructions>
   </contextual_instructions>
   <test_isolation_elements>
+    <element path="se.deversity.codekarta.input.BuildReactorParserTest">
+      <isolation>strict</isolation>
+    </element>
     <element path="se.deversity.codekarta.input.ClassDiagramParserTest">
       <isolation>strict</isolation>
     </element>

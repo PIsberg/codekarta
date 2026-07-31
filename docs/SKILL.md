@@ -23,14 +23,18 @@ mvn clean package
 Run it:
 
 ```bash
-java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \
+java -jar code-karta-cli/target/code-karta-cli-0.2.0-all.jar \
   --input <path> \
   --output <dir> \
   [--sequence-only] \
   [--state-machine] \
   [--layout simple|elk] \
   [--exclude <patterns>] \
-  [--max-depth <depth>]
+  [--max-depth <depth>] \
+  [--max-members <n>] \
+  [--modules-only] \
+  [--split-packages] \
+  [--output-name <file>]
 ```
 
 Input path decides the diagram:
@@ -43,11 +47,14 @@ Input path decides the diagram:
 | single `.java` file plus `--sequence-only` | call-only sequence diagram |
 | directory plus `--sequence-only` | `sequence-diagram.svg` stitched across files |
 | file or directory plus `--state-machine` | state transition diagram |
+| directory plus `--modules-only` | `modules-diagram.svg` from `module-info.java`, or from the Maven/Gradle reactor when the project declares no JPMS modules |
 
 Use `--layout elk` for large graphs. Use `--sequence-only` when exception propagation and try/catch regions are noise.
 Use `--state-machine` for enum-backed workflow code where enum constants represent states and switch assignments or `transition(from, to, event)` calls represent transitions.
 Use `--exclude <patterns>` (comma-separated wildcards, e.g. `*Test,se.deversity.codekarta.util.*,Map`) to filter noisy types/methods under scale.
 Use `--max-depth <depth>` (integer) to limit call-sequence stitching hierarchy.
+Use `--output-name <file>` to write several diagrams into one directory — the derived names (`class-diagram.svg` and friends) otherwise collide, forcing one output directory per diagram.
+Use `--max-members <n>` (or `all`) to raise or disable the six-member cap on class compartments; the default suits a large package, not a five-class one.
 
 ## Library Usage
 

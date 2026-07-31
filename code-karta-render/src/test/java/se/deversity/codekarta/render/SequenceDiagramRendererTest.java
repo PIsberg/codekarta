@@ -27,6 +27,18 @@ class SequenceDiagramRendererTest {
         assertTrue(svg.contains("stroke-dasharray=\"6,4\""), "lifeline dashed line must be present");
     }
 
+    /** The sequence path writes committed files too — same hygiene contract as SvgRenderer. */
+    @Test
+    void sequenceOutputEndsWithATrailingNewlineAndNoTrailingWhitespace() {
+        String svg = renderer.render(twoMethodGraph());
+        assertTrue(svg.endsWith("</svg>\n"), "output must end with </svg> and a newline");
+        String[] lines = svg.split("\n", -1);
+        for (int i = 0; i < lines.length; i++) {
+            assertEquals(lines[i].stripTrailing(), lines[i],
+                    "line " + (i + 1) + " has trailing whitespace: [" + lines[i] + "]");
+        }
+    }
+
     // ------------------------------------------------------------------ participant extraction
 
     @Test

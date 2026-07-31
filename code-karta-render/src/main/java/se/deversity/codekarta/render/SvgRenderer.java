@@ -143,7 +143,11 @@ public class SvgRenderer {
         if (!legendTypes.isEmpty()) sb.append(renderLegend(legendTypes, svgW, bounds[1] + PADDING));
         sb.append(embeddedJs());
         sb.append(renderAttribution(svgW, svgH));
-        sb.append("</svg>");
+        // The trailing newline is not cosmetic. Generated SVGs get committed, and every
+        // end-of-file-fixer hook (pre-commit, editorconfig, git's own "\ No newline at end
+        // of file") rewrites a file that lacks one — so a regenerated diagram would show a
+        // one-byte diff nobody made, on every run, forever.
+        sb.append("</svg>\n");
         return sb.toString();
     }
 
@@ -658,8 +662,10 @@ public class SvgRenderer {
              + "      edges.forEach(edge => {\n"
              + "        const source = edge.getAttribute('data-source');\n"
              + "        const target = edge.getAttribute('data-target');\n"
-             + "        const isConnected = (source === nodeId || target === nodeId || \n"
-             + "                             (source && source.startsWith(nodeId + '.')) || \n"
+             // No trailing space before the \n on any line here: these strings are emitted
+             // verbatim into the file, and a trailing-whitespace hook will rewrite them.
+             + "        const isConnected = (source === nodeId || target === nodeId ||\n"
+             + "                             (source && source.startsWith(nodeId + '.')) ||\n"
              + "                             (target && target.startsWith(nodeId + '.')) ||\n"
              + "                             (nodeId && nodeId.startsWith(source + '.')) ||\n"
              + "                             (nodeId && nodeId.startsWith(target + '.')));\n"

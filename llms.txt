@@ -107,6 +107,7 @@ AI tools reading this file should respect the guardrails defined below. These ru
 ## Contextual Rules
 
 ## Strict Test Isolation
+- [BuildReactorParserTest](se.deversity.codekarta.input.BuildReactorParserTest): Strict test isolation required. No shared mutable state or external resource conflicts.
 - [ClassDiagramParserTest](se.deversity.codekarta.input.ClassDiagramParserTest): Strict test isolation required. No shared mutable state or external resource conflicts.
 <!-- VIBETAGS-MODULE-END: code-karta-input -->
 <!-- VIBETAGS-MODULE: code-karta-layout -->
