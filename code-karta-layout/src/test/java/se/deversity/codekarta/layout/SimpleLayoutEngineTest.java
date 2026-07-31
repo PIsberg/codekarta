@@ -149,4 +149,71 @@ class SimpleLayoutEngineTest {
         // 44 + (13 + 2×15) + (13 + 1×15) = 44 + 43 + 28 = 115
         assertEquals(115.0, eng.estimateRenderHeight(node), 0.001);
     }
+
+    // ------------------------------------------------------------------
+    // Row wrapping: one depth level must not become one unbounded row
+    // ------------------------------------------------------------------
+
+    /**
+     * Every node with no incoming edge sits at depth 0, so an unconnected graph puts every node in
+     * a single row. Before wrapping, 127 such nodes produced a canvas roughly 19500px wide — the
+     * real shape of an identity enum rendered as a state machine, or a flat package of classes.
+     */
+    @Test
+    void manyUnconnectedNodesWrapInsteadOfFormingOneEndlessRow() {
+        Graph graph = new Graph();
+        for (int i = 0; i < 127; i++) {
+            graph.addNode(new Node("N" + i, "STATE", "N" + i));
+        }
+
+        engine.layout(graph);
+
+        double maxX = graph.getNodes().stream().mapToDouble(Node::getX).max().orElseThrow();
+        assertTrue(maxX < SimpleLayoutEngine.MAX_ROW_WIDTH,
+            "127 same-level nodes must wrap within the row bound, but the widest x was " + maxX);
+
+        long distinctRows = graph.getNodes().stream().map(Node::getY).distinct().count();
+        assertTrue(distinctRows > 1,
+            "wrapping must produce more than one sub-row, got " + distinctRows);
+    }
+
+    /** Wrapped sub-rows must not overlap: each row's y advances by at least the node height. */
+    @Test
+    void wrappedSubRowsDoNotOverlap() {
+        Graph graph = new Graph();
+        for (int i = 0; i < 40; i++) {
+            graph.addNode(new Node("N" + i, "STATE", "N" + i));
+        }
+
+        engine.layout(graph);
+
+        double[] ys = graph.getNodes().stream().mapToDouble(Node::getY).distinct().sorted().toArray();
+        for (int i = 1; i < ys.length; i++) {
+            double gap = ys[i] - ys[i - 1];
+            assertTrue(gap >= graph.getNodes().get(0).getHeight(),
+                "sub-rows must not overlap; gap between rows was " + gap);
+        }
+    }
+
+    /** A small graph is unaffected: it still lays out as a single row. */
+    @Test
+    void smallGraphStillFormsOneRow() {
+        Graph graph = new Graph();
+        for (int i = 0; i < 5; i++) {
+            graph.addNode(new Node("N" + i, "CLASS", "N" + i));
+        }
+
+        engine.layout(graph);
+
+        long distinctRows = graph.getNodes().stream().map(Node::getY).distinct().count();
+        assertEquals(1, distinctRows, "five nodes must still occupy a single row");
+    }
+
+    @Test
+    void subRowCountRoundsUp() {
+        assertEquals(0, SimpleLayoutEngine.subRowCount(0, 10));
+        assertEquals(1, SimpleLayoutEngine.subRowCount(1, 10));
+        assertEquals(1, SimpleLayoutEngine.subRowCount(10, 10));
+        assertEquals(2, SimpleLayoutEngine.subRowCount(11, 10));
+    }
 }
