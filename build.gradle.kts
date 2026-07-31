@@ -1,6 +1,6 @@
 allprojects {
     group = "se.deversity.codekarta"
-    version = "1.0-SNAPSHOT"
+    version = "0.2.0" // keep in step with the Maven version — the docs name the built jar
 
     repositories {
         mavenLocal()

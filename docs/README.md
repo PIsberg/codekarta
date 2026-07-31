@@ -28,7 +28,7 @@ mvn clean package
 The Maven fat JAR is written to:
 
 ```text
-code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar
+code-karta-cli/target/code-karta-cli-0.2.0-all.jar
 ```
 
 Gradle:
@@ -41,7 +41,7 @@ Gradle:
 The Gradle fat JAR is written to:
 
 ```text
-code-karta-cli/build/libs/code-karta-cli-1.0-SNAPSHOT-all.jar
+code-karta-cli/build/libs/code-karta-cli-0.2.0-all.jar
 ```
 
 ## CLI
@@ -102,7 +102,7 @@ mvn -pl code-karta-cli exec:java \
 Parses a JPMS module descriptor into module and package nodes with `REQUIRES` and `EXPORTS` edges.
 
 ```bash
-java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \
+java -jar code-karta-cli/target/code-karta-cli-0.2.0-all.jar \
   --input example-shipping-system/src/main/java/module-info.java \
   --output example-shipping-system/diagrams
 ```
@@ -114,7 +114,7 @@ Parses a directory of Java files into class and interface nodes with `EXTENDS`, 
 Classes are **automatically grouped by Java package** into nested compound blocks to enable clean visual grouping under scale. You can filter out specific classes, packages, or frameworks using the `--exclude` flag.
 
 ```bash
-java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \
+java -jar code-karta-cli/target/code-karta-cli-0.2.0-all.jar \
   --input example-shipping-system/src/main/java/com/karta/shipping/domain \
   --output example-shipping-system/diagrams
 ```
@@ -124,7 +124,7 @@ java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \
 Parses one Java file into method nodes and ordered call edges. The default file mode also includes exception propagation and try/catch regions when the parser can identify them.
 
 ```bash
-java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \
+java -jar code-karta-cli/target/code-karta-cli-0.2.0-all.jar \
   --input code-karta-cli/src/main/java/com/karta/cli/KartaCli.java \
   --output docs/diagrams
 ```
@@ -134,7 +134,7 @@ java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \
 Use `--sequence-only` when you want a cleaner call graph without exception-flow annotations.
 
 ```bash
-java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \
+java -jar code-karta-cli/target/code-karta-cli-0.2.0-all.jar \
   --input code-karta-input/src/main/java/com/karta/input/parser/CallSequenceParser.java \
   --output docs/diagrams \
   --sequence-only
@@ -147,7 +147,7 @@ Directory input plus `--sequence-only` parses all `.java` files below the direct
 Point `--input` at a source root such as `src/main/java` when you need cross-package resolution.
 
 ```bash
-java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \
+java -jar code-karta-cli/target/code-karta-cli-0.2.0-all.jar \
   --input example-shipping-system/src/main/java/com/karta/shipping/core \
   --output docs/diagrams \
   --sequence-only
@@ -169,7 +169,7 @@ class Workflow {
 ```
 
 ```bash
-java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \
+java -jar code-karta-cli/target/code-karta-cli-0.2.0-all.jar \
   --input code-karta-cli/src/main/java/com/karta/cli/KartaCli.java \
   --state-machine --output docs/diagrams
 ```
@@ -230,7 +230,7 @@ Regenerate those diagrams:
 ```bash
 mvn clean package -q
 
-JAR=code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar
+JAR=code-karta-cli/target/code-karta-cli-0.2.0-all.jar
 STATE=example-shipping-system/src/main/java/com/karta/shipping/state
 
 # Module, class, and sequence diagrams
