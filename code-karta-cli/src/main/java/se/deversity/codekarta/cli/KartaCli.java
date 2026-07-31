@@ -52,13 +52,16 @@ public class KartaCli {
         boolean modulesOnly = false;
         boolean splitPackages = false;
         String layout = "simple";
+        String outputName = null;
         java.util.Set<String> customExcludes = java.util.Collections.emptySet();
         int maxDepth = Integer.MAX_VALUE;
+        int maxMembers = se.deversity.codekarta.input.parser.ClassDiagramParser.DEFAULT_MAX_MEMBERS;
 
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
                 case "--input"         -> { if (i + 1 < args.length) inputPath = Path.of(args[++i]); }
                 case "--output"        -> { if (i + 1 < args.length) outputDir = Path.of(args[++i]); }
+                case "--output-name"   -> { if (i + 1 < args.length) outputName = args[++i]; }
                 case "--layout"        -> { if (i + 1 < args.length) layout = args[++i]; }
                 case "--sequence-only" -> sequenceOnly = true;
                 case "--state-machine" -> stateMachine = true;
@@ -82,6 +85,20 @@ public class KartaCli {
                         }
                     }
                 }
+                case "--max-members"   -> {
+                    if (i + 1 < args.length) {
+                        String raw = args[++i];
+                        if ("all".equalsIgnoreCase(raw)) {
+                            maxMembers = se.deversity.codekarta.input.parser.ClassDiagramParser.UNLIMITED_MEMBERS;
+                        } else {
+                            try {
+                                maxMembers = Integer.parseInt(raw);
+                            } catch (NumberFormatException e) {
+                                System.err.println("Warning: --max-members must be an integer or 'all', ignoring.");
+                            }
+                        }
+                    }
+                }
                 case "--help", "-h"    -> { printUsage(); System.exit(0); }
                 default -> { /* unknown args are ignored */ }
             }
@@ -93,10 +110,12 @@ public class KartaCli {
             System.exit(1);
         }
 
+        RunOptions options = new RunOptions(sequenceOnly, layout, stateMachine, customExcludes,
+                maxDepth, modulesOnly, outputName, maxMembers);
+
         try {
             if (splitPackages) {
-                java.util.List<Path> written = runPerPackage(inputPath, outputDir, sequenceOnly,
-                        layout, stateMachine, customExcludes, maxDepth, modulesOnly);
+                java.util.List<Path> written = runPerPackage(inputPath, outputDir, options);
                 if (written.isEmpty()) {
                     System.out.println("Skipped: no package under " + inputPath + " produced a diagram.");
                 } else {
@@ -108,7 +127,7 @@ public class KartaCli {
                 }
                 return;
             }
-            Path output = run(inputPath, outputDir, sequenceOnly, layout, stateMachine, customExcludes, maxDepth, modulesOnly);
+            Path output = run(inputPath, outputDir, options);
             if (output != null) {
                 System.out.println("Generated: " + output.toAbsolutePath());
             } else {
@@ -189,30 +208,45 @@ public class KartaCli {
         return run(inputPath, outputDir, sequenceOnly, layout, stateMachine, customExcludes, maxDepth, false);
     }
 
-    @SuppressWarnings({"PMD.UnusedAssignment", "UnusedVariable"}) // 'state' assignments are extracted by StateMachineParser as the pipeline diagram
     public static Path run(Path inputPath, Path outputDir,
                            boolean sequenceOnly, String layout,
                            boolean stateMachine, java.util.Set<String> customExcludes,
                            int maxDepth, boolean modulesOnly) throws IOException {
+        return run(inputPath, outputDir, new RunOptions(sequenceOnly, layout, stateMachine,
+                customExcludes, maxDepth, modulesOnly, null,
+                se.deversity.codekarta.input.parser.ClassDiagramParser.DEFAULT_MAX_MEMBERS));
+    }
+
+    /**
+     * Runs the full parse → layout → render pipeline and writes the SVG to outputDir.
+     *
+     * <p>This is the one implementation; every other {@code run} overload delegates here.
+     *
+     * @return the path of the written SVG file, or {@code null} when there was nothing worth
+     *         drawing (the reason is logged)
+     */
+    @SuppressWarnings({"PMD.UnusedAssignment", "UnusedVariable"}) // 'state' assignments are extracted by StateMachineParser as the pipeline diagram
+    public static Path run(Path inputPath, Path outputDir, RunOptions options) throws IOException {
         Files.createDirectories(outputDir);
 
         PipelineStage state = PipelineStage.PARSING;
         Graph graph;
-        if (stateMachine) {
+        if (options.stateMachine()) {
             log.fine(() -> "State-machine mode for input: " + inputPath);
             graph = new StateMachineParser().parse(inputPath);
-        } else if (modulesOnly && Files.isDirectory(inputPath)) {
+        } else if (options.modulesOnly() && Files.isDirectory(inputPath)) {
             log.fine(() -> "Multi-module mode for directory: " + inputPath);
-            graph = new se.deversity.codekarta.input.parser.ModuleInfoParser().parseDirectory(inputPath);
-        } else if (sequenceOnly && Files.isDirectory(inputPath)) {
+            graph = parseModules(inputPath);
+        } else if (options.sequenceOnly() && Files.isDirectory(inputPath)) {
             log.fine(() -> "Multi-file sequence mode for directory: " + inputPath);
-            graph = new MultiFileSequenceParser(customExcludes, maxDepth).parse(inputPath);
+            graph = new MultiFileSequenceParser(options.customExcludes(), options.maxDepth()).parse(inputPath);
         } else {
-            graph = new JavaSourceInputParser(sequenceOnly, customExcludes).parse(inputPath);
+            graph = new JavaSourceInputParser(options.sequenceOnly(), options.customExcludes(),
+                    options.maxMembers()).parse(inputPath);
         }
 
         state = PipelineStage.LAYOUT;
-        resolveLayout(layout).layout(graph);
+        resolveLayout(options.layout()).layout(graph);
 
         if (graph.getNodes().isEmpty() && graph.getEdges().isEmpty()) {
             log.info("Graph is empty for input " + inputPath + ", skipping diagram generation.");
@@ -224,7 +258,7 @@ public class KartaCli {
         // disconnected boxes (an identity enum of 127 constants yields 127 of them, no arrows)
         // that looks like a result and carries no information. Decline it for the same reason the
         // empty graph above is declined, and say which case this is.
-        if (stateMachine && graph.getEdges().isEmpty() && !graph.getNodes().isEmpty()) {
+        if (options.stateMachine() && graph.getEdges().isEmpty() && !graph.getNodes().isEmpty()) {
             log.info(() -> "No state transitions found in " + inputPath + " ("
                     + graph.getNodes().size() + " states, 0 transitions), skipping diagram"
                     + " generation. A state-transition diagram needs transitions: switch cases,"
@@ -236,7 +270,7 @@ public class KartaCli {
         String svg = new SvgRenderer().render(graph);
 
         state = PipelineStage.WRITING;
-        Path outputFile = outputDir.resolve(deriveOutputName(inputPath, sequenceOnly, stateMachine, modulesOnly));
+        Path outputFile = resolveOutputFile(inputPath, outputDir, options);
         Files.writeString(outputFile, svg);
 
         warnIfOversized(svg, graph, outputFile);
@@ -244,6 +278,51 @@ public class KartaCli {
         state = PipelineStage.DONE;
         log.fine("Pipeline " + state + ": wrote " + outputFile);
         return outputFile;
+    }
+
+    /**
+     * Reads the module structure, from JPMS if it is declared and from the build files if it is not.
+     *
+     * <p>{@code --modules-only} originally understood {@code module-info.java} and nothing else,
+     * which meant it answered "which of our modules depends on which" for JPMS projects and
+     * returned "Graph is empty" for everyone else — including every Maven or Gradle reactor,
+     * which is where that question is actually asked. JPMS still wins when both are present: it
+     * is the more precise statement of the same thing.
+     */
+    static Graph parseModules(Path inputPath) {
+        Graph jpms = new se.deversity.codekarta.input.parser.ModuleInfoParser().parseDirectory(inputPath);
+        if (!jpms.getNodes().isEmpty()) {
+            return jpms;
+        }
+        log.fine(() -> "No module-info.java under " + inputPath + "; reading the build reactor instead.");
+        return new se.deversity.codekarta.input.parser.BuildReactorParser().parse(inputPath);
+    }
+
+    /**
+     * Picks the file to write, honouring {@code --output-name} when it is safe to.
+     *
+     * <p>The name is caller-supplied, so it is treated as data rather than as a path: a name
+     * carrying separators or {@code ..} would let {@code --output-name} write outside the
+     * directory the caller named with {@code --output}, which is not a thing a diagram
+     * generator should be able to do. Such a name is refused and the derived name is used.
+     */
+    static Path resolveOutputFile(Path inputPath, Path outputDir, RunOptions options) {
+        String requested = options.outputName();
+        if (requested != null && !requested.isBlank()) {
+            Path candidate = outputDir.resolve(requested).normalize();
+            Path parent = candidate.getParent();
+            boolean isBareName = Path.of(requested).getNameCount() == 1
+                    && !requested.contains("..")
+                    && parent != null
+                    && parent.equals(outputDir.normalize());
+            if (isBareName) {
+                return candidate;
+            }
+            log.warning(() -> "--output-name '" + requested + "' is not a plain file name inside "
+                    + outputDir + "; using the derived name instead.");
+        }
+        return outputDir.resolve(deriveOutputName(inputPath, options.sequenceOnly(),
+                options.stateMachine(), options.modulesOnly()));
     }
 
     /**
@@ -270,13 +349,10 @@ public class KartaCli {
      * @return the diagrams actually written, in directory order
      */
     static java.util.List<Path> runPerPackage(Path inputRoot, Path outputDir,
-                                              boolean sequenceOnly, String layout,
-                                              boolean stateMachine, java.util.Set<String> customExcludes,
-                                              int maxDepth, boolean modulesOnly) throws IOException {
+                                              RunOptions options) throws IOException {
         if (!Files.isDirectory(inputRoot)) {
             log.info(() -> "--split-packages needs a directory; " + inputRoot + " is a file.");
-            Path single = run(inputRoot, outputDir, sequenceOnly, layout, stateMachine,
-                              customExcludes, maxDepth, modulesOnly);
+            Path single = run(inputRoot, outputDir, options);
             return single == null ? java.util.List.of() : java.util.List.of(single);
         }
 
@@ -293,8 +369,7 @@ public class KartaCli {
             Path relative = inputRoot.relativize(pkg);
             Path target = relative.toString().isEmpty() ? outputDir : outputDir.resolve(relative);
             try {
-                Path svg = run(pkg, target, sequenceOnly, layout, stateMachine,
-                               customExcludes, maxDepth, modulesOnly);
+                Path svg = run(pkg, target, options);
                 if (svg != null) {
                     written.add(svg);
                 }
@@ -395,7 +470,7 @@ public class KartaCli {
     }
 
     private static void printUsage() {
-        System.out.println("Usage: karta --input <path> [--output <dir>] [--sequence-only] [--state-machine] [--modules-only] [--split-packages] [--layout simple|elk] [--exclude <patterns>] [--max-depth <depth>]");
+        System.out.println("Usage: karta --input <path> [--output <dir>] [--output-name <file>] [--sequence-only] [--state-machine] [--modules-only] [--split-packages] [--layout simple|elk] [--exclude <patterns>] [--max-depth <depth>] [--max-members <n>]");
         System.out.println();
         System.out.println("  --input  <path>      What to parse:");
         System.out.println("                         module-info.java  → module diagram");
@@ -404,10 +479,17 @@ public class KartaCli {
         System.out.println("                         directory + --sequence-only");
         System.out.println("                                           → multi-file stitched sequence diagram");
         System.out.println("                         directory + --modules-only");
-        System.out.println("                                           → cross-module communication diagram");
+        System.out.println("                                           → cross-module communication diagram,");
+        System.out.println("                                             from module-info.java if present,");
+        System.out.println("                                             otherwise from the Maven <modules> or");
+        System.out.println("                                             Gradle include(...) reactor");
         System.out.println("                         file/dir + --state-machine");
         System.out.println("                                           → enum-backed state transition diagram");
         System.out.println("  --output <dir>       Output directory  (default: ./output)");
+        System.out.println("  --output-name <file> File name to write inside --output, instead of the name");
+        System.out.println("                         derived from the input (class-diagram.svg and friends).");
+        System.out.println("                         Lets several runs share one output directory. Must be a");
+        System.out.println("                         plain file name — no path separators.");
         System.out.println("  --sequence-only      Emit only CALLS edges (no exception-flow).");
         System.out.println("                         When combined with a directory input, parses");
         System.out.println("                         all .java files together using cross-file");
@@ -434,6 +516,10 @@ public class KartaCli {
         System.out.println("                         to exclude (e.g. *Test,se.deversity.codekarta.util.*,Map) to");
         System.out.println("                         reduce diagram clutter under scale.");
         System.out.println("  --max-depth <depth>  Maximum call sequence depth to parse/stitch (integer).");
+        System.out.println("  --max-members <n>    Field/method lines per class box before the rest collapse");
+        System.out.println("                         into \"…(+N more)\" (default 6). Pass 'all' or 0 to show");
+        System.out.println("                         every member — useful for a small package where the");
+        System.out.println("                         members are the point.");
         System.out.println("  --help               Show this message");
     }
 }

@@ -17,6 +17,15 @@
     </Or>
   </Match>
 
+  <!-- EI_EXPOSE_REP on RunOptions: the record's compact constructor already copies
+       customExcludes into an immutable Set (Set.copyOf), so the accessor cannot hand
+       out anything a caller could mutate. SpotBugs flags the field return without
+       seeing the copy. -->
+  <Match>
+    <Class name="se.deversity.codekarta.cli.RunOptions"/>
+    <Bug pattern="EI_EXPOSE_REP"/>
+  </Match>
+
   <!-- VA_FORMAT_STRING_USES_NEWLINE: the renderers emit SVG text, which must use
        \n regardless of platform. %n would produce \r\n on Windows and change the
        generated diagram bytes (golden files in docs/diagrams/ and the integration

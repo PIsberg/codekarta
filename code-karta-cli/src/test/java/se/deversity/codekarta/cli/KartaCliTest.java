@@ -24,7 +24,7 @@ class KartaCliTest {
         assertTrue(Files.exists(result), "output file must exist");
         String svg = Files.readString(result);
         assertTrue(svg.contains("<svg "),   "output must be SVG");
-        assertTrue(svg.endsWith("</svg>"), "SVG must be closed");
+        assertTrue(svg.endsWith("</svg>\n"), "SVG must be closed, and the file must end with a newline");
     }
 
     @Test
@@ -111,7 +111,7 @@ class KartaCliTest {
 
         assertTrue(svg.startsWith("<?xml"), "must start with XML declaration");
         assertTrue(svg.contains("<svg "),   "must contain <svg> open tag");
-        assertTrue(svg.endsWith("</svg>"),  "must end with </svg>");
+        assertTrue(svg.endsWith("</svg>\n"), "must end with </svg> and a trailing newline");
     }
 
     @Test
@@ -270,8 +270,7 @@ class KartaCliTest {
         Files.createDirectories(src.resolve("com/example/empty"));
 
         Path out = dir.resolve("out");
-        java.util.List<Path> written = KartaCli.runPerPackage(
-                src, out, false, "simple", false, java.util.Set.of(), Integer.MAX_VALUE, false);
+        java.util.List<Path> written = KartaCli.runPerPackage(src, out, RunOptions.defaults());
 
         assertFalse(written.isEmpty(), "a tree with sources must produce diagrams");
         assertTrue(Files.exists(out.resolve("com/example/core")),
@@ -289,8 +288,7 @@ class KartaCliTest {
         Files.createDirectories(src.resolve("com/example/nothing"));
 
         java.util.List<Path> written = KartaCli.runPerPackage(
-                src, dir.resolve("out"), false, "simple", false, java.util.Set.of(),
-                Integer.MAX_VALUE, false);
+                src, dir.resolve("out"), RunOptions.defaults());
 
         assertTrue(written.isEmpty(), "no sources means no diagrams, and no exception");
     }
@@ -302,10 +300,159 @@ class KartaCliTest {
         writeClass(pkg, "Solo");
 
         java.util.List<Path> written = KartaCli.runPerPackage(
-                pkg.resolve("Solo.java"), dir.resolve("out"), false, "simple", false,
-                java.util.Set.of(), Integer.MAX_VALUE, false);
+                pkg.resolve("Solo.java"), dir.resolve("out"), RunOptions.defaults());
 
         assertEquals(1, written.size(), "a single file input must still produce its one diagram");
+    }
+
+    // --- --output-name ---
+
+    /**
+     * Without this, N diagrams need N output directories, because every class diagram is
+     * called class-diagram.svg. One real consumer ended up with an out/, out/runner/,
+     * out/spi/ and out/report/ purely to work around the fixed name.
+     */
+    @Test
+    void outputNameOverridesTheDerivedFileName(@TempDir Path dir) throws Exception {
+        Path src = dir.resolve("src/com/example");
+        writeClass(src, "Alpha");
+        Path out = dir.resolve("out");
+
+        Path written = KartaCli.run(src, out, RunOptions.defaults().withOutputName("alpha-classes.svg"));
+
+        assertEquals("alpha-classes.svg", String.valueOf(written.getFileName()));
+        assertTrue(Files.exists(written));
+    }
+
+    @Test
+    void twoRunsWithDifferentOutputNamesShareOneDirectory(@TempDir Path dir) throws Exception {
+        Path alpha = dir.resolve("src/com/example/alpha");
+        Path beta = dir.resolve("src/com/example/beta");
+        writeClass(alpha, "Alpha");
+        writeClass(beta, "Beta");
+        Path out = dir.resolve("out");
+
+        KartaCli.run(alpha, out, RunOptions.defaults().withOutputName("alpha.svg"));
+        KartaCli.run(beta, out, RunOptions.defaults().withOutputName("beta.svg"));
+
+        assertTrue(Files.exists(out.resolve("alpha.svg")));
+        assertTrue(Files.exists(out.resolve("beta.svg")), "the second run must not overwrite the first");
+    }
+
+    /** --output-name is caller data, not a path: it must not be able to escape --output. */
+    @Test
+    void outputNameCannotWriteOutsideTheOutputDirectory(@TempDir Path dir) throws Exception {
+        Path src = dir.resolve("src/com/example");
+        writeClass(src, "Alpha");
+        Path out = dir.resolve("out");
+
+        Path written = KartaCli.run(src, out, RunOptions.defaults().withOutputName("../escaped.svg"));
+
+        assertEquals(out.normalize(), written.getParent().normalize(),
+                "a traversing name must fall back to the derived one, inside --output");
+        assertFalse(Files.exists(dir.resolve("escaped.svg")), "nothing may be written outside --output");
+    }
+
+    @Test
+    void outputNameWithASubdirectoryIsRefused(@TempDir Path dir) throws Exception {
+        Path src = dir.resolve("src/com/example");
+        writeClass(src, "Alpha");
+        Path out = dir.resolve("out");
+
+        Path written = KartaCli.run(src, out, RunOptions.defaults().withOutputName("nested/alpha.svg"));
+
+        assertEquals("class-diagram.svg", String.valueOf(written.getFileName()));
+    }
+
+    @Test
+    void aBlankOutputNameFallsBackToTheDerivedName(@TempDir Path dir) throws Exception {
+        Path src = dir.resolve("src/com/example");
+        writeClass(src, "Alpha");
+
+        Path written = KartaCli.run(src, dir.resolve("out"), RunOptions.defaults().withOutputName("  "));
+
+        assertEquals("class-diagram.svg", String.valueOf(written.getFileName()));
+    }
+
+    // --- --modules-only over a build reactor ---
+
+    /**
+     * --modules-only understood JPMS and nothing else, so it returned "Graph is empty" for
+     * every Maven or Gradle reactor without a module-info.java — which is most of them.
+     */
+    @Test
+    void modulesOnlyReadsAMavenReactorWhenThereIsNoModuleInfo(@TempDir Path dir) throws Exception {
+        Files.writeString(dir.resolve("pom.xml"),
+                "<project><artifactId>parent</artifactId><modules>"
+              + "<module>alpha</module><module>beta</module></modules></project>\n");
+        for (String module : new String[]{"alpha", "beta"}) {
+            Files.createDirectories(dir.resolve(module));
+            Files.writeString(dir.resolve(module).resolve("pom.xml"),
+                    "<project><artifactId>" + module + "</artifactId></project>\n");
+        }
+
+        Path written = KartaCli.run(dir, dir.resolve("out"),
+                new RunOptions(false, "simple", false, java.util.Set.of(),
+                        Integer.MAX_VALUE, true, null, 6));
+
+        assertNotNull(written, "a Maven reactor is a module structure");
+        assertEquals("modules-diagram.svg", String.valueOf(written.getFileName()));
+        String svg = Files.readString(written);
+        assertTrue(svg.contains("alpha") && svg.contains("beta"), "both modules must appear");
+    }
+
+    @Test
+    void modulesOnlyReadsAGradleReactorWhenThereIsNoModuleInfo(@TempDir Path dir) throws Exception {
+        Files.writeString(dir.resolve("settings.gradle.kts"),
+                "rootProject.name = \"demo\"\ninclude(\"alpha\", \"beta\")\n");
+
+        Path written = KartaCli.run(dir, dir.resolve("out"),
+                new RunOptions(false, "simple", false, java.util.Set.of(),
+                        Integer.MAX_VALUE, true, null, 6));
+
+        assertNotNull(written, "a Gradle reactor is a module structure");
+        assertTrue(Files.readString(written).contains("alpha"));
+    }
+
+    @Test
+    void modulesOnlyStillPrefersModuleInfoWhenBothExist(@TempDir Path dir) throws Exception {
+        Files.writeString(dir.resolve("pom.xml"),
+                "<project><artifactId>parent</artifactId><modules>"
+              + "<module>alpha</module><module>beta</module></modules></project>\n");
+        for (String module : new String[]{"alpha", "beta"}) {
+            Files.createDirectories(dir.resolve(module));
+            Files.writeString(dir.resolve(module).resolve("pom.xml"),
+                    "<project><artifactId>" + module + "</artifactId></project>\n");
+        }
+        Files.writeString(dir.resolve("alpha").resolve("module-info.java"),
+                "module com.example.alpha { requires java.logging; }\n");
+
+        se.deversity.codekarta.core.model.Graph graph = KartaCli.parseModules(dir);
+
+        assertNotNull(graph.findNode("com.example.alpha"), "JPMS is the more precise answer");
+        assertNull(graph.findNode("parent"), "and it is used instead of, not alongside, the reactor");
+    }
+
+    // --- --max-members ---
+
+    @Test
+    void maxMembersRaisesTheCompartmentCap(@TempDir Path dir) throws Exception {
+        Path src = dir.resolve("src/com/example");
+        Files.createDirectories(src);
+        StringBuilder wide = new StringBuilder("package com.example;\n\npublic class Wide {\n");
+        for (int i = 0; i < 10; i++) {
+            wide.append("    public void m").append(i).append("() { }\n");
+        }
+        Files.writeString(src.resolve("Wide.java"), wide.append("}\n").toString());
+
+        Path capped = KartaCli.run(src, dir.resolve("capped"), RunOptions.defaults());
+        Path full = KartaCli.run(src, dir.resolve("full"),
+                new RunOptions(false, "simple", false, java.util.Set.of(),
+                        Integer.MAX_VALUE, false, null, 0));
+
+        assertTrue(Files.readString(capped).contains("more)"), "the default cap still truncates");
+        assertFalse(Files.readString(full).contains("more)"), "--max-members all shows every member");
+        assertTrue(Files.readString(full).contains("m9()"), "including the last one");
     }
 
     private static void writeClass(Path packageDir, String name) throws java.io.IOException {

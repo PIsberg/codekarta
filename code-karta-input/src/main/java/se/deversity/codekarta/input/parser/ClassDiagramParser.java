@@ -42,14 +42,37 @@ public class ClassDiagramParser {
             "StringBuilder", "StringBuffer", "Number", "Comparable", "Serializable");
 
     private final Set<String> customExcludes;
-    private static final int MAX_MEMBERS = 6;
+
+    /**
+     * Compartment lines kept per section before the rest collapse into "…(+N more)".
+     *
+     * <p>Six is the right default for a diagram of a large package, where the answer to
+     * "what is in here" matters more than any one member. It is the wrong default for a
+     * diagram of five classes, where the members <em>are</em> the content — hence
+     * {@link #DEFAULT_MAX_MEMBERS} being a default rather than the rule.
+     */
+    public static final int DEFAULT_MAX_MEMBERS = 6;
+
+    /** Any non-positive value means "show every member". */
+    public static final int UNLIMITED_MEMBERS = 0;
+
+    private final int maxMembers;
 
     public ClassDiagramParser() {
         this(java.util.Collections.emptySet());
     }
 
     public ClassDiagramParser(Set<String> customExcludes) {
+        this(customExcludes, DEFAULT_MAX_MEMBERS);
+    }
+
+    /**
+     * @param maxMembers field/method lines to keep per compartment; {@link #UNLIMITED_MEMBERS}
+     *                   (or any negative value) keeps all of them
+     */
+    public ClassDiagramParser(Set<String> customExcludes, int maxMembers) {
         this.customExcludes = customExcludes != null ? customExcludes : java.util.Collections.emptySet();
+        this.maxMembers = maxMembers;
     }
 
     public Graph parse(Path sourceDirectory) {
@@ -220,12 +243,12 @@ public class ClassDiagramParser {
         return props;
     }
 
-    private static String formatList(List<String> lines) {
-        if (lines.size() <= MAX_MEMBERS) {
+    private String formatList(List<String> lines) {
+        if (maxMembers <= UNLIMITED_MEMBERS || lines.size() <= maxMembers) {
             return String.join("\n", lines);
         }
-        int extra = lines.size() - MAX_MEMBERS;
-        List<String> truncated = new ArrayList<>(lines.subList(0, MAX_MEMBERS));
+        int extra = lines.size() - maxMembers;
+        List<String> truncated = new ArrayList<>(lines.subList(0, maxMembers));
         truncated.add("…(+" + extra + " more)");
         return String.join("\n", truncated);
     }

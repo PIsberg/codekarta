@@ -199,8 +199,8 @@ document.addEventListener('DOMContentLoaded', () => {
       edges.forEach(edge => {
         const source = edge.getAttribute('data-source');
         const target = edge.getAttribute('data-target');
-        const isConnected = (source === nodeId || target === nodeId || 
-                             (source && source.startsWith(nodeId + '.')) || 
+        const isConnected = (source === nodeId || target === nodeId ||
+                             (source && source.startsWith(nodeId + '.')) ||
                              (target && target.startsWith(nodeId + '.')) ||
                              (nodeId && nodeId.startsWith(source + '.')) ||
                              (nodeId && nodeId.startsWith(target + '.')));

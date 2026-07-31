@@ -126,7 +126,7 @@ class SequenceDiagramRenderer {
 
         sb.append(parent.renderAttribution(svgWidth, svgHeight));
         sb.append(SvgRenderer.embeddedJs());
-        sb.append("</svg>");
+        sb.append("</svg>\n"); // see SvgRenderer#render — committed diagrams need the final newline
         return sb.toString();
     }
 

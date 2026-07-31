@@ -26,7 +26,7 @@ Start with the full guide in [`docs/README.md`](docs/README.md). The architectur
 ```bash
 mvn clean package
 
-java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \
+java -jar code-karta-cli/target/code-karta-cli-0.2.0-all.jar \
   --input example-shipping-system/src/main/java/com/karta/shipping/domain \
   --output output
 ```
@@ -35,23 +35,23 @@ Common modes:
 
 ```bash
 # JPMS module diagram
-java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \
+java -jar code-karta-cli/target/code-karta-cli-0.2.0-all.jar \
   --input example-shipping-system/src/main/java/module-info.java \
   --output output
 
 # Single-file sequence and exception-flow diagram
-java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \
+java -jar code-karta-cli/target/code-karta-cli-0.2.0-all.jar \
   --input example-shipping-system/src/main/java/com/karta/shipping/core/OrderProcessor.java \
   --output output
 
 # Multi-file stitched call graph — OrderProcessor→InventoryService across files
-java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \
+java -jar code-karta-cli/target/code-karta-cli-0.2.0-all.jar \
   --input example-shipping-system/src/main/java/com/karta/shipping/core \
   --output output \
   --sequence-only
 
 # State transition diagram — KartaCli's own pipeline (PARSING→LAYOUT→RENDERING→WRITING→DONE)
-java -jar code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar \
+java -jar code-karta-cli/target/code-karta-cli-0.2.0-all.jar \
   --input code-karta-cli/src/main/java/com/karta/cli/KartaCli.java \
   --output output \
   --state-machine

@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Maven (primary)
 ```bash
 mvn clean test                  # compile + run all tests
-mvn clean package               # build fat JAR → code-karta-cli/target/code-karta-cli-1.0-SNAPSHOT-all.jar
+mvn clean package               # build fat JAR → code-karta-cli/target/code-karta-cli-0.2.0-all.jar
 mvn -pl code-karta-input test   # single module tests
 mvn -pl code-karta-input -Dtest=ClassDiagramParserTest test  # single test class
 ```
@@ -16,7 +16,7 @@ mvn -pl code-karta-input -Dtest=ClassDiagramParserTest test  # single test class
 ```bash
 ./gradlew test                          # run all tests
 ./gradlew :code-karta-input:test        # single module tests
-./gradlew :code-karta-cli:fatJar        # fat JAR → code-karta-cli/build/libs/code-karta-cli-1.0-SNAPSHOT-all.jar
+./gradlew :code-karta-cli:fatJar        # fat JAR → code-karta-cli/build/libs/code-karta-cli-0.2.0-all.jar
 ./gradlew :code-karta-cli:run --args="--input src/domain --output build/diagrams"
 ```
 
@@ -236,6 +236,9 @@ Four model classes: `Node`, `Edge`, `Group`, `Graph`. Jackson `@JsonInclude(NON_
   <contextual_instructions>
   </contextual_instructions>
   <test_isolation_elements>
+    <element path="se.deversity.codekarta.input.BuildReactorParserTest">
+      <isolation>strict</isolation>
+    </element>
     <element path="se.deversity.codekarta.input.ClassDiagramParserTest">
       <isolation>strict</isolation>
     </element>

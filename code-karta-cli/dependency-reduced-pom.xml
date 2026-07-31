@@ -3,7 +3,7 @@
   <parent>
     <artifactId>code-karta</artifactId>
     <groupId>se.deversity.codekarta</groupId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>code-karta-cli</artifactId>
@@ -179,7 +179,7 @@
     <dependency>
       <groupId>se.deversity.vibetags</groupId>
       <artifactId>vibetags-processor</artifactId>
-      <version>1.0.0-RC6</version>
+      <version>1.0.0-RC7</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

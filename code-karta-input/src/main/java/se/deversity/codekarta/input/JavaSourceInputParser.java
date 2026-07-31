@@ -35,6 +35,7 @@ public class JavaSourceInputParser implements InputParser {
     private CallSequenceParser callSequenceParser;
     private final boolean sequenceOnly;
     private final Set<String> customExcludes;
+    private final int maxMembers;
 
     public JavaSourceInputParser() {
         this(false);
@@ -45,15 +46,24 @@ public class JavaSourceInputParser implements InputParser {
     }
 
     public JavaSourceInputParser(boolean sequenceOnly, Set<String> customExcludes) {
+        this(sequenceOnly, customExcludes, ClassDiagramParser.DEFAULT_MAX_MEMBERS);
+    }
+
+    /**
+     * @param maxMembers compartment lines kept per class before "…(+N more)";
+     *                   {@link ClassDiagramParser#UNLIMITED_MEMBERS} keeps all of them
+     */
+    public JavaSourceInputParser(boolean sequenceOnly, Set<String> customExcludes, int maxMembers) {
         this.sequenceOnly = sequenceOnly;
         this.customExcludes = customExcludes != null ? customExcludes : java.util.Collections.emptySet();
+        this.maxMembers = maxMembers;
     }
 
     @Override
     public Graph parse(Path path) {
         if (Files.isDirectory(path)) {
             log.fine(() -> "Delegating directory to ClassDiagramParser: " + path);
-            if (classDiagramParser == null) classDiagramParser = new ClassDiagramParser(customExcludes);
+            if (classDiagramParser == null) classDiagramParser = new ClassDiagramParser(customExcludes, maxMembers);
             return classDiagramParser.parse(path);
         }
         String fileName = String.valueOf(path.getFileName());
