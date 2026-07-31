@@ -222,7 +222,7 @@ class KartaCliTest {
         java.util.logging.Handler capture = captureInto(records);
         log.addHandler(capture);
         try {
-            KartaCli.warnIfOversized(graphWithNodeAt(KartaCli.OVERSIZE_PX + 500, 10),
+            KartaCli.warnIfOversized(svgOfSize(22600, 42988), graphWithNodeAt(10, 10),
                                      Path.of("wide.svg"));
 
             assertTrue(records.stream().anyMatch(r ->
@@ -242,7 +242,7 @@ class KartaCliTest {
         java.util.logging.Handler capture = captureInto(records);
         log.addHandler(capture);
         try {
-            KartaCli.warnIfOversized(graphWithNodeAt(1200, 800), Path.of("normal.svg"));
+            KartaCli.warnIfOversized(svgOfSize(1200, 800), graphWithNodeAt(10, 10), Path.of("normal.svg"));
 
             assertTrue(records.stream()
                             .noneMatch(r -> r.getLevel() == java.util.logging.Level.WARNING),
@@ -250,6 +250,15 @@ class KartaCliTest {
         } finally {
             log.removeHandler(capture);
         }
+    }
+
+    /** Minimal SVG root carrying the canvas dimensions the warning reads back. */
+    private static String svgOfSize(int width, int height) {
+        return """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <svg xmlns="http://www.w3.org/2000/svg" width="%d" height="%d" viewBox="0 0 %d %d">
+            </svg>
+            """.formatted(width, height, width, height);
     }
 
     private static java.util.logging.Handler captureInto(java.util.List<java.util.logging.LogRecord> sink) {

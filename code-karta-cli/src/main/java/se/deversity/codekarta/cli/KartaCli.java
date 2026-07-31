@@ -1,7 +1,6 @@
 package se.deversity.codekarta.cli;
 
 import se.deversity.codekarta.core.model.Graph;
-import se.deversity.codekarta.core.model.Node;
 import se.deversity.codekarta.input.JavaSourceInputParser;
 import se.deversity.codekarta.input.MultiFileSequenceParser;
 import se.deversity.codekarta.input.parser.StateMachineParser;
@@ -224,7 +223,7 @@ public class KartaCli {
         Path outputFile = outputDir.resolve(deriveOutputName(inputPath, sequenceOnly, stateMachine, modulesOnly));
         Files.writeString(outputFile, svg);
 
-        warnIfOversized(graph, outputFile);
+        warnIfOversized(svg, graph, outputFile);
 
         state = PipelineStage.DONE;
         log.fine("Pipeline " + state + ": wrote " + outputFile);
@@ -237,30 +236,34 @@ public class KartaCli {
      */
     static final double OVERSIZE_PX = 15000.0;
 
+    /** Canvas dimensions as written into the rendered {@code <svg>} root element. */
+    private static final java.util.regex.Pattern SVG_CANVAS =
+            java.util.regex.Pattern.compile("<svg[^>]*\\bwidth=\"(\\d+)\"\\s+height=\"(\\d+)\"");
+
     /**
-     * Warns when the laid-out graph will not fit any screen.
+     * Warns when the rendered diagram will not fit any screen.
      *
-     * <p>A whole-package stitched call graph can reach a thousand nodes, which lays out to tens of
+     * <p>A whole-package stitched call graph can reach a thousand nodes, which renders to tens of
      * thousands of pixels on an edge — one real case measured 36020x43744. The file is still
      * written, because the caller may well be feeding it to something other than an eye, but
-     * silence there reads as success. Say the size and name the two flags that reduce it.
+     * silence there reads as success. Say the size and name the flags that reduce it.
+     *
+     * <p>The size is read back from the rendered SVG rather than derived from node extents. A
+     * sequence diagram draws lifelines and messages far below its participant boxes, so the node
+     * bounding box understates the real canvas several times over: measuring it that way reported
+     * 20970x5732 for a diagram that was actually 22600x42988, and a warning that misstates the
+     * number it is warning about is worse than none.
      */
-    static void warnIfOversized(Graph graph, Path outputFile) {
-        double maxX = 0;
-        double maxY = 0;
-        for (Node node : graph.getNodes()) {
-            Double x = node.getX();
-            Double y = node.getY();
-            Double w = node.getWidth();
-            Double h = node.getHeight();
-            if (x != null && w != null) maxX = Math.max(maxX, x + w);
-            if (y != null && h != null) maxY = Math.max(maxY, y + h);
+    static void warnIfOversized(String svg, Graph graph, Path outputFile) {
+        java.util.regex.Matcher matcher = SVG_CANVAS.matcher(svg);
+        if (!matcher.find()) {
+            return;
         }
-        if (maxX > OVERSIZE_PX || maxY > OVERSIZE_PX) {
-            final long w = Math.round(maxX);
-            final long h = Math.round(maxY);
+        final long w = Long.parseLong(matcher.group(1));
+        final long h = Long.parseLong(matcher.group(2));
+        if (w > OVERSIZE_PX || h > OVERSIZE_PX) {
             final int nodes = graph.getNodes().size();
-            log.warning(() -> "Wrote " + outputFile + " but it is about " + w + "x" + h
+            log.warning(() -> "Wrote " + outputFile + " but it is " + w + "x" + h
                     + "px for " + nodes + " nodes, which no screen will show usefully. Narrow it"
                     + " with --max-depth to bound call-chain length, or --exclude to drop noisy"
                     + " types (e.g. --exclude '*Test,*Builder'), or point --input at a single"
