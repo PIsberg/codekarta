@@ -209,4 +209,140 @@ class KartaCliTest {
         assertEquals("service-sequence-diagram.svg",
                 KartaCli.deriveOutputName(Path.of("service.java")));
     }
+
+    // ------------------------------------------------------------------
+    // Oversize warning
+    // ------------------------------------------------------------------
+
+    /** A graph laid out beyond the readable bound must be reported, not written in silence. */
+    @Test
+    void warnsWhenTheLaidOutCanvasExceedsTheReadableBound() {
+        java.util.List<java.util.logging.LogRecord> records = new java.util.ArrayList<>();
+        java.util.logging.Logger log = java.util.logging.Logger.getLogger(KartaCli.class.getName());
+        java.util.logging.Handler capture = captureInto(records);
+        log.addHandler(capture);
+        try {
+            KartaCli.warnIfOversized(svgOfSize(22600, 42988), graphWithNodeAt(10, 10),
+                                     Path.of("wide.svg"));
+
+            assertTrue(records.stream().anyMatch(r ->
+                            r.getLevel() == java.util.logging.Level.WARNING
+                                    && r.getMessage().contains("--max-depth")),
+                    "an oversize canvas must warn and name the flags that narrow it");
+        } finally {
+            log.removeHandler(capture);
+        }
+    }
+
+    /** A graph inside the bound must stay silent, or the warning degrades into noise. */
+    @Test
+    void doesNotWarnForANormalSizedCanvas() {
+        java.util.List<java.util.logging.LogRecord> records = new java.util.ArrayList<>();
+        java.util.logging.Logger log = java.util.logging.Logger.getLogger(KartaCli.class.getName());
+        java.util.logging.Handler capture = captureInto(records);
+        log.addHandler(capture);
+        try {
+            KartaCli.warnIfOversized(svgOfSize(1200, 800), graphWithNodeAt(10, 10), Path.of("normal.svg"));
+
+            assertTrue(records.stream()
+                            .noneMatch(r -> r.getLevel() == java.util.logging.Level.WARNING),
+                    "a diagram that fits on a screen must not warn");
+        } finally {
+            log.removeHandler(capture);
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // --split-packages
+    // ------------------------------------------------------------------
+
+    /**
+     * A tree of three packages must yield three diagrams laid out to mirror the packages, not one
+     * diagram of everything. This is the readable-at-scale path: a wide tree stays wide whatever
+     * --max-depth says, so the split is what makes the output usable.
+     */
+    @Test
+    void splitPackagesEmitsOneDiagramPerPackageMirroringTheTree(@TempDir Path dir) throws Exception {
+        Path src = dir.resolve("src");
+        writeClass(src.resolve("com/example/core"), "Engine");
+        writeClass(src.resolve("com/example/core"), "Piston");
+        writeClass(src.resolve("com/example/io"), "Reader");
+        Files.createDirectories(src.resolve("com/example/empty"));
+
+        Path out = dir.resolve("out");
+        java.util.List<Path> written = KartaCli.runPerPackage(
+                src, out, false, "simple", false, java.util.Set.of(), Integer.MAX_VALUE, false);
+
+        assertFalse(written.isEmpty(), "a tree with sources must produce diagrams");
+        assertTrue(Files.exists(out.resolve("com/example/core")),
+                "output must mirror the package structure for com.example.core");
+        assertTrue(Files.exists(out.resolve("com/example/io")),
+                "output must mirror the package structure for com.example.io");
+        assertFalse(Files.exists(out.resolve("com/example/empty")),
+                "a package with no sources must not produce an output directory");
+    }
+
+    /** A directory holding no Java at all is a no-op, not a failure. */
+    @Test
+    void splitPackagesOnAnEmptyTreeWritesNothing(@TempDir Path dir) throws Exception {
+        Path src = dir.resolve("src");
+        Files.createDirectories(src.resolve("com/example/nothing"));
+
+        java.util.List<Path> written = KartaCli.runPerPackage(
+                src, dir.resolve("out"), false, "simple", false, java.util.Set.of(),
+                Integer.MAX_VALUE, false);
+
+        assertTrue(written.isEmpty(), "no sources means no diagrams, and no exception");
+    }
+
+    /** Pointed at a single file, the split path falls back to rendering that file. */
+    @Test
+    void splitPackagesOnAFileFallsBackToASingleDiagram(@TempDir Path dir) throws Exception {
+        Path pkg = dir.resolve("src/com/example");
+        writeClass(pkg, "Solo");
+
+        java.util.List<Path> written = KartaCli.runPerPackage(
+                pkg.resolve("Solo.java"), dir.resolve("out"), false, "simple", false,
+                java.util.Set.of(), Integer.MAX_VALUE, false);
+
+        assertEquals(1, written.size(), "a single file input must still produce its one diagram");
+    }
+
+    private static void writeClass(Path packageDir, String name) throws java.io.IOException {
+        Files.createDirectories(packageDir);
+        String pkg = packageDir.toString().replace('\\', '/');
+        pkg = pkg.substring(pkg.indexOf("com/")).replace('/', '.');
+        Files.writeString(packageDir.resolve(name + ".java"),
+                "package " + pkg + ";\n\npublic class " + name + " {\n"
+                        + "    public void work() { }\n}\n");
+    }
+
+    /** Minimal SVG root carrying the canvas dimensions the warning reads back. */
+    private static String svgOfSize(int width, int height) {
+        return """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <svg xmlns="http://www.w3.org/2000/svg" width="%d" height="%d" viewBox="0 0 %d %d">
+            </svg>
+            """.formatted(width, height, width, height);
+    }
+
+    private static java.util.logging.Handler captureInto(java.util.List<java.util.logging.LogRecord> sink) {
+        return new java.util.logging.Handler() {
+            @Override public void publish(java.util.logging.LogRecord record) { sink.add(record); }
+            @Override public void flush() { /* nothing is buffered */ }
+            @Override public void close() { /* nothing to release */ }
+        };
+    }
+
+    private static se.deversity.codekarta.core.model.Graph graphWithNodeAt(double x, double y) {
+        se.deversity.codekarta.core.model.Graph graph = new se.deversity.codekarta.core.model.Graph();
+        se.deversity.codekarta.core.model.Node node =
+                new se.deversity.codekarta.core.model.Node("A", "CLASS", "A");
+        node.setX(x);
+        node.setY(y);
+        node.setWidth(180.0);
+        node.setHeight(70.0);
+        graph.addNode(node);
+        return graph;
+    }
 }

@@ -70,38 +70,44 @@ text { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe
 <g id="se.deversity.codekarta.shipping">
   <title>se.deversity.codekarta.shipping [MODULE]</title>
   <rect class="node-rect" x="60.0" y="60.0" width="180.0" height="86.0" rx="6.0" fill="url(#grad-MODULE)" stroke="#6d28d9" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="150.0" y="90.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#6d28d9" font-style="italic">«mod»</text>
-  <text class="node-label" x="150.0" y="115.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">se.deversity.codekarta.shipping</text>
+  <text class="node-label" x="150.0" y="89.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="10" fill="#6d28d9" font-style="italic">«mod»</text>
+  <text class="node-label" x="150.0" y="101.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="9.0" fill="#6b7280">se.deversity.codekarta</text>
+  <text class="node-label" x="150.0" y="115.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">shipping</text>
 </g>
 <g id="java.base">
   <title>java.base [MODULE]</title>
   <rect class="node-rect" x="840.0" y="250.0" width="180.0" height="86.0" rx="6.0" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="930.0" y="280.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#9ca3af" font-style="italic">«mod»</text>
-  <text class="node-label" x="930.0" y="305.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">java.base</text>
+  <text class="node-label" x="930.0" y="279.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="10" fill="#9ca3af" font-style="italic">«mod»</text>
+  <text class="node-label" x="930.0" y="291.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="9.0" fill="#6b7280">java</text>
+  <text class="node-label" x="930.0" y="305.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">base</text>
 </g>
 <g id="java.logging">
   <title>java.logging [MODULE]</title>
   <rect class="node-rect" x="320.0" y="250.0" width="180.0" height="86.0" rx="6.0" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="410.0" y="280.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#9ca3af" font-style="italic">«mod»</text>
-  <text class="node-label" x="410.0" y="305.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">java.logging</text>
+  <text class="node-label" x="410.0" y="279.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="10" fill="#9ca3af" font-style="italic">«mod»</text>
+  <text class="node-label" x="410.0" y="291.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="9.0" fill="#6b7280">java</text>
+  <text class="node-label" x="410.0" y="305.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">logging</text>
 </g>
 <g id="se.deversity.codekarta.shipping.domain">
   <title>se.deversity.codekarta.shipping.domain [PACKAGE]</title>
   <rect class="node-rect" x="580.0" y="250.0" width="180.0" height="86.0" rx="6.0" fill="url(#grad-PACKAGE)" stroke="#065f46" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="670.0" y="280.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">«pkg»</text>
-  <text class="node-label" x="670.0" y="305.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">se.deversity.codekarta.shipping.domain</text>
+  <text class="node-label" x="670.0" y="279.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">«pkg»</text>
+  <text class="node-label" x="670.0" y="291.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="9.0" fill="#6b7280">se.deversity.codekarta.shipping</text>
+  <text class="node-label" x="670.0" y="305.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">domain</text>
 </g>
 <g id="se.deversity.codekarta.shipping.core">
   <title>se.deversity.codekarta.shipping.core [PACKAGE]</title>
   <rect class="node-rect" x="1100.0" y="250.0" width="180.0" height="86.0" rx="6.0" fill="url(#grad-PACKAGE)" stroke="#065f46" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="1190.0" y="280.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">«pkg»</text>
-  <text class="node-label" x="1190.0" y="305.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">se.deversity.codekarta.shipping.core</text>
+  <text class="node-label" x="1190.0" y="279.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">«pkg»</text>
+  <text class="node-label" x="1190.0" y="291.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="9.0" fill="#6b7280">se.deversity.codekarta.shipping</text>
+  <text class="node-label" x="1190.0" y="305.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">core</text>
 </g>
 <g id="se.deversity.codekarta.shipping.state">
   <title>se.deversity.codekarta.shipping.state [PACKAGE]</title>
   <rect class="node-rect" x="60.0" y="250.0" width="180.0" height="86.0" rx="6.0" fill="url(#grad-PACKAGE)" stroke="#065f46" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="150.0" y="280.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">«pkg»</text>
-  <text class="node-label" x="150.0" y="305.9" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">se.deversity.codekarta.shipping.state</text>
+  <text class="node-label" x="150.0" y="279.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="10" fill="#065f46" font-style="italic">«pkg»</text>
+  <text class="node-label" x="150.0" y="291.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="9.0" fill="#6b7280">se.deversity.codekarta.shipping</text>
+  <text class="node-label" x="150.0" y="305.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">state</text>
 </g>
 <rect x="1104.0" y="560.0" width="220.0" height="100.0" rx="6" fill="#ffffff" stroke="#d1d5db" stroke-width="1" filter="url(#nodeShadow)"/>
 <text x="1120.0" y="580.0" font-family="sans-serif" font-size="11" font-weight="bold" fill="#374151">Legend</text>

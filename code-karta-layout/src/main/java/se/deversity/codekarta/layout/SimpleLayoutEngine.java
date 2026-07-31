@@ -41,6 +41,18 @@ public class SimpleLayoutEngine implements LayoutEngine {
     private static final double V_GAP       = 120.0;
     private static final double MARGIN      = 60.0;
 
+    /**
+     * Width at which one depth level wraps onto a further sub-row.
+     *
+     * <p>Without a bound, a level is an unbounded row. A package of ~120 classes, or an enum of
+     * 127 constants with no transitions between them, all sit at depth 0 and produce a canvas
+     * around 19500px wide and 1600px tall — nothing can read that, and the ELK engine renders the
+     * same graph in about 2300px. Wrapping keeps a level's nodes contiguous, so "these are all at
+     * depth N" still reads, while bounding the canvas to something a browser and a human can
+     * handle.
+     */
+    static final double MAX_ROW_WIDTH = 2600.0;
+
     // Compartment height constants mirrored from SvgRenderer (kept in sync manually).
     // Used only for row-spacing estimation — never for actual pixel output.
     private static final double COMPARTMENT_HEADER_H  = 44.0;
@@ -58,37 +70,64 @@ public class SimpleLayoutEngine implements LayoutEngine {
             byLevel.computeIfAbsent(entry.getValue(), k -> new ArrayList<>()).add(entry.getKey());
         }
 
-        // Pass 1: compute cumulative row Y positions based on the tallest estimated
-        // rendered height in each row, so compartment nodes never overlap the next row.
+        int perRow = columnsPerRow();
+
+        // Pass 1: compute cumulative row Y positions based on the tallest estimated rendered
+        // height in each level, so compartment nodes never overlap the next level. A level wider
+        // than MAX_ROW_WIDTH occupies several sub-rows, each of which needs that height.
         double curY = MARGIN;
         Map<Integer, Double> rowY = new TreeMap<>();
         for (Map.Entry<Integer, List<String>> entry : byLevel.entrySet()) {
             int row = entry.getKey();
             rowY.put(row, curY);
-            double maxH = NODE_HEIGHT;
-            for (String id : entry.getValue()) {
-                Node node = graph.findNode(id);
-                if (node != null) maxH = Math.max(maxH, estimateRenderHeight(node));
-            }
-            curY += maxH + V_GAP;
+            double maxH = levelHeight(graph, entry.getValue());
+            int subRows = subRowCount(entry.getValue().size(), perRow);
+            curY += subRows * (maxH + V_GAP);
         }
 
-        // Pass 2: assign coordinates
+        // Pass 2: assign coordinates, wrapping each level across sub-rows.
         for (Map.Entry<Integer, List<String>> entry : byLevel.entrySet()) {
             int row = entry.getKey();
             List<String> ids = entry.getValue();
-            double y = rowY.get(row);
-            for (int col = 0; col < ids.size(); col++) {
-                Node node = graph.findNode(ids.get(col));
+            double levelY = rowY.get(row);
+            double maxH = levelHeight(graph, ids);
+            for (int i = 0; i < ids.size(); i++) {
+                Node node = graph.findNode(ids.get(i));
                 if (node != null) {
+                    // Both are deliberate integer positions within the level: the column across a
+                    // sub-row, and the index of the sub-row itself. Named so the integer division
+                    // reads as intent rather than as an accidental truncation.
+                    int col = i % perRow;
+                    int subRow = i / perRow;
                     node.setX(MARGIN + col * (NODE_WIDTH + H_GAP));
-                    node.setY(y);
+                    node.setY(levelY + subRow * (maxH + V_GAP));
                     node.setWidth(NODE_WIDTH);
                     node.setHeight(NODE_HEIGHT);
                 }
             }
         }
         return graph;
+    }
+
+    /** Nodes per sub-row. At least one, so a node wider than the bound still lays out. */
+    static int columnsPerRow() {
+        int fit = (int) (MAX_ROW_WIDTH / (NODE_WIDTH + H_GAP));
+        return fit < 1 ? 1 : fit;
+    }
+
+    /** Sub-rows needed to hold {@code count} nodes at {@code perRow} each. */
+    static int subRowCount(int count, int perRow) {
+        return count <= 0 ? 0 : (count + perRow - 1) / perRow;
+    }
+
+    /** Tallest estimated rendered height among {@code ids}; the row pitch for that level. */
+    private double levelHeight(Graph graph, List<String> ids) {
+        double maxH = NODE_HEIGHT;
+        for (String id : ids) {
+            Node node = graph.findNode(id);
+            if (node != null) maxH = Math.max(maxH, estimateRenderHeight(node));
+        }
+        return maxH;
     }
 
     /**

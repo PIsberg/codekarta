@@ -65,7 +65,7 @@ text { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe
 <g id="Edge">
   <title>Edge [CLASS]</title>
   <rect class="node-rect" x="580.0" y="400.0" width="180.0" height="250.0" rx="6.0" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="670.0" y="422.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">Edge</text>
+  <text class="node-label" x="670.0" y="422.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">Edge</text>
   <line x1="580.0" y1="444.0" x2="760.0" y2="444.0" stroke="#374151" stroke-width="0.8" opacity="0.4"/>
   <text x="588.0" y="457.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">id: String</text>
   <text x="588.0" y="472.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">sourceId: String</text>
@@ -84,8 +84,8 @@ text { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe
 <g id="EdgeType">
   <title>EdgeType [CLASS]</title>
   <rect class="node-rect" x="840.0" y="60.0" width="180.0" height="162.0" rx="6.0" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="930.0" y="76.7" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#374151" font-style="italic">«constants»</text>
-  <text class="node-label" x="930.0" y="91.7" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">EdgeType</text>
+  <text class="node-label" x="930.0" y="73.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="10" fill="#374151" font-style="italic">«constants»</text>
+  <text class="node-label" x="930.0" y="88.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">EdgeType</text>
   <line x1="840.0" y1="104.0" x2="1020.0" y2="104.0" stroke="#374151" stroke-width="0.8" opacity="0.4"/>
   <text x="848.0" y="117.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">CALLS: String</text>
   <text x="848.0" y="132.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">EXTENDS: String</text>
@@ -98,7 +98,7 @@ text { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe
 <g id="Graph">
   <title>Graph [CLASS]</title>
   <rect class="node-rect" x="60.0" y="60.0" width="180.0" height="220.0" rx="6.0" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="150.0" y="82.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">Graph</text>
+  <text class="node-label" x="150.0" y="82.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">Graph</text>
   <line x1="60.0" y1="104.0" x2="240.0" y2="104.0" stroke="#374151" stroke-width="0.8" opacity="0.4"/>
   <text x="68.0" y="117.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">nodes: List&lt;Node&gt;</text>
   <text x="68.0" y="132.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">edges: List&lt;Edge&gt;</text>
@@ -115,12 +115,12 @@ text { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe
 <g id="Node">
   <title>Node [CLASS]</title>
   <rect class="node-rect" x="320.0" y="400.0" width="180.0" height="280.0" rx="6.0" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="410.0" y="422.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">Node</text>
+  <text class="node-label" x="410.0" y="422.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">Node</text>
   <line x1="320.0" y1="444.0" x2="500.0" y2="444.0" stroke="#374151" stroke-width="0.8" opacity="0.4"/>
   <text x="328.0" y="457.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">id: String</text>
   <text x="328.0" y="472.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">type: String</text>
   <text x="328.0" y="487.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">label: String</text>
-  <text x="328.0" y="502.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">properties: Map&lt;String,String&gt;</text>
+  <text x="328.0" y="502.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">properties: Map&lt;String,Str…</text>
   <text x="328.0" y="517.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">x: Double</text>
   <text x="328.0" y="532.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">y: Double</text>
   <text x="328.0" y="547.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">…(+2 more)</text>
@@ -136,26 +136,26 @@ text { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe
 <g id="Group">
   <title>Group [CLASS]</title>
   <rect class="node-rect" x="60.0" y="400.0" width="180.0" height="235.0" rx="6.0" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="150.0" y="422.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">Group</text>
+  <text class="node-label" x="150.0" y="422.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">Group</text>
   <line x1="60.0" y1="444.0" x2="240.0" y2="444.0" stroke="#374151" stroke-width="0.8" opacity="0.4"/>
   <text x="68.0" y="457.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">id: String</text>
   <text x="68.0" y="472.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">label: String</text>
   <text x="68.0" y="487.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">memberIds: List&lt;String&gt;</text>
-  <text x="68.0" y="502.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">properties: Map&lt;String,String&gt;</text>
+  <text x="68.0" y="502.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">properties: Map&lt;String,Str…</text>
   <line x1="60.0" y1="516.0" x2="240.0" y2="516.0" stroke="#374151" stroke-width="0.8" opacity="0.4"/>
   <text x="68.0" y="529.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">addMember(String): void</text>
   <text x="68.0" y="544.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">getId(): String</text>
   <text x="68.0" y="559.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">setId(String): void</text>
   <text x="68.0" y="574.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">getLabel(): String</text>
   <text x="68.0" y="589.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">setLabel(String): void</text>
-  <text x="68.0" y="604.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">getMemberIds(): List&lt;String&gt;</text>
+  <text x="68.0" y="604.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">getMemberIds(): List&lt;Strin…</text>
   <text x="68.0" y="619.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">…(+3 more)</text>
 </g>
 <g id="NodeDimensions">
   <title>NodeDimensions [CLASS]</title>
   <rect class="node-rect" x="580.0" y="60.0" width="180.0" height="87.0" rx="6.0" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="670.0" y="76.7" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#374151" font-style="italic">«constants»</text>
-  <text class="node-label" x="670.0" y="91.7" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">NodeDimensions</text>
+  <text class="node-label" x="670.0" y="73.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="10" fill="#374151" font-style="italic">«constants»</text>
+  <text class="node-label" x="670.0" y="88.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">NodeDimensions</text>
   <line x1="580.0" y1="104.0" x2="760.0" y2="104.0" stroke="#374151" stroke-width="0.8" opacity="0.4"/>
   <text x="588.0" y="117.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">DEFAULT_WIDTH: double</text>
   <text x="588.0" y="132.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">DEFAULT_HEIGHT: double</text>
@@ -163,8 +163,8 @@ text { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe
 <g id="NodeType">
   <title>NodeType [CLASS]</title>
   <rect class="node-rect" x="320.0" y="60.0" width="180.0" height="162.0" rx="6.0" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="410.0" y="76.7" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#374151" font-style="italic">«constants»</text>
-  <text class="node-label" x="410.0" y="91.7" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1f2937">NodeType</text>
+  <text class="node-label" x="410.0" y="73.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="10" fill="#374151" font-style="italic">«constants»</text>
+  <text class="node-label" x="410.0" y="88.5" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">NodeType</text>
   <line x1="320.0" y1="104.0" x2="500.0" y2="104.0" stroke="#374151" stroke-width="0.8" opacity="0.4"/>
   <text x="328.0" y="117.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">CLASS: String</text>
   <text x="328.0" y="132.5" font-family="sans-serif" font-size="10" fill="#374151" dominant-baseline="central">INTERFACE: String</text>

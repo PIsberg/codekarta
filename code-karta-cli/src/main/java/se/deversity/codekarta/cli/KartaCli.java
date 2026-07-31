@@ -50,6 +50,7 @@ public class KartaCli {
         boolean sequenceOnly = false;
         boolean stateMachine = false;
         boolean modulesOnly = false;
+        boolean splitPackages = false;
         String layout = "simple";
         java.util.Set<String> customExcludes = java.util.Collections.emptySet();
         int maxDepth = Integer.MAX_VALUE;
@@ -62,6 +63,7 @@ public class KartaCli {
                 case "--sequence-only" -> sequenceOnly = true;
                 case "--state-machine" -> stateMachine = true;
                 case "--modules-only"  -> modulesOnly = true;
+                case "--split-packages" -> splitPackages = true;
                 case "--exclude"       -> {
                     if (i + 1 < args.length) {
                         String rawExcludes = args[++i];
@@ -92,11 +94,25 @@ public class KartaCli {
         }
 
         try {
+            if (splitPackages) {
+                java.util.List<Path> written = runPerPackage(inputPath, outputDir, sequenceOnly,
+                        layout, stateMachine, customExcludes, maxDepth, modulesOnly);
+                if (written.isEmpty()) {
+                    System.out.println("Skipped: no package under " + inputPath + " produced a diagram.");
+                } else {
+                    for (Path p : written) {
+                        System.out.println("Generated: " + p.toAbsolutePath());
+                    }
+                    System.out.println("Generated " + written.size() + " diagrams under "
+                            + outputDir.toAbsolutePath());
+                }
+                return;
+            }
             Path output = run(inputPath, outputDir, sequenceOnly, layout, stateMachine, customExcludes, maxDepth, modulesOnly);
             if (output != null) {
                 System.out.println("Generated: " + output.toAbsolutePath());
             } else {
-                System.out.println("Skipped generating diagram because the parsed graph was empty.");
+                System.out.println("Skipped generating a diagram; see the log message above for why.");
             }
         } catch (IOException e) {
             System.err.println("Error: " + e.getMessage());
@@ -203,6 +219,19 @@ public class KartaCli {
             return null;
         }
 
+        // A "state machine" with states but no transitions is not a state machine — it is an
+        // ordinary enum that happens to have constants. Rendering it produces a wall of
+        // disconnected boxes (an identity enum of 127 constants yields 127 of them, no arrows)
+        // that looks like a result and carries no information. Decline it for the same reason the
+        // empty graph above is declined, and say which case this is.
+        if (stateMachine && graph.getEdges().isEmpty() && !graph.getNodes().isEmpty()) {
+            log.info(() -> "No state transitions found in " + inputPath + " ("
+                    + graph.getNodes().size() + " states, 0 transitions), skipping diagram"
+                    + " generation. A state-transition diagram needs transitions: switch cases,"
+                    + " state assignments, or transition(from, to, event) calls.");
+            return null;
+        }
+
         state = PipelineStage.RENDERING;
         String svg = new SvgRenderer().render(graph);
 
@@ -210,9 +239,120 @@ public class KartaCli {
         Path outputFile = outputDir.resolve(deriveOutputName(inputPath, sequenceOnly, stateMachine, modulesOnly));
         Files.writeString(outputFile, svg);
 
+        warnIfOversized(svg, graph, outputFile);
+
         state = PipelineStage.DONE;
         log.fine("Pipeline " + state + ": wrote " + outputFile);
         return outputFile;
+    }
+
+    /**
+     * Canvas edge, in pixels, past which a diagram stops being something a person can read.
+     * Roughly ten 1440px screens; anything beyond it is a data dump wearing a diagram's clothes.
+     */
+    static final double OVERSIZE_PX = 15000.0;
+
+    /**
+     * Renders one diagram per package rather than one diagram for the whole tree.
+     *
+     * <p>This is the general answer to the scale problem. A single diagram over a large tree is
+     * unreadable long before it is wrong: a stitched call graph over one real package reached 986
+     * nodes and roughly 36000x43700 pixels. Bounding depth does not help, because the fan-out that
+     * causes it is horizontal — the tree is wide, not deep. Splitting by package does help, because
+     * a package is the unit the author already used to group things that belong together, so each
+     * resulting diagram answers one question at a size a person can actually look at.
+     *
+     * <p>Every directory holding at least one {@code .java} file is rendered, and the output mirrors
+     * the package structure under {@code outputDir} so the diagram for {@code a.b.c} is easy to
+     * find. A package that yields nothing renderable is skipped, not failed: the caller asked for
+     * whatever is there, and one empty package should not abort the other forty.
+     *
+     * @return the diagrams actually written, in directory order
+     */
+    static java.util.List<Path> runPerPackage(Path inputRoot, Path outputDir,
+                                              boolean sequenceOnly, String layout,
+                                              boolean stateMachine, java.util.Set<String> customExcludes,
+                                              int maxDepth, boolean modulesOnly) throws IOException {
+        if (!Files.isDirectory(inputRoot)) {
+            log.info(() -> "--split-packages needs a directory; " + inputRoot + " is a file.");
+            Path single = run(inputRoot, outputDir, sequenceOnly, layout, stateMachine,
+                              customExcludes, maxDepth, modulesOnly);
+            return single == null ? java.util.List.of() : java.util.List.of(single);
+        }
+
+        java.util.List<Path> packageDirs = new java.util.ArrayList<>();
+        try (java.util.stream.Stream<Path> walk = Files.walk(inputRoot)) {
+            walk.filter(Files::isDirectory)
+                .filter(KartaCli::holdsJavaSource)
+                .sorted()
+                .forEach(packageDirs::add);
+        }
+
+        java.util.List<Path> written = new java.util.ArrayList<>();
+        for (Path pkg : packageDirs) {
+            Path relative = inputRoot.relativize(pkg);
+            Path target = relative.toString().isEmpty() ? outputDir : outputDir.resolve(relative);
+            try {
+                Path svg = run(pkg, target, sequenceOnly, layout, stateMachine,
+                               customExcludes, maxDepth, modulesOnly);
+                if (svg != null) {
+                    written.add(svg);
+                }
+            } catch (IOException e) {
+                // One unreadable package must not cost the caller the other forty.
+                log.warning(() -> "Skipped " + pkg + ": " + e.getMessage());
+            }
+        }
+        return written;
+    }
+
+    /** True when the directory itself holds at least one {@code .java} file (not counting subdirs). */
+    private static boolean holdsJavaSource(Path dir) {
+        try (java.util.stream.Stream<Path> entries = Files.list(dir)) {
+            return entries.anyMatch(p -> {
+                // getFileName() is null only for a filesystem root, which is never a regular file;
+                // guard anyway so the predicate is total.
+                Path name = p.getFileName();
+                return name != null && Files.isRegularFile(p) && name.toString().endsWith(".java");
+            });
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    /** Canvas dimensions as written into the rendered {@code <svg>} root element. */
+    private static final java.util.regex.Pattern SVG_CANVAS =
+            java.util.regex.Pattern.compile("<svg[^>]*\\bwidth=\"(\\d+)\"\\s+height=\"(\\d+)\"");
+
+    /**
+     * Warns when the rendered diagram will not fit any screen.
+     *
+     * <p>A whole-package stitched call graph can reach a thousand nodes, which renders to tens of
+     * thousands of pixels on an edge — one real case measured 36020x43744. The file is still
+     * written, because the caller may well be feeding it to something other than an eye, but
+     * silence there reads as success. Say the size and name the flags that reduce it.
+     *
+     * <p>The size is read back from the rendered SVG rather than derived from node extents. A
+     * sequence diagram draws lifelines and messages far below its participant boxes, so the node
+     * bounding box understates the real canvas several times over: measuring it that way reported
+     * 20970x5732 for a diagram that was actually 22600x42988, and a warning that misstates the
+     * number it is warning about is worse than none.
+     */
+    static void warnIfOversized(String svg, Graph graph, Path outputFile) {
+        java.util.regex.Matcher matcher = SVG_CANVAS.matcher(svg);
+        if (!matcher.find()) {
+            return;
+        }
+        final long w = Long.parseLong(matcher.group(1));
+        final long h = Long.parseLong(matcher.group(2));
+        if (w > OVERSIZE_PX || h > OVERSIZE_PX) {
+            final int nodes = graph.getNodes().size();
+            log.warning(() -> "Wrote " + outputFile + " but it is " + w + "x" + h
+                    + "px for " + nodes + " nodes, which no screen will show usefully. Narrow it"
+                    + " with --max-depth to bound call-chain length, or --exclude to drop noisy"
+                    + " types (e.g. --exclude '*Test,*Builder'), or point --input at a single"
+                    + " package instead of a whole tree.");
+        }
     }
 
     private static LayoutEngine resolveLayout(String name) {
@@ -255,7 +395,7 @@ public class KartaCli {
     }
 
     private static void printUsage() {
-        System.out.println("Usage: karta --input <path> [--output <dir>] [--sequence-only] [--state-machine] [--modules-only] [--layout simple|elk] [--exclude <patterns>] [--max-depth <depth>]");
+        System.out.println("Usage: karta --input <path> [--output <dir>] [--sequence-only] [--state-machine] [--modules-only] [--split-packages] [--layout simple|elk] [--exclude <patterns>] [--max-depth <depth>]");
         System.out.println();
         System.out.println("  --input  <path>      What to parse:");
         System.out.println("                         module-info.java  → module diagram");
@@ -278,6 +418,14 @@ public class KartaCli {
         System.out.println("  --state-machine      Emit STATE nodes and TRANSITION edges from enum");
         System.out.println("                         constants, switch cases, state assignments, and");
         System.out.println("                         transition(from, to, event) calls.");
+        System.out.println("  --split-packages     Emit one diagram per package instead of one for");
+        System.out.println("                         the whole tree, mirroring the package structure");
+        System.out.println("                         under --output. Use this when a single diagram");
+        System.out.println("                         would be too large to read: a wide tree stays");
+        System.out.println("                         wide whatever --max-depth is set to, because");
+        System.out.println("                         the fan-out is horizontal, and a package is");
+        System.out.println("                         already the author's own grouping of things");
+        System.out.println("                         that belong together.");
         System.out.println("  --layout <engine>    Layout algorithm:  simple (default) or elk.");
         System.out.println("                         elk uses the Eclipse Layout Kernel layered");
         System.out.println("                         algorithm for edge-crossing minimisation and");
