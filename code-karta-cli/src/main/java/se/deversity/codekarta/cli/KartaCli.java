@@ -96,7 +96,7 @@ public class KartaCli {
             if (output != null) {
                 System.out.println("Generated: " + output.toAbsolutePath());
             } else {
-                System.out.println("Skipped generating diagram because the parsed graph was empty.");
+                System.out.println("Skipped generating a diagram; see the log message above for why.");
             }
         } catch (IOException e) {
             System.err.println("Error: " + e.getMessage());
@@ -200,6 +200,19 @@ public class KartaCli {
 
         if (graph.getNodes().isEmpty() && graph.getEdges().isEmpty()) {
             log.info("Graph is empty for input " + inputPath + ", skipping diagram generation.");
+            return null;
+        }
+
+        // A "state machine" with states but no transitions is not a state machine — it is an
+        // ordinary enum that happens to have constants. Rendering it produces a wall of
+        // disconnected boxes (an identity enum of 127 constants yields 127 of them, no arrows)
+        // that looks like a result and carries no information. Decline it for the same reason the
+        // empty graph above is declined, and say which case this is.
+        if (stateMachine && graph.getEdges().isEmpty() && !graph.getNodes().isEmpty()) {
+            log.info(() -> "No state transitions found in " + inputPath + " ("
+                    + graph.getNodes().size() + " states, 0 transitions), skipping diagram"
+                    + " generation. A state-transition diagram needs transitions: switch cases,"
+                    + " state assignments, or transition(from, to, event) calls.");
             return null;
         }
 
