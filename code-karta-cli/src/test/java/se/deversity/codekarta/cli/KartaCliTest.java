@@ -209,4 +209,66 @@ class KartaCliTest {
         assertEquals("service-sequence-diagram.svg",
                 KartaCli.deriveOutputName(Path.of("service.java")));
     }
+
+    // ------------------------------------------------------------------
+    // Oversize warning
+    // ------------------------------------------------------------------
+
+    /** A graph laid out beyond the readable bound must be reported, not written in silence. */
+    @Test
+    void warnsWhenTheLaidOutCanvasExceedsTheReadableBound() {
+        java.util.List<java.util.logging.LogRecord> records = new java.util.ArrayList<>();
+        java.util.logging.Logger log = java.util.logging.Logger.getLogger(KartaCli.class.getName());
+        java.util.logging.Handler capture = captureInto(records);
+        log.addHandler(capture);
+        try {
+            KartaCli.warnIfOversized(graphWithNodeAt(KartaCli.OVERSIZE_PX + 500, 10),
+                                     Path.of("wide.svg"));
+
+            assertTrue(records.stream().anyMatch(r ->
+                            r.getLevel() == java.util.logging.Level.WARNING
+                                    && r.getMessage().contains("--max-depth")),
+                    "an oversize canvas must warn and name the flags that narrow it");
+        } finally {
+            log.removeHandler(capture);
+        }
+    }
+
+    /** A graph inside the bound must stay silent, or the warning degrades into noise. */
+    @Test
+    void doesNotWarnForANormalSizedCanvas() {
+        java.util.List<java.util.logging.LogRecord> records = new java.util.ArrayList<>();
+        java.util.logging.Logger log = java.util.logging.Logger.getLogger(KartaCli.class.getName());
+        java.util.logging.Handler capture = captureInto(records);
+        log.addHandler(capture);
+        try {
+            KartaCli.warnIfOversized(graphWithNodeAt(1200, 800), Path.of("normal.svg"));
+
+            assertTrue(records.stream()
+                            .noneMatch(r -> r.getLevel() == java.util.logging.Level.WARNING),
+                    "a diagram that fits on a screen must not warn");
+        } finally {
+            log.removeHandler(capture);
+        }
+    }
+
+    private static java.util.logging.Handler captureInto(java.util.List<java.util.logging.LogRecord> sink) {
+        return new java.util.logging.Handler() {
+            @Override public void publish(java.util.logging.LogRecord record) { sink.add(record); }
+            @Override public void flush() { /* nothing is buffered */ }
+            @Override public void close() { /* nothing to release */ }
+        };
+    }
+
+    private static se.deversity.codekarta.core.model.Graph graphWithNodeAt(double x, double y) {
+        se.deversity.codekarta.core.model.Graph graph = new se.deversity.codekarta.core.model.Graph();
+        se.deversity.codekarta.core.model.Node node =
+                new se.deversity.codekarta.core.model.Node("A", "CLASS", "A");
+        node.setX(x);
+        node.setY(y);
+        node.setWidth(180.0);
+        node.setHeight(70.0);
+        graph.addNode(node);
+        return graph;
+    }
 }

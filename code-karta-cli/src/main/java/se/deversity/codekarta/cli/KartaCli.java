@@ -1,6 +1,7 @@
 package se.deversity.codekarta.cli;
 
 import se.deversity.codekarta.core.model.Graph;
+import se.deversity.codekarta.core.model.Node;
 import se.deversity.codekarta.input.JavaSourceInputParser;
 import se.deversity.codekarta.input.MultiFileSequenceParser;
 import se.deversity.codekarta.input.parser.StateMachineParser;
@@ -223,9 +224,48 @@ public class KartaCli {
         Path outputFile = outputDir.resolve(deriveOutputName(inputPath, sequenceOnly, stateMachine, modulesOnly));
         Files.writeString(outputFile, svg);
 
+        warnIfOversized(graph, outputFile);
+
         state = PipelineStage.DONE;
         log.fine("Pipeline " + state + ": wrote " + outputFile);
         return outputFile;
+    }
+
+    /**
+     * Canvas edge, in pixels, past which a diagram stops being something a person can read.
+     * Roughly ten 1440px screens; anything beyond it is a data dump wearing a diagram's clothes.
+     */
+    static final double OVERSIZE_PX = 15000.0;
+
+    /**
+     * Warns when the laid-out graph will not fit any screen.
+     *
+     * <p>A whole-package stitched call graph can reach a thousand nodes, which lays out to tens of
+     * thousands of pixels on an edge — one real case measured 36020x43744. The file is still
+     * written, because the caller may well be feeding it to something other than an eye, but
+     * silence there reads as success. Say the size and name the two flags that reduce it.
+     */
+    static void warnIfOversized(Graph graph, Path outputFile) {
+        double maxX = 0;
+        double maxY = 0;
+        for (Node node : graph.getNodes()) {
+            Double x = node.getX();
+            Double y = node.getY();
+            Double w = node.getWidth();
+            Double h = node.getHeight();
+            if (x != null && w != null) maxX = Math.max(maxX, x + w);
+            if (y != null && h != null) maxY = Math.max(maxY, y + h);
+        }
+        if (maxX > OVERSIZE_PX || maxY > OVERSIZE_PX) {
+            final long w = Math.round(maxX);
+            final long h = Math.round(maxY);
+            final int nodes = graph.getNodes().size();
+            log.warning(() -> "Wrote " + outputFile + " but it is about " + w + "x" + h
+                    + "px for " + nodes + " nodes, which no screen will show usefully. Narrow it"
+                    + " with --max-depth to bound call-chain length, or --exclude to drop noisy"
+                    + " types (e.g. --exclude '*Test,*Builder'), or point --input at a single"
+                    + " package instead of a whole tree.");
+        }
     }
 
     private static LayoutEngine resolveLayout(String name) {
