@@ -179,7 +179,7 @@
     <dependency>
       <groupId>se.deversity.vibetags</groupId>
       <artifactId>vibetags-processor</artifactId>
-      <version>1.0.0-RC7</version>
+      <version>1.0.0-RC8</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

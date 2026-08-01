@@ -1,0 +1,3 @@
+# VibeTags writes one path-scoped rule file per annotated class into this directory.
+# The directory itself is the opt-in: delete it and this module's guardrails move back
+# inline into the root CLAUDE.md. See docs/VIBETAGS.md.

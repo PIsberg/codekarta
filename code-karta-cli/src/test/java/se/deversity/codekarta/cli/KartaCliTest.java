@@ -162,7 +162,7 @@ class KartaCliTest {
     void stateMachineModeOnKartaCliItself(@TempDir Path outputDir) throws Exception {
         // KartaCli.java contains PipelineStage — this test is self-referential:
         // the tool generates a state-transition diagram of its own pipeline.
-        Path kartaCliSrc = Path.of("src/main/java/com/karta/cli/KartaCli.java");
+        Path kartaCliSrc = Path.of("src/main/java/se/deversity/codekarta/cli/KartaCli.java");
         assumeTrue(Files.exists(kartaCliSrc),
                 "Skipping: KartaCli.java not found at " + kartaCliSrc.toAbsolutePath());
 

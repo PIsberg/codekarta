@@ -11,6 +11,9 @@ import se.deversity.codekarta.core.model.Graph;
 import se.deversity.codekarta.core.model.Group;
 import se.deversity.codekarta.core.model.Node;
 import se.deversity.codekarta.core.model.NodeType;
+import se.deversity.vibetags.annotations.AIArchitecture;
+import se.deversity.vibetags.annotations.AIContext;
+import se.deversity.vibetags.annotations.AILoadBearing;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,6 +29,15 @@ import java.util.function.Function;
  * {@code MultiFileSequenceParser} don't each carry their own copy of the
  * parse skeleton (fault-tolerance idioms stay in the individual parsers).
  */
+@AIContext(
+    focus = "Only the mechanical parse skeleton belongs here — JavaParser configuration, exclude normalisation, and the per-class iteration every single-file parser repeats. Helpers stay caller-agnostic: they take the Graph and a callback rather than deciding what nodes or edges mean.",
+    avoids = "Absorbing diagram semantics from the callers. A helper that knows about CALLS labels, EXCEPTION_PROPAGATION edges, or try/catch Groups belongs in the parser that owns that diagram type, not in the shared skeleton."
+)
+@AIArchitecture(belongsTo = "input", cannotReference = {"layout", "render", "cli"})
+@AILoadBearing(
+    invariant = "parseJava21 propagates its failures instead of swallowing them; the try/catch that turns a failure into a partial graph stays in each calling parser.",
+    breaksIf = "Wrapping the fault tolerance in here looks like deduplication and silently changes the contract: every caller would inherit one shared recovery policy, and a parser that needs to log its own diagnostic or return a differently-shaped partial graph could no longer do so. The repeated try/catch in the callers is the fault-tolerance rule being stated once per parser, not copy-paste.",
+    suppressAudit = true)
 public final class ParserSupport {
 
     private static final JavaParser PARSER = new JavaParser(

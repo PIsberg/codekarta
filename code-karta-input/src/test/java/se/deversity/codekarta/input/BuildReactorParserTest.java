@@ -5,7 +5,6 @@ import org.junit.jupiter.api.io.TempDir;
 import se.deversity.codekarta.core.model.Edge;
 import se.deversity.codekarta.core.model.Graph;
 import se.deversity.codekarta.input.parser.BuildReactorParser;
-import se.deversity.vibetags.annotations.AIParallelTests;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -22,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * repository: the parser's whole job is reading build files, so a test that read the
  * project's own would pass or fail on unrelated build changes.
  */
-@AIParallelTests
 class BuildReactorParserTest {
 
     private final BuildReactorParser parser = new BuildReactorParser();

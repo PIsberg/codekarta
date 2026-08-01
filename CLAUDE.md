@@ -1,37 +1,16 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for Claude Code (claude.ai/code) working in this repository.
 
-## Build Commands
+Everything below the `VIBETAGS-START` marker is generated from source annotations by the VibeTags
+annotation processor on every compile. **Do not hand-edit inside the markers** — change the
+annotation in the Java source and recompile. See [`docs/VIBETAGS.md`](docs/VIBETAGS.md).
 
-### Maven (primary)
-```bash
-mvn clean test                  # compile + run all tests
-mvn clean package               # build fat JAR → code-karta-cli/target/code-karta-cli-0.2.0-all.jar
-mvn -pl code-karta-input test   # single module tests
-mvn -pl code-karta-input -Dtest=ClassDiagramParserTest test  # single test class
-```
+## Orientation
 
-### Gradle (dual-build, use wrapper)
-```bash
-./gradlew test                          # run all tests
-./gradlew :code-karta-input:test        # single module tests
-./gradlew :code-karta-cli:fatJar        # fat JAR → code-karta-cli/build/libs/code-karta-cli-0.2.0-all.jar
-./gradlew :code-karta-cli:run --args="--input src/domain --output build/diagrams"
-```
-
-### Run the CLI without building a JAR
-```bash
-# Maven
-mvn -pl code-karta-cli exec:java -Dexec.mainClass=se.deversity.codekarta.cli.KartaCli "-Dexec.args=--input <path> --output <dir>"
-
-# Gradle
-./gradlew :code-karta-cli:run --args="--input <path> --output <dir>"
-```
-
-## Architecture
-
-Strict 3-tier pipeline. Tiers communicate only through the Core IR (`Graph`). **No tier may import from a tier beside or below it.**
+code-karta parses Java source into a shared graph IR, assigns coordinates, and renders SVG.
+Strict 3-tier pipeline; tiers communicate only through the Core IR (`Graph`).
+**No tier may import from a tier beside or above it.**
 
 ```
 code-karta-core       ← pure data model, no logic, no deps
@@ -41,46 +20,56 @@ code-karta-input  code-karta-layout  code-karta-render
                                      code-karta-cli   ← wires all three
 ```
 
-### Tier 1 — `code-karta-input`
-`JavaSourceInputParser` auto-detects input type and delegates:
-- `module-info.java` → `ModuleInfoParser` → `MODULE`/`PACKAGE` nodes, `REQUIRES`/`EXPORTS` edges
-- directory → `ClassDiagramParser` → `CLASS`/`INTERFACE` nodes, `EXTENDS`/`IMPLEMENTS`/`HAS` edges
-- single `.java` file → `CallSequenceParser` → `METHOD` nodes, `CALLS` edges (ordered by sequence label)
-- `ExceptionFlowParser` → `EXCEPTION_PROPAGATION` edges, try-catch `Group` boundaries
+`ArchitectureRulesTest` enforces this with ArchUnit, so a boundary violation fails the build
+rather than sitting in review.
 
-**Fault-tolerance rule:** all parsers wrap JavaParser calls in try/catch, log a warning, and return a partial graph — never crash.
+| Need | Read |
+|---|---|
+| Build, test, run, regenerate diagrams | [`docs/BUILD.md`](docs/BUILD.md) |
+| CLI flags | [`docs/CLI.md`](docs/CLI.md) |
+| Which parser handles which input | [`docs/LIBRARY.md`](docs/LIBRARY.md) |
+| Tier responsibilities, IR schema, extension points | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) |
+| The `mvn verify` quality gate | [`docs/QUALITY.md`](docs/QUALITY.md) |
+| Compact operating guide for extending the library | [`docs/SKILL.md`](docs/SKILL.md) |
 
-### Tier 2 — `code-karta-layout`
-`SimpleLayoutEngine` implements `LayoutEngine` interface. BFS from root nodes → depth levels → row/column grid. Mutates `Node.x/y/width/height` in-place (150×50 px per node, 50 H / 80 V gap). Swap by implementing `LayoutEngine`.
+Fast path: `mvn clean test` runs everything; `mvn -pl <module> -Dtest=<Class> test` runs one class.
 
-### Tier 3 — `code-karta-render`
-`SvgRenderer` generates pure SVG strings. CSS class names (`.node-rect`, `.edge-line`, `.group-rect`) are stable — themes are injected via `render(graph, cssString)`. Nodes with `null` coordinates are silently skipped.
+## Invariants
 
-### Core IR (`code-karta-core`)
-Four model classes: `Node`, `Edge`, `Group`, `Graph`. Jackson `@JsonInclude(NON_NULL)` keeps serialised output compact (layout fields absent until Tier 2 runs). `Graph` helpers: `addNode`, `addNodeIfAbsent`, `addEdge`, `addGroup`, `findNode`.
+These are the things not derivable from reading a single file.
 
-### CLI (`code-karta-cli`)
-`KartaCli.run(inputPath, outputDir)` is a public static method — testable without spawning a process. Output filename is derived from input type: `module-diagram.svg`, `class-diagram.svg`, or `<name>-sequence-diagram.svg`.
+- **Parsers never crash.** Every parser wraps JavaParser calls in try/catch, logs a warning, and
+  returns a partial — possibly empty — `Graph`. That try/catch stays in each parser; do not hoist
+  it into `ParserSupport`.
+- **Layout mutates in place.** `LayoutEngine.layout(Graph)` returns the same instance with
+  `x/y/width/height` written onto the `Node` POJOs. Nodes it cannot position keep `null`
+  coordinates, and `SvgRenderer` silently skips those — the pair is deliberate on both sides.
+- **CSS class names are a published contract.** `.node-rect`, `.edge-line`, `.group-rect`,
+  `.node-label`, `.edge-label` are themed by consumers via `render(graph, cssString)`.
+- **`NodeType` / `EdgeType` string values** are matched by identity in `SvgRenderer`'s class-name
+  map and in every parser. Adding or renaming a constant is a coordinated pipeline-wide change.
+- **`ClassDiagramParser` filters stdlib types** (`String`, `List`, primitives, …) so diagrams stay
+  domain-focused. `rawType()` must run before the skip-list lookup or `List<Node>` slips through.
+- **`KartaCli.run` is idempotent** — the same inputs regenerate byte-identical SVG. Diagram
+  regeneration in `mvn verify` depends on it, so a clean tree stays clean.
+- **Java 21 (LTS)**, and `java.util.logging.Logger` only — no SLF4J/Logback, to avoid binding
+  conflicts across modules.
+- **Never put a VibeTags annotation on a test class.** Test-scoped guardrails such as
+  `@AIParallelTests` go on the main class the tests cover; the reason is in
+  [`docs/VIBETAGS.md`](docs/VIBETAGS.md#the-rule-never-annotate-a-test-class).
 
-## Integration Test Fixture
+## Packages
 
-`example-shipping-system/` is the canonical integration test target. Pre-generated diagrams live in `example-shipping-system/diagrams/`. Integration tests in `code-karta-input/src/test/java/.../integration/` verify all diagram types against this fixture.
-
-## Key Constraints
-
-- Java 21 (LTS); target may be bumped to 24+ later.
-- `java.util.logging.Logger` only — no SLF4J/Logback to avoid binding conflicts across modules.
-- Layout coordinates are mutable on `Node` POJOs by design; immutability is enforced architecturally (tiers don't cross-call), not via Java `final`.
-- `ClassDiagramParser` filters stdlib types (`String`, `List`, primitives, etc.) to keep diagrams domain-focused.
+code-karta's own modules use `se.deversity.codekarta.*`. The `example-shipping-system/` fixture
+uses `com.karta.shipping.*` — it is a separate project, and that mismatch is intentional. The
+fixture is the canonical integration-test target: tests in
+`code-karta-input/src/test/java/se/deversity/codekarta/input/integration/` verify every diagram
+type against it.
 
 <!-- VIBETAGS-START -->
 <!-- VIBETAGS-MODULE: code-karta-cli -->
 <!-- # Generated by VibeTags | https://github.com/PIsberg/vibetags -->
 <project_guardrails>
-  <locked_files>
-  </locked_files>
-  <contextual_instructions>
-  </contextual_instructions>
 
   <audit_requirements>
     <file path="se.deversity.codekarta.cli.KartaCli">
@@ -92,34 +81,9 @@ Four model classes: `Node`, `Edge`, `Group`, `Graph`. Jackson `@JsonInclude(NON_
 <rule>
   If you are asked to modify any file listed in <audit_requirements>, you must first silently analyze your proposed code for the listed <vulnerability_check> items. If your code introduces these vulnerabilities, you must rewrite it before displaying it to the user.
 </rule>
-  <contract_signatures>
-    <element path="se.deversity.codekarta.cli.KartaCli">
-      <reason>run(Path, Path, boolean, String) is a public static method tested directly by KartaCliTest without spawning a process. Its signature and output filename conventions (module-diagram.svg, class-diagram.svg, &lt;name&gt;-sequence-diagram.svg) must remain stable.</reason>
-    </element>
-  </contract_signatures>
-
-<rule>You may refactor the internal logic of elements listed in <contract_signatures>, but you MUST NOT change their public signatures: method names, parameter types, parameter order, return types, or checked exceptions.</rule>
-  <test_driven_requirements>
-    <element path="se.deversity.codekarta.cli.KartaCli">
-      <coverage_goal>90</coverage_goal>
-      <frameworks>JUNIT_5</frameworks>
-      <test_location>code-karta-cli/src/test/java/com/karta/cli/KartaCliTest.java</test_location>
-      <mock_policy>Do not mock parsers or layout engines — KartaCliTest calls run() directly against the example-shipping-system fixture for end-to-end coverage</mock_policy>
-    </element>
-  </test_driven_requirements>
-
-<rule>For any element listed in <test_driven_requirements>, you MUST provide both the implementation change AND the corresponding test code update in a single response. Changes without tests are incomplete and must not be proposed. Every name under <applies-to> in a <test_driven_default> block inherits that block's coverage goal, frameworks, and test-location convention (with {path} standing for the element's package path).</rule>
-  <idempotent_elements>
-    <element path="se.deversity.codekarta.cli.KartaCli.run(java.nio.file.Path,java.nio.file.Path,boolean,java.lang.String,boolean,java.util.Set&lt;java.lang.String&gt;,int)">
-      <idempotent>true</idempotent>
-      <reason>Re-running with the same inputs regenerates byte-identical SVG output — the verify-phase diagram generation and doc regeneration rely on repeated runs converging.</reason>
-    </element>
-  </idempotent_elements>
-
-<rule>Operations listed in <idempotent_elements> must remain idempotent. Never introduce side effects that cause repeated invocations to produce different results.</rule>
 </project_guardrails>
 
-<rule>Never propose edits to files listed in <locked_files>.</rule>
+Guardrails for module `code-karta-cli` are maintained in that module's own files, in the scoped rules under `code-karta-cli/.claude/rules/` (loaded automatically when you open a matching source file). Consult those for this module's full guardrails.
 <!-- VIBETAGS-MODULE-END: code-karta-cli -->
 <!-- VIBETAGS-MODULE: code-karta-core -->
 <!-- # Generated by VibeTags | https://github.com/PIsberg/vibetags -->
@@ -135,8 +99,6 @@ Four model classes: `Node`, `Edge`, `Group`, `Graph`. Jackson `@JsonInclude(NON_
       <reason>String values are matched by identity in SvgRenderer&#39;s CSS class-name map and in all four parsers. Renaming or adding a constant requires updating SvgRenderer, all parser switch/if chains, and integration tests simultaneously.</reason>
     </file>
   </locked_files>
-  <contextual_instructions>
-  </contextual_instructions>
   <core_elements>
     <element path="se.deversity.codekarta.core.model.Edge">
       <sensitivity>High</sensitivity>
@@ -157,193 +119,19 @@ Four model classes: `Node`, `Edge`, `Group`, `Graph`. Jackson `@JsonInclude(NON_
   </core_elements>
 
 <rule>Elements listed in <core_elements> are well-tested core components. Make changes with extreme caution and verify comprehensive test coverage before proposing modifications.</rule>
-  <immutable_types>
-    <type path="se.deversity.codekarta.core.model.NodeDimensions">
-      <note>Constants-only holder. No instance state may ever be added — this class is used across all three pipeline tiers.</note>
-    </type>
-  </immutable_types>
-
-<rule>Types listed in <immutable_types> are immutable by design. Never introduce non-final fields, setters, or methods that mutate instance state.</rule>
-  <architecture_elements>
-    <element path="se.deversity.codekarta.core.model.Graph">
-      <belongs_to>core</belongs_to>
-      <cannot_reference>input</cannot_reference>
-      <cannot_reference>layout</cannot_reference>
-      <cannot_reference>render</cannot_reference>
-      <cannot_reference>cli</cannot_reference>
-    </element>
-  </architecture_elements>
-
-<rule>Respect layered architectural constraints in <architecture_elements>. Boundary crossing references are strictly prohibited.</rule>
-  <strict_types_elements>
-    <element path="se.deversity.codekarta.core.model.Edge">
-      <types>strict</types>
-    </element>
-    <element path="se.deversity.codekarta.core.model.Group">
-      <types>strict</types>
-    </element>
-    <element path="se.deversity.codekarta.core.model.Node">
-      <types>strict</types>
-    </element>
-  </strict_types_elements>
-
-<rule>Loose typing (Object, Map<String, Object>, raw types) is strictly prohibited in <strict_types_elements>. Enforce type safety.</rule>
-  <schema_safe_elements>
-    <element path="se.deversity.codekarta.core.model.Edge">
-      <schema>safe</schema>
-    </element>
-    <element path="se.deversity.codekarta.core.model.Graph">
-      <schema>safe</schema>
-    </element>
-    <element path="se.deversity.codekarta.core.model.Group">
-      <schema>safe</schema>
-    </element>
-    <element path="se.deversity.codekarta.core.model.Node">
-      <schema>safe</schema>
-    </element>
-  </schema_safe_elements>
-
-<rule>Database or contract schema / serialization safety must be preserved in <schema_safe_elements>. Do not alter structures without migration paths.</rule>
-  <domain_model_elements>
-    <file path="se.deversity.codekarta.core.model.Edge">
-      <domain_model_boundary>Pure Domain Model</domain_model_boundary>
-      <allowed_imports>com.fasterxml.jackson.annotation.JsonInclude, org.jspecify.annotations.Nullable</allowed_imports>
-    </file>
-    <file path="se.deversity.codekarta.core.model.Graph">
-      <domain_model_boundary>Pure Domain Model</domain_model_boundary>
-      <allowed_imports>com.fasterxml.jackson.annotation.JsonInclude, org.jspecify.annotations.Nullable</allowed_imports>
-    </file>
-    <file path="se.deversity.codekarta.core.model.Group">
-      <domain_model_boundary>Pure Domain Model</domain_model_boundary>
-      <allowed_imports>com.fasterxml.jackson.annotation.JsonInclude, org.jspecify.annotations.Nullable</allowed_imports>
-    </file>
-    <file path="se.deversity.codekarta.core.model.Node">
-      <domain_model_boundary>Pure Domain Model</domain_model_boundary>
-      <allowed_imports>com.fasterxml.jackson.annotation.JsonInclude, org.jspecify.annotations.Nullable</allowed_imports>
-    </file>
-  </domain_model_elements>
-
-<rule>Classes in <domain_model_elements> are pure domain models. Do not import or reference database or web framework dependencies (Spring, Hibernate, JPA, Jackson).</rule>
 </project_guardrails>
 
 <rule>Never propose edits to files listed in <locked_files>.</rule>
+
+Guardrails for module `code-karta-core` are maintained in that module's own files, in the scoped rules under `code-karta-core/.claude/rules/` (loaded automatically when you open a matching source file). Consult those for this module's full guardrails.
 <!-- VIBETAGS-MODULE-END: code-karta-core -->
 <!-- VIBETAGS-MODULE: code-karta-input -->
-<!-- # Generated by VibeTags | https://github.com/PIsberg/vibetags -->
-<project_guardrails>
-  <locked_files>
-  </locked_files>
-  <contextual_instructions>
-  </contextual_instructions>
-  <test_isolation_elements>
-    <element path="se.deversity.codekarta.input.BuildReactorParserTest">
-      <isolation>strict</isolation>
-    </element>
-    <element path="se.deversity.codekarta.input.ClassDiagramParserTest">
-      <isolation>strict</isolation>
-    </element>
-  </test_isolation_elements>
-
-<rule>For elements in <test_isolation_elements>, all generated or modified tests MUST run in complete isolation (no shared state, external resource conflicts, or order dependencies).</rule>
-</project_guardrails>
-
-<rule>Never propose edits to files listed in <locked_files>.</rule>
+Guardrails for module `code-karta-input` are maintained in that module's own files, in the scoped rules under `code-karta-input/.claude/rules/` (loaded automatically when you open a matching source file). Consult those for this module's full guardrails.
 <!-- VIBETAGS-MODULE-END: code-karta-input -->
 <!-- VIBETAGS-MODULE: code-karta-layout -->
-<!-- # Generated by VibeTags | https://github.com/PIsberg/vibetags -->
-<project_guardrails>
-  <locked_files>
-  </locked_files>
-  <contextual_instructions>
-    <file path="se.deversity.codekarta.layout.ElkLayoutEngine">
-      <focus>Group members must be laid out as children of compound ElkNodes; absolute coordinates are compound.x + child.x. ELK&#39;s SPI entries must be merged in the fat JAR.</focus>
-      <avoids>Adding ELK options that are unsupported by the layered algorithm — any unknown property silently breaks layout and triggers the SimpleLayoutEngine fallback.</avoids>
-    </file>
-    <file path="se.deversity.codekarta.layout.SimpleLayoutEngine">
-      <focus>BFS from root nodes (no incoming edges) assigns depth levels → rows; siblings within a row become columns. Isolated nodes fall back to level 0. Cyclic graphs seed BFS from the first node. Row Y positions are computed dynamically from the tallest estimated node height in each row so that compartment-heavy class nodes never overlap the row below.</focus>
-      <avoids>Changing NodeDimensions.DEFAULT_WIDTH/HEIGHT — those constants are @AILocked and consumed by both layout engines and SvgRenderer.</avoids>
-    </file>
-  </contextual_instructions>
-  <performance_constraints>
-    <element path="se.deversity.codekarta.layout.ElkLayoutEngine.layout(se.deversity.codekarta.core.model.Graph)">
-      <constraint>Layout runs synchronously in the CLI pipeline — avoid O(n²) or heap-allocating operations on the full node list. ELK&#39;s layered algorithm is already O(n log n); the fallback SimpleLayoutEngine is O(n).</constraint>
-    </element>
-  </performance_constraints>
-
-<rule>Elements listed in <performance_constraints> are on a hot path. Never introduce O(n²) or worse complexity. Always reason about time and space complexity before suggesting changes.</rule>
-  <contract_signatures>
-    <element path="se.deversity.codekarta.layout.LayoutEngine">
-      <reason>layout(Graph) must return the same Graph instance (mutated in-place) so callers can chain. Implementations must set x, y, width, height on every Node. Nodes with unresolvable positions must be left at null — SvgRenderer silently skips them.</reason>
-    </element>
-  </contract_signatures>
-
-<rule>You may refactor the internal logic of elements listed in <contract_signatures>, but you MUST NOT change their public signatures: method names, parameter types, parameter order, return types, or checked exceptions.</rule>
-  <architecture_elements>
-    <element path="se.deversity.codekarta.layout.ElkLayoutEngine">
-      <belongs_to>layout</belongs_to>
-      <cannot_reference>input</cannot_reference>
-      <cannot_reference>render</cannot_reference>
-      <cannot_reference>cli</cannot_reference>
-    </element>
-    <element path="se.deversity.codekarta.layout.LayoutEngine">
-      <belongs_to>layout</belongs_to>
-      <cannot_reference>input</cannot_reference>
-      <cannot_reference>render</cannot_reference>
-      <cannot_reference>cli</cannot_reference>
-    </element>
-    <element path="se.deversity.codekarta.layout.SimpleLayoutEngine">
-      <belongs_to>layout</belongs_to>
-      <cannot_reference>input</cannot_reference>
-      <cannot_reference>render</cannot_reference>
-      <cannot_reference>cli</cannot_reference>
-    </element>
-  </architecture_elements>
-
-<rule>Respect layered architectural constraints in <architecture_elements>. Boundary crossing references are strictly prohibited.</rule>
-  <strict_classpath_elements>
-    <element path="se.deversity.codekarta.layout.ElkLayoutEngine">
-      <classpath>strict</classpath>
-    </element>
-  </strict_classpath_elements>
-
-<rule>Dynamic class loading, custom classloaders, reflection hacks, or unverified external code are prohibited in <strict_classpath_elements>.</rule>
-  <extensible_patterns>
-    <file path="se.deversity.codekarta.layout.LayoutEngine">
-      <extension_pattern>STRATEGY_PATTERN</extension_pattern>
-    </file>
-  </extensible_patterns>
-
-<rule>Respect extensibility guidelines for elements in <extensible_patterns>. Implement strategy/visitor extensions rather than expanding branch conditional logic.</rule>
-  <explain_elements>
-    <file path="se.deversity.codekarta.layout.ElkLayoutEngine.layoutWithElk(se.deversity.codekarta.core.model.Graph)">
-      <explanation_required>MEDIUM</explanation_required>
-    </file>
-  </explain_elements>
-
-<rule>Any modification to elements in <explain_elements> requires an explicit, structured Chain-of-Thought markdown description of changes and complexity analysis.</rule>
-</project_guardrails>
-
-<rule>Never propose edits to files listed in <locked_files>.</rule>
+Guardrails for module `code-karta-layout` are maintained in that module's own files, in the scoped rules under `code-karta-layout/.claude/rules/` (loaded automatically when you open a matching source file). Consult those for this module's full guardrails.
 <!-- VIBETAGS-MODULE-END: code-karta-layout -->
 <!-- VIBETAGS-MODULE: code-karta-render -->
-<!-- # Generated by VibeTags | https://github.com/PIsberg/vibetags -->
-<project_guardrails>
-  <locked_files>
-  </locked_files>
-  <contextual_instructions>
-  </contextual_instructions>
-  <test_isolation_elements>
-    <element path="se.deversity.codekarta.render.SequenceDiagramRendererTest">
-      <isolation>strict</isolation>
-    </element>
-    <element path="se.deversity.codekarta.render.SvgRendererTest">
-      <isolation>strict</isolation>
-    </element>
-  </test_isolation_elements>
-
-<rule>For elements in <test_isolation_elements>, all generated or modified tests MUST run in complete isolation (no shared state, external resource conflicts, or order dependencies).</rule>
-</project_guardrails>
-
-<rule>Never propose edits to files listed in <locked_files>.</rule>
+Guardrails for module `code-karta-render` are maintained in that module's own files, in the scoped rules under `code-karta-render/.claude/rules/` (loaded automatically when you open a matching source file). Consult those for this module's full guardrails.
 <!-- VIBETAGS-MODULE-END: code-karta-render -->
 <!-- VIBETAGS-END -->

@@ -8,6 +8,8 @@ import se.deversity.codekarta.core.model.Node;
 import se.deversity.codekarta.core.model.NodeDimensions;
 import se.deversity.vibetags.annotations.AIArchitecture;
 import se.deversity.vibetags.annotations.AIContext;
+import se.deversity.vibetags.annotations.AILoadBearing;
+import se.deversity.vibetags.annotations.AIParallelTests;
 import se.deversity.vibetags.annotations.AIPublicAPI;
 
 import java.util.LinkedHashMap;
@@ -22,6 +24,7 @@ import java.util.Set;
 )
 @AIPublicAPI
 @AIArchitecture(belongsTo = "render", cannotReference = {"input", "layout", "cli"})
+@AIParallelTests(reason = "SvgRendererTest builds its own Graph per case and asserts on returned strings — nothing is written to disk and no static renderer state exists. Keep it that way so the suite stays safe under Surefire forkCount > 1.")
 public class SvgRenderer {
 
     private static final double MIN_WIDTH    = 960.0;
@@ -153,6 +156,10 @@ public class SvgRenderer {
 
     // ------------------------------------------------------------------ node
 
+    @AILoadBearing(
+        invariant = "A node with a null x or y renders as the empty string rather than raising or substituting a default position.",
+        breaksIf = "Throwing here turns a partially-laid-out graph into no diagram at all, and defaulting the coordinate to 0 stacks every unpositioned node on the origin — both are worse than the node being absent. The LayoutEngine contract deliberately leaves unresolvable positions null and names this skip as the counterpart.",
+        suppressAudit = true)
     String renderNode(Node node) {
         if (node.getX() == null || node.getY() == null) return "";
         double x  = node.getX();

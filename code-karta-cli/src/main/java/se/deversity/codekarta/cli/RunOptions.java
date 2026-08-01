@@ -1,6 +1,8 @@
 package se.deversity.codekarta.cli;
 
 import se.deversity.codekarta.input.parser.ClassDiagramParser;
+import se.deversity.vibetags.annotations.AIImmutable;
+import se.deversity.vibetags.annotations.AIKeepInSync;
 
 import java.util.Collections;
 import java.util.Set;
@@ -26,6 +28,10 @@ import java.util.Set;
  * @param maxMembers     compartment lines kept per class before "…(+N more)";
  *                       {@link ClassDiagramParser#UNLIMITED_MEMBERS} keeps all of them
  */
+@AIImmutable(note = "The compact constructor defensively copies customExcludes and defaults layout; withOutputName returns a new instance rather than mutating. Callers pass the same RunOptions down the whole pipeline, so a mutator here would let one stage change another stage's inputs.")
+@AIKeepInSync(
+    mirrors = {"KartaCli.printUsage()", "docs/CLI.md flag table", "docs/SKILL.md flag list"},
+    reason = "Every component here is a user-facing CLI flag. Adding or renaming one without updating the usage text and the docs tables leaves the flag undiscoverable — nothing in the build catches the gap.")
 public record RunOptions(
         boolean sequenceOnly,
         String layout,
