@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 @AITestDriven(
     framework = AITestDriven.Framework.JUNIT_5,
     coverageGoal = 90,
-    testLocation = "code-karta-cli/src/test/java/com/karta/cli/KartaCliTest.java",
+    testLocation = "code-karta-cli/src/test/java/se/deversity/codekarta/cli/KartaCliTest.java",
     mockPolicy = "Do not mock parsers or layout engines — KartaCliTest calls run() directly against the example-shipping-system fixture for end-to-end coverage"
 )
 public class KartaCli {

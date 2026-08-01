@@ -62,7 +62,7 @@
         <elk.version>0.12.0</elk.version>
         <!-- ELK 0.12.x no longer drags in xbase.lib transitively but still needs it at runtime -->
         <xtext.version>2.43.0</xtext.version>
-        <vibetags.version>1.0.0-RC7</vibetags.version>
+        <vibetags.version>1.0.0-RC8</vibetags.version>
     </properties>
 
     <dependencyManagement>
@@ -164,6 +164,25 @@
                                     <arg>-Xplugin:ErrorProne</arg>
                                     <arg>-XDshould-stop.ifError=FLOW</arg>
                                 </compilerArgs>
+                            </configuration>
+                        </execution>
+                        <!-- Annotation processing is disabled for test sources on purpose.
+                             Guardrails describe the shipped API, so test classes have nothing to
+                             contribute to them, and test-scoped guardrails such as @AIParallelTests
+                             live on the main class they describe.
+
+                             This was a workaround until vibetags 1.0.0-RC8: compile and
+                             test-compile are two rounds over the SAME module id, and the processor
+                             rewrote that module's whole CLAUDE.md region from whatever the current
+                             round saw — erasing every main-source guardrail for a module with
+                             annotated tests (code-karta-input, code-karta-render), so `mvn compile`
+                             and `mvn test` produced different CLAUDE.md files. Upstream #330 gave
+                             each source set its own sidecar; turning processing back on here is
+                             now safe, it is simply not wanted. See docs/VIBETAGS.md. -->
+                        <execution>
+                            <id>default-testCompile</id>
+                            <configuration>
+                                <proc>none</proc>
                             </configuration>
                         </execution>
                     </executions>

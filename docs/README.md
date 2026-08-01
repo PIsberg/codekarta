@@ -1,6 +1,8 @@
-# code-karta
+# code-karta Documentation
 
-code-karta turns Java source into SVG architecture diagrams. It can map JPMS modules, class relationships, single-file call flows, exception propagation, multi-file call sequences, and enum-backed state transitions.
+code-karta turns Java source into SVG architecture diagrams: JPMS modules, class relationships,
+single-file call flows, exception propagation, multi-file call sequences, and enum-backed state
+transitions.
 
 The project is intentionally small and compiler-like:
 
@@ -8,260 +10,39 @@ The project is intentionally small and compiler-like:
 2. Assign coordinates with a layout engine.
 3. Render the graph as SVG.
 
-## Requirements
+## Start here
 
-| Tool | Version |
+| Page | What it covers |
 |---|---|
-| JDK | 21 or newer |
-| Maven | 3.9 or newer |
-| Gradle | use the included `./gradlew` wrapper |
+| [`BUILD.md`](BUILD.md) | Requirements, Maven and Gradle commands, running from source, diagram regeneration |
+| [`CLI.md`](CLI.md) | Every flag, what it defaults to, and how to choose between them |
+| [`DIAGRAM-MODES.md`](DIAGRAM-MODES.md) | What each input shape produces, with a worked command per mode |
+| [`DIAGRAM-GALLERY.md`](DIAGRAM-GALLERY.md) | The six diagrams code-karta generates from its own source |
+| [`LIBRARY.md`](LIBRARY.md) | Using the tiers directly from Java, theming, and where a change belongs |
+| [`VIEWER.md`](VIEWER.md) | The self-contained interactive diagram viewer |
 
-## Build
+## Going deeper
 
-Maven:
+| Page | What it covers |
+|---|---|
+| [`ARCHITECTURE.md`](ARCHITECTURE.md) | Module responsibilities, graph schema, rendering rules, extension points |
+| [`EXAMPLE-PROJECT.md`](EXAMPLE-PROJECT.md) | The shipping fixture that the integration tests assert against |
+| [`QUALITY.md`](QUALITY.md) | The `mvn verify` gate: Checkstyle, PMD, SpotBugs, Error Prone, ArchUnit, SBOM |
+| [`VIBETAGS.md`](VIBETAGS.md) | How the AI guardrails in `CLAUDE.md` are generated, and the rules for changing them |
+| [`SKILL.md`](SKILL.md) | Compact operating guide for agents using or extending the library |
+| [`SPEC.md`](SPEC.md) | Behaviour specification |
+| [`PLAN.md`](PLAN.md) | The original implementation plan and its reasoning |
+
+## One-minute version
 
 ```bash
-mvn clean test
 mvn clean package
-```
 
-The Maven fat JAR is written to:
-
-```text
-code-karta-cli/target/code-karta-cli-0.2.0-all.jar
-```
-
-Gradle:
-
-```bash
-./gradlew test
-./gradlew :code-karta-cli:fatJar
-```
-
-The Gradle fat JAR is written to:
-
-```text
-code-karta-cli/build/libs/code-karta-cli-0.2.0-all.jar
-```
-
-## CLI
-
-```bash
-java -jar code-karta-cli/target/code-karta-cli-0.2.0-all.jar \
-  --input <path> \
-  --output <dir> \
-  [--output-name <file>] \
-  [--sequence-only] \
-  [--state-machine] \
-  [--modules-only] \
-  [--split-packages] \
-  [--layout simple|elk] \
-  [--exclude <patterns>] \
-  [--max-depth <depth>] \
-  [--max-members <n>]
-```
-
-| Flag | Default | Description |
-|---|---|---|
-| `--input <path>` | required | Java source path to parse. The path determines the diagram type. |
-| `--output <dir>` | `./output` | Directory where the SVG file is written. Created if missing. |
-| `--output-name <file>` | derived | File name to write inside `--output`, instead of the name derived from the input (`class-diagram.svg` and friends). Lets several runs share one output directory. Must be a plain file name — a name with separators or `..` is refused. |
-| `--sequence-only` | off | Emits only `CALLS` edges. For directory input, parses all Java files together into one stitched sequence graph. |
-| `--state-machine` | off | Emits `STATE` nodes and `TRANSITION` edges from enum constants, switch cases, state assignments, and `transition(from, to, event)` calls. |
-| `--modules-only` | off | Cross-module diagram. Reads `module-info.java` when the project declares JPMS modules, and otherwise the build reactor — Maven `<modules>` or Gradle `include(...)` — with `HAS` for aggregation and `REQUIRES` for intra-reactor dependencies. |
-| `--split-packages` | off | Emits one diagram per package instead of one for the whole tree, mirroring the package structure under `--output`. |
-| `--layout simple\|elk` | `simple` | `simple` is the pure-Java BFS grid. `elk` uses Eclipse Layout Kernel layered layout and is better for larger graphs. |
-| `--exclude <patterns>` | off | Comma-separated wildcard patterns of classes or methods to exclude (e.g. `*Test,se.deversity.codekarta.util.*,Map`) to reduce visual clutter. |
-| `--max-depth <depth>` | off | Maximum call sequence depth to parse or stitch. |
-| `--max-members <n>` | `6` | Field/method lines per class box before the rest collapse into `…(+N more)`. Pass `all` or `0` to show every member. |
-| `--help` | off | Prints CLI usage. |
-
-During development:
-
-```bash
-mvn -pl code-karta-cli exec:java \
-  -Dexec.mainClass=se.deversity.codekarta.cli.KartaCli \
-  "-Dexec.args=--input example-shipping-system/src/main/java/com/karta/shipping/domain --output target/diagrams"
-
-./gradlew :code-karta-cli:run --args="--input example-shipping-system/src/main/java/com/karta/shipping/domain --output build/diagrams"
-```
-
-## Diagram Modes
-
-| Input | Mode | Output file |
-|---|---|---|
-| `module-info.java` | JPMS module diagram | `module-diagram.svg` |
-| Directory | Class diagram | `class-diagram.svg` |
-| Single `.java` file | Exception-flow sequence diagram | `<lowercase-classname>-sequence-diagram.svg` |
-| Single `.java` file plus `--sequence-only` | Call-only sequence diagram | `<lowercase-classname>-sequence-diagram.svg` |
-| Directory plus `--sequence-only` | Multi-file stitched sequence diagram | `sequence-diagram.svg` |
-| File or directory plus `--state-machine` | State transition diagram | `<lowercase-classname>-state-machine-diagram.svg` or `state-machine-diagram.svg` |
-
-### Module Diagram
-
-Parses a JPMS module descriptor into module and package nodes with `REQUIRES` and `EXPORTS` edges.
-
-```bash
-java -jar code-karta-cli/target/code-karta-cli-0.2.0-all.jar \
-  --input example-shipping-system/src/main/java/module-info.java \
-  --output example-shipping-system/diagrams
-```
-
-### Class Diagram
-
-Parses a directory of Java files into class and interface nodes with `EXTENDS`, `IMPLEMENTS`, and `HAS` edges. Standard library types such as `String`, primitives, and common collections are filtered out so diagrams focus on domain types. 
-
-Classes are **automatically grouped by Java package** into nested compound blocks to enable clean visual grouping under scale. You can filter out specific classes, packages, or frameworks using the `--exclude` flag.
-
-```bash
 java -jar code-karta-cli/target/code-karta-cli-0.2.0-all.jar \
   --input example-shipping-system/src/main/java/com/karta/shipping/domain \
-  --output example-shipping-system/diagrams
+  --output output
 ```
 
-### Exception-Flow Sequence Diagram
-
-Parses one Java file into method nodes and ordered call edges. The default file mode also includes exception propagation and try/catch regions when the parser can identify them.
-
-```bash
-java -jar code-karta-cli/target/code-karta-cli-0.2.0-all.jar \
-  --input code-karta-cli/src/main/java/com/karta/cli/KartaCli.java \
-  --output docs/diagrams
-```
-
-### Call-Only Sequence Diagram
-
-Use `--sequence-only` when you want a cleaner call graph without exception-flow annotations.
-
-```bash
-java -jar code-karta-cli/target/code-karta-cli-0.2.0-all.jar \
-  --input code-karta-input/src/main/java/com/karta/input/parser/CallSequenceParser.java \
-  --output docs/diagrams \
-  --sequence-only
-```
-
-### Multi-File Stitched Sequence Diagram
-
-Directory input plus `--sequence-only` parses all `.java` files below the directory and uses JavaParser symbol solving to stitch calls across files. The key difference from single-file mode: a call like `inventoryService.checkStock()` resolves to `InventoryService.checkStock` and connects to the node created when `InventoryService.java` is parsed, rather than dangling as an unowned node.
-
-Point `--input` at a source root such as `src/main/java` when you need cross-package resolution.
-
-```bash
-java -jar code-karta-cli/target/code-karta-cli-0.2.0-all.jar \
-  --input example-shipping-system/src/main/java/com/karta/shipping/core \
-  --output docs/diagrams \
-  --sequence-only
-```
-
-### State Transition Diagram
-
-Use `--state-machine` for enum-backed workflow code. Enum constants become `STATE` nodes. The parser recognizes switch cases that assign, return, or yield another enum constant, plus explicit `transition(from, to, event)` calls.
-
-```java
-class Workflow {
-  enum State { OPEN, REVIEW, CLOSED }
-
-  void configure() {
-    transition(State.OPEN, State.REVIEW, "submit");
-    transition(State.REVIEW, State.CLOSED, "approve");
-  }
-}
-```
-
-```bash
-java -jar code-karta-cli/target/code-karta-cli-0.2.0-all.jar \
-  --input code-karta-cli/src/main/java/com/karta/cli/KartaCli.java \
-  --state-machine --output docs/diagrams
-```
-
-## Generated Files
-
-SVG files are written to `--output`, or to `./output` when `--output` is omitted.
-
-```text
-output/
-├── module-diagram.svg
-├── class-diagram.svg
-├── kartacli-sequence-diagram.svg
-├── kartacli-state-machine-diagram.svg
-└── sequence-diagram.svg
-```
-
-The SVGs are self-contained and open directly in a browser or IDE. Rendered elements use stable CSS classes such as `.node-rect`, `.edge-line`, and `.group-rect`; library users can pass a custom stylesheet to `SvgRenderer.render(graph, css)`.
-
-Recommended local ignore rules:
-
-```gitignore
-output/
-target/diagrams/
-build/diagrams/
-```
-
-## Library Use
-
-The CLI is only a thin wrapper. Java code can use the modules directly:
-
-```java
-Path input = Path.of("src/main/java");
-Graph graph = new JavaSourceInputParser().parse(input);
-new ElkLayoutEngine().layout(graph);
-String svg = new SvgRenderer().render(graph);
-```
-
-Use `new JavaSourceInputParser(true)` for call-only single-file parsing. Use `new MultiFileSequenceParser().parse(sourceRoot)` for stitched sequence graphs. Use `new StateMachineParser().parse(path)` for enum-backed state transition graphs.
-
-## Example Project
-
-A complete fixture lives in [`example-shipping-system/`](../example-shipping-system/). Pre-generated diagrams are in [`example-shipping-system/diagrams/`](../example-shipping-system/diagrams/).
-
-| File | Source | Shows |
-|---|---|---|
-| [`module-diagram.svg`](../example-shipping-system/diagrams/module-diagram.svg) | `module-info.java` | JPMS `requires` and `exports` from the shipping module descriptor |
-| [`class-diagram.svg`](../example-shipping-system/diagrams/class-diagram.svg) | `shipping/domain/` | `ShippingUnit`, `Cargo`, and `ExpressCargo` relationships |
-| [`orderprocessor-sequence-diagram.svg`](../example-shipping-system/diagrams/orderprocessor-sequence-diagram.svg) | `OrderProcessor.java` | `OrderProcessor` method calls and exception flow |
-| [`shipmentlifecycle-state-machine-diagram.svg`](../example-shipping-system/diagrams/shipmentlifecycle-state-machine-diagram.svg) | `state/ShipmentLifecycle.java` | Switch-case transitions: `CREATED → PROCESSING → IN_TRANSIT → DELIVERED / FAILED / CANCELLED` |
-| [`paymentworkflow-state-machine-diagram.svg`](../example-shipping-system/diagrams/paymentworkflow-state-machine-diagram.svg) | `state/PaymentWorkflow.java` | Explicit `transition(from, to, event)` DSL: payment states from `PENDING` through `CAPTURED` or `DECLINED` |
-| [`inventoryreservation-state-machine-diagram.svg`](../example-shipping-system/diagrams/inventoryreservation-state-machine-diagram.svg) | `state/InventoryReservation.java` | Linear state assignments: `IDLE → CHECKING → RESERVED → ALLOCATED → COMMITTED` |
-
-The three state machine files each demonstrate a different detection pattern in `StateMachineParser` — see [§ 6 of architecture.md](../architecture.md#6-state-machine-diagrams) for a full walkthrough.
-
-Regenerate those diagrams:
-
-```bash
-mvn clean package -q
-
-JAR=code-karta-cli/target/code-karta-cli-0.2.0-all.jar
-STATE=example-shipping-system/src/main/java/com/karta/shipping/state
-
-# Module, class, and sequence diagrams
-java -jar $JAR --input example-shipping-system/src/main/java/module-info.java --output example-shipping-system/diagrams
-java -jar $JAR --input example-shipping-system/src/main/java/com/karta/shipping/domain --output example-shipping-system/diagrams
-java -jar $JAR --input example-shipping-system/src/main/java/com/karta/shipping/core/OrderProcessor.java --output example-shipping-system/diagrams
-
-# State machine diagrams (one per pattern)
-java -jar $JAR --input $STATE/ShipmentLifecycle.java   --state-machine --output example-shipping-system/diagrams
-java -jar $JAR --input $STATE/PaymentWorkflow.java      --state-machine --output example-shipping-system/diagrams
-java -jar $JAR --input $STATE/InventoryReservation.java --state-machine --output example-shipping-system/diagrams
-```
-
-Build the example itself:
-
-```bash
-cd example-shipping-system
-mvn compile
-./gradlew compileJava
-```
-
-## Interactive Diagram Viewer
-
-To easily navigate large or complex architecture maps, code-karta includes a self-contained, high-fidelity **Interactive Diagram Viewer** at [`docs/diagrams/viewer.html`](diagrams/viewer.html).
-
-Simply open [`viewer.html`](diagrams/viewer.html) in any modern web browser to access premium exploration controls:
-*   🔍 **Real-Time Search & Highlight:** Highlight matching classes, methods, or packages; non-matching elements are automatically dimmed to $15\%$ opacity to isolate dependencies.
-*   ⚙️ **Relationship Toggles:** Hide or show specific edge types (e.g. Method Calls, Composition, Exceptions, or Inheritance) with simple checkable switches to isolate structural concerns.
-*   🔬 **Responsive Zoom & Pan:** Use your mouse wheel, touchpad, or HUD buttons for fluid zoom and click-and-drag panning.
-*   🔄 **Tab Switcher:** Switch between all six system diagrams seamlessly in a single page.
-
-## Architecture
-
-For module responsibilities, graph schema, rendering rules, and extension points, read [`ARCHITECTURE.md`](ARCHITECTURE.md).
+The input path decides the diagram type; flags refine it. `module-info.java` gives a module
+diagram, a directory gives a class diagram, a single `.java` file gives an exception-flow sequence
+diagram. [`DIAGRAM-MODES.md`](DIAGRAM-MODES.md) has the full table.

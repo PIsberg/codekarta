@@ -11,6 +11,9 @@ import se.deversity.codekarta.core.model.Edge;
 import se.deversity.codekarta.core.model.Graph;
 import se.deversity.codekarta.core.model.Group;
 import se.deversity.codekarta.core.model.Node;
+import se.deversity.vibetags.annotations.AIArchitecture;
+import se.deversity.vibetags.annotations.AIContext;
+import se.deversity.vibetags.annotations.AIParallelTests;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,11 +26,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-@se.deversity.vibetags.annotations.AIContext(
+@AIContext(
     focus = "Generic-type stripping: rawType() must be called before SKIP_TYPES lookup so 'List<Node>' → 'List' and gets filtered. Node.properties is populated with truncated field/method summaries for UML compartments. HAS edge labels carry the field name.",
     avoids = "Bypassing SKIP_TYPES for stdlib types — class diagrams quickly become unreadable with List/Map/String nodes. Populating Node.properties for externally-referenced stub nodes (only populate for types whose source is in this parse run)."
 )
-@se.deversity.vibetags.annotations.AIArchitecture(belongsTo = "input", cannotReference = {"layout", "render", "cli"})
+@AIArchitecture(belongsTo = "input", cannotReference = {"layout", "render", "cli"})
+@AIParallelTests(reason = "ClassDiagramParserTest builds each fixture in its own @TempDir and asserts on the returned Graph. Never reach for a shared static parser or a fixed scratch path — the suite must stay safe under Surefire forkCount > 1.")
 public class ClassDiagramParser {
 
     private static final Logger log = Logger.getLogger(ClassDiagramParser.class.getName());

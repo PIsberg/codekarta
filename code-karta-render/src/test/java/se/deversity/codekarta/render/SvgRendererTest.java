@@ -5,13 +5,11 @@ import se.deversity.codekarta.core.model.Graph;
 import se.deversity.codekarta.core.model.Group;
 import se.deversity.codekarta.core.model.Node;
 import org.junit.jupiter.api.Test;
-import se.deversity.vibetags.annotations.AIParallelTests;
 
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@AIParallelTests
 class SvgRendererTest {
 
     private final SvgRenderer renderer = new SvgRenderer();

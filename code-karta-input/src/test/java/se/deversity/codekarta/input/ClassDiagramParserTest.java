@@ -8,13 +8,11 @@ import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import se.deversity.vibetags.annotations.AIParallelTests;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static se.deversity.codekarta.input.parser.ClassDiagramParser.rawType;
 import static se.deversity.codekarta.input.parser.ClassDiagramParser.innerGenericType;
 
-@AIParallelTests
 class ClassDiagramParserTest {
 
     private final ClassDiagramParser parser = new ClassDiagramParser();

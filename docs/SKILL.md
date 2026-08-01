@@ -143,12 +143,22 @@ Run the full test suite after behavioral changes:
 mvn test
 ```
 
-For docs-only changes, at least verify the changed Markdown for obvious command drift against `KartaCli.printUsage()` and `docs/ARCHITECTURE.md`.
+For docs-only changes, at least verify the changed Markdown for obvious command drift against `KartaCli.printUsage()` and `docs/CLI.md`.
 
-When changing CLI behavior, update:
+When changing CLI behavior, update all of:
 
-- `code-karta-cli/src/main/java/com/karta/cli/KartaCli.java`
-- `code-karta-cli/src/test/java/com/karta/cli/KartaCliTest.java`
-- `docs/README.md`
-- `docs/ARCHITECTURE.md`
-- this `SKILL.md`
+- `code-karta-cli/src/main/java/se/deversity/codekarta/cli/KartaCli.java` — including `printUsage()`
+- `code-karta-cli/src/main/java/se/deversity/codekarta/cli/RunOptions.java`
+- `code-karta-cli/src/test/java/se/deversity/codekarta/cli/KartaCliTest.java`
+- `docs/CLI.md` — the flag table
+- `docs/DIAGRAM-MODES.md` — if the change affects which diagram an input produces
+- this `SKILL.md` — the flag list above
+
+`RunOptions` carries an `@AIKeepInSync` guardrail naming those mirrors, because nothing in the
+build catches a flag added to one and not the others.
+
+## Guardrails
+
+Source annotations generate the `<project_guardrails>` blocks in `CLAUDE.md` and `llms.txt` at
+compile time. Never hand-edit inside the `VIBETAGS-START` / `VIBETAGS-END` markers, and never put
+a VibeTags annotation on a test class — see `docs/VIBETAGS.md`.

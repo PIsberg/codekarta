@@ -10,6 +10,7 @@ import se.deversity.codekarta.core.model.Node;
 import se.deversity.codekarta.core.model.NodeType;
 import se.deversity.vibetags.annotations.AIArchitecture;
 import se.deversity.vibetags.annotations.AIContext;
+import se.deversity.vibetags.annotations.AIParallelTests;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -51,6 +52,7 @@ import java.util.regex.Pattern;
     avoids = "Resolving property placeholders, profiles, or dependencyManagement — this is a structural read, not a build. Following <module> or include() paths outside the reactor root."
 )
 @AIArchitecture(belongsTo = "input", cannotReference = {"layout", "render", "cli"})
+@AIParallelTests(reason = "BuildReactorParserTest writes a synthetic reactor into its own @TempDir rather than reading this repository's build files — the parser's whole job is reading build files, so a shared or real fixture would couple cases to each other and to unrelated build changes.")
 public class BuildReactorParser {
 
     private static final Logger log = Logger.getLogger(BuildReactorParser.class.getName());

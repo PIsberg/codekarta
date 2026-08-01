@@ -7,6 +7,7 @@ import se.deversity.codekarta.core.model.Node;
 import org.jspecify.annotations.Nullable;
 import se.deversity.vibetags.annotations.AIArchitecture;
 import se.deversity.vibetags.annotations.AIContext;
+import se.deversity.vibetags.annotations.AIParallelTests;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -30,6 +31,7 @@ import java.util.Set;
     avoids = "Reading Node.x/y from the Graph — this renderer ignores BFS coordinates entirely and computes its own lane geometry from LANE_W and participant index."
 )
 @AIArchitecture(belongsTo = "render", cannotReference = {"input", "layout", "cli"})
+@AIParallelTests(reason = "SequenceDiagramRendererTest constructs a fresh Graph per case and asserts on returned SVG strings. No shared fixture, no temp files, no fixed ports — keep it that way so the suite stays safe under Surefire forkCount > 1.")
 class SequenceDiagramRenderer {
 
     private static final double LANE_W          = 220.0;

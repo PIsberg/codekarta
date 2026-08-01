@@ -2,16 +2,21 @@
 
 > Java architecture mapping tool. Parses Java source with JavaParser and emits SVG diagrams for JPMS modules, class relationships, method call sequences, exception flow, stitched multi-file call graphs, and enum-backed state machines. Strict 3-tier pipeline (input → layout → render) communicating only through a shared graph IR.
 
-Orientation facts: tiers never import from a tier beside them — `code-karta-core` is the only shared dependency; all parsers are fault-tolerant (catch, log a warning, return a partial graph — never crash); layout mutates `Node.x/y/width/height` in place; `SvgRenderer` CSS class names (`.node-rect`, `.edge-line`, `.group-rect`) are a stable theming contract.
+Orientation facts: tiers never import from a tier beside them — `code-karta-core` is the only shared dependency; all parsers are fault-tolerant (catch, log a warning, return a partial graph — never crash); layout mutates `Node.x/y/width/height` in place; `SvgRenderer` CSS class names (`.node-rect`, `.edge-line`, `.group-rect`) are a stable theming contract. code-karta's own modules use `se.deversity.codekarta.*`; the `example-shipping-system/` fixture is a separate project using `com.karta.shipping.*`.
 
 ## Docs
 
-- [CLAUDE.md](CLAUDE.md): agent briefing — build commands, architecture invariants, project guardrails
-- [README.md](README.md): project intro, quick start, example diagrams, interactive viewer
+- [CLAUDE.md](CLAUDE.md): agent briefing — architecture invariants and the generated project guardrails
+- [README.md](README.md): project intro, quick start, example diagrams
+- [docs/README.md](docs/README.md): documentation index — start here
 - [docs/SKILL.md](docs/SKILL.md): compact operating guide for using and extending the library
-- [docs/SPEC.md](docs/SPEC.md): behavior specification
-- [docs/README.md](docs/README.md): full user guide
+- [docs/BUILD.md](docs/BUILD.md): Maven and Gradle commands, running from source, diagram regeneration
+- [docs/CLI.md](docs/CLI.md): full flag reference and output conventions
+- [docs/DIAGRAM-MODES.md](docs/DIAGRAM-MODES.md): what each input shape produces, with a worked command per mode
+- [docs/LIBRARY.md](docs/LIBRARY.md): using the tiers directly from Java, theming, where a change belongs
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): technical deep dive — tier diagram, data flow, design decisions
+- [docs/VIBETAGS.md](docs/VIBETAGS.md): how the guardrails below are generated, and the rules for changing them
+- [docs/SPEC.md](docs/SPEC.md): behavior specification
 
 ## Source
 
@@ -25,7 +30,10 @@ Orientation facts: tiers never import from a tier beside them — `code-karta-co
 ## Optional
 
 - [docs/diagrams/](docs/diagrams/): generated diagrams of code-karta itself, plus the interactive viewer.html
-- [architecture.md](architecture.md): working notes
+- [docs/DIAGRAM-GALLERY.md](docs/DIAGRAM-GALLERY.md): the six diagrams code-karta generates from its own source
+- [docs/EXAMPLE-PROJECT.md](docs/EXAMPLE-PROJECT.md): the shipping fixture the integration tests assert against
+- [docs/QUALITY.md](docs/QUALITY.md): the mvn verify quality gate
+- [docs/VIEWER.md](docs/VIEWER.md): the interactive diagram viewer
 - [docs/PLAN.md](docs/PLAN.md): roadmap notes
 
 <!-- VIBETAGS-START -->
@@ -47,10 +55,16 @@ AI tools reading this file should respect the guardrails defined below. These ru
 - [KartaCli](se.deversity.codekarta.cli.KartaCli): run(Path, Path, boolean, String) is a public static method tested directly by KartaCliTest without spawning a process. Its signature and output filename conventions (module-diagram.svg, class-diagram.svg, <name>-sequence-diagram.svg) must remain stable.
 
 ## 🧪 Test-Driven Requirements
-- [KartaCli](se.deversity.codekarta.cli.KartaCli): Coverage goal: 90%. Framework: JUNIT_5. Test file: code-karta-cli/src/test/java/com/karta/cli/KartaCliTest.java. Mock policy: Do not mock parsers or layout engines — KartaCliTest calls run() directly against the example-shipping-system fixture for end-to-end coverage.
+- [KartaCli](se.deversity.codekarta.cli.KartaCli): Coverage goal: 90%. Framework: JUNIT_5. Test file: code-karta-cli/src/test/java/se/deversity/codekarta/cli/KartaCliTest.java. Mock policy: Do not mock parsers or layout engines — KartaCliTest calls run() directly against the example-shipping-system fixture for end-to-end coverage.
+
+## ❄️ Immutable Types
+- [RunOptions](se.deversity.codekarta.cli.RunOptions): immutable type — The compact constructor defensively copies customExcludes and defaults layout; withOutputName returns a new instance rather than mutating. Callers pass the same RunOptions down the whole pipeline, so a mutator here would let one stage change another stage's inputs.
 
 ## ♻️ Idempotency Guarantees
 - [KartaCli.run(java.nio.file.Path,java.nio.file.Path,boolean,java.lang.String,boolean,java.util.Set<java.lang.String>,int)](se.deversity.codekarta.cli.KartaCli.run(java.nio.file.Path,java.nio.file.Path,boolean,java.lang.String,boolean,java.util.Set<java.lang.String>,int)): Idempotency guaranteed. Multiple invocations must produce the same result as one. Reason: Re-running with the same inputs regenerates byte-identical SVG output — the verify-phase diagram generation and doc regeneration rely on repeated runs converging.
+
+## Mirrored Elements
+- [RunOptions](se.deversity.codekarta.cli.RunOptions): Editing this requires the same edit at: KartaCli.printUsage(), docs/CLI.md flag table, docs/SKILL.md flag list. Every component here is a user-facing CLI flag. Adding or renaming one without updating the usage text and the docs tables leaves the flag undiscoverable — nothing in the build catches the gap.. Nothing checks this automatically — a partial change desyncs silently.
 <!-- VIBETAGS-MODULE-END: code-karta-cli -->
 <!-- VIBETAGS-MODULE: code-karta-core -->
 # This Project
@@ -105,10 +119,44 @@ AI tools reading this file should respect the guardrails defined below. These ru
 ## Locked Files
 
 ## Contextual Rules
+- [JavaSourceInputParser](se.deversity.codekarta.input.JavaSourceInputParser): Focus - Dispatch logic is path-type-based (isDirectory, filename == 'module-info.java', .java extension). All parsers are lazily initialised. The sequenceOnly flag selects between CallSequenceParser (no exception edges) and ExceptionFlowParser (call graph + try/catch Groups).. Avoid - Adding new dispatch conditions without updating the InputParser contract javadoc and KartaCliTest expected output filenames.
+- [MultiFileSequenceParser](se.deversity.codekarta.input.MultiFileSequenceParser): Focus - Cross-file call resolution via JavaSymbolSolver: resolved callees get 'ClassName.methodName' ids so nodes from different source files are automatically linked. Unresolvable calls fall back to scope-based naming without crashing.. Avoid - Adding exception-flow parsing here — catch-boundary groups and EXCEPTION_PROPAGATION edges belong to ExceptionFlowParser on individual files, not to the multi-file stitching pass.
+- [BuildReactorParser](se.deversity.codekarta.input.parser.BuildReactorParser): Focus - Reactor membership comes from the build files, never from the directory layout: a directory holding a pom.xml is not a module unless some aggregator lists it. Only intra-reactor dependencies become REQUIRES edges.. Avoid - Resolving property placeholders, profiles, or dependencyManagement — this is a structural read, not a build. Following <module> or include() paths outside the reactor root.
+- [CallSequenceParser](se.deversity.codekarta.input.parser.CallSequenceParser): Focus - Produces integer-labelled CALLS edges in textual call order within each method. Node IDs use 'ClassName.methodName' qualified form. These integer labels are the contract read by SequenceDiagramRenderer to order messages.. Avoid - Changing the CALLS edge label format — SequenceDiagramRenderer.isInteractionGraph() and orderMessages() depend on labels parsing as integers.
+- [ClassDiagramParser](se.deversity.codekarta.input.parser.ClassDiagramParser): Focus - Generic-type stripping: rawType() must be called before SKIP_TYPES lookup so 'List<Node>' → 'List' and gets filtered. Node.properties is populated with truncated field/method summaries for UML compartments. HAS edge labels carry the field name.. Avoid - Bypassing SKIP_TYPES for stdlib types — class diagrams quickly become unreadable with List/Map/String nodes. Populating Node.properties for externally-referenced stub nodes (only populate for types whose source is in this parse run).
+- [ExceptionFlowParser](se.deversity.codekarta.input.parser.ExceptionFlowParser): Focus - Two-pass per class: (1) build call graph + collect TryStmt catch-boundaries → Group objects; (2) walk throws declarations → emit EXCEPTION_PROPAGATION edges. Exception nodes use 'exception:TypeName' id prefix for renderer detection.. Avoid - Merging both passes into one — Pass 2 needs the complete caller map from Pass 1 to resolve propagation targets correctly.
+- [ModuleInfoParser](se.deversity.codekarta.input.parser.ModuleInfoParser): Focus - Parses module-info.java directives only: 'requires' → REQUIRES edge between MODULE nodes; 'exports' → EXPORTS edge to a PACKAGE node. The module name itself becomes the root MODULE node.. Avoid - Parsing class files or anything outside the module declaration — this parser is scoped to module-info.java exclusively.
+- [ParserSupport](se.deversity.codekarta.input.parser.ParserSupport): Focus - Only the mechanical parse skeleton belongs here — JavaParser configuration, exclude normalisation, and the per-class iteration every single-file parser repeats. Helpers stay caller-agnostic: they take the Graph and a callback rather than deciding what nodes or edges mean.. Avoid - Absorbing diagram semantics from the callers. A helper that knows about CALLS labels, EXCEPTION_PROPAGATION edges, or try/catch Groups belongs in the parser that owns that diagram type, not in the shared skeleton.
+- [SequenceFilterUtil](se.deversity.codekarta.input.parser.SequenceFilterUtil): Focus - SKIP_METHODS is a scoped-call filter only — it applies to receiver.method() calls. Unscoped calls (direct local method invocations) are never filtered because they represent intra-class domain logic. shouldSkipScopedCall() is the single decision point used by all parsers.. Avoid - Adding method names that could be legitimate domain operations (e.g. 'process', 'execute', 'run') — only add names that are unambiguously stdlib/infrastructure noise regardless of context.
+- [StateMachineParser](se.deversity.codekarta.input.parser.StateMachineParser): Focus - Extracts enum-backed state machines. Enum constants become STATE nodes. Switch cases over state values and explicit transition(from,to[,event]) calls become TRANSITION edges.. Avoid - Treating arbitrary enum usage as a state machine without a transition source/target. Parser must fail softly and return partial graphs.
+
+## 🔐 Contract-Frozen Signatures
+- [InputParser](se.deversity.codekarta.input.InputParser): parse(Path) must never throw — all parsers wrap JavaParser calls in try/catch, log a warning, and return a partial (possibly empty) Graph. The fault-tolerance contract ensures the pipeline always produces some output.
 
 ## Strict Test Isolation
-- [BuildReactorParserTest](se.deversity.codekarta.input.BuildReactorParserTest): Strict test isolation required. No shared mutable state or external resource conflicts.
-- [ClassDiagramParserTest](se.deversity.codekarta.input.ClassDiagramParserTest): Strict test isolation required. No shared mutable state or external resource conflicts.
+- [BuildReactorParser](se.deversity.codekarta.input.parser.BuildReactorParser): Strict test isolation required. No shared mutable state or external resource conflicts. Reason: BuildReactorParserTest writes a synthetic reactor into its own @TempDir rather than reading this repository's build files — the parser's whole job is reading build files, so a shared or real fixture would couple cases to each other and to unrelated build changes.
+- [ClassDiagramParser](se.deversity.codekarta.input.parser.ClassDiagramParser): Strict test isolation required. No shared mutable state or external resource conflicts. Reason: ClassDiagramParserTest builds each fixture in its own @TempDir and asserts on the returned Graph. Never reach for a shared static parser or a fixed scratch path — the suite must stay safe under Surefire forkCount > 1.
+
+## Architectural Boundary Constraints
+- [JavaSourceInputParser](se.deversity.codekarta.input.JavaSourceInputParser): Belongs to layer: `input`. Prohibited from referencing: [layout, render, cli]
+- [MultiFileSequenceParser](se.deversity.codekarta.input.MultiFileSequenceParser): Belongs to layer: `input`. Prohibited from referencing: [layout, render, cli]
+- [BuildReactorParser](se.deversity.codekarta.input.parser.BuildReactorParser): Belongs to layer: `input`. Prohibited from referencing: [layout, render, cli]
+- [CallSequenceParser](se.deversity.codekarta.input.parser.CallSequenceParser): Belongs to layer: `input`. Prohibited from referencing: [layout, render, cli]
+- [ClassDiagramParser](se.deversity.codekarta.input.parser.ClassDiagramParser): Belongs to layer: `input`. Prohibited from referencing: [layout, render, cli]
+- [ExceptionFlowParser](se.deversity.codekarta.input.parser.ExceptionFlowParser): Belongs to layer: `input`. Prohibited from referencing: [layout, render, cli]
+- [ModuleInfoParser](se.deversity.codekarta.input.parser.ModuleInfoParser): Belongs to layer: `input`. Prohibited from referencing: [layout, render, cli]
+- [ParserSupport](se.deversity.codekarta.input.parser.ParserSupport): Belongs to layer: `input`. Prohibited from referencing: [layout, render, cli]
+- [StateMachineParser](se.deversity.codekarta.input.parser.StateMachineParser): Belongs to layer: `input`. Prohibited from referencing: [layout, render, cli]
+
+## Deterministic Pure Functions
+- [FilterMatcher.matchesAny(java.lang.String,java.util.Set<java.lang.String>)](se.deversity.codekarta.input.parser.FilterMatcher.matchesAny(java.lang.String,java.util.Set<java.lang.String>)): Must remain a pure function. Forbid assignments to enclosing state, fields, or static members. Reason: Called once per node/edge candidate during parsing — deterministic string matching with no side effects; callers assume referential transparency
+- [FilterMatcher.matches(java.lang.String,java.lang.String)](se.deversity.codekarta.input.parser.FilterMatcher.matches(java.lang.String,java.lang.String)): Must remain a pure function. Forbid assignments to enclosing state, fields, or static members. Reason: Deterministic wildcard matching with no side effects
+
+## open-closed Extension Patterns
+- [InputParser](se.deversity.codekarta.input.InputParser): Designed for extension via strategy/polymorphism. Do not expand conditionals/switch chains. Required Pattern: STRATEGY_PATTERN
+
+## Load-Bearing Oddities
+- [ParserSupport](se.deversity.codekarta.input.parser.ParserSupport): Looks removable but is deliberate. Invariant: parseJava21 propagates its failures instead of swallowing them; the try/catch that turns a failure into a partial graph stays in each calling parser. Breaks if changed: Wrapping the fault tolerance in here looks like deduplication and silently changes the contract: every caller would inherit one shared recovery policy, and a parser that needs to log its own diagnostic or return a differently-shaped partial graph could no longer do so. The repeated try/catch in the callers is the fault-tolerance rule being stated once per parser, not copy-paste. Not a defect — do not flag.
 <!-- VIBETAGS-MODULE-END: code-karta-input -->
 <!-- VIBETAGS-MODULE: code-karta-layout -->
 # This Project
@@ -153,9 +201,21 @@ AI tools reading this file should respect the guardrails defined below. These ru
 ## Locked Files
 
 ## Contextual Rules
+- [SequenceDiagramRenderer](se.deversity.codekarta.render.SequenceDiagramRenderer): Focus - Participants are derived from METHOD node-id prefixes (before last dot). Messages are DFS-ordered by integer CALLS label from entry methods (no incoming CALLS). EXCEPTION nodes (id prefix 'exception:') are pinned last. Groups become UML region frames spanning the Y-range of their member messages.. Avoid - Reading Node.x/y from the Graph — this renderer ignores BFS coordinates entirely and computes its own lane geometry from LANE_W and participant index.
+- [SvgRenderer](se.deversity.codekarta.render.SvgRenderer): Focus - CSS class names node-rect, edge-line, group-rect, node-label, edge-label are stable contract points — consumers inject custom themes via the cssString param. Interaction graphs (METHOD nodes + integer CALLS labels) are automatically routed to SequenceDiagramRenderer.. Avoid - Renaming or removing any CSS class — breaks existing stylesheets. Hardcoding a diagram-type field on Graph — detection must remain content-based.
 
 ## Strict Test Isolation
-- [SequenceDiagramRendererTest](se.deversity.codekarta.render.SequenceDiagramRendererTest): Strict test isolation required. No shared mutable state or external resource conflicts.
-- [SvgRendererTest](se.deversity.codekarta.render.SvgRendererTest): Strict test isolation required. No shared mutable state or external resource conflicts.
+- [SequenceDiagramRenderer](se.deversity.codekarta.render.SequenceDiagramRenderer): Strict test isolation required. No shared mutable state or external resource conflicts. Reason: SequenceDiagramRendererTest constructs a fresh Graph per case and asserts on returned SVG strings. No shared fixture, no temp files, no fixed ports — keep it that way so the suite stays safe under Surefire forkCount > 1.
+- [SvgRenderer](se.deversity.codekarta.render.SvgRenderer): Strict test isolation required. No shared mutable state or external resource conflicts. Reason: SvgRendererTest builds its own Graph per case and asserts on returned strings — nothing is written to disk and no static renderer state exists. Keep it that way so the suite stays safe under Surefire forkCount > 1.
+
+## Architectural Boundary Constraints
+- [SequenceDiagramRenderer](se.deversity.codekarta.render.SequenceDiagramRenderer): Belongs to layer: `render`. Prohibited from referencing: [input, layout, cli]
+- [SvgRenderer](se.deversity.codekarta.render.SvgRenderer): Belongs to layer: `render`. Prohibited from referencing: [input, layout, cli]
+
+## Public API Surface Protection
+- [SvgRenderer](se.deversity.codekarta.render.SvgRenderer): Public API surface. Preserve signature, Javadoc, backwards compatibility, and binary/source stability.
+
+## Load-Bearing Oddities
+- [SvgRenderer.renderNode(se.deversity.codekarta.core.model.Node)](se.deversity.codekarta.render.SvgRenderer.renderNode(se.deversity.codekarta.core.model.Node)): Looks removable but is deliberate. Invariant: A node with a null x or y renders as the empty string rather than raising or substituting a default position. Breaks if changed: Throwing here turns a partially-laid-out graph into no diagram at all, and defaulting the coordinate to 0 stacks every unpositioned node on the origin — both are worse than the node being absent. The LayoutEngine contract deliberately leaves unresolvable positions null and names this skip as the counterpart. Not a defect — do not flag.
 <!-- VIBETAGS-MODULE-END: code-karta-render -->
 <!-- VIBETAGS-END -->
