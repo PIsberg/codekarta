@@ -1,4 +1,4 @@
-val vibetagsVersion = "1.0.0-RC8"
+val vibetagsVersion = "1.0.0-RC10"
 
 allprojects {
     group = "se.deversity.codekarta"

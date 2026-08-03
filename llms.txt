@@ -149,8 +149,8 @@ AI tools reading this file should respect the guardrails defined below. These ru
 - [StateMachineParser](se.deversity.codekarta.input.parser.StateMachineParser): Belongs to layer: `input`. Prohibited from referencing: [layout, render, cli]
 
 ## Deterministic Pure Functions
-- [FilterMatcher.matchesAny(java.lang.String,java.util.Set<java.lang.String>)](se.deversity.codekarta.input.parser.FilterMatcher.matchesAny(java.lang.String,java.util.Set<java.lang.String>)): Must remain a pure function. Forbid assignments to enclosing state, fields, or static members. Reason: Called once per node/edge candidate during parsing — deterministic string matching with no side effects; callers assume referential transparency
 - [FilterMatcher.matches(java.lang.String,java.lang.String)](se.deversity.codekarta.input.parser.FilterMatcher.matches(java.lang.String,java.lang.String)): Must remain a pure function. Forbid assignments to enclosing state, fields, or static members. Reason: Deterministic wildcard matching with no side effects
+- [FilterMatcher.matchesAny(java.lang.String,java.util.Set<java.lang.String>)](se.deversity.codekarta.input.parser.FilterMatcher.matchesAny(java.lang.String,java.util.Set<java.lang.String>)): Must remain a pure function. Forbid assignments to enclosing state, fields, or static members. Reason: Called once per node/edge candidate during parsing — deterministic string matching with no side effects; callers assume referential transparency
 
 ## open-closed Extension Patterns
 - [InputParser](se.deversity.codekarta.input.InputParser): Designed for extension via strategy/polymorphism. Do not expand conditionals/switch chains. Required Pattern: STRATEGY_PATTERN
