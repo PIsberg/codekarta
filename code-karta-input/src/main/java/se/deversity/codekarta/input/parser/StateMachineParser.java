@@ -46,8 +46,10 @@ public class StateMachineParser {
         try {
             if (Files.isDirectory(path)) {
                 try (var stream = Files.walk(path)) {
+                    // sorted(): Files.walk order is filesystem-defined, and it reaches the SVG.
                     stream.filter(p -> p.toString().endsWith(".java"))
                             .filter(p -> !"module-info.java".equals(String.valueOf(p.getFileName())))
+                            .sorted()
                             .forEach(p -> parseFile(p, graph));
                 }
             } else {

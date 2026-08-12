@@ -45,7 +45,9 @@ public class ModuleInfoParser {
     public Graph parseDirectory(Path root) {
         Graph graph = new Graph();
         try (java.util.stream.Stream<Path> stream = Files.walk(root)) {
+            // sorted(): Files.walk order is filesystem-defined, and it reaches the SVG.
             stream.filter(p -> "module-info.java".equals(String.valueOf(p.getFileName())))
+                  .sorted()
                   .forEach(p -> {
                       try {
                           String source = Files.readString(p);
