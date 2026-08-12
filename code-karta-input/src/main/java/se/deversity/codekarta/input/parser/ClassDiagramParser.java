@@ -83,8 +83,13 @@ public class ClassDiagramParser {
         Graph graph = new Graph();
         List<CompilationUnit> units = new ArrayList<>();
         try (var stream = Files.walk(sourceDirectory)) {
+            // sorted() because Files.walk order is filesystem-defined: NTFS returns entries in
+            // name order and ext4 with dir_index returns them in hash order, so the same source
+            // tree produced different node order on Windows and Linux. Node order reaches the
+            // rendered SVG, and consumers commit those files.
             List<Path> javaFiles = stream
                     .filter(p -> p.toString().endsWith(".java"))
+                    .sorted()
                     .toList();
             for (Path file : javaFiles) {
                 try {
