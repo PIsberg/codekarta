@@ -308,9 +308,11 @@ public class MultiFileSequenceParser {
 
     private List<Path> collectJavaSources(Path root) {
         try (Stream<Path> stream = Files.walk(root)) {
+            // sorted(): Files.walk order is filesystem-defined, and it reaches the SVG.
             return stream
                     .filter(p -> p.toString().endsWith(".java"))
                     .filter(p -> !"module-info.java".equals(String.valueOf(p.getFileName())))
+                    .sorted()
                     .collect(Collectors.toList());
         } catch (IOException e) {
             log.warning("Cannot walk source root " + root + ": " + e.getMessage());
@@ -332,6 +334,9 @@ public class MultiFileSequenceParser {
                       Path pfn = parent.getFileName();
                       return pfn != null && ("main".equals(pfn.toString()) || "test".equals(pfn.toString()));
                   })
+                  // sorted(): source-root order decides which module's classes are stitched
+                  // first, and Files.walk order is filesystem-defined.
+                  .sorted()
                   .forEach(roots::add);
         } catch (IOException e) {
             log.warning("Cannot walk source root to find type solver roots: " + e.getMessage());

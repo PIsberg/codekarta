@@ -1,6 +1,7 @@
 # Code Quality Gate
 
-Every `mvn verify` runs the full gate. All of it is blocking except mutation testing.
+Every `mvn verify` runs the full gate, and all of it is blocking. Mutation testing runs as its
+own CI job rather than inside `verify`, because it is slow, not because it is optional.
 
 | Check | Configuration | Enforces |
 |---|---|---|
@@ -11,18 +12,60 @@ Every `mvn verify` runs the full gate. All of it is blocking except mutation tes
 | ArchUnit | [`ArchitectureRulesTest`](../code-karta-cli/src/test/java/se/deversity/codekarta/cli/ArchitectureRulesTest.java) | The 3-tier boundaries, as fitness functions rather than convention |
 | [JSpecify](https://jspecify.dev/) | `package-info.java` per package | All main packages are `@NullMarked` |
 | [CycloneDX](https://cyclonedx.org/) | `mvn package` | SBOM at `target/bom.json` |
+| [JaCoCo](https://www.jacoco.org/jacoco/) | `jacoco.line.minimum` per module | Line coverage floor; report at `target/site/jacoco/` |
+| PIT | `pitest.mutation.minimum` per module | Mutation score floor, in its own CI job |
+| Build parity | [`scripts/check-build-parity.py`](../scripts/check-build-parity.py) | `pom.xml` and `build.gradle.kts` name the same versions |
+| Idempotent regeneration | `git diff --exit-code` step in [`build.yml`](../.github/workflows/build.yml) | Regenerated diagrams and guardrails match what is committed |
 
 The ArchUnit rules are what stop the architecture from decaying quietly: the tier rule in
 [`ARCHITECTURE.md`](ARCHITECTURE.md) used to be upheld only by convention, and a fitness function
 turns "we agreed not to" into a failing build.
 
+The last three rows exist for the same reason. A version split between the two builds, a diagram
+that no longer regenerates to the same bytes, and a mutation profile nobody runs are all things
+that were true of this repository while every check was green.
+
+## Coverage and mutation floors
+
+Both are floors, not targets. Raise one when the number rises; never lower one to turn a red
+build green. Measured 2026-08-12 on JDK 21:
+
+| Module | Line coverage | Mutation score | Line floor | Mutation floor |
+|---|---|---|---|---|
+| `code-karta-core` | 100.0% | 100% (26/26) | 0.95 | 90 |
+| `code-karta-layout` | 96.1% | 76.4% (68/89) | 0.90 | 70 |
+| `code-karta-render` | 95.8% | 24.1% (98/406) | 0.90 | 20 |
+| `code-karta-input` | 82.7% | 68.1% (346/508) | 0.78 | 62 |
+| `code-karta-cli` | 45.0% | 34.5% (60/174) | 0.40 | 30 |
+| **Total** | **83.5%** | **49.7%** (598/1203) | | |
+
+`code-karta-render` is the reason both numbers are reported. It executes 95.8% of its lines and
+kills 24.1% of its mutants, which is what it looks like when tests call the renderer and assert
+almost nothing about the SVG it returns. Line coverage alone would have called that module well
+tested. Its floors are set at the measured value so the gap cannot widen while it is closed.
+
+`code-karta-cli` is the other one worth attention: 45% line coverage in the module that owns
+argument parsing and file output.
+
 ## Mutation testing
 
-PIT is opt-in — it is slow enough that it does not belong in the default gate:
+PIT is slow, so it runs as a separate CI job rather than inside `mvn verify`. It is not optional:
+a module below its `pitest.mutation.minimum` fails.
 
 ```bash
 mvn -B -Pmutation test-compile org.pitest:pitest-maven:mutationCoverage
 ```
+
+`test-compile` runs first on purpose. A bare plugin goal resolves sibling modules from the
+repository rather than building them, so without a lifecycle phase PIT can measure the last
+published version instead of the working tree.
+
+## A note on the local JDK
+
+The gate targets Java 21 and CI runs Java 21. JaCoCo cannot instrument class files from a much
+newer JDK: on Java 26 it throws instrumentation errors that read like a defect in this repository
+and are not. Before treating a red static-analysis gate as a real finding, check `java -version`
+and rerun on 21.
 
 ## AI guardrails
 

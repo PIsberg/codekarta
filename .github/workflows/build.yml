@@ -2,7 +2,7 @@ name: Build and Test
 
 on:
   push:
-    branches: [ main, "improvements/**", "feature/**", "fix/**" ]
+    branches: [ main, "improvements/**", "feature/**", "fix/**", "chore/**", "docs/**" ]
   pull_request:
     branches: [ main ]
 
@@ -10,8 +10,24 @@ permissions:
   contents: read
 
 jobs:
+  parity:
+    name: Maven and Gradle agree on shared versions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Cheap and fast, so it runs as its own job: a version split makes the maven and gradle
+      # jobs below test different dependency sets, and the failure it produces there is confusing.
+      - name: Check pom.xml against build.gradle.kts
+        run: python3 scripts/check-build-parity.py
+
   maven:
-    name: Maven — build, test, package
+    name: Maven — verify, package, regenerate
     runs-on: ubuntu-latest
     steps:
       - name: Harden the runner (Audit all outbound calls)
@@ -28,17 +44,75 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Test all modules
-        run: mvn clean test
+      # One lifecycle run, not "clean test" followed by "clean verify -DskipTests". The second
+      # clean threw away the first run's output, and no run ever executed the tests and the
+      # static-analysis gate together — which is what a contributor types locally.
+      - name: Verify (tests, Checkstyle, PMD, SpotBugs, Error Prone, JaCoCo, diagrams)
+        run: mvn -B clean verify
 
-      - name: Build fat JAR and generate diagrams
-        run: mvn clean verify -DskipTests
+      # KartaCli.run is documented as idempotent, and downstream repositories commit the diagrams
+      # it produces, so byte drift lands in someone else's repository as a diff nobody made.
+      # mvn verify has just regenerated every diagram, CLAUDE.md, GEMINI.md and llms.txt: if any
+      # of them differs from what is committed, the invariant is broken or the regeneration was
+      # not committed. Both are build failures.
+      - name: Regeneration is idempotent and committed
+        run: |
+          if ! git diff --exit-code; then
+            echo "::error::Generated output differs from what is committed. Run 'mvn clean verify' and commit the result."
+            exit 1
+          fi
+          untracked="$(git ls-files --others --exclude-standard)"
+          if [ -n "$untracked" ]; then
+            echo "::error::The build produced untracked files that are not ignored:"
+            echo "$untracked"
+            exit 1
+          fi
 
       - name: Upload fat JAR
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: code-karta-cli-maven
           path: code-karta-cli/target/code-karta-cli-*-all.jar
+          retention-days: 7
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: jacoco-report
+          path: '*/target/site/jacoco/'
+          retention-days: 7
+
+  mutation:
+    name: Mutation testing (PIT)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5.6.0
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      # The mutation profile existed for months and no workflow referenced it, so the only thing
+      # it measured was whoever remembered to type it. test-compile runs first because a bare
+      # plugin goal resolves siblings from the repository rather than building them.
+      - name: Run PIT
+        run: mvn -B -Pmutation test-compile org.pitest:pitest-maven:mutationCoverage
+
+      - name: Upload mutation report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: pit-reports
+          path: '*/target/pit-reports/'
           retention-days: 7
 
   gradle:
@@ -59,14 +133,20 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
-      - name: Make gradlew executable
-        run: chmod +x gradlew
-
       - name: Test all modules
         run: ./gradlew test
 
       - name: Build fat JAR and generate diagrams
         run: ./gradlew :code-karta-cli:generateDiagrams
+
+      # The Gradle build must produce the same diagram bytes as the Maven build. If it does not,
+      # the two builds disagree about the artifact this project exists to produce.
+      - name: Regeneration matches the committed output
+        run: |
+          if ! git diff --exit-code; then
+            echo "::error::Gradle-generated output differs from what is committed."
+            exit 1
+          fi
 
       - name: Upload fat JAR
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -98,9 +178,6 @@ jobs:
 
       - name: Compile with Maven
         run: mvn compile
-
-      - name: Make gradlew executable
-        run: chmod +x gradlew
 
       - name: Compile with Gradle
         run: ./gradlew compileJava
