@@ -179,5 +179,16 @@ jobs:
       - name: Compile with Maven
         run: mvn compile
 
+      # The Gradle distribution is downloaded by the wrapper on every run of this job, because
+      # setup-java's cache here is 'maven'. That made this the one job structurally exposed to a
+      # services.gradle.org outage: it failed 4/4 attempts while the gradle job, which restores a
+      # cached distribution, passed on the same run. Cache the distribution itself.
+      - name: Cache the Gradle distribution
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ~/.gradle/wrapper/dists
+          key: gradle-dist-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: gradle-dist-
+
       - name: Compile with Gradle
         run: ./gradlew compileJava

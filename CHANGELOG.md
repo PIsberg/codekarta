@@ -54,6 +54,15 @@ each version heading is the complete record.
   together. It is now one `mvn -B clean verify`.
 - The push trigger now includes `chore/**` and `docs/**`; branches with those prefixes got no CI
   until a pull request opened.
+- Source files walked from disk are sorted. `Files.walk` returns entries in a filesystem-defined
+  order — NTFS by name, ext4 with `dir_index` by hash — and no walk site sorted, so the same
+  source tree produced one node order on Windows and another on Linux. `KartaCli.run` was
+  idempotent per machine, not across machines, which is the case that matters when downstream
+  repositories commit the generated SVGs. Found by the new idempotency step on its first run.
+- `gradlew` and `example-shipping-system/gradlew` are committed executable. CI was running
+  `chmod +x` to compensate, which is also a papercut when cloning on Linux or macOS.
+- The Gradle wrapper retries its distribution download (`retries=0` meant a single CDN blip
+  failed the job) and the example job caches the distribution instead of fetching it every run.
 
 ## [0.2.0] - 2026-07-31
 
