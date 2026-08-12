@@ -133,9 +133,6 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
-      - name: Make gradlew executable
-        run: chmod +x gradlew
-
       - name: Test all modules
         run: ./gradlew test
 
@@ -181,9 +178,6 @@ jobs:
 
       - name: Compile with Maven
         run: mvn compile
-
-      - name: Make gradlew executable
-        run: chmod +x gradlew
 
       - name: Compile with Gradle
         run: ./gradlew compileJava
