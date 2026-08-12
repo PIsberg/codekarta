@@ -54,7 +54,7 @@
         <checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
         <checkstyle.version>13.9.0</checkstyle.version>
         <errorprone.version>2.50.0</errorprone.version>
-        <jacoco.version>0.8.13</jacoco.version>
+        <jacoco.version>0.8.15</jacoco.version>
         <!-- Coverage and mutation floors. Both are reactor-wide defaults that a module may raise
              in its own pom; no module may lower one. See docs/QUALITY.md for the measured
              per-module numbers these were derived from. -->
