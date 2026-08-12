@@ -9,3 +9,13 @@ updates:
     directory: /
     schedule:
       interval: daily
+
+  # The Gradle build is a second, independently resolved dependency set that CI tests in its own
+  # job. Without this entry dependabot bumped pom.xml only, and build.gradle.kts silently fell
+  # behind — jspecify 1.0.0 against 1.0.1 and junit 6.1.2 against 6.1.3, both live on main.
+  # scripts/check-build-parity.py fails the build when the two disagree; this keeps the bumps
+  # arriving so that check has something to agree about.
+  - package-ecosystem: gradle
+    directory: /
+    schedule:
+      interval: daily

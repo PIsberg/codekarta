@@ -199,4 +199,8 @@
       </exclusions>
     </dependency>
   </dependencies>
+  <properties>
+    <pitest.mutation.minimum>30</pitest.mutation.minimum>
+    <jacoco.line.minimum>0.40</jacoco.line.minimum>
+  </properties>
 </project>
