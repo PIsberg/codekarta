@@ -1,11 +1,23 @@
+// Every version here mirrors a <property> in pom.xml. scripts/check-build-parity.py fails the
+// build when the two disagree, because CI runs the Maven and Gradle suites as separate jobs and
+// a split makes them test different dependency sets without saying so.
 val vibetagsVersion = "1.1.1"
+val jspecifyVersion = "1.0.1"
+val junitVersion = "6.1.3"
 
 allprojects {
     group = "se.deversity.codekarta"
     version = "0.2.0" // keep in step with the Maven version — the docs name the built jar
 
     repositories {
-        mavenLocal()
+        // mavenLocal() is opt-in (-PuseMavenLocal) rather than always on. With it first in the
+        // list, an artifact that exists only because it was built on this machine satisfies the
+        // build, so an unpublished dependency looks green locally and fails in CI. That is
+        // exactly how a bump to an unpublished VibeTags 1.0.4 passed here and would not have
+        // resolved on Central. Turn it on when developing the processor against this repository.
+        if (providers.gradleProperty("useMavenLocal").isPresent) {
+            mavenLocal()
+        }
         mavenCentral()
     }
 }
@@ -20,9 +32,9 @@ subprojects {
     }
 
     dependencies {
-        "implementation"("org.jspecify:jspecify:1.0.0")
-        "testImplementation"("org.junit.jupiter:junit-jupiter:6.1.2")
-        "testRuntimeOnly"("org.junit.platform:junit-platform-launcher:6.1.2")
+        "implementation"("org.jspecify:jspecify:$jspecifyVersion")
+        "testImplementation"("org.junit.jupiter:junit-jupiter:$junitVersion")
+        "testRuntimeOnly"("org.junit.platform:junit-platform-launcher:$junitVersion")
         // Mirrors <vibetags.version> in pom.xml — the two builds share one generated
         // CLAUDE.md, so a version split makes the guardrails depend on which build ran last.
         "compileOnly"("se.deversity.vibetags:vibetags-annotations:$vibetagsVersion")

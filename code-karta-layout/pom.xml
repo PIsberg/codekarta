@@ -14,6 +14,14 @@
     <name>CodeKarta Layout</name>
     <description>Layout engines (ELK) for CodeKarta</description>
 
+    <properties>
+        <!-- Floors, not targets. Measured on 2026-08-12: line 96.1%, mutation 76.4%.
+             Raise these when the numbers rise; never lower one to make a red build
+             green. The reactor-wide defaults live in the parent pom. -->
+        <jacoco.line.minimum>0.90</jacoco.line.minimum>
+        <pitest.mutation.minimum>70</pitest.mutation.minimum>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>se.deversity.codekarta</groupId>

@@ -26,6 +26,34 @@ each version heading is the complete record.
 ### Added
 
 - This changelog. Release history previously lived only in GitHub Releases.
+- `scripts/check-build-parity.py`, run as its own CI job, fails the build when `pom.xml` and
+  `build.gradle.kts` name different versions. They had already drifted on `main`: the Gradle
+  build resolved jspecify 1.0.0 and junit 6.1.2 against a pom that said 1.0.1 and 6.1.3, so the
+  two CI jobs were testing different dependency sets. A version that cannot be read from either
+  file fails too, so a rename cannot pass as agreement.
+- A `gradle` ecosystem entry in `dependabot.yml`. Only `maven` and `github-actions` were declared,
+  which is why the Gradle build had no way to keep up.
+- JaCoCo line-coverage reporting and a per-module floor. Measured: core 100%, layout 96.1%,
+  render 95.8%, input 82.7%, cli 45.0%, overall 83.5%.
+- A mutation-score floor per module, and a CI job that runs PIT. The `mutation` profile had
+  existed for months with no workflow referencing it. Measured: core 100%, layout 76.4%,
+  input 68.1%, cli 34.5%, render 24.1%, overall 49.7% of 1203 mutants.
+- A CI step asserting that regeneration is idempotent and committed. `KartaCli.run` is documented
+  as producing byte-identical SVG, and downstream repositories commit its output, but nothing
+  checked it.
+- `.gitattributes`, so generated files have the same bytes regardless of which OS built them.
+
+### Fixed
+
+- `build.gradle.kts` no longer puts `mavenLocal()` ahead of Maven Central unconditionally; it is
+  opt-in via `-PuseMavenLocal`. An artifact present only because it was built on the local
+  machine could satisfy the build, which is how a bump to an unpublished VibeTags 1.0.4 passed
+  locally while being unresolvable from Central.
+- CI ran `mvn clean test` and then `mvn clean verify -DskipTests`, so the second clean discarded
+  the first run's output and no run ever executed the tests and the static-analysis gate
+  together. It is now one `mvn -B clean verify`.
+- The push trigger now includes `chore/**` and `docs/**`; branches with those prefixes got no CI
+  until a pull request opened.
 
 ## [0.2.0] - 2026-07-31
 

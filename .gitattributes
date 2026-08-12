@@ -1,0 +1,11 @@
+# Generated SVGs, CLAUDE.md and llms.txt are compared byte-for-byte by the "regeneration is
+# idempotent" step in CI. Without a normalisation rule the bytes depend on which OS ran the
+# build, and a Windows checkout reports every generated file as modified with an empty diff.
+* text=auto eol=lf
+
+*.bat text eol=crlf
+gradlew.bat text eol=crlf
+
+*.jar binary
+*.png binary
+*.ico binary
