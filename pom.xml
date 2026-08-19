@@ -62,7 +62,7 @@
         <pitest.mutation.minimum>20</pitest.mutation.minimum>
         <skipDiagrams>false</skipDiagrams>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jackson.version>2.22.1</jackson.version>
+        <jackson.version>2.22.2</jackson.version>
         <javaparser.version>3.28.2</javaparser.version>
         <junit.version>6.1.3</junit.version>
         <elk.version>0.12.0</elk.version>
