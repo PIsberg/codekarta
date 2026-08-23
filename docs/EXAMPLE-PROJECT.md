@@ -25,7 +25,7 @@ whole detection surface — see [`DIAGRAM-MODES.md`](DIAGRAM-MODES.md#state-tran
 ```bash
 mvn clean package -q
 
-JAR=code-karta-cli/target/code-karta-cli-0.2.0-all.jar
+JAR=code-karta-cli/target/code-karta-cli-0.3.0-all.jar
 STATE=example-shipping-system/src/main/java/com/karta/shipping/state
 
 # Module, class, and sequence diagrams

@@ -38,7 +38,7 @@ The project is intentionally small and compiler-like:
 ```bash
 mvn clean package
 
-java -jar code-karta-cli/target/code-karta-cli-0.2.0-all.jar \
+java -jar code-karta-cli/target/code-karta-cli-0.3.0-all.jar \
   --input example-shipping-system/src/main/java/com/karta/shipping/domain \
   --output output
 ```
