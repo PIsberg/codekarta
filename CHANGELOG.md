@@ -11,6 +11,8 @@ each version heading is the complete record.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-08-23
+
 ### Changed
 
 - VibeTags annotation processor 1.0.3 to 1.1.1. 1.0.4 was prepared upstream but never tagged or
@@ -19,12 +21,33 @@ each version heading is the complete record.
   registry, which matters here because this repository opted into Gemini granular rules in #75.
   1.1.1 changes generated output, so the committed guardrail files under `.claude/rules/`,
   `CLAUDE.md` and `GEMINI.md` are regenerated in the same change.
-- Dependency updates: JUnit 6.1.2 to 6.1.3 (#82), PIT 1.25.8 to 1.25.9 (#80), ArchUnit (#78),
-  CycloneDX Maven plugin (#77), JSpecify 1.0.0 to 1.0.1 (#76), and the CodeQL and Scorecard
-  GitHub Actions (#70, #69).
+- VibeTags 1.1.1 to 1.2.5 (#97 and this release). Generated output is byte-identical to 1.2.0:
+  `mvn clean verify` regenerated `CLAUDE.md`, `GEMINI.md`, `llms.txt`, `.claude/rules/` and
+  `docs/diagrams/` with no diff, and the Gradle regeneration matched.
+- Dependency updates over the whole 0.2.0 to 0.3.0 range: Checkstyle 13.9.0 to 14.0.0 (#105,
+  #110), Jackson 2.22.1 to 2.22.2 (#106, #109), JUnit 6.1.2 to 6.1.3 (#82), JaCoCo 0.8.13 to
+  0.8.15 (#88), SpotBugs Maven plugin 4.10.3.0 to 4.10.4.0, JSpecify 1.0.0 to 1.0.1 (#76),
+  PIT 1.25.8 to 1.25.9 (#80), ArchUnit (#78, #90), CycloneDX Maven plugin (#77), the Shadow
+  Gradle plugin 9.6.0 to 9.6.1 (#91), and the GitHub Actions: cache (#93), setup-java (#94),
+  CodeQL to v4.37.8 (#70, #104), Scorecard (#69), harden-runner (#102).
+- The Gradle wrapper moves from 9.5.1 to 9.7.1. `./gradlew wrapper` rewrites
+  `gradle-wrapper.properties` from its own defaults, which resets `retries` to 0. That is the
+  single-CDN-blip failure this file's own Fixed entry below describes, so the bump restores
+  `retries=3` and `retryBackOffMs=2000` explicitly.
+- SpotBugs Maven plugin 4.10.4.0 requires Maven 3.8.9 or newer. Nothing in this repository
+  declares a minimum Maven version, so on an older Maven the build now fails with the plugin's
+  own message rather than a version check. See the follow-up issue linked from the release PR.
+- PMD 7.26.0, Error Prone 2.50.0, JavaParser 3.28.2 and ELK 0.12.0 were already at their latest
+  releases. Xtext stays at 2.43.0: the only newer version published is the 2.44.0.M3 milestone.
 
 ### Added
 
+- An indexed VibeTags root (#74), so an agent session no longer loads every module's guardrails
+  up front. A `.vibetags-root-index` marker keeps the always-on safety tier (`@AILocked`,
+  `@AICore`, `@AIAudit`) inline in `CLAUDE.md` and indexes the rest into 26 per-module files
+  under `<module>/.claude/rules/`, which load when a matching source file is opened. Root
+  `CLAUDE.md`: 537 lines to 137. Verified against the tree: 137 lines, marker present, 26 rule
+  files.
 - This changelog. Release history previously lived only in GitHub Releases.
 - `scripts/check-build-parity.py`, run as its own CI job, fails the build when `pom.xml` and
   `build.gradle.kts` name different versions. They had already drifted on `main`: the Gradle
@@ -120,6 +143,7 @@ First published release, under the `se.deversity.codekarta` group on Maven Centr
   the per-module rules.
 - GitHub Actions for build, test, and Maven Central publishing.
 
-[Unreleased]: https://github.com/PIsberg/codekarta/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/PIsberg/codekarta/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/PIsberg/codekarta/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/PIsberg/codekarta/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/PIsberg/codekarta/releases/tag/v0.1.0

@@ -6,7 +6,7 @@
 
     <groupId>se.deversity.codekarta</groupId>
     <artifactId>code-karta</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0</version>
     <packaging>pom</packaging>
 
     <name>CodeKarta</name>
@@ -50,7 +50,7 @@
         <maven.compiler.release>21</maven.compiler.release>
         <pmd.plugin.version>3.28.0</pmd.plugin.version>
         <pmd.version>7.26.0</pmd.version>
-        <spotbugs.plugin.version>4.10.3.0</spotbugs.plugin.version>
+        <spotbugs.plugin.version>4.10.4.0</spotbugs.plugin.version>
         <checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
         <checkstyle.version>14.0.0</checkstyle.version>
         <errorprone.version>2.50.0</errorprone.version>
@@ -68,7 +68,7 @@
         <elk.version>0.12.0</elk.version>
         <!-- ELK 0.12.x no longer drags in xbase.lib transitively but still needs it at runtime -->
         <xtext.version>2.43.0</xtext.version>
-        <vibetags.version>1.2.0</vibetags.version>
+        <vibetags.version>1.2.5</vibetags.version>
     </properties>
 
     <dependencyManagement>
