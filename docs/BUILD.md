@@ -9,18 +9,22 @@ and both jobs assert that regeneration leaves the tree clean.
 
 | Tool | Version |
 |---|---|
-| JDK | 21 (CI runs 21; see the JDK note in [`QUALITY.md`](QUALITY.md)) |
-| Maven | 3.9 or newer |
+| JDK | 21 to build (CI runs 21; see the JDK note in [`QUALITY.md`](QUALITY.md)). Everything it produces targets 17 and runs on a 17 JVM. |
+| Maven | use the included `./mvnw` wrapper, which pins 3.9.11 (a system Maven must be 3.8.9 or newer) |
 | Gradle | use the included `./gradlew` wrapper |
 
 ## Maven (primary)
 
+Use `./mvnw`. `mvn validate` fails fast with a named message when the toolchain is wrong: the
+SpotBugs plugin requires Maven 3.8.9 or newer, and JaCoCo cannot instrument class files from
+JDK 26 or newer. Both otherwise surface as errors that read like defects in this repository.
+
 ```bash
-mvn clean test                  # compile + run all tests
-mvn clean package               # build the fat JAR
-mvn clean verify                # the full quality gate — see QUALITY.md
-mvn -pl code-karta-input test   # one module
-mvn -pl code-karta-input -Dtest=ClassDiagramParserTest test   # one test class
+./mvnw clean test                  # compile + run all tests
+./mvnw clean package               # build the fat JAR
+./mvnw clean verify                # the full quality gate, see QUALITY.md
+./mvnw -pl code-karta-input test   # one module
+./mvnw -pl code-karta-input -Dtest=ClassDiagramParserTest test   # one test class
 ```
 
 The Maven fat JAR is written to:

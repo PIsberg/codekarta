@@ -12,6 +12,7 @@ Orientation facts: tiers never import from a tier beside them — `code-karta-co
 - [docs/SKILL.md](docs/SKILL.md): compact operating guide for using and extending the library
 - [docs/BUILD.md](docs/BUILD.md): Maven and Gradle commands, running from source, diagram regeneration
 - [docs/CLI.md](docs/CLI.md): full flag reference and output conventions
+- [docs/MAVEN-PLUGIN.md](docs/MAVEN-PLUGIN.md): the generate goal, its parameters, and multi-diagram configuration
 - [docs/DIAGRAM-MODES.md](docs/DIAGRAM-MODES.md): what each input shape produces, with a worked command per mode
 - [docs/LIBRARY.md](docs/LIBRARY.md): using the tiers directly from Java, theming, where a change belongs
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): technical deep dive — tier diagram, data flow, design decisions
@@ -86,6 +87,9 @@ AI tools reading this file should respect the guardrails defined below. These ru
 - [Group](se.deversity.codekarta.core.model.Group): Sensitivity: Medium. Note: IR cluster — maps a label (package, module boundary, try/catch region) to a set of node IDs. Used by the render tier to draw bounding frames.
 - [Node](se.deversity.codekarta.core.model.Node): Sensitivity: High. Note: IR vertex. Fields id/type/label/properties are the stable serialised schema; x/y/width/height are layout-only and may be null before Tier 2 runs.
 
+## ⚡ Performance Constraints
+- [Graph](se.deversity.codekarta.core.model.Graph): findNode and addNodeIfAbsent must stay O(1). Both are called once per class, method and call site by every parser and both layout engines, so a linear scan makes graph construction O(n²) — measured at 20k nodes as 7.5 s of lookups against 4 ms indexed. Do not reintroduce a nodes.stream() search, and do not replace the id index with a scan 'for simplicity'.
+
 ## ❄️ Immutable Types
 - [NodeDimensions](se.deversity.codekarta.core.model.NodeDimensions): immutable type — Constants-only holder. No instance state may ever be added — this class is used across all three pipeline tiers.
 
@@ -105,7 +109,7 @@ AI tools reading this file should respect the guardrails defined below. These ru
 
 ## Framework-Free Domain Entities
 - [Edge](se.deversity.codekarta.core.model.Edge): Pure Domain Model. Banned imports: [Spring, JPA, Hibernate, Jackson, etc.]. Allowed imports: [com.fasterxml.jackson.annotation.JsonInclude, org.jspecify.annotations.Nullable]
-- [Graph](se.deversity.codekarta.core.model.Graph): Pure Domain Model. Banned imports: [Spring, JPA, Hibernate, Jackson, etc.]. Allowed imports: [com.fasterxml.jackson.annotation.JsonInclude, org.jspecify.annotations.Nullable]
+- [Graph](se.deversity.codekarta.core.model.Graph): Pure Domain Model. Banned imports: [Spring, JPA, Hibernate, Jackson, etc.]. Allowed imports: [com.fasterxml.jackson.annotation.JsonIgnore, com.fasterxml.jackson.annotation.JsonInclude, org.jspecify.annotations.Nullable]
 - [Group](se.deversity.codekarta.core.model.Group): Pure Domain Model. Banned imports: [Spring, JPA, Hibernate, Jackson, etc.]. Allowed imports: [com.fasterxml.jackson.annotation.JsonInclude, org.jspecify.annotations.Nullable]
 - [Node](se.deversity.codekarta.core.model.Node): Pure Domain Model. Banned imports: [Spring, JPA, Hibernate, Jackson, etc.]. Allowed imports: [com.fasterxml.jackson.annotation.JsonInclude, org.jspecify.annotations.Nullable]
 <!-- VIBETAGS-MODULE-END: code-karta-core -->
@@ -191,6 +195,20 @@ AI tools reading this file should respect the guardrails defined below. These ru
 ## Required Chain-of-Thought Explanations
 - [ElkLayoutEngine.layoutWithElk(se.deversity.codekarta.core.model.Graph)](se.deversity.codekarta.layout.ElkLayoutEngine.layoutWithElk(se.deversity.codekarta.core.model.Graph)): Requires step-by-step mathematical or logical explanation (Chain-of-Thought) of all changes. Complexity: MEDIUM
 <!-- VIBETAGS-MODULE-END: code-karta-layout -->
+<!-- VIBETAGS-MODULE: code-karta-maven-plugin -->
+# This Project
+
+> AI guardrail rules generated from source annotations by VibeTags.
+
+AI tools reading this file should respect the guardrails defined below. These rules were extracted from Java source annotations at compile time and apply to all AI assistants including Windsurf Cascade, Cursor, Claude, GitHub Copilot, and Gemini.
+
+## Locked Files
+
+## Contextual Rules
+
+## Security Audit Requirements
+- [GenerateMojo](se.deversity.codekarta.maven.GenerateMojo): check for Path traversal, Unauthorized file write
+<!-- VIBETAGS-MODULE-END: code-karta-maven-plugin -->
 <!-- VIBETAGS-MODULE: code-karta-render -->
 # This Project
 
@@ -209,11 +227,16 @@ AI tools reading this file should respect the guardrails defined below. These ru
 - [SvgRenderer](se.deversity.codekarta.render.SvgRenderer): Strict test isolation required. No shared mutable state or external resource conflicts. Reason: SvgRendererTest builds its own Graph per case and asserts on returned strings — nothing is written to disk and no static renderer state exists. Keep it that way so the suite stays safe under Surefire forkCount > 1.
 
 ## Architectural Boundary Constraints
+- [JsonRenderer](se.deversity.codekarta.render.JsonRenderer): Belongs to layer: `render`. Prohibited from referencing: [input, layout, cli]
 - [SequenceDiagramRenderer](se.deversity.codekarta.render.SequenceDiagramRenderer): Belongs to layer: `render`. Prohibited from referencing: [input, layout, cli]
 - [SvgRenderer](se.deversity.codekarta.render.SvgRenderer): Belongs to layer: `render`. Prohibited from referencing: [input, layout, cli]
 
 ## Public API Surface Protection
 - [SvgRenderer](se.deversity.codekarta.render.SvgRenderer): Public API surface. Preserve signature, Javadoc, backwards compatibility, and binary/source stability.
+
+## ♻️ Idempotency Guarantees
+- [JsonRenderer](se.deversity.codekarta.render.JsonRenderer): Idempotency guaranteed. Multiple invocations must produce the same result as one. Reason: Two renders of the same graph must be byte-identical: map keys are sorted and the pretty printer is pinned to 
+, because HashMap iteration order and System.lineSeparator() are both unstable. KartaCli's byte-identical-output invariant, and the CI step that diffs regenerated files, depend on it.
 
 ## Load-Bearing Oddities
 - [SvgRenderer.renderNode(se.deversity.codekarta.core.model.Node)](se.deversity.codekarta.render.SvgRenderer.renderNode(se.deversity.codekarta.core.model.Node)): Looks removable but is deliberate. Invariant: A node with a null x or y renders as the empty string rather than raising or substituting a default position. Breaks if changed: Throwing here turns a partially-laid-out graph into no diagram at all, and defaulting the coordinate to 0 stacks every unpositioned node on the origin — both are worse than the node being absent. The LayoutEngine contract deliberately leaves unresolvable positions null and names this skip as the counterpart. Not a defect — do not flag.

@@ -11,6 +11,124 @@ each version heading is the complete record.
 
 ## [Unreleased]
 
+### Added
+
+- **`--format json`, and `JsonRenderer` for library callers.** code-karta could only produce SVG,
+  which is a dead end for tooling: an architecture rule that should fail a build, a diff between
+  two revisions, a report, or a consumer's own renderer all need the graph, not a drawing of it.
+  `JsonRenderer` writes the IR verbatim, including layout coordinates when a layout engine has
+  run, and it round-trips back into a `Graph`. Output is byte-identical across runs, which two
+  tests pin: `HashMap` iteration order and `DefaultPrettyPrinter`'s platform line separator would
+  each have broken it silently, and `KartaCli.run`'s idempotence rests on it.
+
+  This also puts the Jackson dependency to work. All four model classes carried Jackson
+  annotations and no `ObjectMapper` existed anywhere in `src/main`, so until now the dependency
+  was pure supply-chain surface with nothing behind it.
+
+- `RunOptions` gained a `format` component and `withFormat`. The previous eight-argument
+  constructor is kept and delegates with the format defaulted to `svg`, so existing callers
+  compile and link unchanged.
+
+- Javadoc on the public API of `code-karta-core`. It had none: zero `/**` blocks across all seven
+  model classes, in the module every library consumer imports, while the release profile published
+  a javadoc jar built with `doclint=none`. `Graph`, `Node`, `Edge`, `Group` and the package
+  documentation now state the things the signatures do not, including the null-coordinate contract
+  between layout and render, that duplicate node ids are permitted and the first wins, that edge
+  endpoints need not resolve, and what `Edge.label` means per edge type. `InputParser` and
+  `JavaSourceInputParser` document the fault-tolerance contract and its consequence: an empty
+  graph does not distinguish "nothing to draw" from "nothing parsed".
+- `doclint` is now `all,-missing` instead of `none`, so a broken `@link`, a wrong `@param` name or
+  malformed HTML fails the release build. Confirmed by breaking a reference deliberately: the
+  build fails with "reference not found". `-missing` is deliberate, so the gate does not demand a
+  comment on every accessor and get switched off again.
+
+- Both build wrappers now pin the distribution they will run by SHA-256
+  (`distributionSha256Sum`). Without it a wrapper executes whatever bytes come back from its
+  distribution URL, on every developer machine and every CI runner. The Maven value was derived
+  by fetching `apache-maven-3.9.11-bin.zip`, checking it against the SHA-512 that
+  `downloads.apache.org` publishes over TLS, and hashing the file that matched; the Gradle value
+  is the one Gradle publishes at `<distributionUrl>.sha256`. Verified in both directions: a wrong
+  sum fails with "Failed to validate Maven distribution SHA-256", and a fresh download with the
+  correct sum succeeds. CI also runs `gradle/actions/wrapper-validation` against the committed
+  `gradle-wrapper.jar`, which is a binary every build executes before any other check.
+
+- **All five modules now compile for Java 17** instead of 21, so an application still on 17 can
+  both depend on the library and run the CLI jar. Nothing in the codebase used a language or API
+  feature past 17; the 21 floor was inherited rather than required. Verified end to end rather
+  than by the compiler flag alone: a new `java17` CI job compiles a consumer with JDK 17 and runs
+  it on JDK 17, runs the shipped fat jar on JDK 17, and asserts every jar carries class file major
+  version 61. Locally the same consumer ran on JDK 17.0.5 and produced the same 11170-byte SVG as
+  on 21.
+
+  One runtime caveat, documented in `COMPATIBILITY.md` and `docs/CLI.md`: ELK's transitive
+  `org.eclipse.xtext.xbase.lib` is compiled for Java 21 in every published version, so on a Java
+  17 runtime `--layout elk` falls back to the simple layout and logs a warning.
+
+- A Maven wrapper (`./mvnw`, pinned to 3.9.11). `mvn clean verify` on Maven 3.8.6 fails with a
+  bare `PluginIncompatibleException`, because the SpotBugs plugin declares a 3.8.9 prerequisite
+  and nothing in this repository declared a minimum. CI and the docs now use the wrapper, so
+  contributors and CI run the same Maven.
+- A `maven-enforcer-plugin` toolchain gate. `requireMavenVersion [3.8.9,)` and
+  `requireJavaVersion [21,26)` fail in `validate` with a message naming the toolchain, instead
+  of surfacing later as a SpotBugs plugin error or a JaCoCo instrumentation error that both read
+  like defects in this repository. Verified in both directions: green on JDK 21, and red on
+  JDK 26 with the intended message. This closes the follow-up noted in the 0.3.0 entry below.
+
+- `LICENSE` (MIT). The repository had no license file at all. GitHub reported the license as
+  `null` and an automated OSS review had nothing to read, which is a hard stop for adoption in
+  most companies regardless of what the README badge claimed.
+- `SECURITY.md`, with a threat model, supported versions and private vulnerability reporting.
+- `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1), issue forms and a pull
+  request template.
+- `COMPATIBILITY.md`, stating what counts as public API, what does not, and what a version bump
+  is allowed to break. Previously a consumer had to infer the boundary from the source.
+
+### Fixed
+
+- **Graph construction was O(n²).** `Graph.findNode` and `Graph.addNodeIfAbsent` were
+  `nodes.stream()` linear scans, and they are called once per class, method and call site by every
+  parser and once per node by both layout engines, at 24 sites. Both are now backed by an id
+  index. Measured on the same machine, JDK 21, 20,000 nodes:
+
+  | | scan | indexed |
+  |---|---|---|
+  | 20,000 `addNodeIfAbsent` | 1417 ms | 9 ms |
+  | 20,000 `findNode` | 7492 ms | 1 ms |
+
+  Scaling matters more than the absolute numbers: doubling 10k to 20k took `findNode` from 407 ms
+  to 7492 ms, an 18x rise for 2x the input. The index is derived state, rebuilt whenever the node
+  list length changes, so nodes added or removed through `getNodes()` are still found. Replacing
+  an element in place, or removing one and adding another between lookups, is not covered and is
+  documented as unsupported.
+
+- **`ElkLayoutEngine` did not fall back on the failures ELK actually produces.** Its javadoc
+  promises a transparent fallback to `SimpleLayoutEngine` "for any reason", but it caught only
+  `Exception`. ELK resolves its algorithms through `ServiceLoader`, so its two realistic failures
+  are `ServiceConfigurationError` (a shaded jar that did not merge `META-INF/services`) and
+  `LinkageError` (a dependency built for a newer JDK than the runtime) and both are `Error`s that
+  went straight through. On a Java 17 runtime this is the normal case, not an edge case, because
+  `org.eclipse.xtext.xbase.lib` is compiled for 21. The catch is now
+  `Exception | LinkageError | ServiceConfigurationError`; `OutOfMemoryError` and other Errors
+  still propagate, which a test pins. Three regression tests were written first and confirmed red
+  before the fix.
+
+- **The published `code-karta-cli` artifact could not be used as a dependency.** The shade
+  plugin was generating a dependency-reduced pom that replaced the real one, and because the
+  shaded jar is an attached `all` classifier rather than the main artifact, the reduced pom
+  stripped the four compile dependencies the unshaded main jar actually needs. Verified against
+  Maven Central: `code-karta-cli-0.3.0.pom` declares three dependencies, all of them `test` or
+  `provided` scope, and none of `code-karta-core`, `-input`, `-layout` or `-render`. Declaring
+  `code-karta-cli` as a Maven dependency therefore resolved a jar of three classes with nothing
+  to run them against. `createDependencyReducedPom` is now `false`, the generated file is
+  untracked and ignored, and a CI step fails if it returns. Affects 0.1.0, 0.2.0 and 0.3.0; the
+  fat jar (`-all` classifier) was never affected.
+
+- The declared license disagreed with itself. `pom.xml` declared Apache-2.0 while the README
+  badge showed MIT, so the three artifacts published to Maven Central (0.1.0, 0.2.0, 0.3.0)
+  carry an Apache-2.0 declaration that was never the intent. The project is MIT; `pom.xml` now
+  says so, and the next release corrects the published metadata.
+- The Maven Central badge linked to the 0.1.0 artifact page rather than the artifact.
+
 ## [0.3.0] - 2026-08-23
 
 ### Changed

@@ -25,10 +25,20 @@ allprojects {
 subprojects {
     apply(plugin = "java-library")
 
+    // Every module targets Java 17, so a consumer on 17 can use the library and run the CLI jar.
+    // Mirrors <library.release> in pom.xml, which scripts/check-build-parity.py compares across
+    // the two builds.
+    val libraryRelease = 17
+
     configure<JavaPluginExtension> {
         toolchain {
             languageVersion = JavaLanguageVersion.of(21)
         }
+    }
+
+    // Only the published classes are constrained; test sources stay on the toolchain's 21.
+    tasks.named<JavaCompile>("compileJava") {
+        options.release.set(libraryRelease)
     }
 
     dependencies {

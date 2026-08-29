@@ -41,6 +41,12 @@ def kts_val(name):
     return re.search(r'val\s+%s\s*=\s*"([^"]+)"' % re.escape(name), KTS)
 
 
+def kts_int_val(name):
+    # libraryRelease is an Int, not a String, so kts_val's quoted pattern will not see it. A
+    # split here would publish library jars that two builds disagree about the bytecode level of.
+    return re.search(r'val\s+%s\s*=\s*(\d+)' % re.escape(name), KTS)
+
+
 def kts_allprojects_version():
     return re.search(r'^\s*version\s*=\s*"([^"]+)"', KTS, re.MULTILINE)
 
@@ -52,6 +58,8 @@ CHECKS = [
      kts_val("vibetagsVersion"), "build.gradle.kts vibetagsVersion"),
     ("junit", pom_property("junit.version"), "pom.xml <junit.version>",
      kts_val("junitVersion"), "build.gradle.kts junitVersion"),
+    ("library Java release", pom_property("library.release"), "pom.xml <library.release>",
+     kts_int_val("libraryRelease"), "build.gradle.kts libraryRelease"),
     ("jspecify", pom_managed_version("org.jspecify", "jspecify"), "pom.xml jspecify dependency",
      kts_val("jspecifyVersion"), "build.gradle.kts jspecifyVersion"),
 ]

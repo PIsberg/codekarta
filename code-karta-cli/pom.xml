@@ -15,6 +15,11 @@
     <description>Command line interface wrapper for CodeKarta</description>
 
     <properties>
+        <!-- The CLI targets 17 as well, so the fat jar runs on a 17 JVM. See <library.release> in
+             the parent pom. -->
+        <maven.compiler.release>${library.release}</maven.compiler.release>
+        <maven.compiler.testRelease>21</maven.compiler.testRelease>
+
         <!-- Floors, not targets. Measured on 2026-08-12: line 45.0%, mutation 34.5%.
              Raise these when the numbers rise; never lower one to make a red build
              green. The reactor-wide defaults live in the parent pom. -->
@@ -182,6 +187,13 @@
                         <configuration>
                             <shadedArtifactAttached>true</shadedArtifactAttached>
                             <shadedClassifierName>all</shadedClassifierName>
+                            <!-- The shaded jar is an attached artifact (classifier "all"); the main jar is not
+                                 shaded. The dependency-reduced pom is therefore wrong for the artifact it
+                                 replaces: it strips the four compile dependencies that the unshaded main jar
+                                 needs. code-karta-cli-0.3.0.pom on Maven Central has no compile-scope
+                                 dependency at all, so declaring code-karta-cli as a dependency resolves a jar
+                                 of three classes and nothing to run them against. -->
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>se.deversity.codekarta.cli.KartaCli</mainClass>

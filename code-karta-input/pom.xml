@@ -15,9 +15,13 @@
     <description>JavaParser-based source analysis for CodeKarta</description>
 
     <properties>
-        <!-- Floors, not targets. Measured on 2026-08-12: line 82.7%, mutation 68.1%.
-             Raise these when the numbers rise; never lower one to make a red build
-             green. The reactor-wide defaults live in the parent pom. -->
+        <!-- Consumed as a library dependency, so it targets Java 17 rather than the reactor
+             default of 21. See <library.release> in the parent pom. -->
+        <maven.compiler.release>${library.release}</maven.compiler.release>
+        <maven.compiler.testRelease>21</maven.compiler.testRelease>
+
+        <!-- Floors, not targets. Measured on 2026-08-12. Raise these when the numbers rise;
+             never lower one to make a red build green. Reactor defaults live in the parent. -->
         <jacoco.line.minimum>0.78</jacoco.line.minimum>
         <pitest.mutation.minimum>62</pitest.mutation.minimum>
     </properties>

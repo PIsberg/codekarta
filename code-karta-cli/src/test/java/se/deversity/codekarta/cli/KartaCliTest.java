@@ -492,4 +492,93 @@ class KartaCliTest {
         graph.addNode(node);
         return graph;
     }
+
+    // --- --format json ---
+
+    @Test
+    void jsonFormatWritesTheGraphInsteadOfAPicture(@TempDir Path inputDir, @TempDir Path outputDir)
+            throws Exception {
+        Files.writeString(inputDir.resolve("Animal.java"), "public class Animal {}");
+        Files.writeString(inputDir.resolve("Dog.java"), "public class Dog extends Animal {}");
+
+        Path result = KartaCli.run(inputDir, outputDir,
+                RunOptions.defaults().withFormat(RunOptions.FORMAT_JSON));
+
+        assertEquals("class-diagram.json", result.getFileName().toString(),
+                "the derived name takes the format's extension");
+        String json = Files.readString(result);
+        assertFalse(json.contains("<svg"), "json output must not be SVG");
+        assertTrue(json.contains("\"nodes\""));
+        assertTrue(json.contains("\"Animal\""));
+        assertTrue(json.contains("\"EXTENDS\""), "the edge must survive into the JSON");
+    }
+
+    @Test
+    void jsonFormatIncludesLayoutCoordinates(@TempDir Path inputDir, @TempDir Path outputDir)
+            throws Exception {
+        Files.writeString(inputDir.resolve("Animal.java"), "public class Animal {}");
+
+        Path result = KartaCli.run(inputDir, outputDir,
+                RunOptions.defaults().withFormat(RunOptions.FORMAT_JSON));
+
+        String json = Files.readString(result);
+        assertTrue(json.contains("\"x\""),
+                "layout runs before rendering, so coordinates are in the JSON: " + json);
+        assertTrue(json.contains("\"width\""));
+    }
+
+    @Test
+    void jsonOutputIsIdenticalAcrossRuns(@TempDir Path inputDir, @TempDir Path outputDir)
+            throws Exception {
+        Files.writeString(inputDir.resolve("Animal.java"),
+                "public class Animal { private String name; private int age; }");
+
+        RunOptions options = RunOptions.defaults().withFormat(RunOptions.FORMAT_JSON);
+        String first = Files.readString(KartaCli.run(inputDir, outputDir, options));
+        String second = Files.readString(KartaCli.run(inputDir, outputDir, options));
+
+        // Same invariant as the SVG path: a repository can commit this file, and the CI step that
+        // diffs regenerated output would fail on any instability.
+        assertEquals(first, second, "json output must be byte-identical across runs");
+    }
+
+    @Test
+    void explicitOutputNameIsUsedAsGivenEvenForJson(@TempDir Path inputDir, @TempDir Path outputDir)
+            throws Exception {
+        Files.writeString(inputDir.resolve("Animal.java"), "public class Animal {}");
+
+        Path result = KartaCli.run(inputDir, outputDir,
+                RunOptions.defaults()
+                        .withFormat(RunOptions.FORMAT_JSON)
+                        .withOutputName("graph.txt"));
+
+        assertEquals("graph.txt", result.getFileName().toString(),
+                "a caller who names the file has already decided what to call it");
+    }
+
+    @Test
+    void svgStaysTheDefault(@TempDir Path inputDir, @TempDir Path outputDir) throws Exception {
+        Files.writeString(inputDir.resolve("Animal.java"), "public class Animal {}");
+
+        Path result = KartaCli.run(inputDir, outputDir, RunOptions.defaults());
+
+        assertEquals("class-diagram.svg", result.getFileName().toString());
+        assertTrue(Files.readString(result).contains("<svg "));
+    }
+
+    @Test
+    void formatDefaultsToSvgWhenNull() {
+        assertEquals(RunOptions.FORMAT_SVG,
+                new RunOptions(false, "simple", false, null, 1, false, null, 6, null).format());
+    }
+
+    @Test
+    void withFormatExtensionOnlyRewritesSvgNames() {
+        RunOptions json = RunOptions.defaults().withFormat(RunOptions.FORMAT_JSON);
+
+        assertEquals("class-diagram.json", KartaCli.withFormatExtension("class-diagram.svg", json));
+        assertEquals("report.json", KartaCli.withFormatExtension("report", json));
+        assertEquals("class-diagram.svg",
+                KartaCli.withFormatExtension("class-diagram.svg", RunOptions.defaults()));
+    }
 }
