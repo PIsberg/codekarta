@@ -54,20 +54,21 @@ patch release.
 | `code-karta-input` | Java 17 | Java 17 and newer |
 | `code-karta-layout` | Java 17 | Java 17 and newer, with one caveat below |
 | `code-karta-render` | Java 17 | Java 17 and newer |
-| `code-karta-cli` | Java 21 | Java 21 and newer |
+| `code-karta-cli` | Java 17 | Java 17 and newer, with the same caveat |
 
-The four library modules target Java 17 so they can be consumed from an application that has not
-moved to 21. Verified rather than assumed: CI compiles a consumer with JDK 17 and runs it on JDK
-17 against the installed jars, and separately asserts that each library jar carries class file
-major version 61.
+Every module targets Java 17, so an application still on 17 can depend on the library and run the
+CLI jar. Verified rather than assumed: CI compiles a consumer with JDK 17 and runs it on JDK 17,
+runs the shipped fat jar on JDK 17, and asserts every jar carries class file major version 61.
 
 **`ElkLayoutEngine` needs a Java 21 runtime.** ELK itself is built for 17, but it resolves its
 layout algorithms through `ServiceLoader`, and one transitive dependency,
 `org.eclipse.xtext.xbase.lib`, is compiled for Java 21 in every published version including
 2.43.0 and 2.44.0. On a 17 runtime the service lookup therefore fails. `ElkLayoutEngine` catches
 that, logs a warning and falls back to `SimpleLayoutEngine`, so a Java 17 consumer still gets a
-laid-out graph; it gets the BFS grid rather than the layered algorithm. Everything else, parsing,
-`SimpleLayoutEngine` and SVG rendering, works unchanged on 17.
+laid-out graph; it gets the BFS grid rather than the layered algorithm. On the CLI that means
+`--layout elk` on a Java 17 runtime produces the same diagram `--layout simple` would, and logs a
+warning saying so. Everything else, parsing, `SimpleLayoutEngine`, SVG and JSON output, works
+unchanged on 17.
 
 Building code-karta from source requires JDK 21 regardless, because the CLI module targets 21 and
 the build gates run against it.

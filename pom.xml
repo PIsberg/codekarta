@@ -47,13 +47,20 @@
     </modules>
 
     <properties>
-        <!-- The four library modules are consumed as a dependency, so they compile for Java 17.
-             A 21 floor excludes every consumer still on 17 and buys nothing: the library uses no
-             language or API feature past 17. Only code-karta-cli needs 21. Tests compile at 21
-             everywhere. Enforced end to end by the java17-consumer job in build.yml, which runs
-             the published library classes on a real JDK 17 rather than trusting the flag. -->
+        <!-- Every module compiles for Java 17, so an application still on 17 can both depend on
+             the library and run the CLI jar. Nothing here uses a language or API feature past 17;
+             the 21 floor was inherited, not required. Tests compile at 21 everywhere, and building
+             from source still needs JDK 21 because the gates run against it.
+
+             One runtime caveat, documented in COMPATIBILITY.md: ELK's transitive
+             org.eclipse.xtext.xbase.lib is compiled for Java 21, so on a 17 runtime the elk
+             layout falls back to SimpleLayoutEngine with a logged warning.
+
+             Enforced end to end by the java17 job in build.yml, which runs the built classes on a
+             real JDK 17 and asserts every jar is class file major 61, rather than trusting the
+             compiler flag. -->
         <library.release>17</library.release>
-        <maven.compiler.release>21</maven.compiler.release>
+        <maven.compiler.release>${library.release}</maven.compiler.release>
         <pmd.plugin.version>3.28.0</pmd.plugin.version>
         <pmd.version>7.26.0</pmd.version>
         <spotbugs.plugin.version>4.10.4.0</spotbugs.plugin.version>

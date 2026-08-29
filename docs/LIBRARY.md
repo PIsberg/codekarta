@@ -2,8 +2,8 @@
 
 The CLI is a thin wrapper. Java code can drive the three tiers directly — parse, lay out, render.
 
-The four library modules target **Java 17**, so they can be used from an application that has
-not moved to 21. One caveat: `ElkLayoutEngine` needs a Java 21 runtime, because ELK resolves
+Every module targets **Java 17**, so the library can be used from an application that has not
+moved to 21. One caveat: `ElkLayoutEngine` needs a Java 21 runtime, because ELK resolves
 its algorithms through `ServiceLoader` and `org.eclipse.xtext.xbase.lib` is compiled for 21.
 On 17 it logs a warning and falls back to `SimpleLayoutEngine` rather than throwing, so the
 pipeline still produces a diagram. [`COMPATIBILITY.md`](../COMPATIBILITY.md) has the detail.

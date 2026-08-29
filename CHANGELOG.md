@@ -52,12 +52,17 @@ each version heading is the complete record.
   correct sum succeeds. CI also runs `gradle/actions/wrapper-validation` against the committed
   `gradle-wrapper.jar`, which is a binary every build executes before any other check.
 
-- The four library modules (`core`, `input`, `layout`, `render`) now compile for **Java 17**
-  instead of 21, so they can be consumed from an application that has not moved to 21.
-  `code-karta-cli` still targets 21. Verified end to end rather than by the compiler flag alone:
-  a new `java17` CI job compiles a consumer with JDK 17 and runs it on JDK 17 against the
-  installed jars, and asserts each library jar carries class file major version 61. Locally the
-  same consumer ran on JDK 17.0.5 and produced the same 11170-byte SVG as on 21.
+- **All five modules now compile for Java 17** instead of 21, so an application still on 17 can
+  both depend on the library and run the CLI jar. Nothing in the codebase used a language or API
+  feature past 17; the 21 floor was inherited rather than required. Verified end to end rather
+  than by the compiler flag alone: a new `java17` CI job compiles a consumer with JDK 17 and runs
+  it on JDK 17, runs the shipped fat jar on JDK 17, and asserts every jar carries class file major
+  version 61. Locally the same consumer ran on JDK 17.0.5 and produced the same 11170-byte SVG as
+  on 21.
+
+  One runtime caveat, documented in `COMPATIBILITY.md` and `docs/CLI.md`: ELK's transitive
+  `org.eclipse.xtext.xbase.lib` is compiled for Java 21 in every published version, so on a Java
+  17 runtime `--layout elk` falls back to the simple layout and logs a warning.
 
 - A Maven wrapper (`./mvnw`, pinned to 3.9.11). `mvn clean verify` on Maven 3.8.6 fails with a
   bare `PluginIncompatibleException`, because the SpotBugs plugin declares a 3.8.9 prerequisite

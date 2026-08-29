@@ -15,6 +15,11 @@
     <description>Command line interface wrapper for CodeKarta</description>
 
     <properties>
+        <!-- The CLI targets 17 as well, so the fat jar runs on a 17 JVM. See <library.release> in
+             the parent pom. -->
+        <maven.compiler.release>${library.release}</maven.compiler.release>
+        <maven.compiler.testRelease>21</maven.compiler.testRelease>
+
         <!-- Floors, not targets. Measured on 2026-08-12: line 45.0%, mutation 34.5%.
              Raise these when the numbers rise; never lower one to make a red build
              green. The reactor-wide defaults live in the parent pom. -->

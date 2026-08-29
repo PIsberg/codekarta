@@ -28,7 +28,7 @@ java -jar code-karta-cli/target/code-karta-cli-0.3.0-all.jar \
 | `--state-machine` | off | Emits `STATE` nodes and `TRANSITION` edges from enum constants, switch cases, state assignments, and `transition(from, to, event)` calls. |
 | `--modules-only` | off | Cross-module diagram. Reads `module-info.java` when the project declares JPMS modules, and otherwise the build reactor — Maven `<modules>` or Gradle `include(...)` — with `HAS` for aggregation and `REQUIRES` for intra-reactor dependencies. |
 | `--split-packages` | off | Emits one diagram per package instead of one for the whole tree, mirroring the package structure under `--output`. |
-| `--layout simple\|elk` | `simple` | `simple` is the pure-Java BFS grid. `elk` uses Eclipse Layout Kernel layered layout and is better for larger graphs. |
+| `--layout simple\|elk` | `simple` | `simple` is the pure-Java BFS grid. `elk` uses Eclipse Layout Kernel layered layout and is better for larger graphs. Needs a Java 21 runtime: ELK's transitive `xtext.xbase.lib` is compiled for 21, so on Java 17 this falls back to `simple` and logs a warning. |
 | `--exclude <patterns>` | off | Comma-separated wildcard patterns of classes or methods to exclude (e.g. `*Test,se.deversity.codekarta.util.*,Map`) to reduce visual clutter. |
 | `--max-depth <depth>` | off | Maximum call sequence depth to parse or stitch. |
 | `--max-members <n>` | `6` | Field/method lines per class box before the rest collapse into `…(+N more)`. Pass `all` or `0` to show every member. |

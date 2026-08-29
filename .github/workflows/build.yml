@@ -214,10 +214,21 @@ jobs:
 
       # A library module silently moving back to 21 bytecode would break every Java 17 consumer,
       # and the job above would keep passing until the change reached a release.
-      - name: Library jars carry Java 17 bytecode
+      # A run of the shipped CLI jar on 17, which is what a user on 17 actually does. --layout elk
+      # on purpose: ELK's transitive xtext dependency is built for 21, and the documented behaviour
+      # is a logged fallback to SimpleLayoutEngine rather than a crash.
+      - name: Run the fat jar on JDK 17
         run: |
           set -euo pipefail
-          for module in core input layout render; do
+          ./mvnw -B -q -pl code-karta-cli -am -DskipTests -Dcheckstyle.skip -Dpmd.skip -Dcpd.skip -Dspotbugs.skip -Djacoco.skip -DskipDiagrams=true package
+          jar="$(ls code-karta-cli/target/code-karta-cli-*-all.jar)"
+          "$JAVA_HOME_17_X64/bin/java" -jar "$jar"             --input example-shipping-system/src/main/java/com/karta/shipping/domain             --output /tmp/cli17out --layout elk
+          test -s /tmp/cli17out/class-diagram.svg
+
+      - name: Every jar carries Java 17 bytecode
+        run: |
+          set -euo pipefail
+          for module in core input layout render cli; do
             jar="$(find ~/.m2/repository/se/deversity/codekarta/code-karta-$module -name '*.jar' ! -name '*sources*' ! -name '*javadoc*' | head -1)"
             cls="$(unzip -Z1 "$jar" '*.class' | head -1)"
             major="$(unzip -p "$jar" "$cls" | od -An -tu1 -j6 -N2 | awk '{print $2}')"

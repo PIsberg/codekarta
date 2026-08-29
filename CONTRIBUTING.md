@@ -11,9 +11,9 @@ does not fail on something that could have been caught in five minutes locally.
 
 ## Local setup
 
-JDK 21 is required to build. The four library modules compile for Java 17 so they can be
-consumed from a Java 17 application; only `code-karta-cli` needs 21 at runtime. See
-[`COMPATIBILITY.md`](COMPATIBILITY.md) for what that guarantees and the one ELK caveat.
+JDK 21 is required to build. Everything it produces targets Java 17, so the library and the CLI
+jar both run on a 17 JVM. See [`COMPATIBILITY.md`](COMPATIBILITY.md) for what that guarantees and
+the one ELK caveat.
 
 ```bash
 git clone https://github.com/PIsberg/codekarta.git
