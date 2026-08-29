@@ -14,7 +14,7 @@ Closes #
      If a test was written after the fix, say whether you broke the fix to confirm the test
      goes red. If something could not be verified, say so here rather than leaving it implied. -->
 
-- [ ] `mvn clean verify` passes locally on JDK 21
+- [ ] `./mvnw clean verify` passes locally on JDK 21
 - [ ] Behaviour changes have a test in the existing suite
 - [ ] `CHANGELOG.md` updated under `## [Unreleased]` if a consumer would notice this
 - [ ] Generated output (`docs/diagrams/`, `CLAUDE.md`, `GEMINI.md`, `llms.txt`) regenerated and

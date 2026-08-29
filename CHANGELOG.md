@@ -13,6 +13,16 @@ each version heading is the complete record.
 
 ### Added
 
+- A Maven wrapper (`./mvnw`, pinned to 3.9.11). `mvn clean verify` on Maven 3.8.6 fails with a
+  bare `PluginIncompatibleException`, because the SpotBugs plugin declares a 3.8.9 prerequisite
+  and nothing in this repository declared a minimum. CI and the docs now use the wrapper, so
+  contributors and CI run the same Maven.
+- A `maven-enforcer-plugin` toolchain gate. `requireMavenVersion [3.8.9,)` and
+  `requireJavaVersion [21,26)` fail in `validate` with a message naming the toolchain, instead
+  of surfacing later as a SpotBugs plugin error or a JaCoCo instrumentation error that both read
+  like defects in this repository. Verified in both directions: green on JDK 21, and red on
+  JDK 26 with the intended message. This closes the follow-up noted in the 0.3.0 entry below.
+
 - `LICENSE` (MIT). The repository had no license file at all. GitHub reported the license as
   `null` and an automated OSS review had nothing to read, which is a hard stop for adoption in
   most companies regardless of what the README badge claimed.

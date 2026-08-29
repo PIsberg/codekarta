@@ -69,6 +69,7 @@
         <!-- ELK 0.12.x no longer drags in xbase.lib transitively but still needs it at runtime -->
         <xtext.version>2.44.0</xtext.version>
         <vibetags.version>1.2.5</vibetags.version>
+        <enforcer.plugin.version>3.6.2</enforcer.plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -324,6 +325,36 @@
             </plugins>
         </pluginManagement>
         <plugins>
+            <!-- Two toolchain traps that produce failures reading like defects in this repository.
+                 The SpotBugs plugin declares a 3.8.9 Maven prerequisite and fails with a bare
+                 PluginIncompatibleException on anything older. JaCoCo cannot instrument class files
+                 from a much newer JDK than the one it targets and reports instrumentation errors.
+                 Both cost real debugging time, so fail on the toolchain first with a message that
+                 names the toolchain. ./mvnw pins Maven 3.9.11 so this rule is satisfiable without
+                 a manual install. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${enforcer.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>enforce-toolchain</id>
+                        <goals><goal>enforce</goal></goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>[3.8.9,)</version>
+                                    <message>Maven 3.8.9 or newer is required, because the SpotBugs plugin declares it as a prerequisite. Use ./mvnw, which pins 3.9.11.</message>
+                                </requireMavenVersion>
+                                <requireJavaVersion>
+                                    <version>[21,26)</version>
+                                    <message>Build with JDK 21 through 25. JaCoCo cannot instrument class files from JDK 26 or newer and reports it as an error that looks like a defect in this repository. CI builds on 21.</message>
+                                </requireJavaVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>

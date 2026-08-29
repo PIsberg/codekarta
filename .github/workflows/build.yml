@@ -48,7 +48,7 @@ jobs:
       # clean threw away the first run's output, and no run ever executed the tests and the
       # static-analysis gate together — which is what a contributor types locally.
       - name: Verify (tests, Checkstyle, PMD, SpotBugs, Error Prone, JaCoCo, diagrams)
-        run: mvn -B clean verify
+        run: ./mvnw -B clean verify
 
       # KartaCli.run is documented as idempotent, and downstream repositories commit the diagrams
       # it produces, so byte drift lands in someone else's repository as a diff nobody made.
@@ -123,7 +123,7 @@ jobs:
       # it measured was whoever remembered to type it. test-compile runs first because a bare
       # plugin goal resolves siblings from the repository rather than building them.
       - name: Run PIT
-        run: mvn -B -Pmutation test-compile org.pitest:pitest-maven:mutationCoverage
+        run: ./mvnw -B -Pmutation test-compile org.pitest:pitest-maven:mutationCoverage
 
       - name: Upload mutation report
         if: always()

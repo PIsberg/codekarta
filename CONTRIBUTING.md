@@ -16,10 +16,17 @@ Java 21 is required to build and to run.
 ```bash
 git clone https://github.com/PIsberg/codekarta.git
 cd codekarta
-mvn clean verify
+./mvnw clean verify
 ```
 
-`mvn clean verify` is the same gate CI runs. If it passes locally on JDK 21, it should pass in CI.
+`./mvnw clean verify` is the same gate CI runs. If it passes locally on JDK 21, it should pass in CI.
+
+Use the wrapper rather than a system Maven. The SpotBugs plugin declares a Maven 3.8.9
+prerequisite and fails with a bare `PluginIncompatibleException` on anything older; the wrapper
+pins 3.9.11. Build on JDK 21 through 25, not 26 or newer: JaCoCo cannot instrument class files
+from a much newer JDK and reports it as an error that reads like a defect here. `./mvnw validate`
+checks both and says which one is wrong.
+
 See [`docs/BUILD.md`](docs/BUILD.md) for Gradle and for running from source.
 
 ## What the gate checks
@@ -64,7 +71,7 @@ module a given change belongs in.
   called the renderer and asserted almost nothing about the SVG that came back.
 - New tests go in the existing suite so they run in CI.
 
-Run one class with `mvn -pl <module> -Dtest=<Class> test`.
+Run one class with `./mvnw -pl <module> -Dtest=<Class> test`.
 
 ## Generated files
 
