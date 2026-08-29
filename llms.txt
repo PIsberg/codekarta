@@ -86,6 +86,9 @@ AI tools reading this file should respect the guardrails defined below. These ru
 - [Group](se.deversity.codekarta.core.model.Group): Sensitivity: Medium. Note: IR cluster — maps a label (package, module boundary, try/catch region) to a set of node IDs. Used by the render tier to draw bounding frames.
 - [Node](se.deversity.codekarta.core.model.Node): Sensitivity: High. Note: IR vertex. Fields id/type/label/properties are the stable serialised schema; x/y/width/height are layout-only and may be null before Tier 2 runs.
 
+## ⚡ Performance Constraints
+- [Graph](se.deversity.codekarta.core.model.Graph): findNode and addNodeIfAbsent must stay O(1). Both are called once per class, method and call site by every parser and both layout engines, so a linear scan makes graph construction O(n²) — measured at 20k nodes as 7.5 s of lookups against 4 ms indexed. Do not reintroduce a nodes.stream() search, and do not replace the id index with a scan 'for simplicity'.
+
 ## ❄️ Immutable Types
 - [NodeDimensions](se.deversity.codekarta.core.model.NodeDimensions): immutable type — Constants-only holder. No instance state may ever be added — this class is used across all three pipeline tiers.
 
@@ -105,7 +108,7 @@ AI tools reading this file should respect the guardrails defined below. These ru
 
 ## Framework-Free Domain Entities
 - [Edge](se.deversity.codekarta.core.model.Edge): Pure Domain Model. Banned imports: [Spring, JPA, Hibernate, Jackson, etc.]. Allowed imports: [com.fasterxml.jackson.annotation.JsonInclude, org.jspecify.annotations.Nullable]
-- [Graph](se.deversity.codekarta.core.model.Graph): Pure Domain Model. Banned imports: [Spring, JPA, Hibernate, Jackson, etc.]. Allowed imports: [com.fasterxml.jackson.annotation.JsonInclude, org.jspecify.annotations.Nullable]
+- [Graph](se.deversity.codekarta.core.model.Graph): Pure Domain Model. Banned imports: [Spring, JPA, Hibernate, Jackson, etc.]. Allowed imports: [com.fasterxml.jackson.annotation.JsonIgnore, com.fasterxml.jackson.annotation.JsonInclude, org.jspecify.annotations.Nullable]
 - [Group](se.deversity.codekarta.core.model.Group): Pure Domain Model. Banned imports: [Spring, JPA, Hibernate, Jackson, etc.]. Allowed imports: [com.fasterxml.jackson.annotation.JsonInclude, org.jspecify.annotations.Nullable]
 - [Node](se.deversity.codekarta.core.model.Node): Pure Domain Model. Banned imports: [Spring, JPA, Hibernate, Jackson, etc.]. Allowed imports: [com.fasterxml.jackson.annotation.JsonInclude, org.jspecify.annotations.Nullable]
 <!-- VIBETAGS-MODULE-END: code-karta-core -->

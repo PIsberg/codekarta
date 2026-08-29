@@ -51,6 +51,22 @@ each version heading is the complete record.
 
 ### Fixed
 
+- **Graph construction was O(n²).** `Graph.findNode` and `Graph.addNodeIfAbsent` were
+  `nodes.stream()` linear scans, and they are called once per class, method and call site by every
+  parser and once per node by both layout engines, at 24 sites. Both are now backed by an id
+  index. Measured on the same machine, JDK 21, 20,000 nodes:
+
+  | | scan | indexed |
+  |---|---|---|
+  | 20,000 `addNodeIfAbsent` | 1417 ms | 9 ms |
+  | 20,000 `findNode` | 7492 ms | 1 ms |
+
+  Scaling matters more than the absolute numbers: doubling 10k to 20k took `findNode` from 407 ms
+  to 7492 ms, an 18x rise for 2x the input. The index is derived state, rebuilt whenever the node
+  list length changes, so nodes added or removed through `getNodes()` are still found. Replacing
+  an element in place, or removing one and adding another between lookups, is not covered and is
+  documented as unsupported.
+
 - **`ElkLayoutEngine` did not fall back on the failures ELK actually produces.** Its javadoc
   promises a transparent fallback to `SimpleLayoutEngine` "for any reason", but it caught only
   `Exception`. ELK resolves its algorithms through `ServiceLoader`, so its two realistic failures
