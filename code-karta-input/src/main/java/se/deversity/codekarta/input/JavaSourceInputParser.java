@@ -14,11 +14,30 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 /**
- * Facade that dispatches to the correct parser based on the path:
- *  - module-info.java          → ModuleInfoParser
- *  - directory                 → ClassDiagramParser
- *  - any .java file (default)  → ExceptionFlowParser (call graph + exception flow)
- *  - any .java file (sequenceOnly=true) → CallSequenceParser (call graph only)
+ * The normal entry point to the input tier. Picks a parser from the shape of the path and
+ * delegates to it.
+ *
+ * <table border="1">
+ *   <caption>Dispatch</caption>
+ *   <tr><th>Path</th><th>Parser</th><th>Produces</th></tr>
+ *   <tr><td>{@code module-info.java}</td><td>{@code ModuleInfoParser}</td>
+ *       <td>JPMS requires and exports</td></tr>
+ *   <tr><td>a directory</td><td>{@code ClassDiagramParser}</td>
+ *       <td>inheritance and composition, stdlib types filtered out</td></tr>
+ *   <tr><td>a {@code .java} file</td><td>{@code ExceptionFlowParser}</td>
+ *       <td>call graph plus exception routes and try/catch regions</td></tr>
+ *   <tr><td>a {@code .java} file, {@code sequenceOnly}</td><td>{@code CallSequenceParser}</td>
+ *       <td>the call graph without exception edges</td></tr>
+ * </table>
+ *
+ * <p>Two modes are deliberately not reachable from here and are wired by the CLI instead:
+ * multi-file stitched sequences ({@code MultiFileSequenceParser}) and state machines
+ * ({@code StateMachineParser}). Call those directly.
+ *
+ * <p>Inherits the {@link InputParser} contract: {@link #parse} never throws, and an empty graph
+ * can mean either "nothing to draw" or "nothing parsed".
+ *
+ * <p>Not thread-safe: the delegate parsers are created lazily and cached in fields.
  */
 @AIContext(
     focus = "Dispatch logic is path-type-based (isDirectory, filename == 'module-info.java', .java extension). All parsers are lazily initialised. The sequenceOnly flag selects between CallSequenceParser (no exception edges) and ExceptionFlowParser (call graph + try/catch Groups).",
@@ -37,21 +56,33 @@ public class JavaSourceInputParser implements InputParser {
     private final Set<String> customExcludes;
     private final int maxMembers;
 
+    /** Parses with exception flow included and no extra exclusions. The usual choice. */
     public JavaSourceInputParser() {
         this(false);
     }
 
+    /**
+     * @param sequenceOnly {@code true} to emit the call graph without exception edges or
+     *                     try/catch regions. Only affects single-file input.
+     */
     public JavaSourceInputParser(boolean sequenceOnly) {
         this(sequenceOnly, java.util.Collections.emptySet());
     }
 
+    /**
+     * @param sequenceOnly   see {@link #JavaSourceInputParser(boolean)}
+     * @param customExcludes type names to leave out of a class diagram, on top of the built-in
+     *                       stdlib skip list; {@code null} is treated as empty
+     */
     public JavaSourceInputParser(boolean sequenceOnly, Set<String> customExcludes) {
         this(sequenceOnly, customExcludes, ClassDiagramParser.DEFAULT_MAX_MEMBERS);
     }
 
     /**
-     * @param maxMembers compartment lines kept per class before "…(+N more)";
-     *                   {@link ClassDiagramParser#UNLIMITED_MEMBERS} keeps all of them
+     * @param sequenceOnly   see {@link #JavaSourceInputParser(boolean)}
+     * @param customExcludes see {@link #JavaSourceInputParser(boolean, Set)}
+     * @param maxMembers     compartment lines kept per class before "…(+N more)";
+     *                       {@link ClassDiagramParser#UNLIMITED_MEMBERS} keeps all of them
      */
     public JavaSourceInputParser(boolean sequenceOnly, Set<String> customExcludes, int maxMembers) {
         this.sequenceOnly = sequenceOnly;

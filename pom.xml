@@ -485,7 +485,12 @@
                         </executions>
                         <configuration>
                             <release>21</release>
-                            <doclint>none</doclint>
+                            <!-- doclint was "none", so the javadoc jar published to Maven Central
+                                 was never checked for a broken @link, a wrong @param name or
+                                 malformed HTML. "all,-missing" turns those into build failures
+                                 without demanding a comment on every trivial accessor, which is
+                                 how a doc gate ends up disabled again. -->
+                            <doclint>all,-missing</doclint>
                             <quiet>true</quiet>
                         </configuration>
                     </plugin>

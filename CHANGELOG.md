@@ -13,6 +13,19 @@ each version heading is the complete record.
 
 ### Added
 
+- Javadoc on the public API of `code-karta-core`. It had none: zero `/**` blocks across all seven
+  model classes, in the module every library consumer imports, while the release profile published
+  a javadoc jar built with `doclint=none`. `Graph`, `Node`, `Edge`, `Group` and the package
+  documentation now state the things the signatures do not, including the null-coordinate contract
+  between layout and render, that duplicate node ids are permitted and the first wins, that edge
+  endpoints need not resolve, and what `Edge.label` means per edge type. `InputParser` and
+  `JavaSourceInputParser` document the fault-tolerance contract and its consequence: an empty
+  graph does not distinguish "nothing to draw" from "nothing parsed".
+- `doclint` is now `all,-missing` instead of `none`, so a broken `@link`, a wrong `@param` name or
+  malformed HTML fails the release build. Confirmed by breaking a reference deliberately: the
+  build fails with "reference not found". `-missing` is deliberate, so the gate does not demand a
+  comment on every accessor and get switched off again.
+
 - Both build wrappers now pin the distribution they will run by SHA-256
   (`distributionSha256Sum`). Without it a wrapper executes whatever bytes come back from its
   distribution URL, on every developer machine and every CI runner. The Maven value was derived
