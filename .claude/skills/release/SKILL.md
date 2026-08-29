@@ -44,7 +44,11 @@ mvn -B clean verify
 
 This is the real gate — it runs the tests plus Checkstyle, PMD, and SpotBugs, and CI runs
 the same thing. `mvn test` alone is not sufficient: SpotBugs has failed the build on changes
-that passed every test. Also confirm the Gradle build still compiles if it was touched:
+that passed every test, and `test` never reaches the Maven plugin's integration tests, which
+run the goal from real Maven builds and are the only thing that exercises how a user's pom
+binds to it. Those need network on a cold local repository; they are slow, not optional.
+
+Also confirm the Gradle build still compiles if it was touched:
 
 ```bash
 ./gradlew test
@@ -66,6 +70,11 @@ Then grep for the version in the docs and fix what has drifted — the jar name 
 ```bash
 grep -rn "code-karta-cli-[0-9].*-all.jar\|SNAPSHOT" docs/ README.md
 ```
+
+The plugin coordinates in `docs/MAVEN-PLUGIN.md` are the one place this is already enforced:
+`PluginDescriptorTest.theDocumentedVersionIsTheVersionBeingBuilt` compares them against the
+generated descriptor, so `mvn verify` fails rather than shipping a copyable `<plugin>` block
+naming the previous version. Nothing enforces the CLI jar name, which is why the grep stays.
 
 ### 4. Regenerate the committed diagrams
 
@@ -129,7 +138,20 @@ check:
 
 ```bash
 mvn -B dependency:get -Dartifact=se.deversity.codekarta:code-karta-cli:<X.Y.Z>:jar:all
+mvn -B dependency:get -Dartifact=se.deversity.codekarta:code-karta-maven-plugin:<X.Y.Z>:jar
 ```
+
+Resolving the plugin is not enough on its own. A plugin has a failure mode the library jars do
+not: its descriptor is generated at build time, and one that resolves but carries a missing or
+malformed descriptor fails in the user's build rather than in ours. Run a goal to exercise it:
+
+```bash
+mvn -B se.deversity.codekarta:code-karta-maven-plugin:<X.Y.Z>:help
+```
+
+That has to print the `generate` goal. If it resolves but the help goal does not describe
+`generate`, the publish is broken even though every artifact is present, and the fix is a new
+version — the published one cannot be replaced.
 
 ### 9. Tell the downstream consumers
 
