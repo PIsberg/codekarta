@@ -7,6 +7,7 @@ import se.deversity.codekarta.input.parser.StateMachineParser;
 import se.deversity.codekarta.layout.ElkLayoutEngine;
 import se.deversity.codekarta.layout.LayoutEngine;
 import se.deversity.codekarta.layout.SimpleLayoutEngine;
+import se.deversity.codekarta.render.JsonRenderer;
 import se.deversity.codekarta.render.SvgRenderer;
 
 import se.deversity.vibetags.annotations.AIAudit;
@@ -53,6 +54,7 @@ public class KartaCli {
         boolean splitPackages = false;
         String layout = "simple";
         String outputName = null;
+        String format = RunOptions.FORMAT_SVG;
         java.util.Set<String> customExcludes = java.util.Collections.emptySet();
         int maxDepth = Integer.MAX_VALUE;
         int maxMembers = se.deversity.codekarta.input.parser.ClassDiagramParser.DEFAULT_MAX_MEMBERS;
@@ -99,6 +101,18 @@ public class KartaCli {
                         }
                     }
                 }
+                case "--format"        -> {
+                    if (i + 1 < args.length) {
+                        String raw = args[++i];
+                        if (RunOptions.FORMAT_SVG.equalsIgnoreCase(raw)
+                                || RunOptions.FORMAT_JSON.equalsIgnoreCase(raw)) {
+                            format = raw.toLowerCase(java.util.Locale.ROOT);
+                        } else {
+                            System.err.println("Warning: --format must be 'svg' or 'json', got '"
+                                    + raw + "'. Using svg.");
+                        }
+                    }
+                }
                 case "--help", "-h"    -> { printUsage(); System.exit(0); }
                 default -> { /* unknown args are ignored */ }
             }
@@ -111,7 +125,7 @@ public class KartaCli {
         }
 
         RunOptions options = new RunOptions(sequenceOnly, layout, stateMachine, customExcludes,
-                maxDepth, modulesOnly, outputName, maxMembers);
+                maxDepth, modulesOnly, outputName, maxMembers, format);
 
         try {
             if (splitPackages) {
@@ -267,13 +281,21 @@ public class KartaCli {
         }
 
         state = PipelineStage.RENDERING;
-        String svg = new SvgRenderer().render(graph);
+        // Layout has already run either way, so the JSON carries coordinates. That is deliberate:
+        // a consumer feeding this into its own renderer wants them, and one running architecture
+        // checks over the graph can ignore them.
+        boolean json = options.isJson();
+        String rendered = json
+                ? new JsonRenderer().render(graph)
+                : new SvgRenderer().render(graph);
 
         state = PipelineStage.WRITING;
         Path outputFile = resolveOutputFile(inputPath, outputDir, options);
-        Files.writeString(outputFile, svg);
+        Files.writeString(outputFile, rendered);
 
-        warnIfOversized(svg, graph, outputFile);
+        if (!json) {
+            warnIfOversized(rendered, graph, outputFile);
+        }
 
         state = PipelineStage.DONE;
         log.fine("Pipeline " + state + ": wrote " + outputFile);
@@ -321,8 +343,25 @@ public class KartaCli {
             log.warning(() -> "--output-name '" + requested + "' is not a plain file name inside "
                     + outputDir + "; using the derived name instead.");
         }
-        return outputDir.resolve(deriveOutputName(inputPath, options.sequenceOnly(),
-                options.stateMachine(), options.modulesOnly()));
+        return outputDir.resolve(withFormatExtension(
+                deriveOutputName(inputPath, options.sequenceOnly(),
+                        options.stateMachine(), options.modulesOnly()),
+                options));
+    }
+
+    /**
+     * Swaps the derived name's extension for the requested format.
+     *
+     * <p>Applied only to derived names. An explicit {@code --output-name} is taken literally,
+     * because a caller who names the file has already decided what to call it.
+     */
+    static String withFormatExtension(String derivedName, RunOptions options) {
+        if (!options.isJson()) {
+            return derivedName;
+        }
+        return derivedName.endsWith(".svg")
+                ? derivedName.substring(0, derivedName.length() - 4) + ".json"
+                : derivedName + ".json";
     }
 
     /**
@@ -470,7 +509,7 @@ public class KartaCli {
     }
 
     private static void printUsage() {
-        System.out.println("Usage: karta --input <path> [--output <dir>] [--output-name <file>] [--sequence-only] [--state-machine] [--modules-only] [--split-packages] [--layout simple|elk] [--exclude <patterns>] [--max-depth <depth>] [--max-members <n>]");
+        System.out.println("Usage: karta --input <path> [--output <dir>] [--output-name <file>] [--format svg|json] [--sequence-only] [--state-machine] [--modules-only] [--split-packages] [--layout simple|elk] [--exclude <patterns>] [--max-depth <depth>] [--max-members <n>]");
         System.out.println();
         System.out.println("  --input  <path>      What to parse:");
         System.out.println("                         module-info.java  → module diagram");
@@ -490,6 +529,12 @@ public class KartaCli {
         System.out.println("                         derived from the input (class-diagram.svg and friends).");
         System.out.println("                         Lets several runs share one output directory. Must be a");
         System.out.println("                         plain file name — no path separators.");
+        System.out.println("  --format <fmt>       svg (default) or json.");
+        System.out.println("                         json writes the parsed graph itself instead of a");
+        System.out.println("                         picture of it: nodes, edges, groups and layout");
+        System.out.println("                         coordinates, for feeding into your own tooling,");
+        System.out.println("                         architecture checks or renderer. The derived file");
+        System.out.println("                         name changes to .json; --output-name is used as given.");
         System.out.println("  --sequence-only      Emit only CALLS edges (no exception-flow).");
         System.out.println("                         When combined with a directory input, parses");
         System.out.println("                         all .java files together using cross-file");

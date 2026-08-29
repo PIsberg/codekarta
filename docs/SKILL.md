@@ -32,6 +32,7 @@ java -jar code-karta-cli/target/code-karta-cli-0.3.0-all.jar \
   [--exclude <patterns>] \
   [--max-depth <depth>] \
   [--max-members <n>] \
+  [--format svg|json] \
   [--modules-only] \
   [--split-packages] \
   [--output-name <file>]
@@ -55,6 +56,7 @@ Use `--exclude <patterns>` (comma-separated wildcards, e.g. `*Test,se.deversity.
 Use `--max-depth <depth>` (integer) to limit call-sequence stitching hierarchy.
 Use `--output-name <file>` to write several diagrams into one directory — the derived names (`class-diagram.svg` and friends) otherwise collide, forcing one output directory per diagram.
 Use `--max-members <n>` (or `all`) to raise or disable the six-member cap on class compartments; the default suits a large package, not a five-class one.
+Use `--format json` to get the graph rather than a drawing of it: nodes, edges, groups and coordinates, round-trippable into `Graph` and byte-identical across runs. That is the flag for architecture checks, reports, and feeding another tool.
 
 ## Library Usage
 

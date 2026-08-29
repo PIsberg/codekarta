@@ -97,6 +97,7 @@ Detailed per-element guardrails live in scoped rule files that load automaticall
 ## Scoped Rules Index
 Detailed per-element guardrails live in scoped rule files that load automatically when you open the matching source file. Consult the referenced file before modifying an element:
 
+- `se.deversity.codekarta.render.JsonRenderer` → `.gemini/rules/se-deversity-codekarta-render-JsonRenderer.md`
 - `se.deversity.codekarta.render.SequenceDiagramRenderer` → `.gemini/rules/se-deversity-codekarta-render-SequenceDiagramRenderer.md`
 - `se.deversity.codekarta.render.SvgRenderer` → `.gemini/rules/se-deversity-codekarta-render-SvgRenderer.md`
 <!-- VIBETAGS-MODULE-END: code-karta-render -->

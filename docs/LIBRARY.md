@@ -62,7 +62,14 @@ skips them. That pairing is deliberate and load-bearing on both sides.
 ```java
 String svg = new SvgRenderer().render(graph);
 String themed = new SvgRenderer().render(graph, cssOverride);
+String json = new JsonRenderer().render(graph);   // the graph itself, not a picture of it
 ```
+
+`JsonRenderer` writes the IR: nodes, edges, groups, and layout coordinates if a layout engine has
+run. It round-trips, so `new ObjectMapper().readValue(json, Graph.class)` gives back an equivalent
+graph, and its output is byte-identical across runs for the same input. Use it when the consumer is
+a tool rather than a person: an architecture rule that should fail a build, a diff between two
+revisions, or your own renderer.
 
 Target the stable CSS classes: `.node-rect`, `.node-label`, `.edge-line`, `.edge-label`,
 `.group-rect`. These names are a published contract — renaming one breaks every existing

@@ -13,6 +13,22 @@ each version heading is the complete record.
 
 ### Added
 
+- **`--format json`, and `JsonRenderer` for library callers.** code-karta could only produce SVG,
+  which is a dead end for tooling: an architecture rule that should fail a build, a diff between
+  two revisions, a report, or a consumer's own renderer all need the graph, not a drawing of it.
+  `JsonRenderer` writes the IR verbatim, including layout coordinates when a layout engine has
+  run, and it round-trips back into a `Graph`. Output is byte-identical across runs, which two
+  tests pin: `HashMap` iteration order and `DefaultPrettyPrinter`'s platform line separator would
+  each have broken it silently, and `KartaCli.run`'s idempotence rests on it.
+
+  This also puts the Jackson dependency to work. All four model classes carried Jackson
+  annotations and no `ObjectMapper` existed anywhere in `src/main`, so until now the dependency
+  was pure supply-chain surface with nothing behind it.
+
+- `RunOptions` gained a `format` component and `withFormat`. The previous eight-argument
+  constructor is kept and delegates with the format defaulted to `svg`, so existing callers
+  compile and link unchanged.
+
 - Javadoc on the public API of `code-karta-core`. It had none: zero `/**` blocks across all seven
   model classes, in the module every library consumer imports, while the release profile published
   a javadoc jar built with `doclint=none`. `Graph`, `Node`, `Edge`, `Group` and the package

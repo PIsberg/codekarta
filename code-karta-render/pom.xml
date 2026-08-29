@@ -31,6 +31,13 @@
             <groupId>se.deversity.codekarta</groupId>
             <artifactId>code-karta-core</artifactId>
         </dependency>
+        <!-- Declared rather than inherited through core: JsonRenderer imports Jackson directly,
+             and a module that uses a type should say so rather than rely on a transitive path
+             that core is free to drop. -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>

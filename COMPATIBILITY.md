@@ -27,6 +27,7 @@ These are the things a break in which counts as a breaking change.
 | `InputParser` and its implementations | `code-karta-input` | `parse(Path)` signature and the fault-tolerance contract. |
 | `LayoutEngine` and its implementations | `code-karta-layout` | Including the in-place mutation contract and the null-coordinate convention. |
 | `SvgRenderer.render(Graph)` and `render(Graph, String)` | `code-karta-render` | |
+| `JsonRenderer.render(Graph)` and the JSON it produces | `code-karta-render` | The schema is the IR field names, already listed above. Indentation and key order are stable but are not themselves a contract. |
 | CSS class names in the emitted SVG | `code-karta-render` | `.node-rect`, `.node-label`, `.edge-line`, `.edge-label`, `.group-rect`. Consumers theme against these. |
 | CLI flags | `code-karta-cli` | Documented in [`docs/CLI.md`](docs/CLI.md). Removing or repurposing one is breaking. Adding one is not. |
 | CLI exit codes | `code-karta-cli` | `0` success, `1` usage error, `2` runtime failure. |
