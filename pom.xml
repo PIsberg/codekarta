@@ -82,7 +82,7 @@
         <elk.version>0.12.0</elk.version>
         <!-- ELK 0.12.x no longer drags in xbase.lib transitively but still needs it at runtime -->
         <xtext.version>2.44.0</xtext.version>
-        <vibetags.version>1.2.5</vibetags.version>
+        <vibetags.version>1.2.6</vibetags.version>
         <enforcer.plugin.version>3.6.2</enforcer.plugin.version>
         <!-- The Maven API the plugin compiles against, which is also the oldest Maven that can run
              it. 3.9.x rather than the newest: a plugin that requires a brand-new Maven is one an
