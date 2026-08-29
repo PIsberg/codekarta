@@ -7,6 +7,7 @@
 
 ## Strict Test Isolation
 - **Rule**: Strict test isolation required. AI-generated or modified tests must not share mutable state, rely on execution order, or conflict on external resources.
+- **Reason**: BuildReactorParserTest writes a synthetic reactor into its own @TempDir rather than reading this repository's build files — the parser's whole job is reading build files, so a shared or real fixture would couple cases to each other and to unrelated build changes.
 
 ## Architectural Boundary Constraints
 - **Layer**: input
