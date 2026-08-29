@@ -13,6 +13,16 @@ each version heading is the complete record.
 
 ### Added
 
+- Both build wrappers now pin the distribution they will run by SHA-256
+  (`distributionSha256Sum`). Without it a wrapper executes whatever bytes come back from its
+  distribution URL, on every developer machine and every CI runner. The Maven value was derived
+  by fetching `apache-maven-3.9.11-bin.zip`, checking it against the SHA-512 that
+  `downloads.apache.org` publishes over TLS, and hashing the file that matched; the Gradle value
+  is the one Gradle publishes at `<distributionUrl>.sha256`. Verified in both directions: a wrong
+  sum fails with "Failed to validate Maven distribution SHA-256", and a fresh download with the
+  correct sum succeeds. CI also runs `gradle/actions/wrapper-validation` against the committed
+  `gradle-wrapper.jar`, which is a binary every build executes before any other check.
+
 - The four library modules (`core`, `input`, `layout`, `render`) now compile for **Java 17**
   instead of 21, so they can be consumed from an application that has not moved to 21.
   `code-karta-cli` still targets 21. Verified end to end rather than by the compiler flag alone:
