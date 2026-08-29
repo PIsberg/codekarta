@@ -1,0 +1,65 @@
+name: Bug report
+description: Something code-karta does that it should not, or does not do that it should.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not use this form for security issues. Report those privately through a
+        [security advisory](https://github.com/PIsberg/codekarta/security/advisories/new).
+  - type: input
+    id: version
+    attributes:
+      label: code-karta version
+      placeholder: "0.3.0, or a commit SHA if built from source"
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: How are you using it
+      options:
+        - CLI (fat jar)
+        - Library (Maven or Gradle dependency)
+        - Built from source
+    validations:
+      required: true
+  - type: input
+    id: java
+    attributes:
+      label: Java version
+      placeholder: "output of java -version"
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: "Ubuntu 24.04, Windows 11, macOS 15"
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: How to reproduce
+      description: >
+        The exact command or code, and the input it ran against. A minimal Java source file that
+        triggers the problem is worth more than a description of one.
+      placeholder: |
+        java -jar code-karta-cli-0.3.0-all.jar --input src/main/java --output out
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected, and what happened instead
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log output
+      description: >
+        Parsers log a warning and return a partial graph rather than failing, so the log usually
+        says more than the exit code does. Paste the relevant lines.
+      render: text

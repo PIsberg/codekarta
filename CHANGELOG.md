@@ -11,6 +11,25 @@ each version heading is the complete record.
 
 ## [Unreleased]
 
+### Added
+
+- `LICENSE` (MIT). The repository had no license file at all. GitHub reported the license as
+  `null` and an automated OSS review had nothing to read, which is a hard stop for adoption in
+  most companies regardless of what the README badge claimed.
+- `SECURITY.md`, with a threat model, supported versions and private vulnerability reporting.
+- `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1), issue forms and a pull
+  request template.
+- `COMPATIBILITY.md`, stating what counts as public API, what does not, and what a version bump
+  is allowed to break. Previously a consumer had to infer the boundary from the source.
+
+### Fixed
+
+- The declared license disagreed with itself. `pom.xml` declared Apache-2.0 while the README
+  badge showed MIT, so the three artifacts published to Maven Central (0.1.0, 0.2.0, 0.3.0)
+  carry an Apache-2.0 declaration that was never the intent. The project is MIT; `pom.xml` now
+  says so, and the next release corrects the published metadata.
+- The Maven Central badge linked to the 0.1.0 artifact page rather than the artifact.
+
 ## [0.3.0] - 2026-08-23
 
 ### Changed

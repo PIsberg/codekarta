@@ -1,7 +1,7 @@
 # code-karta
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Maven Central](https://img.shields.io/maven-central/v/se.deversity.codekarta/code-karta.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/se.deversity.codekarta/code-karta/0.1.0)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Maven Central](https://img.shields.io/maven-central/v/se.deversity.codekarta/code-karta.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/se.deversity.codekarta/code-karta)
 [![Build and Test](https://github.com/PIsberg/codekarta/actions/workflows/build.yml/badge.svg)](https://github.com/PIsberg/codekarta/actions/workflows/build.yml)
 [![Java 21+](https://img.shields.io/badge/Java-21+-orange?logo=openjdk)](https://github.com/PIsberg/codekarta)
 [![Maven](https://img.shields.io/badge/build-Maven-blue?logo=apachemaven)](https://github.com/PIsberg/codekarta)
@@ -93,6 +93,16 @@ see [`docs/VIEWER.md`](docs/VIEWER.md).
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Tier responsibilities, graph schema, extension points |
 | [`docs/QUALITY.md`](docs/QUALITY.md) | The `mvn verify` quality gate |
 | [`docs/SKILL.md`](docs/SKILL.md) | Compact operating guide for coding agents |
+
+## Using it in a company
+
+| Page | What it covers |
+|---|---|
+| [`COMPATIBILITY.md`](COMPATIBILITY.md) | What is public API, what is not, and what a version bump means |
+| [`SECURITY.md`](SECURITY.md) | Threat model, supported versions, how to report a vulnerability |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Build gate, architecture rules, what a pull request needs |
+| [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) | Contributor Covenant 2.1 |
+| [`LICENSE`](LICENSE) | MIT |
 
 ## Modules
 
