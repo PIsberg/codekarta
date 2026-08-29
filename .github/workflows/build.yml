@@ -228,7 +228,7 @@ jobs:
       - name: Every jar carries Java 17 bytecode
         run: |
           set -euo pipefail
-          for module in core input layout render cli; do
+          for module in core input layout render cli maven-plugin; do
             jar="$(find ~/.m2/repository/se/deversity/codekarta/code-karta-$module -name '*.jar' ! -name '*sources*' ! -name '*javadoc*' | head -1)"
             cls="$(unzip -Z1 "$jar" '*.class' | head -1)"
             major="$(unzip -p "$jar" "$cls" | od -An -tu1 -j6 -N2 | awk '{print $2}')"
