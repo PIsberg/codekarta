@@ -88,6 +88,7 @@ see [`docs/VIEWER.md`](docs/VIEWER.md).
 | [`docs/README.md`](docs/README.md) | Documentation index |
 | [`docs/BUILD.md`](docs/BUILD.md) | Maven and Gradle commands, running from source |
 | [`docs/CLI.md`](docs/CLI.md) | Full flag reference |
+| [`docs/MAVEN-PLUGIN.md`](docs/MAVEN-PLUGIN.md) | Generating diagrams from a Maven build |
 | [`docs/DIAGRAM-MODES.md`](docs/DIAGRAM-MODES.md) | What each input shape produces |
 | [`docs/LIBRARY.md`](docs/LIBRARY.md) | Using the tiers directly from Java |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Tier responsibilities, graph schema, extension points |
@@ -113,6 +114,7 @@ see [`docs/VIEWER.md`](docs/VIEWER.md).
 | `code-karta-layout` | Simple and ELK layout engines |
 | `code-karta-render` | SVG rendering |
 | `code-karta-cli` | Command-line wrapper |
+| `code-karta-maven-plugin` | Maven goal that drives the CLI during a build |
 
 No tier imports from a sibling or from a tier above it — the `Graph` IR is the only contract that
 crosses tier boundaries, and [`ArchitectureRulesTest`](code-karta-cli/src/test/java/se/deversity/codekarta/cli/ArchitectureRulesTest.java)

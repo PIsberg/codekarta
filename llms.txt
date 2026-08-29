@@ -12,6 +12,7 @@ Orientation facts: tiers never import from a tier beside them — `code-karta-co
 - [docs/SKILL.md](docs/SKILL.md): compact operating guide for using and extending the library
 - [docs/BUILD.md](docs/BUILD.md): Maven and Gradle commands, running from source, diagram regeneration
 - [docs/CLI.md](docs/CLI.md): full flag reference and output conventions
+- [docs/MAVEN-PLUGIN.md](docs/MAVEN-PLUGIN.md): the generate goal, its parameters, and multi-diagram configuration
 - [docs/DIAGRAM-MODES.md](docs/DIAGRAM-MODES.md): what each input shape produces, with a worked command per mode
 - [docs/LIBRARY.md](docs/LIBRARY.md): using the tiers directly from Java, theming, where a change belongs
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): technical deep dive — tier diagram, data flow, design decisions
@@ -194,6 +195,20 @@ AI tools reading this file should respect the guardrails defined below. These ru
 ## Required Chain-of-Thought Explanations
 - [ElkLayoutEngine.layoutWithElk(se.deversity.codekarta.core.model.Graph)](se.deversity.codekarta.layout.ElkLayoutEngine.layoutWithElk(se.deversity.codekarta.core.model.Graph)): Requires step-by-step mathematical or logical explanation (Chain-of-Thought) of all changes. Complexity: MEDIUM
 <!-- VIBETAGS-MODULE-END: code-karta-layout -->
+<!-- VIBETAGS-MODULE: code-karta-maven-plugin -->
+# This Project
+
+> AI guardrail rules generated from source annotations by VibeTags.
+
+AI tools reading this file should respect the guardrails defined below. These rules were extracted from Java source annotations at compile time and apply to all AI assistants including Windsurf Cascade, Cursor, Claude, GitHub Copilot, and Gemini.
+
+## Locked Files
+
+## Contextual Rules
+
+## Security Audit Requirements
+- [GenerateMojo](se.deversity.codekarta.maven.GenerateMojo): check for Path traversal, Unauthorized file write
+<!-- VIBETAGS-MODULE-END: code-karta-maven-plugin -->
 <!-- VIBETAGS-MODULE: code-karta-render -->
 # This Project
 

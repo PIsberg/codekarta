@@ -385,9 +385,19 @@ public class KartaCli {
      * find. A package that yields nothing renderable is skipped, not failed: the caller asked for
      * whatever is there, and one empty package should not abort the other forty.
      *
-     * @return the diagrams actually written, in directory order
+     * <p>Public because the Maven plugin drives it. Everything the CLI can do from a flag, an
+     * embedding caller can do from Java; a capability reachable only through main(String[]) is one
+     * that has to be shelled out to.
+     *
+     * @param inputRoot  the source root to walk. A file rather than a directory falls back to a
+     *                   single {@link #run} and is logged
+     * @param outputDir  root of the mirrored output tree, created as needed
+     * @param options    the same options {@code run} takes; {@code outputName} is ignored, because
+     *                   several diagrams cannot share one name
+     * @return the diagrams actually written, in directory order; empty if none was
+     * @throws IOException if the output tree cannot be written
      */
-    static java.util.List<Path> runPerPackage(Path inputRoot, Path outputDir,
+    public static java.util.List<Path> runPerPackage(Path inputRoot, Path outputDir,
                                               RunOptions options) throws IOException {
         if (!Files.isDirectory(inputRoot)) {
             log.info(() -> "--split-packages needs a directory; " + inputRoot + " is a file.");

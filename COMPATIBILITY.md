@@ -31,7 +31,9 @@ These are the things a break in which counts as a breaking change.
 | CSS class names in the emitted SVG | `code-karta-render` | `.node-rect`, `.node-label`, `.edge-line`, `.edge-label`, `.group-rect`. Consumers theme against these. |
 | CLI flags | `code-karta-cli` | Documented in [`docs/CLI.md`](docs/CLI.md). Removing or repurposing one is breaking. Adding one is not. |
 | CLI exit codes | `code-karta-cli` | `0` success, `1` usage error, `2` runtime failure. |
-| Maven coordinates | | `se.deversity.codekarta:code-karta-{core,input,layout,render,cli}` |
+| `KartaCli.run`, `KartaCli.runPerPackage`, `RunOptions` | `code-karta-cli` | The programmatic entry points. Public because the Maven plugin drives them: a capability reachable only through `main(String[])` is one an embedding caller has to shell out to. |
+| Plugin goal, parameters and user properties | `code-karta-maven-plugin` | `karta:generate` and the parameter names in [`docs/MAVEN-PLUGIN.md`](docs/MAVEN-PLUGIN.md). `PluginDescriptorTest` fails the build when the descriptor and that table disagree. |
+| Maven coordinates | | `se.deversity.codekarta:code-karta-{core,input,layout,render,cli,maven-plugin}` |
 
 ## What is not public
 
@@ -55,6 +57,7 @@ patch release.
 | `code-karta-layout` | Java 17 | Java 17 and newer, with one caveat below |
 | `code-karta-render` | Java 17 | Java 17 and newer |
 | `code-karta-cli` | Java 17 | Java 17 and newer, with the same caveat |
+| `code-karta-maven-plugin` | Java 17 | Whatever JVM runs Maven, 17 and newer. Maven 3.9.11 or newer, declared in the descriptor as `requiredMavenVersion`. |
 
 Every module targets Java 17, so an application still on 17 can depend on the library and run the
 CLI jar. Verified rather than assumed: CI compiles a consumer with JDK 17 and runs it on JDK 17,
@@ -70,8 +73,11 @@ laid-out graph; it gets the BFS grid rather than the layered algorithm. On the C
 warning saying so. Everything else, parsing, `SimpleLayoutEngine`, SVG and JSON output, works
 unchanged on 17.
 
-Building code-karta from source requires JDK 21 regardless, because the CLI module targets 21 and
-the build gates run against it.
+Building code-karta from source requires a JDK between 21 and 25 regardless. Not because any
+shipped artifact targets it, since they all target 17, but because the test sources compile at 21
+and JaCoCo cannot instrument class files from a much newer JDK. The enforcer checks the range and
+fails with a message naming the toolchain rather than letting it surface as an instrumentation
+error that reads like a defect here.
 
 Raising the floor of a published artifact is a breaking change and gets a minor version bump before
 1.0, a major version after.

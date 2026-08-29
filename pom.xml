@@ -44,6 +44,7 @@
         <module>code-karta-layout</module>
         <module>code-karta-render</module>
         <module>code-karta-cli</module>
+        <module>code-karta-maven-plugin</module>
     </modules>
 
     <properties>
@@ -83,6 +84,11 @@
         <xtext.version>2.44.0</xtext.version>
         <vibetags.version>1.2.5</vibetags.version>
         <enforcer.plugin.version>3.6.2</enforcer.plugin.version>
+        <!-- The Maven API the plugin compiles against, which is also the oldest Maven that can run
+             it. 3.9.x rather than the newest: a plugin that requires a brand-new Maven is one an
+             enterprise build cannot adopt. -->
+        <maven.api.version>3.9.11</maven.api.version>
+        <maven.plugin.tools.version>3.15.1</maven.plugin.tools.version>
     </properties>
 
     <dependencyManagement>

@@ -16,6 +16,7 @@ The project is intentionally small and compiler-like:
 |---|---|
 | [`BUILD.md`](BUILD.md) | Requirements, Maven and Gradle commands, running from source, diagram regeneration |
 | [`CLI.md`](CLI.md) | Every flag, what it defaults to, and how to choose between them |
+| [`MAVEN-PLUGIN.md`](MAVEN-PLUGIN.md) | Binding diagram generation into a Maven build, and configuring several diagrams |
 | [`DIAGRAM-MODES.md`](DIAGRAM-MODES.md) | What each input shape produces, with a worked command per mode |
 | [`DIAGRAM-GALLERY.md`](DIAGRAM-GALLERY.md) | The six diagrams code-karta generates from its own source |
 | [`LIBRARY.md`](LIBRARY.md) | Using the tiers directly from Java, theming, and where a change belongs |
