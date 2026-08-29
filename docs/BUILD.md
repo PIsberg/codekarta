@@ -9,7 +9,7 @@ and both jobs assert that regeneration leaves the tree clean.
 
 | Tool | Version |
 |---|---|
-| JDK | 21 (CI runs 21; see the JDK note in [`QUALITY.md`](QUALITY.md)) |
+| JDK | 21 to build (CI runs 21; see the JDK note in [`QUALITY.md`](QUALITY.md)). The four library modules compile for 17. |
 | Maven | use the included `./mvnw` wrapper, which pins 3.9.11 (a system Maven must be 3.8.9 or newer) |
 | Gradle | use the included `./gradlew` wrapper |
 

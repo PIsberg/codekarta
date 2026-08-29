@@ -13,6 +13,13 @@ each version heading is the complete record.
 
 ### Added
 
+- The four library modules (`core`, `input`, `layout`, `render`) now compile for **Java 17**
+  instead of 21, so they can be consumed from an application that has not moved to 21.
+  `code-karta-cli` still targets 21. Verified end to end rather than by the compiler flag alone:
+  a new `java17` CI job compiles a consumer with JDK 17 and runs it on JDK 17 against the
+  installed jars, and asserts each library jar carries class file major version 61. Locally the
+  same consumer ran on JDK 17.0.5 and produced the same 11170-byte SVG as on 21.
+
 - A Maven wrapper (`./mvnw`, pinned to 3.9.11). `mvn clean verify` on Maven 3.8.6 fails with a
   bare `PluginIncompatibleException`, because the SpotBugs plugin declares a 3.8.9 prerequisite
   and nothing in this repository declared a minimum. CI and the docs now use the wrapper, so
@@ -33,6 +40,17 @@ each version heading is the complete record.
   is allowed to break. Previously a consumer had to infer the boundary from the source.
 
 ### Fixed
+
+- **`ElkLayoutEngine` did not fall back on the failures ELK actually produces.** Its javadoc
+  promises a transparent fallback to `SimpleLayoutEngine` "for any reason", but it caught only
+  `Exception`. ELK resolves its algorithms through `ServiceLoader`, so its two realistic failures
+  are `ServiceConfigurationError` (a shaded jar that did not merge `META-INF/services`) and
+  `LinkageError` (a dependency built for a newer JDK than the runtime) and both are `Error`s that
+  went straight through. On a Java 17 runtime this is the normal case, not an edge case, because
+  `org.eclipse.xtext.xbase.lib` is compiled for 21. The catch is now
+  `Exception | LinkageError | ServiceConfigurationError`; `OutOfMemoryError` and other Errors
+  still propagate, which a test pins. Three regression tests were written first and confirmed red
+  before the fix.
 
 - **The published `code-karta-cli` artifact could not be used as a dependency.** The shade
   plugin was generating a dependency-reduced pom that replaced the real one, and because the

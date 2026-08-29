@@ -2,6 +2,12 @@
 
 The CLI is a thin wrapper. Java code can drive the three tiers directly — parse, lay out, render.
 
+The four library modules target **Java 17**, so they can be used from an application that has
+not moved to 21. One caveat: `ElkLayoutEngine` needs a Java 21 runtime, because ELK resolves
+its algorithms through `ServiceLoader` and `org.eclipse.xtext.xbase.lib` is compiled for 21.
+On 17 it logs a warning and falls back to `SimpleLayoutEngine` rather than throwing, so the
+pipeline still produces a diagram. [`COMPATIBILITY.md`](../COMPATIBILITY.md) has the detail.
+
 ```java
 Path input = Path.of("src/main/java");
 Graph graph = new JavaSourceInputParser().parse(input);
@@ -38,9 +44,15 @@ a partial — possibly empty — `Graph` comes back, so the pipeline always prod
 Both engines implement `LayoutEngine` and mutate the graph in place, returning the same instance:
 
 ```java
-new SimpleLayoutEngine().layout(graph);   // BFS grid, pure Java
-new ElkLayoutEngine().layout(graph);      // ELK layered, better for large graphs
+new SimpleLayoutEngine().layout(graph);   // BFS grid, pure Java, runs on Java 17
+new ElkLayoutEngine().layout(graph);      // ELK layered, better for large graphs, needs Java 21
 ```
+
+`ElkLayoutEngine.layout` never throws. It catches `Exception`, `LinkageError` and
+`ServiceConfigurationError` and falls back to `SimpleLayoutEngine`, because ELK's two realistic
+failures are both `Error`s: a missing `ServiceLoader` entry (a shaded jar that did not merge
+`META-INF/services`) and a dependency built for a newer JDK than the runtime. Errors outside those
+two still propagate; an `OutOfMemoryError` is not a layout problem.
 
 Nodes whose position cannot be resolved are left at `null` rather than defaulted — the renderer
 skips them. That pairing is deliberate and load-bearing on both sides.

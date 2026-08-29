@@ -47,6 +47,12 @@
     </modules>
 
     <properties>
+        <!-- The four library modules are consumed as a dependency, so they compile for Java 17.
+             A 21 floor excludes every consumer still on 17 and buys nothing: the library uses no
+             language or API feature past 17. Only code-karta-cli needs 21. Tests compile at 21
+             everywhere. Enforced end to end by the java17-consumer job in build.yml, which runs
+             the published library classes on a real JDK 17 rather than trusting the flag. -->
+        <library.release>17</library.release>
         <maven.compiler.release>21</maven.compiler.release>
         <pmd.plugin.version>3.28.0</pmd.plugin.version>
         <pmd.version>7.26.0</pmd.version>

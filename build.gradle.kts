@@ -25,9 +25,21 @@ allprojects {
 subprojects {
     apply(plugin = "java-library")
 
+    // The four library modules are consumed as a dependency and target Java 17; only
+    // code-karta-cli needs 21. Mirrors <library.release> in pom.xml, which
+    // scripts/check-build-parity.py compares across the two builds.
+    val libraryRelease = 17
+
     configure<JavaPluginExtension> {
         toolchain {
             languageVersion = JavaLanguageVersion.of(21)
+        }
+    }
+
+    if (name != "code-karta-cli") {
+        // Only the published classes are constrained; test sources stay on the toolchain's 21.
+        tasks.named<JavaCompile>("compileJava") {
+            options.release.set(libraryRelease)
         }
     }
 

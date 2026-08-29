@@ -133,6 +133,101 @@ jobs:
           path: '*/target/pit-reports/'
           retention-days: 7
 
+  java17:
+    name: Library runs on Java 17
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # 21 to build, 17 to run. setup-java writes JAVA_HOME_17_X64 for the first entry and leaves
+      # JAVA_HOME pointing at the last, so the build below uses 21 and the consumer uses 17.
+      - name: Set up JDK 17 and 21
+        uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c # v6.0.0
+        with:
+          java-version: |
+            17
+            21
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build and install the library
+        run: ./mvnw -B -q -DskipTests -Dcheckstyle.skip -Dpmd.skip -Dcpd.skip -Dspotbugs.skip -Djacoco.skip -DskipDiagrams=true install
+
+      # maven.compiler.release=17 only tells javac which API to compile against. It says nothing
+      # about whether the result loads on a 17 runtime, which is what a consumer on 17 actually
+      # needs. This job compiles a consumer with JDK 17 and runs it on JDK 17, against the jars
+      # that were just installed.
+      - name: Compile and run a consumer on JDK 17
+        run: |
+          set -euo pipefail
+          VERSION="$(./mvnw -B -q help:evaluate -Dexpression=project.version -DforceStdout)"
+          mkdir -p /tmp/consumer17/src
+          cat > /tmp/consumer17/pom.xml <<'POM'
+          <project xmlns="http://maven.apache.org/POM/4.0.0">
+            <modelVersion>4.0.0</modelVersion>
+            <groupId>test</groupId><artifactId>consumer17</artifactId><version>1</version>
+            <dependencies>
+              <dependency><groupId>se.deversity.codekarta</groupId><artifactId>code-karta-input</artifactId><version>VERSION_PLACEHOLDER</version></dependency>
+              <dependency><groupId>se.deversity.codekarta</groupId><artifactId>code-karta-layout</artifactId><version>VERSION_PLACEHOLDER</version></dependency>
+              <dependency><groupId>se.deversity.codekarta</groupId><artifactId>code-karta-render</artifactId><version>VERSION_PLACEHOLDER</version></dependency>
+            </dependencies>
+          </project>
+          POM
+          cat > /tmp/consumer17/src/Consumer.java <<'JAVA'
+          import se.deversity.codekarta.core.model.Graph;
+          import se.deversity.codekarta.input.JavaSourceInputParser;
+          import se.deversity.codekarta.layout.ElkLayoutEngine;
+          import se.deversity.codekarta.render.SvgRenderer;
+          import java.nio.file.Path;
+
+          public class Consumer {
+              public static void main(String[] args) {
+                  Graph graph = new JavaSourceInputParser().parse(Path.of(args[0]));
+                  // ElkLayoutEngine on purpose: on a 17 runtime ELK's ServiceLoader fails because
+                  // org.eclipse.xtext.xbase.lib is compiled for 21, and the documented contract is
+                  // that it degrades to SimpleLayoutEngine rather than throwing.
+                  new ElkLayoutEngine().layout(graph);
+                  String svg = new SvgRenderer().render(graph);
+                  if (!System.getProperty("java.specification.version").equals("17")) {
+                      throw new IllegalStateException("expected a Java 17 runtime, got "
+                          + System.getProperty("java.version"));
+                  }
+                  if (graph.getNodes().isEmpty() || !svg.contains("<svg")) {
+                      throw new IllegalStateException("library produced nothing on Java 17");
+                  }
+                  System.out.println("ok: java=" + System.getProperty("java.version")
+                      + " nodes=" + graph.getNodes().size() + " svgBytes=" + svg.length());
+              }
+          }
+          JAVA
+          sed -i "s/VERSION_PLACEHOLDER/$VERSION/g" /tmp/consumer17/pom.xml
+          ./mvnw -B -q -f /tmp/consumer17/pom.xml dependency:build-classpath -Dmdep.outputFile=/tmp/consumer17/cp.txt
+          CP="$(cat /tmp/consumer17/cp.txt)"
+          "$JAVA_HOME_17_X64/bin/javac" -d /tmp/consumer17/classes -cp "$CP" /tmp/consumer17/src/Consumer.java
+          "$JAVA_HOME_17_X64/bin/java" -cp "/tmp/consumer17/classes:$CP" Consumer \
+            example-shipping-system/src/main/java/com/karta/shipping/domain
+
+      # A library module silently moving back to 21 bytecode would break every Java 17 consumer,
+      # and the job above would keep passing until the change reached a release.
+      - name: Library jars carry Java 17 bytecode
+        run: |
+          set -euo pipefail
+          for module in core input layout render; do
+            jar="$(find ~/.m2/repository/se/deversity/codekarta/code-karta-$module -name '*.jar' ! -name '*sources*' ! -name '*javadoc*' | head -1)"
+            cls="$(unzip -Z1 "$jar" '*.class' | head -1)"
+            major="$(unzip -p "$jar" "$cls" | od -An -tu1 -j6 -N2 | awk '{print $2}')"
+            echo "code-karta-$module: $cls major=$major"
+            if [ "$major" != "61" ]; then
+              echo "::error::code-karta-$module compiles to class file major $major, expected 61 (Java 17). See <library.release> in pom.xml."
+              exit 1
+            fi
+          done
+
   gradle:
     name: Gradle — build and test
     runs-on: ubuntu-latest
