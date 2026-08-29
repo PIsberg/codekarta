@@ -89,6 +89,8 @@
              enterprise build cannot adopt. -->
         <maven.api.version>3.9.11</maven.api.version>
         <maven.plugin.tools.version>3.15.1</maven.plugin.tools.version>
+        <maven.invoker.plugin.version>3.9.0</maven.invoker.plugin.version>
+        <groovy.version>4.0.28</groovy.version>
     </properties>
 
     <dependencyManagement>

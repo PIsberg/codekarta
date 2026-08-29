@@ -94,6 +94,47 @@
                     </excludes>
                 </configuration>
             </plugin>
+            <!-- The unit tests construct the mojo and call execute() directly, so they never see
+                 Maven's own configurator binding a <configuration> block onto its fields. These
+                 run the goal from a real Maven build against real poms: the shapes documented in
+                 docs/MAVEN-PLUGIN.md, verified to do what that page says they do.
+
+                 invoker:install stages this plugin and its dependencies into target/local-repo so
+                 the IT builds resolve the module under test rather than a previously released
+                 version. See the reactor trap in the repository conventions: a bare goal resolves
+                 siblings from the repository. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-invoker-plugin</artifactId>
+                <version>${maven.invoker.plugin.version}</version>
+                <configuration>
+                    <projectsDirectory>src/it</projectsDirectory>
+                    <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
+                    <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
+                    <settingsFile>src/it/settings.xml</settingsFile>
+                    <postBuildHookScript>verify</postBuildHookScript>
+                    <showErrors>true</showErrors>
+                    <streamLogs>false</streamLogs>
+                    <writeJunitReport>true</writeJunitReport>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>integration-test</id>
+                        <goals>
+                            <goal>install</goal>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <!-- The verify scripts are Groovy; the invoker plugin does not ship a runtime. -->
+                    <dependency>
+                        <groupId>org.apache.groovy</groupId>
+                        <artifactId>groovy</artifactId>
+                        <version>${groovy.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
