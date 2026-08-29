@@ -48,7 +48,10 @@ jobs:
       # clean threw away the first run's output, and no run ever executed the tests and the
       # static-analysis gate together — which is what a contributor types locally.
       - name: Verify (tests, Checkstyle, PMD, SpotBugs, Error Prone, JaCoCo, diagrams)
-        run: ./mvnw -B clean verify
+        # -Dcorpus.required=true: JdkCorpusTest skips itself when src.zip is missing, which is
+        # right on a developer JRE and wrong here. A corpus test that silently skips is not a
+        # gate, so on CI its absence is a failure.
+        run: ./mvnw -B clean verify -Dcorpus.required=true
 
       # KartaCli.run is documented as idempotent, and downstream repositories commit the diagrams
       # it produces, so byte drift lands in someone else's repository as a diff nobody made.

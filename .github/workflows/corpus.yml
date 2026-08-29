@@ -1,0 +1,53 @@
+name: Corpus
+
+# Deliberately not on pull_request. The job clones four third-party repositories and runs the CLI
+# over each, which is minutes of work and a pile of network calls, and Maven Central has already
+# rate-limited this repository once. Nothing here gates a merge; it catches the parsers quietly
+# losing ground between releases.
+on:
+  schedule:
+    # Mondays, early. Far enough from the dependabot runs to not compete for the same rate limit.
+    - cron: '17 5 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  corpus:
+    name: Parse third-party Java
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c # v6.0.0
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      # The corpus needs the shipped artifact, not the classes: a fat jar that fails to assemble
+      # is a real failure and this is the only scheduled job that would notice.
+      - name: Build the CLI jar
+        run: ./mvnw -B -q -pl code-karta-cli -am -DskipTests -Dinvoker.skip=true -Dcheckstyle.skip -Dpmd.skip -Dcpd.skip -Dspotbugs.skip -Djacoco.skip -DskipDiagrams=true package
+
+      - name: Parse the corpus
+        run: python3 scripts/run-corpus.py --jar "$(ls code-karta-cli/target/code-karta-cli-*-all.jar)" --keep
+
+      # The diagrams are the point of the tool, so keep them when a run goes wrong: a node count
+      # says something collapsed, the SVG says what.
+      - name: Keep the diagrams
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: corpus-diagrams
+          path: target/corpus/*/
+          retention-days: 14
+          if-no-files-found: warn
