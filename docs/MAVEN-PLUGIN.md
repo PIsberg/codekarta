@@ -135,6 +135,20 @@ build log.
 Set `failOnEmpty` to `true` for a module whose diagram is a deliverable, and that message becomes
 a build failure. Leave it off in a parent pom, where empty modules are normal.
 
+## How this page is kept true
+
+The configurations above are not illustrations. Each one is an integration test under
+[`code-karta-maven-plugin/src/it/`](../code-karta-maven-plugin/src/it/), run by
+`maven-invoker-plugin` during `mvn verify` as a real Maven build against a real pom, with a
+`verify.groovy` asserting the files it should have produced. The zero-configuration project, the
+three-diagram list, the skipped aggregator and the `failOnEmpty` failure each have one.
+
+`PluginDescriptorTest` covers the other direction: it reads the generated plugin descriptor and
+fails when the parameter table above and the descriptor disagree, so a renamed parameter cannot
+leave this page quietly wrong.
+
+Skip the integration tests with `-Dinvoker.skip=true` when iterating; CI does not.
+
 ## Related
 
 - [`CLI.md`](CLI.md) for what each flag does to the diagram.

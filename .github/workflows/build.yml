@@ -156,7 +156,7 @@ jobs:
           cache: 'maven'
 
       - name: Build and install the library
-        run: ./mvnw -B -q -DskipTests -Dcheckstyle.skip -Dpmd.skip -Dcpd.skip -Dspotbugs.skip -Djacoco.skip -DskipDiagrams=true install
+        run: ./mvnw -B -q -DskipTests -Dinvoker.skip=true -Dcheckstyle.skip -Dpmd.skip -Dcpd.skip -Dspotbugs.skip -Djacoco.skip -DskipDiagrams=true install
 
       # maven.compiler.release=17 only tells javac which API to compile against. It says nothing
       # about whether the result loads on a 17 runtime, which is what a consumer on 17 actually

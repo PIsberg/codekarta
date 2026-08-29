@@ -16,6 +16,7 @@ own CI job rather than inside `verify`, because it is slow, not because it is op
 | PIT | `pitest.mutation.minimum` per module | Mutation score floor, in its own CI job |
 | Build parity | [`scripts/check-build-parity.py`](../scripts/check-build-parity.py) | `pom.xml` and `build.gradle.kts` name the same versions |
 | Idempotent regeneration | `git diff --exit-code` step in [`build.yml`](../.github/workflows/build.yml) | Regenerated diagrams and guardrails match what is committed |
+| Maven Invoker | [`code-karta-maven-plugin/src/it/`](../code-karta-maven-plugin/src/it/) | The plugin goal driven from real Maven builds, against the poms in [`MAVEN-PLUGIN.md`](MAVEN-PLUGIN.md) |
 
 The ArchUnit rules are what stop the architecture from decaying quietly: the tier rule in
 [`ARCHITECTURE.md`](ARCHITECTURE.md) used to be upheld only by convention, and a fitness function
@@ -28,23 +29,28 @@ that were true of this repository while every check was green.
 ## Coverage and mutation floors
 
 Both are floors, not targets. Raise one when the number rises; never lower one to turn a red
-build green. Measured 2026-08-12 on JDK 21:
+build green. Measured 2026-08-29 on JDK 21:
 
 | Module | Line coverage | Mutation score | Line floor | Mutation floor |
 |---|---|---|---|---|
-| `code-karta-core` | 100.0% | 100% (26/26) | 0.95 | 90 |
-| `code-karta-layout` | 96.1% | 76.4% (68/89) | 0.90 | 70 |
-| `code-karta-render` | 95.8% | 24.1% (98/406) | 0.90 | 20 |
-| `code-karta-input` | 82.7% | 68.1% (346/508) | 0.78 | 62 |
-| `code-karta-cli` | 45.0% | 34.5% (60/174) | 0.40 | 30 |
-| **Total** | **83.5%** | **49.7%** (598/1203) | | |
+| `code-karta-core` | 100.0% | 92.6% (25/27) | 0.95 | 90 |
+| `code-karta-layout` | 98.1% | 78.7% (70/89) | 0.90 | 70 |
+| `code-karta-render` | 95.5% | 24.3% (99/407) | 0.90 | 20 |
+| `code-karta-input` | 82.8% | 68.1% (346/508) | 0.78 | 62 |
+| `code-karta-cli` | 45.7% | 35.9% (71/198) | 0.40 | 30 |
+| `code-karta-maven-plugin` | 89.1% | 61.0% (36/59) | 0.85 | 55 |
+| **Total** | **83.7%** | **50.2%** (647/1288) | | |
 
-`code-karta-render` is the reason both numbers are reported. It executes 95.8% of its lines and
-kills 24.1% of its mutants, which is what it looks like when tests call the renderer and assert
+`code-karta-core` was at 26/26 when this table was last measured and is now 25/27: indexing
+`Graph` by node id added two mutants and left one alive. It clears its floor of 90 with 2.6
+points to spare, which is the margin to watch rather than a number to celebrate.
+
+`code-karta-render` is the reason both numbers are reported. It executes 95.5% of its lines and
+kills 24.3% of its mutants, which is what it looks like when tests call the renderer and assert
 almost nothing about the SVG it returns. Line coverage alone would have called that module well
 tested. Its floors are set at the measured value so the gap cannot widen while it is closed.
 
-`code-karta-cli` is the other one worth attention: 45% line coverage in the module that owns
+`code-karta-cli` is the other one worth attention: 45.7% line coverage in the module that owns
 argument parsing and file output.
 
 ## Mutation testing

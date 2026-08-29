@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>se.deversity.codekarta.it</groupId>
+    <artifactId>several-diagrams</artifactId>
+    <version>1.0</version>
+
+    <properties>
+        <maven.compiler.release>17</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>se.deversity.codekarta</groupId>
+                <artifactId>code-karta-maven-plugin</artifactId>
+                <version>@project.version@</version>
+                <executions>
+                    <execution>
+                        <goals><goal>generate</goal></goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <excludes>
+                        <exclude>*Fixture</exclude>
+                    </excludes>
+                    <diagrams>
+                        <diagram>
+                            <outputName>classes.svg</outputName>
+                        </diagram>
+                        <diagram>
+                            <outputName>graph.json</outputName>
+                            <format>json</format>
+                        </diagram>
+                        <diagram>
+                            <input>${project.basedir}/src/main/java/com/example/Order.java</input>
+                            <outputName>order-flow.svg</outputName>
+                            <sequenceOnly>true</sequenceOnly>
+                        </diagram>
+                    </diagrams>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

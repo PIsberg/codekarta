@@ -82,6 +82,27 @@ class PluginDescriptorTest {
     }
 
     @Test
+    void theDocumentedVersionIsTheVersionBeingBuilt() throws Exception {
+        // docs/MAVEN-PLUGIN.md hard-codes the version in a copyable <plugin> block and in two
+        // fully qualified command lines. Nobody notices a stale one until a user copies it and
+        // gets a version that predates the thing they came for, so the release checklist is not
+        // the right place for this: pin it here, where a version bump cannot skip the check.
+        String version = tagValue(descriptor(), "version");
+        String doc = Files.readString(DOC);
+
+        List<String> stale = Pattern.compile("code-karta-maven-plugin[:<>/a-z]*?([0-9]+[.][0-9]+[.][0-9]+)")
+                .matcher(doc)
+                .results()
+                .map(r -> r.group(1))
+                .distinct()
+                .filter(found -> !found.equals(version))
+                .toList();
+
+        assertTrue(stale.isEmpty(),
+                "docs/MAVEN-PLUGIN.md still names version " + stale + ", this build is " + version);
+    }
+
+    @Test
     void everyDocumentedUserPropertyExists() throws Exception {
         String xml = descriptor();
         String doc = Files.readString(DOC);
