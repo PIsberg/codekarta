@@ -19,3 +19,11 @@ code-karta-cli/build
 .vibetags-mod-*
 vibetags.log
 dependency-reduced-pom.xml
+code-karta-maven-plugin/target
+code-karta-maven-plugin/build
+
+# Mutation testing runs GenerateMojoTest with the module directory as its working directory, and
+# PIT's mutant of firstNonBlank returns "" for the output directory, which Path.of resolves to
+# exactly that. The diagram lands here rather than in the test's temporary directory. It is an
+# artifact of -Pmutation, not of any build a user runs.
+code-karta-maven-plugin/class-diagram.svg
