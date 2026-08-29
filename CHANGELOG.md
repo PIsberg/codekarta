@@ -24,6 +24,17 @@ each version heading is the complete record.
 
 ### Fixed
 
+- **The published `code-karta-cli` artifact could not be used as a dependency.** The shade
+  plugin was generating a dependency-reduced pom that replaced the real one, and because the
+  shaded jar is an attached `all` classifier rather than the main artifact, the reduced pom
+  stripped the four compile dependencies the unshaded main jar actually needs. Verified against
+  Maven Central: `code-karta-cli-0.3.0.pom` declares three dependencies, all of them `test` or
+  `provided` scope, and none of `code-karta-core`, `-input`, `-layout` or `-render`. Declaring
+  `code-karta-cli` as a Maven dependency therefore resolved a jar of three classes with nothing
+  to run them against. `createDependencyReducedPom` is now `false`, the generated file is
+  untracked and ignored, and a CI step fails if it returns. Affects 0.1.0, 0.2.0 and 0.3.0; the
+  fat jar (`-all` classifier) was never affected.
+
 - The declared license disagreed with itself. `pom.xml` declared Apache-2.0 while the README
   badge showed MIT, so the three artifacts published to Maven Central (0.1.0, 0.2.0, 0.3.0)
   carry an Apache-2.0 declaration that was never the intent. The project is MIT; `pom.xml` now

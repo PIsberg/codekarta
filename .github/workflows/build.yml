@@ -68,6 +68,24 @@ jobs:
             exit 1
           fi
 
+      # code-karta-cli-0.3.0.pom on Maven Central declares no compile-scope dependency at all:
+      # the shade plugin's dependency-reduced pom replaced the real one and stripped the four
+      # modules the unshaded main jar needs. Anyone declaring code-karta-cli as a dependency got
+      # three classes and nothing to run them against. createDependencyReducedPom is now false;
+      # this step fails if it ever comes back.
+      - name: The CLI pom keeps its dependencies
+        run: |
+          if [ -f code-karta-cli/dependency-reduced-pom.xml ]; then
+            echo "::error::maven-shade-plugin regenerated dependency-reduced-pom.xml. It replaces the published pom and strips the compile dependencies. Set createDependencyReducedPom to false."
+            exit 1
+          fi
+          for module in core input layout render; do
+            if ! grep -q "<artifactId>code-karta-$module</artifactId>" code-karta-cli/pom.xml; then
+              echo "::error::code-karta-cli/pom.xml no longer declares code-karta-$module. The published artifact would not resolve."
+              exit 1
+            fi
+          done
+
       - name: Upload fat JAR
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:

@@ -18,3 +18,4 @@ code-karta-cli/build
 .vibetags-cache
 .vibetags-mod-*
 vibetags.log
+dependency-reduced-pom.xml
