@@ -12,7 +12,7 @@ does not fail on something that could have been caught in five minutes locally.
 ## Local setup
 
 JDK 21 is required to build. Everything it produces targets Java 17, so the library and the CLI
-jar both run on a 17 JVM. See [`COMPATIBILITY.md`](COMPATIBILITY.md) for what that guarantees and
+jar both run on a 17 JVM. See [`COMPATIBILITY.md`](docs/COMPATIBILITY.md) for what that guarantees and
 the one ELK caveat.
 
 ```bash
@@ -98,7 +98,7 @@ is committed, so run `mvn clean verify` and commit the result.
 
 `code-karta-core` is the published contract. Changing a public signature there, or a `NodeType` /
 `EdgeType` string value, or a CSS class name emitted by `SvgRenderer`, breaks downstream consumers.
-[`COMPATIBILITY.md`](COMPATIBILITY.md) states what is covered by semantic versioning and what is
+[`COMPATIBILITY.md`](docs/COMPATIBILITY.md) states what is covered by semantic versioning and what is
 not. Such a change needs an issue and a deprecation path, not just a passing build.
 
 ## Reporting security issues

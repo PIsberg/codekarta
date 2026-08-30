@@ -34,7 +34,7 @@ graphs, and enum-backed state machines.
 ```bash
 mvn clean package
 
-java -jar code-karta-cli/target/code-karta-cli-0.3.0-all.jar \
+java -jar code-karta-cli/target/code-karta-cli-0.4.0-all.jar \
   --input example-shipping-system/src/main/java/com/karta/shipping/domain \
   --output output
 ```
@@ -43,23 +43,23 @@ Common modes:
 
 ```bash
 # JPMS module diagram
-java -jar code-karta-cli/target/code-karta-cli-0.3.0-all.jar \
+java -jar code-karta-cli/target/code-karta-cli-0.4.0-all.jar \
   --input example-shipping-system/src/main/java/module-info.java \
   --output output
 
 # Single-file sequence and exception-flow diagram
-java -jar code-karta-cli/target/code-karta-cli-0.3.0-all.jar \
+java -jar code-karta-cli/target/code-karta-cli-0.4.0-all.jar \
   --input example-shipping-system/src/main/java/com/karta/shipping/core/OrderProcessor.java \
   --output output
 
 # Multi-file stitched call graph — OrderProcessor→InventoryService across files
-java -jar code-karta-cli/target/code-karta-cli-0.3.0-all.jar \
+java -jar code-karta-cli/target/code-karta-cli-0.4.0-all.jar \
   --input example-shipping-system/src/main/java/com/karta/shipping/core \
   --output output \
   --sequence-only
 
 # State transition diagram — KartaCli's own pipeline (PARSING→LAYOUT→RENDERING→WRITING→DONE)
-java -jar code-karta-cli/target/code-karta-cli-0.3.0-all.jar \
+java -jar code-karta-cli/target/code-karta-cli-0.4.0-all.jar \
   --input code-karta-cli/src/main/java/se/deversity/codekarta/cli/KartaCli.java \
   --output output \
   --state-machine
@@ -99,7 +99,7 @@ see [`docs/VIEWER.md`](docs/VIEWER.md).
 
 | Page | What it covers |
 |---|---|
-| [`COMPATIBILITY.md`](COMPATIBILITY.md) | What is public API, what is not, and what a version bump means |
+| [`COMPATIBILITY.md`](docs/COMPATIBILITY.md) | What is public API, what is not, and what a version bump means |
 | [`SECURITY.md`](SECURITY.md) | Threat model, supported versions, how to report a vulnerability |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Build gate, architecture rules, what a pull request needs |
 | [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) | Contributor Covenant 2.1 |

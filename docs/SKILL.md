@@ -23,7 +23,7 @@ mvn clean package
 Run it:
 
 ```bash
-java -jar code-karta-cli/target/code-karta-cli-0.3.0-all.jar \
+java -jar code-karta-cli/target/code-karta-cli-0.4.0-all.jar \
   --input <path> \
   --output <dir> \
   [--sequence-only] \

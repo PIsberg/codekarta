@@ -11,7 +11,38 @@ each version heading is the complete record.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-08-30
+
+### Changed
+
+- Dependency updates: PMD 7.26.0 to 7.27.0, maven-enforcer-plugin 3.6.2 to 3.6.3, Maven plugin
+  tools 3.15.1 to 3.15.2, maven-invoker-plugin 3.9.0 to 3.10.1, Groovy 4.0.28 to 5.0.8 (a major
+  bump; it only runs the invoker integration-test scripts, which pass unchanged), and PIT 1.25.9
+  to 1.30.0. Jackson, JavaParser, JUnit, ELK, Xtext, Checkstyle, Error Prone, JaCoCo, SpotBugs,
+  ArchUnit, JSpecify and VibeTags were already at their latest stable releases; the pre-release
+  lines offered for the compiler, source, surefire and plugin plugins (4.0.0-beta/3.6.0-M1) and
+  Maven 4.0.0-rc are not taken, and the Maven 3.9.x API pin is deliberate and documented in the
+  parent pom.
+- `COMPATIBILITY.md` moved to `docs/COMPATIBILITY.md`, joining the rest of the documentation;
+  only the GitHub community-health files, the agent briefings and `llms.txt` stay in the root.
+  All links and mentions were updated, and `docs/README.md` now indexes it.
+
 ### Added
+
+- **`code-karta-maven-plugin`, with a `karta:generate` goal.** Diagram generation now binds into
+  a consumer's Maven build instead of requiring a hand-run jar. The parameters and a copyable
+  `<plugin>` block are in `docs/MAVEN-PLUGIN.md`, and `PluginDescriptorTest` compares the
+  version documented there against the generated plugin descriptor, so the docs cannot name a
+  stale version without failing `mvn verify`. The goal is exercised by `maven-invoker-plugin`
+  integration tests that run it from real Maven builds, including an aggregator-skip and a
+  fail-on-empty case.
+
+- A parser evaluation suite that runs against Java nobody here wrote. Parsers never crash by
+  contract, which makes a parsing regression silent: the graph gets smaller and every test still
+  passes. `JdkCorpusTest` now parses the building JDK's own `src.zip` on every build (135 files
+  of `java.util`, measured 138 nodes on JDK 21, floor at 110), and a weekly workflow runs
+  `scripts/run-corpus.py` over four projects pinned by commit (guava, picocli, junit5,
+  jackson-databind) with per-project node floors.
 
 - **`--format json`, and `JsonRenderer` for library callers.** code-karta could only produce SVG,
   which is a dead end for tooling: an architecture rule that should fail a build, a diff between
@@ -60,7 +91,7 @@ each version heading is the complete record.
   version 61. Locally the same consumer ran on JDK 17.0.5 and produced the same 11170-byte SVG as
   on 21.
 
-  One runtime caveat, documented in `COMPATIBILITY.md` and `docs/CLI.md`: ELK's transitive
+  One runtime caveat, documented in `docs/COMPATIBILITY.md` and `docs/CLI.md`: ELK's transitive
   `org.eclipse.xtext.xbase.lib` is compiled for Java 21 in every published version, so on a Java
   17 runtime `--layout elk` falls back to the simple layout and logs a warning.
 
@@ -80,7 +111,7 @@ each version heading is the complete record.
 - `SECURITY.md`, with a threat model, supported versions and private vulnerability reporting.
 - `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1), issue forms and a pull
   request template.
-- `COMPATIBILITY.md`, stating what counts as public API, what does not, and what a version bump
+- `COMPATIBILITY.md` (now `docs/COMPATIBILITY.md`), stating what counts as public API, what does not, and what a version bump
   is allowed to break. Previously a consumer had to infer the boundary from the source.
 
 ### Fixed
@@ -261,7 +292,8 @@ First published release, under the `se.deversity.codekarta` group on Maven Centr
   the per-module rules.
 - GitHub Actions for build, test, and Maven Central publishing.
 
-[Unreleased]: https://github.com/PIsberg/codekarta/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/PIsberg/codekarta/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/PIsberg/codekarta/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/PIsberg/codekarta/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/PIsberg/codekarta/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/PIsberg/codekarta/releases/tag/v0.1.0

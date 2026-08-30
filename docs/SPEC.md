@@ -296,8 +296,8 @@ Pre-generated example diagrams are committed at `example-shipping-system/diagram
 - `orderprocessor-sequence-diagram.svg` — method call sequence
 
 **Packaging:** Both build systems produce a self-contained fat JAR.
-- Maven: `mvn clean package` → `code-karta-cli/target/code-karta-cli-0.3.0-all.jar`
-- Gradle: `./gradlew :code-karta-cli:fatJar` → `code-karta-cli/build/libs/code-karta-cli-0.3.0-all.jar`
+- Maven: `mvn clean package` → `code-karta-cli/target/code-karta-cli-0.4.0-all.jar`
+- Gradle: `./gradlew :code-karta-cli:fatJar` → `code-karta-cli/build/libs/code-karta-cli-0.4.0-all.jar`
 
 **Running during development:**
 - Maven: `mvn -pl code-karta-cli exec:java -Dexec.mainClass=se.deversity.codekarta.cli.KartaCli "-Dexec.args=--input src/domain --output target/diagrams"`

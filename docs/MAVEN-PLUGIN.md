@@ -12,7 +12,7 @@ falls back to `simple` and logs a warning, exactly as the CLI does.
 <plugin>
     <groupId>se.deversity.codekarta</groupId>
     <artifactId>code-karta-maven-plugin</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
     <executions>
         <execution>
             <goals><goal>generate</goal></goals>
@@ -29,8 +29,8 @@ build and stays out of the inner edit-compile loop.
 Run it without binding it at all, and read the generated parameter reference:
 
 ```bash
-mvn se.deversity.codekarta:code-karta-maven-plugin:0.3.0:generate
-mvn se.deversity.codekarta:code-karta-maven-plugin:0.3.0:help -Ddetail=true
+mvn se.deversity.codekarta:code-karta-maven-plugin:0.4.0:generate
+mvn se.deversity.codekarta:code-karta-maven-plugin:0.4.0:help -Ddetail=true
 ```
 
 The short `mvn karta:generate` form needs the group registered in `~/.m2/settings.xml`, because
