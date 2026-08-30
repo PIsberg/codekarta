@@ -30,7 +30,7 @@ JDK 26 or newer. Both otherwise surface as errors that read like defects in this
 The Maven fat JAR is written to:
 
 ```text
-code-karta-cli/target/code-karta-cli-0.3.0-all.jar
+code-karta-cli/target/code-karta-cli-0.4.0-all.jar
 ```
 
 ## Gradle
@@ -44,7 +44,7 @@ code-karta-cli/target/code-karta-cli-0.3.0-all.jar
 The Gradle fat JAR is written to:
 
 ```text
-code-karta-cli/build/libs/code-karta-cli-0.3.0-all.jar
+code-karta-cli/build/libs/code-karta-cli-0.4.0-all.jar
 ```
 
 ## Running the CLI without building a JAR
@@ -110,7 +110,7 @@ discovery: a processor missing from that list is silently skipped rather than fa
 
 ## Version constant
 
-`0.3.0` appears in `pom.xml`, `build.gradle.kts`, and the JAR paths named throughout these docs.
+`0.4.0` appears in `pom.xml`, `build.gradle.kts`, and the JAR paths named throughout these docs.
 `scripts/check-build-parity.py` checks the first two against each other and fails the build when
 they drift. The JAR paths written in these docs are not checked by anything, so a version bump
 still means changing them by hand.

@@ -29,7 +29,7 @@ import se.deversity.vibetags.annotations.AIIdempotent;
  * fields are absent, because the model omits nulls. Everything else is present either way.
  *
  * <p>The schema is the IR: the field names of {@code Graph}, {@code Node}, {@code Edge} and
- * {@code Group}, which {@code COMPATIBILITY.md} lists as public API. It round-trips, so
+ * {@code Group}, which {@code docs/COMPATIBILITY.md} lists as public API. It round-trips, so
  * {@code new ObjectMapper().readValue(json, Graph.class)} gives back an equivalent graph.
  *
  * <p>Output is deterministic for a given graph: two runs produce byte-identical JSON. That is not

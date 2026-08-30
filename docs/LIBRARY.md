@@ -6,7 +6,7 @@ Every module targets **Java 17**, so the library can be used from an application
 moved to 21. One caveat: `ElkLayoutEngine` needs a Java 21 runtime, because ELK resolves
 its algorithms through `ServiceLoader` and `org.eclipse.xtext.xbase.lib` is compiled for 21.
 On 17 it logs a warning and falls back to `SimpleLayoutEngine` rather than throwing, so the
-pipeline still produces a diagram. [`COMPATIBILITY.md`](../COMPATIBILITY.md) has the detail.
+pipeline still produces a diagram. [`COMPATIBILITY.md`](COMPATIBILITY.md) has the detail.
 
 ```java
 Path input = Path.of("src/main/java");

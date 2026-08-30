@@ -7,7 +7,7 @@ val junitVersion = "6.1.3"
 
 allprojects {
     group = "se.deversity.codekarta"
-    version = "0.3.0" // keep in step with the Maven version — the docs name the built jar
+    version = "0.4.0" // keep in step with the Maven version — the docs name the built jar
 
     repositories {
         // mavenLocal() is opt-in (-PuseMavenLocal) rather than always on. With it first in the

@@ -29,10 +29,10 @@ These are the things a break in which counts as a breaking change.
 | `SvgRenderer.render(Graph)` and `render(Graph, String)` | `code-karta-render` | |
 | `JsonRenderer.render(Graph)` and the JSON it produces | `code-karta-render` | The schema is the IR field names, already listed above. Indentation and key order are stable but are not themselves a contract. |
 | CSS class names in the emitted SVG | `code-karta-render` | `.node-rect`, `.node-label`, `.edge-line`, `.edge-label`, `.group-rect`. Consumers theme against these. |
-| CLI flags | `code-karta-cli` | Documented in [`docs/CLI.md`](docs/CLI.md). Removing or repurposing one is breaking. Adding one is not. |
+| CLI flags | `code-karta-cli` | Documented in [`CLI.md`](CLI.md). Removing or repurposing one is breaking. Adding one is not. |
 | CLI exit codes | `code-karta-cli` | `0` success, `1` usage error, `2` runtime failure. |
 | `KartaCli.run`, `KartaCli.runPerPackage`, `RunOptions` | `code-karta-cli` | The programmatic entry points. Public because the Maven plugin drives them: a capability reachable only through `main(String[])` is one an embedding caller has to shell out to. |
-| Plugin goal, parameters and user properties | `code-karta-maven-plugin` | `karta:generate` and the parameter names in [`docs/MAVEN-PLUGIN.md`](docs/MAVEN-PLUGIN.md). `PluginDescriptorTest` fails the build when the descriptor and that table disagree. |
+| Plugin goal, parameters and user properties | `code-karta-maven-plugin` | `karta:generate` and the parameter names in [`MAVEN-PLUGIN.md`](MAVEN-PLUGIN.md). `PluginDescriptorTest` fails the build when the descriptor and that table disagree. |
 | Maven coordinates | | `se.deversity.codekarta:code-karta-{core,input,layout,render,cli,maven-plugin}` |
 
 ## What is not public
@@ -91,7 +91,7 @@ release that deprecates it. There is no removal without a preceding deprecated r
 ## Supported releases
 
 Fixes, including security fixes, land on the latest minor release. There is no maintenance branch
-for older minors. See [`SECURITY.md`](SECURITY.md).
+for older minors. See [`SECURITY.md`](../SECURITY.md).
 
 ## Reproducibility
 
