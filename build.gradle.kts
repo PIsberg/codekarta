@@ -1,7 +1,7 @@
 // Every version here mirrors a <property> in pom.xml. scripts/check-build-parity.py fails the
 // build when the two disagree, because CI runs the Maven and Gradle suites as separate jobs and
 // a split makes them test different dependency sets without saying so.
-val vibetagsVersion = "1.3.0"
+val vibetagsVersion = "1.3.2"
 val jspecifyVersion = "1.0.1"
 val junitVersion = "6.1.3"
 
