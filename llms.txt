@@ -235,8 +235,7 @@ AI tools reading this file should respect the guardrails defined below. These ru
 - [SvgRenderer](se.deversity.codekarta.render.SvgRenderer): Public API surface. Preserve signature, Javadoc, backwards compatibility, and binary/source stability.
 
 ## ♻️ Idempotency Guarantees
-- [JsonRenderer](se.deversity.codekarta.render.JsonRenderer): Idempotency guaranteed. Multiple invocations must produce the same result as one. Reason: Two renders of the same graph must be byte-identical: map keys are sorted and the pretty printer is pinned to 
-, because HashMap iteration order and System.lineSeparator() are both unstable. KartaCli's byte-identical-output invariant, and the CI step that diffs regenerated files, depend on it.
+- [JsonRenderer](se.deversity.codekarta.render.JsonRenderer): Idempotency guaranteed. Multiple invocations must produce the same result as one. Reason: Two renders of the same graph must be byte-identical: map keys are sorted and the pretty printer is pinned to , because HashMap iteration order and System.lineSeparator() are both unstable. KartaCli's byte-identical-output invariant, and the CI step that diffs regenerated files, depend on it.
 
 ## Load-Bearing Oddities
 - [SvgRenderer.renderNode(se.deversity.codekarta.core.model.Node)](se.deversity.codekarta.render.SvgRenderer.renderNode(se.deversity.codekarta.core.model.Node)): Looks removable but is deliberate. Invariant: A node with a null x or y renders as the empty string rather than raising or substituting a default position. Breaks if changed: Throwing here turns a partially-laid-out graph into no diagram at all, and defaulting the coordinate to 0 stacks every unpositioned node on the origin — both are worse than the node being absent. The LayoutEngine contract deliberately leaves unresolvable positions null and names this skip as the counterpart. Not a defect — do not flag.
