@@ -64,7 +64,7 @@
         <maven.compiler.release>${library.release}</maven.compiler.release>
         <pmd.plugin.version>3.28.0</pmd.plugin.version>
         <pmd.version>7.27.0</pmd.version>
-        <spotbugs.plugin.version>4.10.4.0</spotbugs.plugin.version>
+        <spotbugs.plugin.version>4.10.4.1</spotbugs.plugin.version>
         <checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
         <checkstyle.version>14.1.0</checkstyle.version>
         <errorprone.version>2.50.0</errorprone.version>
