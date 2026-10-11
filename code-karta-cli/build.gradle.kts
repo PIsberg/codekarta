@@ -12,7 +12,7 @@ dependencies {
     implementation(project(":code-karta-input"))
     implementation(project(":code-karta-layout"))
     implementation(project(":code-karta-render"))
-    testImplementation("com.tngtech.archunit:archunit-junit5:1.5.0")
+    testImplementation("com.tngtech.archunit:archunit-junit5:1.5.1")
 }
 
 // Fat JAR via shadow plugin — merges META-INF/services so ELK algorithm SPI is found.
