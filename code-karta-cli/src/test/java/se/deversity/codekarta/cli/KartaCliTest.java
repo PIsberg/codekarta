@@ -581,4 +581,64 @@ class KartaCliTest {
         assertEquals("class-diagram.svg",
                 KartaCli.withFormatExtension("class-diagram.svg", RunOptions.defaults()));
     }
+
+    // --- a whole repository as --input ---
+
+    /** A Maven checkout: production code, a test, and generated code under target/. */
+    private static Path repository(Path root) throws Exception {
+        write(root, "pom.xml", "<project/>");
+        write(root, "src/main/java/shop/Order.java", "package shop; public class Order {}");
+        write(root, "src/main/java/shop/billing/Invoice.java",
+                "package shop.billing; public class Invoice { shop.Order order; }");
+        write(root, "src/test/java/shop/OrderTest.java", "package shop; class OrderTest {}");
+        write(root, "src/test/java/shop/support/Fixtures.java", "package shop.support; class Fixtures {}");
+        write(root, "target/generated-sources/shop/OrderMapper.java",
+                "package shop; class OrderMapper {}");
+        return root;
+    }
+
+    private static void write(Path root, String relative, String content) throws Exception {
+        Path file = root.resolve(relative);
+        Files.createDirectories(file.getParent());
+        Files.writeString(file, content);
+    }
+
+    @Test
+    void repositoryRootDrawsProductionCodeOnly(@TempDir Path dir, @TempDir Path outputDir) throws Exception {
+        Path repo = repository(dir);
+
+        String svg = Files.readString(KartaCli.run(repo, outputDir));
+
+        assertTrue(svg.contains(">Order<"), "production class must be drawn");
+        assertTrue(svg.contains(">Invoice<"), "production class in a subpackage must be drawn");
+        assertFalse(svg.contains("OrderTest"), "test class must not be drawn by default");
+        assertFalse(svg.contains("OrderMapper"), "generated class under target/ must not be drawn");
+    }
+
+    @Test
+    void includeTestsFlagDrawsTestSources(@TempDir Path dir, @TempDir Path outputDir) throws Exception {
+        Path repo = repository(dir);
+
+        KartaCli.main(new String[] {
+                "--input", repo.toString(), "--output", outputDir.toString(), "--include-tests"});
+
+        String svg = Files.readString(outputDir.resolve("class-diagram.svg"));
+        assertTrue(svg.contains("OrderTest"), "--include-tests must bring test classes back");
+        assertFalse(svg.contains("OrderMapper"), "build output stays out even with --include-tests");
+    }
+
+    @Test
+    void splitPackagesOverARepositorySkipsTestOnlyPackages(@TempDir Path dir, @TempDir Path outputDir)
+            throws Exception {
+        Path repo = repository(dir);
+
+        java.util.List<Path> written = KartaCli.runPerPackage(repo, outputDir, RunOptions.defaults());
+
+        java.util.List<String> relative = written.stream()
+                .map(p -> outputDir.relativize(p).toString().replace('\\', '/'))
+                .toList();
+        assertEquals(java.util.List.of(
+                "src/main/java/shop/class-diagram.svg",
+                "src/main/java/shop/billing/class-diagram.svg"), relative);
+    }
 }

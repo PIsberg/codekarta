@@ -22,6 +22,7 @@ import se.deversity.codekarta.core.model.Node;
 import se.deversity.codekarta.core.model.NodeType;
 import se.deversity.codekarta.input.parser.FilterMatcher;
 import se.deversity.codekarta.input.parser.ParserSupport;
+import se.deversity.codekarta.input.parser.SourceTree;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -62,6 +63,7 @@ public class MultiFileSequenceParser {
 
     private final Set<String> customExcludes;
     private final int maxDepth;
+    private final boolean includeTests;
 
     public MultiFileSequenceParser() {
         this(java.util.Collections.emptySet(), Integer.MAX_VALUE);
@@ -72,8 +74,17 @@ public class MultiFileSequenceParser {
     }
 
     public MultiFileSequenceParser(Set<String> customExcludes, int maxDepth) {
+        this(customExcludes, maxDepth, false);
+    }
+
+    /**
+     * @param includeTests {@code true} to stitch callers in test source sets too when the input
+     *                     is a project or repository root; see {@link se.deversity.codekarta.input.parser.SourceTree}
+     */
+    public MultiFileSequenceParser(Set<String> customExcludes, int maxDepth, boolean includeTests) {
         this.customExcludes = ParserSupport.normalizeExcludes(customExcludes);
         this.maxDepth = maxDepth > 0 ? maxDepth : Integer.MAX_VALUE;
+        this.includeTests = includeTests;
     }
 
     /**
@@ -307,12 +318,10 @@ public class MultiFileSequenceParser {
     }
 
     private List<Path> collectJavaSources(Path root) {
-        try (Stream<Path> stream = Files.walk(root)) {
-            // sorted(): Files.walk order is filesystem-defined, and it reaches the SVG.
-            return stream
-                    .filter(p -> p.toString().endsWith(".java"))
+        try {
+            // SourceTree sorts: walk order is filesystem-defined, and it reaches the SVG.
+            return SourceTree.javaFiles(root, includeTests).stream()
                     .filter(p -> !"module-info.java".equals(String.valueOf(p.getFileName())))
-                    .sorted()
                     .collect(Collectors.toList());
         } catch (IOException e) {
             log.warning("Cannot walk source root " + root + ": " + e.getMessage());

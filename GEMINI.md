@@ -75,6 +75,7 @@ Detailed per-element guardrails live in scoped rule files that load automaticall
 - `se.deversity.codekarta.input.parser.ModuleInfoParser` → `.gemini/rules/se-deversity-codekarta-input-parser-ModuleInfoParser.md`
 - `se.deversity.codekarta.input.parser.ParserSupport` → `.gemini/rules/se-deversity-codekarta-input-parser-ParserSupport.md`
 - `se.deversity.codekarta.input.parser.SequenceFilterUtil` → `.gemini/rules/se-deversity-codekarta-input-parser-SequenceFilterUtil.md`
+- `se.deversity.codekarta.input.parser.SourceTree` → `.gemini/rules/se-deversity-codekarta-input-parser-SourceTree.md`
 - `se.deversity.codekarta.input.parser.StateMachineParser` → `.gemini/rules/se-deversity-codekarta-input-parser-StateMachineParser.md`
 <!-- VIBETAGS-MODULE-END: code-karta-input -->
 <!-- VIBETAGS-MODULE: code-karta-layout -->

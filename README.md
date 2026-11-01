@@ -58,6 +58,13 @@ java -jar code-karta-cli/target/code-karta-cli-0.4.0-all.jar \
   --output output \
   --sequence-only
 
+# Any codebase: point --input at a checkout. Tests, build output, .git and node_modules
+# are skipped (--include-tests keeps the tests); one diagram per production package
+java -jar code-karta-cli/target/code-karta-cli-0.4.0-all.jar \
+  --input ~/src/some-project \
+  --output output \
+  --split-packages
+
 # State transition diagram — KartaCli's own pipeline (PARSING→LAYOUT→RENDERING→WRITING→DONE)
 java -jar code-karta-cli/target/code-karta-cli-0.4.0-all.jar \
   --input code-karta-cli/src/main/java/se/deversity/codekarta/cli/KartaCli.java \

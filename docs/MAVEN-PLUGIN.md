@@ -59,6 +59,7 @@ what each one does to the diagram. This table covers what is specific to the plu
 | `stateMachine` | `karta.stateMachine` | `false` | |
 | `modulesOnly` | `karta.modulesOnly` | `false` | The one reason to run on a `pom` module. |
 | `splitPackages` | `karta.splitPackages` | `false` | Mirrors the package tree under `outputDirectory`. |
+| `includeTests` | `karta.includeTests` | `false` | Only matters when `input` is a project root rather than `src/main/java`: test source sets are skipped unless this is set. |
 | `excludes` | | empty | An `<excludes><exclude>*Test</exclude></excludes>` list, not the CLI's comma-separated string. |
 | `maxDepth` | `karta.maxDepth` | unbounded | |
 | `maxMembers` | `karta.maxMembers` | `6` | |

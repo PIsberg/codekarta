@@ -94,6 +94,14 @@ public class GenerateMojo extends AbstractMojo {
     @Parameter(property = "karta.splitPackages", defaultValue = "false")
     private boolean splitPackages;
 
+    /**
+     * Also read test source sets ({@code src/test}, {@code src/integrationTest}, ...) when the
+     * input is a project root rather than a source directory. The default input,
+     * {@code src/main/java}, has none, so this only matters when {@code input} points higher up.
+     */
+    @Parameter(property = "karta.includeTests", defaultValue = "false")
+    private boolean includeTests;
+
     /** Wildcard patterns of types or methods to leave out, for example {@code *Test}. */
     @Parameter
     private List<String> excludes = new ArrayList<>();
@@ -214,7 +222,8 @@ public class GenerateMojo extends AbstractMojo {
                 diagram.isModulesOnly() || modulesOnly,
                 firstNonBlank(diagram.getOutputName(), outputName),
                 diagramMembers != null ? diagramMembers : maxMembers,
-                firstNonBlank(diagram.getFormat(), format));
+                firstNonBlank(diagram.getFormat(), format),
+                diagram.isIncludeTests() || includeTests);
     }
 
     private static String firstNonBlank(String specific, String fallback) {
@@ -233,6 +242,7 @@ public class GenerateMojo extends AbstractMojo {
     void setStateMachine(boolean value) { this.stateMachine = value; }
     void setModulesOnly(boolean value) { this.modulesOnly = value; }
     void setSplitPackages(boolean value) { this.splitPackages = value; }
+    void setIncludeTests(boolean value) { this.includeTests = value; }
     void setExcludes(List<String> value) { this.excludes = value == null ? new ArrayList<>() : value; }
     void setMaxDepth(Integer value) { this.maxDepth = value; }
     void setMaxMembers(int value) { this.maxMembers = value; }

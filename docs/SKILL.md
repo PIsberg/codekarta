@@ -35,6 +35,7 @@ java -jar code-karta-cli/target/code-karta-cli-0.4.0-all.jar \
   [--format svg|json] \
   [--modules-only] \
   [--split-packages] \
+  [--include-tests] \
   [--output-name <file>]
 ```
 
@@ -43,13 +44,14 @@ Input path decides the diagram:
 | Input | Output |
 |---|---|
 | `module-info.java` | `module-diagram.svg` |
-| directory | `class-diagram.svg` |
+| directory (a source root, a module, or a whole repository) | `class-diagram.svg` |
 | single `.java` file | `<classname>-sequence-diagram.svg` with exception-flow analysis |
 | single `.java` file plus `--sequence-only` | call-only sequence diagram |
 | directory plus `--sequence-only` | `sequence-diagram.svg` stitched across files |
 | file or directory plus `--state-machine` | state transition diagram |
 | directory plus `--modules-only` | `modules-diagram.svg` from `module-info.java`, or from the Maven/Gradle reactor when the project declares no JPMS modules |
 
+Any directory walk skips test source sets (`src/test`, `src/*test*`, `src/it`), build output (`target`, `build`, `out` beside a build file), hidden directories and `node_modules`, so a repository root works as `--input`. Use `--include-tests` to read test sources as well.
 Use `--layout elk` for large graphs. Use `--sequence-only` when exception propagation and try/catch regions are noise.
 Use `--state-machine` for enum-backed workflow code where enum constants represent states and switch assignments or `transition(from, to, event)` calls represent transitions.
 Use `--exclude <patterns>` (comma-separated wildcards, e.g. `*Test,se.deversity.codekarta.util.*,Map`) to filter noisy types/methods under scale.

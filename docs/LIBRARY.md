@@ -36,6 +36,13 @@ directory        -> ClassDiagramParser
 Directory plus `--sequence-only`, and the `--state-machine` mode, are wired by the CLI rather than
 by the dispatcher — `MultiFileSequenceParser` and `StateMachineParser` are called directly.
 
+Every directory walk goes through `SourceTree.javaFiles(root, includeTests)`, so a repository
+root works as input: test source sets, build output beside a build file, hidden directories and
+`node_modules` are skipped below the root. Each directory-taking parser has a constructor with an
+`includeTests` flag, for example `new ClassDiagramParser(excludes, maxMembers, true)`, and
+`ModuleInfoParser.parseDirectory(root, includeTests)`. The table in [`CLI.md`](CLI.md#running-against-a-whole-repository)
+lists exactly what is skipped.
+
 **Every parser is fault-tolerant by contract**: `parse(Path)` never throws. Failures are logged and
 a partial — possibly empty — `Graph` comes back, so the pipeline always produces some output.
 

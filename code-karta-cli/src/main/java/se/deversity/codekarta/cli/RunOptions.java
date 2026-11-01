@@ -31,6 +31,11 @@ import java.util.Set;
  *                       rather than a picture of it, for a consumer that wants to run its own
  *                       checks over the analysis. Layout still runs, so the JSON carries
  *                       coordinates. Defaults to {@code "svg"} when {@code null}.
+ * @param includeTests   read test source sets ({@code src/test}, {@code src/integrationTest},
+ *                       ...) when the input is a project or repository root. Off by default, so
+ *                       pointing the CLI at a checkout draws the code that ships. Build output,
+ *                       VCS metadata and {@code node_modules} are skipped either way; see
+ *                       {@code SourceTree} in the input tier.
  */
 @AIImmutable(note = "The compact constructor defensively copies customExcludes and defaults layout; withOutputName returns a new instance rather than mutating. Callers pass the same RunOptions down the whole pipeline, so a mutator here would let one stage change another stage's inputs.")
 @AIKeepInSync(
@@ -45,7 +50,8 @@ public record RunOptions(
         boolean modulesOnly,
         String outputName,
         int maxMembers,
-        String format) {
+        String format,
+        boolean includeTests) {
 
     /** The default output format, and what {@code format} becomes when it is {@code null}. */
     public static final String FORMAT_SVG = "svg";
@@ -69,7 +75,20 @@ public record RunOptions(
                       Set<String> customExcludes, int maxDepth, boolean modulesOnly,
                       String outputName, int maxMembers) {
         this(sequenceOnly, layout, stateMachine, customExcludes, maxDepth, modulesOnly,
-                outputName, maxMembers, FORMAT_SVG);
+                outputName, maxMembers, FORMAT_SVG, false);
+    }
+
+    /**
+     * Kept so the 0.4 nine-component constructor still compiles. Reads production sources only.
+     *
+     * @deprecated since 0.5.0, use the canonical constructor and pass includeTests.
+     */
+    @Deprecated(since = "0.5.0", forRemoval = false)
+    public RunOptions(boolean sequenceOnly, String layout, boolean stateMachine,
+                      Set<String> customExcludes, int maxDepth, boolean modulesOnly,
+                      String outputName, int maxMembers, String format) {
+        this(sequenceOnly, layout, stateMachine, customExcludes, maxDepth, modulesOnly,
+                outputName, maxMembers, format, false);
     }
 
     /** @return true when this run should write JSON rather than SVG */
@@ -77,15 +96,19 @@ public record RunOptions(
         return FORMAT_JSON.equalsIgnoreCase(format);
     }
 
-    /** The pipeline as it runs with no flags at all: class diagram, simple layout, capped members. */
+    /**
+     * The pipeline as it runs with no flags at all: class diagram, simple layout, capped members,
+     * production sources only.
+     */
     public static RunOptions defaults() {
         return new RunOptions(false, "simple", false, Collections.emptySet(),
-                Integer.MAX_VALUE, false, null, ClassDiagramParser.DEFAULT_MAX_MEMBERS, FORMAT_SVG);
+                Integer.MAX_VALUE, false, null, ClassDiagramParser.DEFAULT_MAX_MEMBERS, FORMAT_SVG,
+                false);
     }
 
     public RunOptions withOutputName(String name) {
         return new RunOptions(sequenceOnly, layout, stateMachine, customExcludes,
-                maxDepth, modulesOnly, name, maxMembers, format);
+                maxDepth, modulesOnly, name, maxMembers, format, includeTests);
     }
 
     /**
@@ -94,6 +117,6 @@ public record RunOptions(
      */
     public RunOptions withFormat(String newFormat) {
         return new RunOptions(sequenceOnly, layout, stateMachine, customExcludes,
-                maxDepth, modulesOnly, outputName, maxMembers, newFormat);
+                maxDepth, modulesOnly, outputName, maxMembers, newFormat, includeTests);
     }
 }

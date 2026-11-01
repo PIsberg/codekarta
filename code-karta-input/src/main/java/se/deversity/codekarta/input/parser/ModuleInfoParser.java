@@ -42,12 +42,23 @@ public class ModuleInfoParser {
         return graph;
     }
 
+    /** Every {@code module-info.java} under {@code root}, test source sets left out. */
     public Graph parseDirectory(Path root) {
+        return parseDirectory(root, false);
+    }
+
+    /**
+     * Every {@code module-info.java} under {@code root}, read through {@link SourceTree} so that
+     * build output and VCS directories are skipped.
+     *
+     * @param includeTests {@code true} to read test source sets too
+     */
+    public Graph parseDirectory(Path root, boolean includeTests) {
         Graph graph = new Graph();
-        try (java.util.stream.Stream<Path> stream = Files.walk(root)) {
-            // sorted(): Files.walk order is filesystem-defined, and it reaches the SVG.
-            stream.filter(p -> "module-info.java".equals(String.valueOf(p.getFileName())))
-                  .sorted()
+        try {
+            // SourceTree sorts: walk order is filesystem-defined, and it reaches the SVG.
+            SourceTree.javaFiles(root, includeTests).stream()
+                  .filter(p -> "module-info.java".equals(String.valueOf(p.getFileName())))
                   .forEach(p -> {
                       try {
                           String source = Files.readString(p);

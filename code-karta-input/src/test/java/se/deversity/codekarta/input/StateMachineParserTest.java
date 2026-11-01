@@ -126,4 +126,21 @@ class StateMachineParserTest {
                 .orElseThrow(() -> new AssertionError("missing transition " + source + " -> " + target));
         assertEquals(label, edge.getLabel());
     }
+
+    @Test
+    void repositoryRootSkipsStateMachinesDeclaredInTests(@TempDir Path repo) throws Exception {
+        Files.writeString(repo.resolve("pom.xml"), "<project/>");
+        Path testDir = Files.createDirectories(repo.resolve("src/test/java"));
+        Files.writeString(testDir.resolve("FakeWorkflow.java"), """
+                public class FakeWorkflow {
+                    enum Phase { START, END }
+                    private Phase phase = Phase.START;
+                    void go() { switch (phase) { case START -> phase = Phase.END; default -> {} } }
+                }
+                """);
+
+        assertTrue(parser.parse(repo).getNodes().isEmpty(), "test sources must not be read by default");
+        assertNotNull(new StateMachineParser(true).parse(repo).findNode("START"),
+                "includeTests must read test sources");
+    }
 }

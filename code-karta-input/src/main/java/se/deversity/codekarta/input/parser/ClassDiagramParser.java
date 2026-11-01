@@ -62,6 +62,8 @@ public class ClassDiagramParser {
 
     private final int maxMembers;
 
+    private final boolean includeTests;
+
     public ClassDiagramParser() {
         this(java.util.Collections.emptySet());
     }
@@ -75,22 +77,27 @@ public class ClassDiagramParser {
      *                   (or any negative value) keeps all of them
      */
     public ClassDiagramParser(Set<String> customExcludes, int maxMembers) {
+        this(customExcludes, maxMembers, false);
+    }
+
+    /**
+     * @param maxMembers   see {@link #ClassDiagramParser(Set, int)}
+     * @param includeTests {@code true} to read test source sets too when the input is a project
+     *                     or repository root; see {@link SourceTree}
+     */
+    public ClassDiagramParser(Set<String> customExcludes, int maxMembers, boolean includeTests) {
         this.customExcludes = customExcludes != null ? customExcludes : java.util.Collections.emptySet();
         this.maxMembers = maxMembers;
+        this.includeTests = includeTests;
     }
 
     public Graph parse(Path sourceDirectory) {
         Graph graph = new Graph();
         List<CompilationUnit> units = new ArrayList<>();
-        try (var stream = Files.walk(sourceDirectory)) {
-            // sorted() because Files.walk order is filesystem-defined: NTFS returns entries in
-            // name order and ext4 with dir_index returns them in hash order, so the same source
-            // tree produced different node order on Windows and Linux. Node order reaches the
-            // rendered SVG, and consumers commit those files.
-            List<Path> javaFiles = stream
-                    .filter(p -> p.toString().endsWith(".java"))
-                    .sorted()
-                    .toList();
+        try {
+            // SourceTree sorts: walk order is filesystem-defined (NTFS name order, ext4 hash
+            // order), and node order reaches the rendered SVG that consumers commit.
+            List<Path> javaFiles = SourceTree.javaFiles(sourceDirectory, includeTests);
             for (Path file : javaFiles) {
                 try {
                     units.add(PARSER.parse(Files.readString(file)).getResult().orElseThrow());
