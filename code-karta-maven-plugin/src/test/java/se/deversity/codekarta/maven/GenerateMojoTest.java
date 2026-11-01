@@ -224,4 +224,18 @@ class GenerateMojoTest {
         assertTrue(diagram.toString().contains("src/main/java"));
         assertTrue(diagram.toString().contains("json"));
     }
+
+    @Test
+    void includeTestsIsOffUnlessEitherLevelTurnsItOn(@TempDir Path in, @TempDir Path out) {
+        GenerateMojo mojo = mojo(in, out, "jar");
+        assertFalse(mojo.toRunOptions(new Diagram()).includeTests(),
+                "a whole-project input must not draw test sources by default");
+
+        Diagram diagram = new Diagram();
+        diagram.setIncludeTests(true);
+        assertTrue(mojo.toRunOptions(diagram).includeTests());
+
+        mojo.setIncludeTests(true);
+        assertTrue(mojo.toRunOptions(new Diagram()).includeTests());
+    }
 }

@@ -41,17 +41,28 @@ public class StateMachineParser {
     private static final JavaParser PARSER = new JavaParser(
             new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21));
 
+    private final boolean includeTests;
+
+    /** Reads production sources only when given a project or repository root. */
+    public StateMachineParser() {
+        this(false);
+    }
+
+    /**
+     * @param includeTests {@code true} to read test source sets too when the input is a
+     *                     directory; see {@link SourceTree}
+     */
+    public StateMachineParser(boolean includeTests) {
+        this.includeTests = includeTests;
+    }
+
     public Graph parse(Path path) {
         Graph graph = new Graph();
         try {
             if (Files.isDirectory(path)) {
-                try (var stream = Files.walk(path)) {
-                    // sorted(): Files.walk order is filesystem-defined, and it reaches the SVG.
-                    stream.filter(p -> p.toString().endsWith(".java"))
-                            .filter(p -> !"module-info.java".equals(String.valueOf(p.getFileName())))
-                            .sorted()
-                            .forEach(p -> parseFile(p, graph));
-                }
+                SourceTree.javaFiles(path, includeTests).stream()
+                        .filter(p -> !"module-info.java".equals(String.valueOf(p.getFileName())))
+                        .forEach(p -> parseFile(p, graph));
             } else {
                 parseFile(path, graph);
             }

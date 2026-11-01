@@ -27,6 +27,7 @@ public class Diagram {
     private boolean stateMachine;
     private boolean modulesOnly;
     private boolean splitPackages;
+    private boolean includeTests;
     private List<String> excludes = new ArrayList<>();
     private @Nullable Integer maxDepth;
     private @Nullable Integer maxMembers;
@@ -58,6 +59,9 @@ public class Diagram {
     public boolean isSplitPackages() { return splitPackages; }
     public void setSplitPackages(boolean splitPackages) { this.splitPackages = splitPackages; }
 
+    public boolean isIncludeTests() { return includeTests; }
+    public void setIncludeTests(boolean includeTests) { this.includeTests = includeTests; }
+
     /** @return a copy, so a caller cannot reach in and edit the configured patterns */
     public List<String> getExcludes() { return List.copyOf(excludes); }
     public void setExcludes(List<String> excludes) {
@@ -76,6 +80,7 @@ public class Diagram {
                 + ", format=" + format + ", layout=" + layout
                 + ", sequenceOnly=" + sequenceOnly + ", stateMachine=" + stateMachine
                 + ", modulesOnly=" + modulesOnly + ", splitPackages=" + splitPackages
+                + ", includeTests=" + includeTests
                 + ", excludes=" + excludes + ", maxDepth=" + maxDepth
                 + ", maxMembers=" + maxMembers + "]";
     }

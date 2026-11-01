@@ -11,6 +11,25 @@ each version heading is the complete record.
 
 ## [Unreleased]
 
+### Added
+
+- **A repository root works as `--input`.** Every directory walk, for every diagram type and for
+  `--split-packages`, now goes through one walker (`SourceTree`) that skips test source sets
+  (`src/test`, `src/integrationTest`, `src/testFixtures`, `src/it`, any `src/*test*`), build
+  output (`target`, `build`, `out`, only when a build file sits beside it), hidden directories
+  such as `.git`, and `node_modules`. Pointed at this repository's root, the class diagram
+  previously drew 72 classes, roughly half of them tests, fixtures and generated `HelpMojo`.
+  The `--input` directory itself is never skipped, so `--input src/test/java` still draws tests.
+- `--include-tests` (CLI), `includeTests` / `karta.includeTests` (Maven plugin, goal level and per
+  `<diagram>`) to read test source sets as well. `RunOptions` gains an `includeTests` component;
+  the nine-component constructor is kept and deprecated.
+
+### Changed
+
+- A directory input no longer reads test source sets, generated sources under `target/` or
+  `build/`, or anything under a hidden directory. Inputs that were already a source root such as
+  `src/main/java`, which is the Maven plugin's default, draw exactly what they drew before.
+
 ## [0.4.0] - 2026-08-30
 
 ### Changed

@@ -159,4 +159,30 @@ class MultiFileSequenceParserTest {
         Files.writeString(file, content);
         return file;
     }
+
+    @Test
+    void repositoryRootDoesNotStitchTestCallers(@TempDir Path repo) throws Exception {
+        Files.writeString(repo.resolve("pom.xml"), "<project/>");
+        Path main = Files.createDirectories(repo.resolve("src/main/java"));
+        Path test = Files.createDirectories(repo.resolve("src/test/java"));
+        write(main, "Repo.java", "public class Repo { public void find() {} }");
+        write(main, "Service.java", """
+                public class Service {
+                    private Repo repo = new Repo();
+                    public void run() { repo.find(); }
+                }
+                """);
+        write(test, "ServiceTest.java", """
+                public class ServiceTest {
+                    void runs() { new Service().run(); }
+                }
+                """);
+
+        Graph production = parser.parse(repo);
+        Graph withTests = new MultiFileSequenceParser(java.util.Set.of(), Integer.MAX_VALUE, true).parse(repo);
+
+        assertNotNull(production.findNode("Service"));
+        assertNull(production.findNode("ServiceTest"), "test callers must not be stitched by default");
+        assertNotNull(withTests.findNode("ServiceTest"), "includeTests must stitch test callers");
+    }
 }

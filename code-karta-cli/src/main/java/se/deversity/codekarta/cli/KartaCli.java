@@ -52,6 +52,7 @@ public class KartaCli {
         boolean stateMachine = false;
         boolean modulesOnly = false;
         boolean splitPackages = false;
+        boolean includeTests = false;
         String layout = "simple";
         String outputName = null;
         String format = RunOptions.FORMAT_SVG;
@@ -69,6 +70,7 @@ public class KartaCli {
                 case "--state-machine" -> stateMachine = true;
                 case "--modules-only"  -> modulesOnly = true;
                 case "--split-packages" -> splitPackages = true;
+                case "--include-tests" -> includeTests = true;
                 case "--exclude"       -> {
                     if (i + 1 < args.length) {
                         String rawExcludes = args[++i];
@@ -125,7 +127,7 @@ public class KartaCli {
         }
 
         RunOptions options = new RunOptions(sequenceOnly, layout, stateMachine, customExcludes,
-                maxDepth, modulesOnly, outputName, maxMembers, format);
+                maxDepth, modulesOnly, outputName, maxMembers, format, includeTests);
 
         try {
             if (splitPackages) {
@@ -247,16 +249,17 @@ public class KartaCli {
         Graph graph;
         if (options.stateMachine()) {
             log.fine(() -> "State-machine mode for input: " + inputPath);
-            graph = new StateMachineParser().parse(inputPath);
+            graph = new StateMachineParser(options.includeTests()).parse(inputPath);
         } else if (options.modulesOnly() && Files.isDirectory(inputPath)) {
             log.fine(() -> "Multi-module mode for directory: " + inputPath);
-            graph = parseModules(inputPath);
+            graph = parseModules(inputPath, options.includeTests());
         } else if (options.sequenceOnly() && Files.isDirectory(inputPath)) {
             log.fine(() -> "Multi-file sequence mode for directory: " + inputPath);
-            graph = new MultiFileSequenceParser(options.customExcludes(), options.maxDepth()).parse(inputPath);
+            graph = new MultiFileSequenceParser(options.customExcludes(), options.maxDepth(),
+                    options.includeTests()).parse(inputPath);
         } else {
             graph = new JavaSourceInputParser(options.sequenceOnly(), options.customExcludes(),
-                    options.maxMembers()).parse(inputPath);
+                    options.maxMembers(), options.includeTests()).parse(inputPath);
         }
 
         state = PipelineStage.LAYOUT;
@@ -312,7 +315,12 @@ public class KartaCli {
      * is the more precise statement of the same thing.
      */
     static Graph parseModules(Path inputPath) {
-        Graph jpms = new se.deversity.codekarta.input.parser.ModuleInfoParser().parseDirectory(inputPath);
+        return parseModules(inputPath, false);
+    }
+
+    static Graph parseModules(Path inputPath, boolean includeTests) {
+        Graph jpms = new se.deversity.codekarta.input.parser.ModuleInfoParser()
+                .parseDirectory(inputPath, includeTests);
         if (!jpms.getNodes().isEmpty()) {
             return jpms;
         }
@@ -380,7 +388,8 @@ public class KartaCli {
      * a package is the unit the author already used to group things that belong together, so each
      * resulting diagram answers one question at a size a person can actually look at.
      *
-     * <p>Every directory holding at least one {@code .java} file is rendered, and the output mirrors
+     * <p>Every directory holding at least one {@code .java} file is rendered, skipping the same
+     * test source sets, build output and VCS directories a single run skips, and the output mirrors
      * the package structure under {@code outputDir} so the diagram for {@code a.b.c} is easy to
      * find. A package that yields nothing renderable is skipped, not failed: the caller asked for
      * whatever is there, and one empty package should not abort the other forty.
@@ -405,13 +414,15 @@ public class KartaCli {
             return single == null ? java.util.List.of() : java.util.List.of(single);
         }
 
-        java.util.List<Path> packageDirs = new java.util.ArrayList<>();
-        try (java.util.stream.Stream<Path> walk = Files.walk(inputRoot)) {
-            walk.filter(Files::isDirectory)
-                .filter(KartaCli::holdsJavaSource)
+        // The same walk the parsers use, so a repository root yields its production packages and
+        // not test packages, generated sources, or anything under .git or node_modules.
+        java.util.List<Path> packageDirs = se.deversity.codekarta.input.parser.SourceTree
+                .javaFiles(inputRoot, options.includeTests()).stream()
+                .map(Path::getParent)
+                .filter(java.util.Objects::nonNull)
+                .distinct()
                 .sorted()
-                .forEach(packageDirs::add);
-        }
+                .toList();
 
         java.util.List<Path> written = new java.util.ArrayList<>();
         for (Path pkg : packageDirs) {
@@ -428,20 +439,6 @@ public class KartaCli {
             }
         }
         return written;
-    }
-
-    /** True when the directory itself holds at least one {@code .java} file (not counting subdirs). */
-    private static boolean holdsJavaSource(Path dir) {
-        try (java.util.stream.Stream<Path> entries = Files.list(dir)) {
-            return entries.anyMatch(p -> {
-                // getFileName() is null only for a filesystem root, which is never a regular file;
-                // guard anyway so the predicate is total.
-                Path name = p.getFileName();
-                return name != null && Files.isRegularFile(p) && name.toString().endsWith(".java");
-            });
-        } catch (IOException e) {
-            return false;
-        }
     }
 
     /** Canvas dimensions as written into the rendered {@code <svg>} root element. */
@@ -519,11 +516,12 @@ public class KartaCli {
     }
 
     private static void printUsage() {
-        System.out.println("Usage: karta --input <path> [--output <dir>] [--output-name <file>] [--format svg|json] [--sequence-only] [--state-machine] [--modules-only] [--split-packages] [--layout simple|elk] [--exclude <patterns>] [--max-depth <depth>] [--max-members <n>]");
+        System.out.println("Usage: karta --input <path> [--output <dir>] [--output-name <file>] [--format svg|json] [--sequence-only] [--state-machine] [--modules-only] [--split-packages] [--include-tests] [--layout simple|elk] [--exclude <patterns>] [--max-depth <depth>] [--max-members <n>]");
         System.out.println();
         System.out.println("  --input  <path>      What to parse:");
         System.out.println("                         module-info.java  → module diagram");
-        System.out.println("                         directory         → class diagram");
+        System.out.println("                         directory         → class diagram; a project or");
+        System.out.println("                                             repository root works too");
         System.out.println("                         *.java file       → sequence/exception diagram");
         System.out.println("                         directory + --sequence-only");
         System.out.println("                                           → multi-file stitched sequence diagram");
@@ -563,6 +561,11 @@ public class KartaCli {
         System.out.println("                         the fan-out is horizontal, and a package is");
         System.out.println("                         already the author's own grouping of things");
         System.out.println("                         that belong together.");
+        System.out.println("  --include-tests      Also read test source sets (src/test, src/integrationTest,");
+        System.out.println("                         src/testFixtures, src/it, ...) when --input is a");
+        System.out.println("                         project or repository root. Off by default, so a");
+        System.out.println("                         checkout draws the code that ships. target/, build/,");
+        System.out.println("                         .git and node_modules are skipped either way.");
         System.out.println("  --layout <engine>    Layout algorithm:  simple (default) or elk.");
         System.out.println("                         elk uses the Eclipse Layout Kernel layered");
         System.out.println("                         algorithm for edge-crossing minimisation and");

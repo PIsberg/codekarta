@@ -55,6 +55,7 @@ public class JavaSourceInputParser implements InputParser {
     private final boolean sequenceOnly;
     private final Set<String> customExcludes;
     private final int maxMembers;
+    private final boolean includeTests;
 
     /** Parses with exception flow included and no extra exclusions. The usual choice. */
     public JavaSourceInputParser() {
@@ -85,16 +86,29 @@ public class JavaSourceInputParser implements InputParser {
      *                       {@link ClassDiagramParser#UNLIMITED_MEMBERS} keeps all of them
      */
     public JavaSourceInputParser(boolean sequenceOnly, Set<String> customExcludes, int maxMembers) {
+        this(sequenceOnly, customExcludes, maxMembers, false);
+    }
+
+    /**
+     * @param sequenceOnly   see {@link #JavaSourceInputParser(boolean)}
+     * @param customExcludes see {@link #JavaSourceInputParser(boolean, Set)}
+     * @param maxMembers     see {@link #JavaSourceInputParser(boolean, Set, int)}
+     * @param includeTests   {@code true} to read test source sets too when a directory is a
+     *                       project or repository root; see {@link se.deversity.codekarta.input.parser.SourceTree}
+     */
+    public JavaSourceInputParser(boolean sequenceOnly, Set<String> customExcludes, int maxMembers,
+                                 boolean includeTests) {
         this.sequenceOnly = sequenceOnly;
         this.customExcludes = customExcludes != null ? customExcludes : java.util.Collections.emptySet();
         this.maxMembers = maxMembers;
+        this.includeTests = includeTests;
     }
 
     @Override
     public Graph parse(Path path) {
         if (Files.isDirectory(path)) {
             log.fine(() -> "Delegating directory to ClassDiagramParser: " + path);
-            if (classDiagramParser == null) classDiagramParser = new ClassDiagramParser(customExcludes, maxMembers);
+            if (classDiagramParser == null) classDiagramParser = new ClassDiagramParser(customExcludes, maxMembers, includeTests);
             return classDiagramParser.parse(path);
         }
         String fileName = String.valueOf(path.getFileName());

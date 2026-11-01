@@ -346,4 +346,39 @@ class ClassDiagramParserTest {
         return graph.getEdges().stream().anyMatch(e ->
                 src.equals(e.getSourceId()) && tgt.equals(e.getTargetId()) && type.equals(e.getType()));
     }
+
+    // --- repository root as input ---
+
+    private static void writeAt(Path root, String relative, String content) throws Exception {
+        Path file = root.resolve(relative);
+        Files.createDirectories(file.getParent());
+        Files.writeString(file, content);
+    }
+
+    @Test
+    void repositoryRootLeavesOutTestsAndBuildOutput(@TempDir Path repo) throws Exception {
+        writeAt(repo, "pom.xml", "<project/>");
+        writeAt(repo, "src/main/java/app/Order.java", "package app; public class Order {}");
+        writeAt(repo, "src/test/java/app/OrderTest.java", "package app; class OrderTest { Order order; }");
+        writeAt(repo, "target/generated-sources/app/OrderMapper.java", "package app; class OrderMapper {}");
+
+        Graph graph = parser.parse(repo);
+
+        assertNotNull(graph.findNode("Order"), "production class must be drawn");
+        assertNull(graph.findNode("OrderTest"), "test sources must not be drawn by default");
+        assertNull(graph.findNode("OrderMapper"), "generated sources under target/ must not be drawn");
+    }
+
+    @Test
+    void includeTestsDrawsTestSourcesToo(@TempDir Path repo) throws Exception {
+        writeAt(repo, "pom.xml", "<project/>");
+        writeAt(repo, "src/main/java/app/Order.java", "package app; public class Order {}");
+        writeAt(repo, "src/test/java/app/OrderTest.java", "package app; class OrderTest { Order order; }");
+
+        Graph graph = new ClassDiagramParser(java.util.Set.of(), ClassDiagramParser.DEFAULT_MAX_MEMBERS, true)
+                .parse(repo);
+
+        assertNotNull(graph.findNode("Order"));
+        assertNotNull(graph.findNode("OrderTest"), "includeTests must bring test sources back");
+    }
 }
