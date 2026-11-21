@@ -55,15 +55,24 @@ Example graph:
 ```json
 {
   "nodes": [
-    { "id": "Cargo", "type": "CLASS", "label": "Cargo", "x": 20, "y": 150, "width": 150, "height": 50 },
-    { "id": "ShippingUnit", "type": "INTERFACE", "label": "ShippingUnit", "x": 220, "y": 20, "width": 150, "height": 50 }
+    { "id": "shipping.Cargo", "type": "CLASS", "label": "Cargo", "x": 20, "y": 150, "width": 150, "height": 50 },
+    { "id": "shipping.ShippingUnit", "type": "INTERFACE", "label": "ShippingUnit", "x": 220, "y": 20, "width": 150, "height": 50 }
   ],
   "edges": [
-    { "id": "Cargo-implements-ShippingUnit", "sourceId": "Cargo", "targetId": "ShippingUnit", "type": "IMPLEMENTS" }
+    { "id": "shipping.Cargo-implements-shipping.ShippingUnit", "sourceId": "shipping.Cargo", "targetId": "shipping.ShippingUnit", "type": "IMPLEMENTS" }
   ],
-  "groups": []
+  "groups": [
+    { "id": "package-shipping", "label": "shipping", "memberIds": ["shipping.Cargo", "shipping.ShippingUnit"] }
+  ]
 }
 ```
+
+In a class diagram a type's node `id` is its qualified name (`shipping.Cargo`; just `Cargo` in the
+default package) and its `label` is the simple name, so two `Config` classes in different
+packages stay two nodes. A field or supertype reference resolves the way `javac` would: a
+qualified name, then a single-type import, then the file's own package, then on-demand imports.
+A simple name none of those settle resolves only if exactly one type in the input carries it;
+otherwise no edge is drawn rather than a guessed one.
 
 ## Input Tier
 
@@ -97,9 +106,9 @@ Class diagrams filter obvious JDK types and primitives so associations stay focu
 To support clean diagramming in large codebases, several architectural scaling constraints are supported:
 *   **Package-Based Visual Clustering:** `ClassDiagramParser` automatically extracts package declarations and groups class nodes into nested `Group` blocks. These clusters are cleanly rendered by the compound routing engine, avoiding monolithic flat "hairballs".
 *   **Configurable Filtering:** Dynamic class and method filtering is supported via `FilterMatcher`. Users can exclude unwanted frameworks, utility classes, or test classes using simple wildcard patterns (e.g. `*Test`, `se.deversity.codekarta.util.*`).
-*   **Sequence Depth Limiting:** `MultiFileSequenceParser` supports depth-limited stitching. It performs a post-processing BFS from sequence entry points (methods with no incoming calls) and prunes any nodes/edges exceeding a user-defined `--max-depth`.
+*   **Sequence Depth Limiting:** `MultiFileSequenceParser` supports depth-limited stitching. It performs a post-processing BFS from sequence entry points and prunes any nodes/edges exceeding a user-defined `--max-depth`. An entry point is a method no *other* method calls, so a recursive method still starts its tree; a cycle nothing outside calls starts from its first method in graph order. `SequenceDiagramRenderer` orders messages from the same entry points, and the two are kept in step with `@AIKeepInSync`.
 
-State-machine parsing targets enum-backed workflow code. Enum constants become `STATE` nodes. Switch entries, state assignments, returns/yields, and explicit `transition(from, to, event)` calls become `TRANSITION` edges.
+State-machine parsing targets enum-backed workflow code. Enum constants become `STATE` nodes. Switch entries, state assignments, returns/yields, and explicit `transition(from, to, event)` calls become `TRANSITION` edges. A directory is read in two passes, every enum first and then every file's transitions against all of them; state variables are recognised by declared enum type, and both ends of a transition must belong to one enum.
 
 ## Layout Tier
 

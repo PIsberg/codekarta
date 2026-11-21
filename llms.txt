@@ -163,6 +163,9 @@ AI tools reading this file should respect the guardrails defined below. These ru
 
 ## Load-Bearing Oddities
 - [ParserSupport](se.deversity.codekarta.input.parser.ParserSupport): Looks removable but is deliberate. Invariant: parseJava21 propagates its failures instead of swallowing them; the try/catch that turns a failure into a partial graph stays in each calling parser. Breaks if changed: Wrapping the fault tolerance in here looks like deduplication and silently changes the contract: every caller would inherit one shared recovery policy, and a parser that needs to log its own diagnostic or return a differently-shaped partial graph could no longer do so. The repeated try/catch in the callers is the fault-tolerance rule being stated once per parser, not copy-paste. Not a defect — do not flag.
+
+## Mirrored Elements
+- [MultiFileSequenceParser.pruneToMaxDepth(se.deversity.codekarta.core.model.Graph)](se.deversity.codekarta.input.MultiFileSequenceParser.pruneToMaxDepth(se.deversity.codekarta.core.model.Graph)): Editing this requires the same edit at: se.deversity.codekarta.render.SequenceDiagramRenderer#orderMessages. Both decide where a call tree starts: a METHOD no other method calls (self-calls do not count), then, for a cycle nothing outside calls, its first method in graph order. The tiers cannot share code (input and render may not reference each other), so they are two copies; if they disagree, --max-depth keeps a tree the renderer never draws, or the reverse (issue #229).. Enforced by MultiFileSequenceParserTest.maxDepthKeepsTheCallTreeOfARecursiveEntryMethod / maxDepthCountsFromTheFirstMethodOfACycleWithNoOutsideCaller, and the SequenceDiagramRendererTest twins.
 <!-- VIBETAGS-MODULE-END: code-karta-input -->
 <!-- VIBETAGS-MODULE: code-karta-layout -->
 # This Project
@@ -241,5 +244,8 @@ AI tools reading this file should respect the guardrails defined below. These ru
 
 ## Load-Bearing Oddities
 - [SvgRenderer.renderNode(se.deversity.codekarta.core.model.Node)](se.deversity.codekarta.render.SvgRenderer.renderNode(se.deversity.codekarta.core.model.Node)): Looks removable but is deliberate. Invariant: A node with a null x or y renders as the empty string rather than raising or substituting a default position. Breaks if changed: Throwing here turns a partially-laid-out graph into no diagram at all, and defaulting the coordinate to 0 stacks every unpositioned node on the origin — both are worse than the node being absent. The LayoutEngine contract deliberately leaves unresolvable positions null and names this skip as the counterpart. Not a defect — do not flag.
+
+## Mirrored Elements
+- [SequenceDiagramRenderer.orderMessages(se.deversity.codekarta.core.model.Graph)](se.deversity.codekarta.render.SequenceDiagramRenderer.orderMessages(se.deversity.codekarta.core.model.Graph)): Editing this requires the same edit at: se.deversity.codekarta.input.MultiFileSequenceParser#pruneToMaxDepth. Both decide where a call tree starts: a METHOD no other method calls (self-calls do not count), then, for a cycle nothing outside calls, its first method in graph order. The tiers cannot share code (input and render may not reference each other), so they are two copies; if they disagree, --max-depth keeps a tree the renderer never draws, or the reverse (issue #229).. Enforced by SequenceDiagramRendererTest.aRecursiveEntryMethodStillStartsItsCallTree / aCycleWithNoOutsideCallerIsDrawnFromItsFirstMethod, and the MultiFileSequenceParserTest maxDepth twins.
 <!-- VIBETAGS-MODULE-END: code-karta-render -->
 <!-- VIBETAGS-END -->
