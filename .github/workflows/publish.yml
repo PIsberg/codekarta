@@ -33,6 +33,11 @@ jobs:
           gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
+      # Before Maven, so an expired or missing key fails here, named, rather than 36 seconds into the
+      # build as gpg's misleading "no default secret key" (the v0.3.0 failure, #114).
+      - name: The signing key can sign
+        run: bash scripts/check-signing-key.sh
+
       - name: Publish to Maven Central
         run: ./mvnw clean deploy -P release -B
         env:
