@@ -28,6 +28,11 @@ jobs:
       - name: Check pom.xml against build.gradle.kts
         run: python3 scripts/check-build-parity.py
 
+      # publish.yml runs check-signing-key.sh before a release. A check that only runs on release
+      # day is one nobody has seen work, so its cases run here against throwaway keyrings (#114).
+      - name: The release signing-key check works
+        run: bash scripts/test-check-signing-key.sh
+
   maven:
     name: Maven — verify, package, regenerate
     runs-on: ubuntu-latest
