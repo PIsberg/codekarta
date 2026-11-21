@@ -130,7 +130,8 @@ This is how plugins are actually adopted, so two ordinary cases are deliberately
 ## Invalid settings
 
 A `<layout>` other than `simple`/`elk` or a `<format>` other than `svg`/`json`, at goal level or
-in a `<diagram>`, fails the build with a message naming the setting and the value. Before 0.5.0,
+in a `<diagram>`, fails the build with a message naming the setting and the value, and so does
+`splitPackages` together with `modulesOnly`, which has no per-package meaning. Before 0.5.0,
 `<layout>elkk</layout>` quietly became the simple layout and `<format>png</format>` SVG.
 
 ## When nothing is drawn

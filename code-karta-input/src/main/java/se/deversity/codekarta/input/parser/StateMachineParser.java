@@ -70,22 +70,10 @@ public class StateMachineParser {
      */
     public Graph parse(Path path) {
         Graph graph = new Graph();
-        JavaParser parser = ParserSupport.newJava21Parser();
         try {
-            List<Path> files = Files.isDirectory(path)
-                    ? SourceTree.javaFiles(path, includeTests).stream()
-                            .filter(p -> !"module-info.java".equals(String.valueOf(p.getFileName())))
-                            .toList()
-                    : List.of(path);
-            List<ParsedFile> parsed = new ArrayList<>();
-            for (Path file : files) {
-                try {
-                    parsed.add(new ParsedFile(file, parser.parse(Files.readString(file)).getResult().orElseThrow()));
-                } catch (Exception e) {
-                    log.warning("Failed to parse " + file + " as state machine: " + e.getMessage());
-                }
-            }
-            States states = collectStates(parsed, graph);
+            List<ParsedFile> parsed = parseFiles(path);
+            States states = collectStates(parsed);
+            addStateNodes(parsed, graph);
             if (states.isEmpty()) {
                 return graph;
             }
@@ -96,6 +84,59 @@ public class StateMachineParser {
             log.warning("Failed to parse state machine input " + path + ": " + e.getMessage());
         }
         return graph;
+    }
+
+    /**
+     * One state-machine graph per directory holding a {@code .java} file, keyed by directory in
+     * sorted order. Each holds the states of the enums declared in that directory and the
+     * transitions found in its files, with the states they touch.
+     *
+     * <p>Every enum of the whole tree is read first, as {@link #parse} does, so a transition whose
+     * enum lives in another package still resolves. Rendering each directory recursively instead
+     * drew every subpackage's machines again in each parent package (issue #246).
+     */
+    public Map<Path, Graph> parsePerDirectory(Path root) {
+        Map<Path, Graph> graphs = new java.util.LinkedHashMap<>();
+        try {
+            List<ParsedFile> parsed = parseFiles(root);
+            States states = collectStates(parsed);
+            Map<Path, List<ParsedFile>> byDirectory = new java.util.TreeMap<>();
+            for (ParsedFile file : parsed) {
+                Path dir = file.file().getParent();
+                if (dir != null) {
+                    byDirectory.computeIfAbsent(dir, k -> new ArrayList<>()).add(file);
+                }
+            }
+            byDirectory.forEach((dir, files) -> {
+                Graph graph = new Graph();
+                addStateNodes(files, graph);
+                if (!states.isEmpty()) {
+                    files.forEach(file -> scanTransitions(file, states, graph));
+                }
+                graphs.put(dir, graph);
+            });
+        } catch (Exception e) {
+            log.warning("Failed to parse state machine input " + root + ": " + e.getMessage());
+        }
+        return graphs;
+    }
+
+    private List<ParsedFile> parseFiles(Path path) throws java.io.IOException {
+        JavaParser parser = ParserSupport.newJava21Parser();
+        List<Path> files = Files.isDirectory(path)
+                ? SourceTree.javaFiles(path, includeTests).stream()
+                        .filter(p -> !"module-info.java".equals(String.valueOf(p.getFileName())))
+                        .toList()
+                : List.of(path);
+        List<ParsedFile> parsed = new ArrayList<>();
+        for (Path file : files) {
+            try {
+                parsed.add(new ParsedFile(file, parser.parse(Files.readString(file)).getResult().orElseThrow()));
+            } catch (Exception e) {
+                log.warning("Failed to parse " + file + " as state machine: " + e.getMessage());
+            }
+        }
+        return parsed;
     }
 
     private record ParsedFile(Path file, CompilationUnit cu) {}
@@ -188,19 +229,27 @@ public class StateMachineParser {
         return key.toString();
     }
 
-    private States collectStates(List<ParsedFile> parsed, Graph graph) {
+    private States collectStates(List<ParsedFile> parsed) {
         States states = new States();
         for (ParsedFile file : parsed) {
             file.cu().findAll(EnumDeclaration.class).forEach(enumDecl -> {
                 String key = enumKey(enumDecl);
-                enumDecl.getEntries().forEach(entry -> {
-                    String constant = entry.getNameAsString();
-                    states.add(key, enumDecl.getNameAsString(), constant);
-                    graph.addNodeIfAbsent(new Node(key + "." + constant, NodeType.STATE, constant));
-                });
+                enumDecl.getEntries().forEach(entry ->
+                        states.add(key, enumDecl.getNameAsString(), entry.getNameAsString()));
             });
         }
         return states;
+    }
+
+    /** A STATE node for every constant of every enum declared in {@code files}, in source order. */
+    private static void addStateNodes(List<ParsedFile> files, Graph graph) {
+        for (ParsedFile file : files) {
+            file.cu().findAll(EnumDeclaration.class).forEach(enumDecl -> {
+                String key = enumKey(enumDecl);
+                enumDecl.getEntries().forEach(entry -> graph.addNodeIfAbsent(
+                        new Node(key + "." + entry.getNameAsString(), NodeType.STATE, entry.getNameAsString())));
+            });
+        }
     }
 
     /**

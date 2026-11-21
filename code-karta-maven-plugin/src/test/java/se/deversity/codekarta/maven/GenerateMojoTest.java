@@ -286,4 +286,16 @@ class GenerateMojoTest {
                 "a relative <input>/<output> in <diagram> is relative to the module's basedir");
         assertFalse(Files.exists(Path.of("karta-out-233")), "nothing may be written under the working directory");
     }
+
+    @Test
+    void splitPackagesWithModulesOnlyFailsTheBuild(@TempDir Path in, @TempDir Path out) throws Exception {
+        writeSources(in);
+        GenerateMojo mojo = mojo(in, out, "jar");
+        mojo.setSplitPackages(true);
+        mojo.setModulesOnly(true);
+
+        MojoExecutionException thrown = assertThrows(MojoExecutionException.class, mojo::execute);
+
+        assertTrue(thrown.getMessage().contains("--split-packages"), thrown.getMessage());
+    }
 }

@@ -107,6 +107,9 @@ public class KartaCli {
         if (inputPath == null) {
             throw new IllegalArgumentException("--input is required.");
         }
+        if (splitPackages && modulesOnly) {
+            throw new IllegalArgumentException("--split-packages cannot be combined with --modules-only.");
+        }
         // RunOptions checks layout and format, so the CLI, the Maven plugin and library callers
         // all reject the same values with the same message.
         return new Invocation(inputPath, outputDir, splitPackages, false,
@@ -431,7 +434,9 @@ public class KartaCli {
      * find. Each diagram draws the types (or, with {@code sequenceOnly}, the methods) declared
      * directly in its directory, not those of its subpackages; the tree is parsed once, so a
      * reference into another package still resolves, to a stub node or a cross-package call.
-     * State-machine and module runs still render each directory recursively (#246). A package that yields nothing renderable is skipped, not failed: the caller asked for
+     * With {@code stateMachine}, each directory draws the transitions found in its own files and
+     * the enums it declares. {@code modulesOnly} cannot be split: it is rejected with
+     * {@link IllegalArgumentException}. A package that yields nothing renderable is skipped, not failed: the caller asked for
      * whatever is there, and one empty package should not abort the other forty.
      *
      * <p>Public because the Maven plugin drives it. Everything the CLI can do from a flag, an
@@ -448,49 +453,35 @@ public class KartaCli {
      */
     public static java.util.List<Path> runPerPackage(Path inputRoot, Path outputDir,
                                               RunOptions options) throws IOException {
+        if (options.modulesOnly()) {
+            // Modules are not per package: a module-info.java describes a whole source set.
+            throw new IllegalArgumentException("--split-packages cannot be combined with --modules-only.");
+        }
         if (!Files.isDirectory(inputRoot)) {
             log.info(() -> "--split-packages needs a directory; " + inputRoot + " is a file.");
             Path single = run(inputRoot, outputDir, options);
             return single == null ? java.util.List.of() : java.util.List.of(single);
         }
 
-        if (!options.stateMachine() && !options.modulesOnly()) {
-            // Each package drawn from its own files, the tree parsed once so references into
-            // other packages still resolve (to stub nodes, or to cross-package calls).
-            java.util.Map<Path, Graph> graphs = options.sequenceOnly()
-                    ? new MultiFileSequenceParser(options.customExcludes(), options.maxDepth(),
-                            options.includeTests()).parsePerDirectory(inputRoot)
-                    : new se.deversity.codekarta.input.parser.ClassDiagramParser(options.customExcludes(),
-                            options.maxMembers(), options.includeTests()).parsePerDirectory(inputRoot);
-            java.util.List<Path> written = new java.util.ArrayList<>();
-            for (java.util.Map.Entry<Path, Graph> entry : graphs.entrySet()) {
-                writePackage(inputRoot, outputDir, options, entry.getKey(), entry.getValue(), written);
-            }
-            return written;
-        }
-
-        // State machines and module graphs keep the recursive per-directory run: a package's
-        // state machine can depend on an enum declared in a subpackage (#246).
-        // The same walk the parsers use, so a repository root yields its production packages and
-        // not test packages, generated sources, or anything under .git or node_modules.
-        java.util.List<Path> packageDirs = se.deversity.codekarta.input.parser.SourceTree
-                .javaFiles(inputRoot, options.includeTests()).stream()
-                .map(Path::getParent)
-                .filter(java.util.Objects::nonNull)
-                .distinct()
-                .sorted()
-                .toList();
-
+        // Each package drawn from its own files, the tree parsed once so references into other
+        // packages still resolve (to stub nodes, cross-package calls, or enums).
+        java.util.Map<Path, Graph> graphs = options.stateMachine()
+                ? new StateMachineParser(options.includeTests()).parsePerDirectory(inputRoot)
+                : options.sequenceOnly()
+                ? new MultiFileSequenceParser(options.customExcludes(), options.maxDepth(),
+                        options.includeTests()).parsePerDirectory(inputRoot)
+                : new se.deversity.codekarta.input.parser.ClassDiagramParser(options.customExcludes(),
+                        options.maxMembers(), options.includeTests()).parsePerDirectory(inputRoot);
         java.util.List<Path> written = new java.util.ArrayList<>();
-        for (Path pkg : packageDirs) {
-            writePackage(inputRoot, outputDir, options, pkg, null, written);
+        for (java.util.Map.Entry<Path, Graph> entry : graphs.entrySet()) {
+            writePackage(inputRoot, outputDir, options, entry.getKey(), entry.getValue(), written);
         }
         return written;
     }
 
-    /** Writes one package's diagram under the mirrored output path; parses {@code pkg} if {@code graph} is null. */
+    /** Writes one package's already-parsed diagram under the mirrored output path. */
     private static void writePackage(Path inputRoot, Path outputDir, RunOptions options, Path pkg,
-                                     @Nullable Graph graph, java.util.List<Path> written) {
+                                     Graph graph, java.util.List<Path> written) {
         Path relative = inputRoot.relativize(pkg);
         Path target = relative.toString().isEmpty() ? outputDir : outputDir.resolve(relative);
         try {
