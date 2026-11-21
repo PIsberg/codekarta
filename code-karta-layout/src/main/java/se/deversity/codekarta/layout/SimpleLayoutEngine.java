@@ -53,11 +53,6 @@ public class SimpleLayoutEngine implements LayoutEngine {
      */
     static final double MAX_ROW_WIDTH = 2600.0;
 
-    // Compartment height constants mirrored from SvgRenderer (kept in sync manually).
-    // Used only for row-spacing estimation — never for actual pixel output.
-    private static final double COMPARTMENT_HEADER_H  = 44.0;
-    private static final double COMPARTMENT_SECTION_H = 13.0; // padding*2 + 1
-    private static final double COMPARTMENT_LINE_H    = 15.0;
 
     @Override
     public Graph layout(Graph graph) {
@@ -130,26 +125,9 @@ public class SimpleLayoutEngine implements LayoutEngine {
         return maxH;
     }
 
-    /**
-     * Estimates the rendered height of a node by mirroring SvgRenderer's compartment
-     * height formula. Nodes with {@code fields} or {@code methods} properties grow
-     * taller than {@link NodeDimensions#DEFAULT_HEIGHT}; all other nodes return
-     * {@code NODE_HEIGHT}.
-     */
+    /** See {@link RenderedSize#estimateHeight(Node)}, which both layout engines share. */
     double estimateRenderHeight(Node node) {
-        Map<String, String> props = node.getProperties();
-        if (props == null) return NODE_HEIGHT;
-        String fields  = props.get("fields");
-        String methods = props.get("methods");
-        if ((fields == null || fields.isEmpty()) && (methods == null || methods.isEmpty())) {
-            return NODE_HEIGHT;
-        }
-        double h = COMPARTMENT_HEADER_H;
-        if (fields  != null && !fields.isEmpty())
-            h += COMPARTMENT_SECTION_H + fields.split("\n").length  * COMPARTMENT_LINE_H;
-        if (methods != null && !methods.isEmpty())
-            h += COMPARTMENT_SECTION_H + methods.split("\n").length * COMPARTMENT_LINE_H;
-        return Math.max(h, NODE_HEIGHT);
+        return RenderedSize.estimateHeight(node);
     }
 
     private Map<String, Integer> computeLevels(Graph graph) {

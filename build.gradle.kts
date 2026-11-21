@@ -1,13 +1,13 @@
 // Every version here mirrors a <property> in pom.xml. scripts/check-build-parity.py fails the
 // build when the two disagree, because CI runs the Maven and Gradle suites as separate jobs and
 // a split makes them test different dependency sets without saying so.
-val vibetagsVersion = "1.2.5"
+val vibetagsVersion = "1.3.2"
 val jspecifyVersion = "1.0.1"
 val junitVersion = "6.1.3"
 
 allprojects {
     group = "se.deversity.codekarta"
-    version = "0.3.0" // keep in step with the Maven version — the docs name the built jar
+    version = "0.4.0" // keep in step with the Maven version — the docs name the built jar
 
     repositories {
         // mavenLocal() is opt-in (-PuseMavenLocal) rather than always on. With it first in the
@@ -25,10 +25,20 @@ allprojects {
 subprojects {
     apply(plugin = "java-library")
 
+    // Every module targets Java 17, so a consumer on 17 can use the library and run the CLI jar.
+    // Mirrors <library.release> in pom.xml, which scripts/check-build-parity.py compares across
+    // the two builds.
+    val libraryRelease = 17
+
     configure<JavaPluginExtension> {
         toolchain {
             languageVersion = JavaLanguageVersion.of(21)
         }
+    }
+
+    // Only the published classes are constrained; test sources stay on the toolchain's 21.
+    tasks.named<JavaCompile>("compileJava") {
+        options.release.set(libraryRelease)
     }
 
     dependencies {

@@ -11,6 +11,7 @@ paths: ["**/SvgRenderer.java"]
 
 ## Strict Test Isolation
 - **Rule**: Strict test isolation required. AI-generated or modified tests must not share mutable state, rely on execution order, or conflict on external resources.
+- **Reason**: SvgRendererTest builds its own Graph per case and asserts on returned strings — nothing is written to disk and no static renderer state exists. Keep it that way so the suite stays safe under Surefire forkCount > 1.
 
 ## Architectural Boundary Constraints
 - **Layer**: render

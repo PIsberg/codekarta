@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- The integration-test builds run against the staging repository that invoker:install
+     populates, plus Central for the lifecycle plugins they pull in. Without an explicit
+     settings file they would inherit whatever the developer happens to have configured, and
+     an IT that passes only on one machine's settings is not a test. -->
+<settings>
+    <profiles>
+        <profile>
+            <id>it</id>
+            <repositories>
+                <repository>
+                    <id>central</id>
+                    <url>https://repo.maven.apache.org/maven2</url>
+                    <releases><enabled>true</enabled></releases>
+                    <snapshots><enabled>false</enabled></snapshots>
+                </repository>
+            </repositories>
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>central</id>
+                    <url>https://repo.maven.apache.org/maven2</url>
+                    <releases><enabled>true</enabled></releases>
+                    <snapshots><enabled>false</enabled></snapshots>
+                </pluginRepository>
+            </pluginRepositories>
+        </profile>
+    </profiles>
+    <activeProfiles>
+        <activeProfile>it</activeProfile>
+    </activeProfiles>
+</settings>

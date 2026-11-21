@@ -1,0 +1,56 @@
+{
+  "_comment": [
+    "Projects the corpus job parses, pinned by commit so a run is reproducible and a red build",
+    "is always our regression rather than somebody else refactoring overnight.",
+    "",
+    "Nothing here is vendored. The job clones each project at the pinned sha and throws it away,",
+    "so this repository stays MIT and redistributes nobody else code. Licences are recorded",
+    "because the choice was deliberate, not because a clone needs one.",
+    "",
+    "Chosen for variety of failure mode rather than for fame: heavy generics, one enormous file,",
+    "an interface-first architecture, and deep inheritance.",
+    "",
+    "minNodes is a floor measured on the pinned sha and set below it. Parsers return a partial",
+    "graph instead of throwing, so a collapse in this number is what a broken parser looks like.",
+    "Raise a floor when the measured number rises. Never lower one to make a red build green:",
+    "re-pin the sha instead, and say in the commit why the project got smaller."
+  ],
+  "projects": [
+    {
+      "name": "guava",
+      "why": "Generics at their most brutal. The best available stress test for rawType() and the stdlib skip-list in ClassDiagramParser.",
+      "repo": "https://github.com/google/guava",
+      "sha": "d5cc108ede2f3fc4a0c512c90920000fcdcbc4a0",
+      "license": "Apache-2.0",
+      "path": "guava/src/com/google/common/collect",
+      "minNodes": 190
+    },
+    {
+      "name": "picocli",
+      "why": "One file of roughly fifteen thousand lines. Exercises the single-file path at a size no fixture reaches.",
+      "repo": "https://github.com/remkop/picocli",
+      "sha": "10509c0af89aa3254ca14ba90d9b3b7168e57994",
+      "license": "Apache-2.0",
+      "path": "src/main/java/picocli",
+      "minNodes": 2
+    },
+    {
+      "name": "junit5",
+      "why": "Interface-first extension architecture, and the one project here whose diagram is worth looking at.",
+      "repo": "https://github.com/junit-team/junit5",
+      "sha": "9cd9a3cfb6cd98aec355bd49fc8d801058762441",
+      "license": "EPL-2.0",
+      "path": "junit-jupiter-api/src/main/java/org/junit/jupiter/api",
+      "minNodes": 165
+    },
+    {
+      "name": "jackson-databind",
+      "why": "Deep inheritance chains, and already a dependency of this project, so a regression here reaches us directly. Note the 3.x package move to tools.jackson.databind.",
+      "repo": "https://github.com/FasterXML/jackson-databind",
+      "sha": "e82178d19415dddce37ede95c125b70b20561954",
+      "license": "Apache-2.0",
+      "path": "src/main/java/tools/jackson/databind",
+      "minNodes": 495
+    }
+  ]
+}

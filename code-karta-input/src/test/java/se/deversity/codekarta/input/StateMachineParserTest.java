@@ -36,12 +36,12 @@ class StateMachineParserTest {
 
         Graph graph = parser.parse(source);
 
-        assertNotNull(graph.findNode("NEW"), "enum constants must become STATE nodes");
-        assertNotNull(graph.findNode("PAID"), "enum constants must become STATE nodes");
+        assertNotNull(graph.findNode("OrderWorkflow.State.NEW"), "enum constants must become STATE nodes");
+        assertNotNull(graph.findNode("OrderWorkflow.State.PAID"), "enum constants must become STATE nodes");
         assertTrue(graph.getEdges().stream().anyMatch(e ->
                 "TRANSITION".equals(e.getType())
-                        && "NEW".equals(e.getSourceId())
-                        && "PAID".equals(e.getTargetId())),
+                        && "OrderWorkflow.State.NEW".equals(e.getSourceId())
+                        && "OrderWorkflow.State.PAID".equals(e.getTargetId())),
                 "switch case assignment must become a transition");
         assertTrue(graph.getEdges().stream().allMatch(e -> e.getLabel() != null),
                 "transitions should carry a source method/event label");
@@ -67,8 +67,8 @@ class StateMachineParserTest {
 
         Graph graph = parser.parse(source);
 
-        assertTransition(graph, "OPEN", "REVIEW", "submit");
-        assertTransition(graph, "REVIEW", "CLOSED", "approve");
+        assertTransition(graph, "TicketWorkflow.State.OPEN", "TicketWorkflow.State.REVIEW", "submit");
+        assertTransition(graph, "TicketWorkflow.State.REVIEW", "TicketWorkflow.State.CLOSED", "approve");
     }
 
     @Test
@@ -82,7 +82,7 @@ class StateMachineParserTest {
 
         Graph graph = parser.parse(dir);
 
-        assertTransition(graph, "IDLE", "RUNNING", "start");
+        assertTransition(graph, "A.State.IDLE", "A.State.RUNNING", "start");
     }
 
     @Test
@@ -104,13 +104,13 @@ class StateMachineParserTest {
 
         assertTrue(graph.getEdges().stream().anyMatch(e ->
                 "TRANSITION".equals(e.getType())
-                        && "PARSING".equals(e.getSourceId())
-                        && "LAYOUT".equals(e.getTargetId())),
+                        && "Pipeline.Stage.PARSING".equals(e.getSourceId())
+                        && "Pipeline.Stage.LAYOUT".equals(e.getTargetId())),
                 "PARSING→LAYOUT must be detected when initial state comes from a local variable declaration");
         assertTrue(graph.getEdges().stream().anyMatch(e ->
                 "TRANSITION".equals(e.getType())
-                        && "LAYOUT".equals(e.getSourceId())
-                        && "DONE".equals(e.getTargetId())),
+                        && "Pipeline.Stage.LAYOUT".equals(e.getSourceId())
+                        && "Pipeline.Stage.DONE".equals(e.getTargetId())),
                 "LAYOUT→DONE must follow from subsequent assignments");
         assertEquals(2, graph.getEdges().stream()
                 .filter(e -> "TRANSITION".equals(e.getType())).count(),
@@ -125,5 +125,181 @@ class StateMachineParserTest {
                 .findFirst()
                 .orElseThrow(() -> new AssertionError("missing transition " + source + " -> " + target));
         assertEquals(label, edge.getLabel());
+    }
+
+    @Test
+    void repositoryRootSkipsStateMachinesDeclaredInTests(@TempDir Path repo) throws Exception {
+        Files.writeString(repo.resolve("pom.xml"), "<project/>");
+        Path testDir = Files.createDirectories(repo.resolve("src/test/java"));
+        Files.writeString(testDir.resolve("FakeWorkflow.java"), """
+                public class FakeWorkflow {
+                    enum Phase { START, END }
+                    private Phase phase = Phase.START;
+                    void go() { switch (phase) { case START -> phase = Phase.END; default -> {} } }
+                }
+                """);
+
+        assertTrue(parser.parse(repo).getNodes().isEmpty(), "test sources must not be read by default");
+        assertNotNull(new StateMachineParser(true).parse(repo).findNode("FakeWorkflow.Phase.START"),
+                "includeTests must read test sources");
+    }
+
+    // --- state variables by type, enums from other files (#228) ---
+
+    private static final String ORDER_WITH_STATUS_FIELD = """
+            public class Order {
+                private OrderStatus status = OrderStatus.NEW;
+                void pay()  { switch (status) { case NEW -> status = OrderStatus.PAID; default -> {} } }
+                void ship() { this.status = OrderStatus.SHIPPED; }
+            }
+            """;
+
+    @Test
+    void aFieldTypedAsTheEnumIsAStateVariableWhateverItIsCalled(@TempDir Path dir) throws Exception {
+        Path source = dir.resolve("Order.java");
+        Files.writeString(source, ORDER_WITH_STATUS_FIELD.replace(
+                "public class Order {", "public class Order {\n    enum OrderStatus { NEW, PAID, SHIPPED }"));
+
+        Graph graph = parser.parse(source);
+
+        assertTransition(graph, "Order.OrderStatus.NEW", "Order.OrderStatus.PAID", "pay");
+        assertTransition(graph, "Order.OrderStatus.NEW", "Order.OrderStatus.SHIPPED", "ship");
+    }
+
+    @Test
+    void anEnumDeclaredInAnotherFileDrivesTheTransitionsOfADirectory(@TempDir Path dir) throws Exception {
+        Files.writeString(dir.resolve("OrderStatus.java"), "public enum OrderStatus { NEW, PAID, SHIPPED }");
+        Files.writeString(dir.resolve("Order.java"), ORDER_WITH_STATUS_FIELD);
+
+        Graph graph = parser.parse(dir);
+
+        assertTransition(graph, "OrderStatus.NEW", "OrderStatus.PAID", "pay");
+        assertTransition(graph, "OrderStatus.NEW", "OrderStatus.SHIPPED", "ship");
+    }
+
+    @Test
+    void aLocalTypedAsTheEnumIsAStateVariable(@TempDir Path dir) throws Exception {
+        Files.writeString(dir.resolve("Phase.java"), "public enum Phase { PLAN, BUILD, SHIP }");
+        Files.writeString(dir.resolve("Release.java"), """
+                public class Release {
+                    void run() {
+                        Phase current = Phase.PLAN;
+                        current = Phase.BUILD;
+                        current = Phase.SHIP;
+                    }
+                }
+                """);
+
+        Graph graph = parser.parse(dir);
+
+        assertTransition(graph, "Phase.PLAN", "Phase.BUILD", "run");
+        assertTransition(graph, "Phase.BUILD", "Phase.SHIP", "run");
+    }
+
+    @Test
+    void aSwitchThatMapsOneEnumOntoAnotherIsNotATransition(@TempDir Path dir) throws Exception {
+        Path source = dir.resolve("Mapper.java");
+        Files.writeString(source, """
+                public class Mapper {
+                    enum OrderStatus { NEW, PAID }
+                    enum PaymentStatus { PENDING, CAPTURED }
+                    PaymentStatus toPayment(OrderStatus s) {
+                        switch (s) {
+                            case NEW: return PaymentStatus.PENDING;
+                            case PAID: return PaymentStatus.CAPTURED;
+                            default: return PaymentStatus.PENDING;
+                        }
+                    }
+                }
+                """);
+
+        Graph graph = parser.parse(source);
+
+        assertEquals(0, graph.getEdges().size(),
+                "NEW and PENDING belong to different enums, so mapping one to the other is not a state change");
+    }
+
+    // --- state ids carry their enum (#239) ---
+
+    @Test
+    void twoEnumsSharingAConstantNameStayTwoStates(@TempDir Path dir) throws Exception {
+        Files.writeString(dir.resolve("OrderStatus.java"), "public enum OrderStatus { NEW, ACTIVE }");
+        Files.writeString(dir.resolve("Mode.java"), "public enum Mode { ACTIVE, OFF }");
+        Files.writeString(dir.resolve("Order.java"), """
+                public class Order {
+                    private OrderStatus status = OrderStatus.NEW;
+                    void open() { status = OrderStatus.ACTIVE; }
+                }
+                """);
+        Files.writeString(dir.resolve("Switch.java"), """
+                public class Switch {
+                    private Mode mode = Mode.ACTIVE;
+                    void off() { mode = Mode.OFF; }
+                }
+                """);
+
+        Graph graph = parser.parse(dir);
+
+        assertNotNull(graph.findNode("OrderStatus.ACTIVE"));
+        assertNotNull(graph.findNode("Mode.ACTIVE"));
+        assertEquals("ACTIVE", graph.findNode("Mode.ACTIVE").getLabel(), "the label stays the constant");
+        assertTransition(graph, "OrderStatus.NEW", "OrderStatus.ACTIVE", "open");
+        assertTransition(graph, "Mode.ACTIVE", "Mode.OFF", "off");
+        assertEquals(2, graph.getEdges().size(), "the shared name must not join the two machines");
+    }
+
+    @Test
+    void anUnqualifiedSwitchLabelTakesItsEnumFromTheSelector(@TempDir Path dir) throws Exception {
+        Files.writeString(dir.resolve("A.java"), "public enum A { ON, OFF }");
+        Files.writeString(dir.resolve("B.java"), "public enum B { ON, OFF }");
+        Files.writeString(dir.resolve("Lamp.java"), """
+                public class Lamp {
+                    private B b = B.OFF;
+                    void toggle() { switch (b) { case ON -> b = B.OFF; case OFF -> b = B.ON; default -> {} } }
+                }
+                """);
+
+        Graph graph = parser.parse(dir);
+
+        assertTransition(graph, "B.ON", "B.OFF", "toggle");
+        assertTransition(graph, "B.OFF", "B.ON", "toggle");
+        assertTrue(graph.getEdges().stream().noneMatch(e -> e.getSourceId().startsWith("A.")),
+                "enum A declares the same constants but is not the selector's type");
+    }
+
+    @Test
+    void anAmbiguousBareReferenceDrawsNothingRatherThanGuessing(@TempDir Path dir) throws Exception {
+        Files.writeString(dir.resolve("A.java"), "public enum A { ON, OFF }");
+        Files.writeString(dir.resolve("B.java"), "public enum B { ON, OFF }");
+        Files.writeString(dir.resolve("Wiring.java"), """
+                public class Wiring {
+                    void configure() { transition("ON", "OFF", "flip"); }
+                }
+                """);
+
+        assertEquals(0, parser.parse(dir).getEdges().size(), "A and B both declare ON and OFF");
+    }
+
+    @Test
+    void enumsWithTheSameNameInDifferentTypesAreKeptApart(@TempDir Path dir) throws Exception {
+        Files.writeString(dir.resolve("Shipment.java"), """
+                public class Shipment {
+                    public enum State { CREATED, DONE }
+                    private State state = State.CREATED;
+                    void finish() { state = State.DONE; }
+                }
+                """);
+        Files.writeString(dir.resolve("Payment.java"), """
+                public class Payment {
+                    public enum State { CREATED, DONE }
+                    private State state = State.CREATED;
+                    void settle() { state = State.DONE; }
+                }
+                """);
+
+        Graph graph = parser.parse(dir);
+
+        assertTransition(graph, "Shipment.State.CREATED", "Shipment.State.DONE", "finish");
+        assertTransition(graph, "Payment.State.CREATED", "Payment.State.DONE", "settle");
     }
 }

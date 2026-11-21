@@ -9,24 +9,28 @@ and both jobs assert that regeneration leaves the tree clean.
 
 | Tool | Version |
 |---|---|
-| JDK | 21 (CI runs 21; see the JDK note in [`QUALITY.md`](QUALITY.md)) |
-| Maven | 3.9 or newer |
+| JDK | 21 to build (CI runs 21; see the JDK note in [`QUALITY.md`](QUALITY.md)). Everything it produces targets 17 and runs on a 17 JVM. |
+| Maven | use the included `./mvnw` wrapper, which pins 3.9.11 (a system Maven must be 3.8.9 or newer) |
 | Gradle | use the included `./gradlew` wrapper |
 
 ## Maven (primary)
 
+Use `./mvnw`. `mvn validate` fails fast with a named message when the toolchain is wrong: the
+SpotBugs plugin requires Maven 3.8.9 or newer, and JaCoCo cannot instrument class files from
+JDK 26 or newer. Both otherwise surface as errors that read like defects in this repository.
+
 ```bash
-mvn clean test                  # compile + run all tests
-mvn clean package               # build the fat JAR
-mvn clean verify                # the full quality gate — see QUALITY.md
-mvn -pl code-karta-input test   # one module
-mvn -pl code-karta-input -Dtest=ClassDiagramParserTest test   # one test class
+./mvnw clean test                  # compile + run all tests
+./mvnw clean package               # build the fat JAR
+./mvnw clean verify                # the full quality gate, see QUALITY.md
+./mvnw -pl code-karta-input test   # one module
+./mvnw -pl code-karta-input -Dtest=ClassDiagramParserTest test   # one test class
 ```
 
 The Maven fat JAR is written to:
 
 ```text
-code-karta-cli/target/code-karta-cli-0.3.0-all.jar
+code-karta-cli/target/code-karta-cli-0.4.0-all.jar
 ```
 
 ## Gradle
@@ -40,7 +44,7 @@ code-karta-cli/target/code-karta-cli-0.3.0-all.jar
 The Gradle fat JAR is written to:
 
 ```text
-code-karta-cli/build/libs/code-karta-cli-0.3.0-all.jar
+code-karta-cli/build/libs/code-karta-cli-0.4.0-all.jar
 ```
 
 ## Running the CLI without building a JAR
@@ -82,7 +86,9 @@ looks green locally and fails in CI.
 ## Diagram regeneration
 
 `mvn verify` and `./gradlew :code-karta-cli:generateDiagrams` run the built JAR against
-code-karta's own source to refresh `docs/diagrams/`. The run is idempotent — identical input
+code-karta's own source and the example project to refresh `docs/diagrams/` and
+`example-shipping-system/diagrams/`. Every committed diagram is on that list; one left off it drifts
+unnoticed, as seven did until #249. The run is idempotent — identical input
 produces byte-identical SVG — so a clean tree stays clean.
 
 Both CI jobs check this with `git diff --exit-code` after regenerating. Downstream repositories
@@ -106,7 +112,7 @@ discovery: a processor missing from that list is silently skipped rather than fa
 
 ## Version constant
 
-`0.3.0` appears in `pom.xml`, `build.gradle.kts`, and the JAR paths named throughout these docs.
+`0.4.0` appears in `pom.xml`, `build.gradle.kts`, and the JAR paths named throughout these docs.
 `scripts/check-build-parity.py` checks the first two against each other and fails the build when
 they drift. The JAR paths written in these docs are not checked by anything, so a version bump
 still means changing them by hand.

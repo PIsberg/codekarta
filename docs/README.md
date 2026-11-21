@@ -16,6 +16,7 @@ The project is intentionally small and compiler-like:
 |---|---|
 | [`BUILD.md`](BUILD.md) | Requirements, Maven and Gradle commands, running from source, diagram regeneration |
 | [`CLI.md`](CLI.md) | Every flag, what it defaults to, and how to choose between them |
+| [`MAVEN-PLUGIN.md`](MAVEN-PLUGIN.md) | Binding diagram generation into a Maven build, and configuring several diagrams |
 | [`DIAGRAM-MODES.md`](DIAGRAM-MODES.md) | What each input shape produces, with a worked command per mode |
 | [`DIAGRAM-GALLERY.md`](DIAGRAM-GALLERY.md) | The six diagrams code-karta generates from its own source |
 | [`LIBRARY.md`](LIBRARY.md) | Using the tiers directly from Java, theming, and where a change belongs |
@@ -28,6 +29,7 @@ The project is intentionally small and compiler-like:
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Module responsibilities, graph schema, rendering rules, extension points |
 | [`EXAMPLE-PROJECT.md`](EXAMPLE-PROJECT.md) | The shipping fixture that the integration tests assert against |
 | [`QUALITY.md`](QUALITY.md) | The `mvn verify` gate: Checkstyle, PMD, SpotBugs, Error Prone, ArchUnit, SBOM |
+| [`COMPATIBILITY.md`](COMPATIBILITY.md) | What is public API, what is not, and what a version bump means |
 | [`VIBETAGS.md`](VIBETAGS.md) | How the AI guardrails in `CLAUDE.md` are generated, and the rules for changing them |
 | [`SKILL.md`](SKILL.md) | Compact operating guide for agents using or extending the library |
 | [`SPEC.md`](SPEC.md) | Behaviour specification |
@@ -38,7 +40,7 @@ The project is intentionally small and compiler-like:
 ```bash
 mvn clean package
 
-java -jar code-karta-cli/target/code-karta-cli-0.3.0-all.jar \
+java -jar code-karta-cli/target/code-karta-cli-0.4.0-all.jar \
   --input example-shipping-system/src/main/java/com/karta/shipping/domain \
   --output output
 ```

@@ -12,6 +12,7 @@ Orientation facts: tiers never import from a tier beside them — `code-karta-co
 - [docs/SKILL.md](docs/SKILL.md): compact operating guide for using and extending the library
 - [docs/BUILD.md](docs/BUILD.md): Maven and Gradle commands, running from source, diagram regeneration
 - [docs/CLI.md](docs/CLI.md): full flag reference and output conventions
+- [docs/MAVEN-PLUGIN.md](docs/MAVEN-PLUGIN.md): the generate goal, its parameters, and multi-diagram configuration
 - [docs/DIAGRAM-MODES.md](docs/DIAGRAM-MODES.md): what each input shape produces, with a worked command per mode
 - [docs/LIBRARY.md](docs/LIBRARY.md): using the tiers directly from Java, theming, where a change belongs
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): technical deep dive — tier diagram, data flow, design decisions
@@ -86,6 +87,9 @@ AI tools reading this file should respect the guardrails defined below. These ru
 - [Group](se.deversity.codekarta.core.model.Group): Sensitivity: Medium. Note: IR cluster — maps a label (package, module boundary, try/catch region) to a set of node IDs. Used by the render tier to draw bounding frames.
 - [Node](se.deversity.codekarta.core.model.Node): Sensitivity: High. Note: IR vertex. Fields id/type/label/properties are the stable serialised schema; x/y/width/height are layout-only and may be null before Tier 2 runs.
 
+## ⚡ Performance Constraints
+- [Graph](se.deversity.codekarta.core.model.Graph): findNode and addNodeIfAbsent must stay O(1). Both are called once per class, method and call site by every parser and both layout engines, so a linear scan makes graph construction O(n²) — measured at 20k nodes as 7.5 s of lookups against 4 ms indexed. Do not reintroduce a nodes.stream() search, and do not replace the id index with a scan 'for simplicity'.
+
 ## ❄️ Immutable Types
 - [NodeDimensions](se.deversity.codekarta.core.model.NodeDimensions): immutable type — Constants-only holder. No instance state may ever be added — this class is used across all three pipeline tiers.
 
@@ -105,7 +109,7 @@ AI tools reading this file should respect the guardrails defined below. These ru
 
 ## Framework-Free Domain Entities
 - [Edge](se.deversity.codekarta.core.model.Edge): Pure Domain Model. Banned imports: [Spring, JPA, Hibernate, Jackson, etc.]. Allowed imports: [com.fasterxml.jackson.annotation.JsonInclude, org.jspecify.annotations.Nullable]
-- [Graph](se.deversity.codekarta.core.model.Graph): Pure Domain Model. Banned imports: [Spring, JPA, Hibernate, Jackson, etc.]. Allowed imports: [com.fasterxml.jackson.annotation.JsonInclude, org.jspecify.annotations.Nullable]
+- [Graph](se.deversity.codekarta.core.model.Graph): Pure Domain Model. Banned imports: [Spring, JPA, Hibernate, Jackson, etc.]. Allowed imports: [com.fasterxml.jackson.annotation.JsonIgnore, com.fasterxml.jackson.annotation.JsonInclude, org.jspecify.annotations.Nullable]
 - [Group](se.deversity.codekarta.core.model.Group): Pure Domain Model. Banned imports: [Spring, JPA, Hibernate, Jackson, etc.]. Allowed imports: [com.fasterxml.jackson.annotation.JsonInclude, org.jspecify.annotations.Nullable]
 - [Node](se.deversity.codekarta.core.model.Node): Pure Domain Model. Banned imports: [Spring, JPA, Hibernate, Jackson, etc.]. Allowed imports: [com.fasterxml.jackson.annotation.JsonInclude, org.jspecify.annotations.Nullable]
 <!-- VIBETAGS-MODULE-END: code-karta-core -->
@@ -128,6 +132,7 @@ AI tools reading this file should respect the guardrails defined below. These ru
 - [ModuleInfoParser](se.deversity.codekarta.input.parser.ModuleInfoParser): Focus - Parses module-info.java directives only: 'requires' → REQUIRES edge between MODULE nodes; 'exports' → EXPORTS edge to a PACKAGE node. The module name itself becomes the root MODULE node.. Avoid - Parsing class files or anything outside the module declaration — this parser is scoped to module-info.java exclusively.
 - [ParserSupport](se.deversity.codekarta.input.parser.ParserSupport): Focus - Only the mechanical parse skeleton belongs here — JavaParser configuration, exclude normalisation, and the per-class iteration every single-file parser repeats. Helpers stay caller-agnostic: they take the Graph and a callback rather than deciding what nodes or edges mean.. Avoid - Absorbing diagram semantics from the callers. A helper that knows about CALLS labels, EXCEPTION_PROPAGATION edges, or try/catch Groups belongs in the parser that owns that diagram type, not in the shared skeleton.
 - [SequenceFilterUtil](se.deversity.codekarta.input.parser.SequenceFilterUtil): Focus - SKIP_METHODS is a scoped-call filter only — it applies to receiver.method() calls. Unscoped calls (direct local method invocations) are never filtered because they represent intra-class domain logic. shouldSkipScopedCall() is the single decision point used by all parsers.. Avoid - Adding method names that could be legitimate domain operations (e.g. 'process', 'execute', 'run') — only add names that are unambiguously stdlib/infrastructure noise regardless of context.
+- [SourceTree](se.deversity.codekarta.input.parser.SourceTree): Focus - The one definition of which files under a directory count as source. Parsers call javaFiles() instead of Files.walk so that a repository root, a module, and a source root all behave the same for every diagram type.. Avoid - Pruning the root itself, or pruning by name alone without the build-file check: 'build' and 'target' are legal package names, and a user who points --input at src/test/java asked for tests.
 - [StateMachineParser](se.deversity.codekarta.input.parser.StateMachineParser): Focus - Extracts enum-backed state machines. Enum constants become STATE nodes. Switch cases over state values and explicit transition(from,to[,event]) calls become TRANSITION edges.. Avoid - Treating arbitrary enum usage as a state machine without a transition source/target. Parser must fail softly and return partial graphs.
 
 ## 🔐 Contract-Frozen Signatures
@@ -146,6 +151,7 @@ AI tools reading this file should respect the guardrails defined below. These ru
 - [ExceptionFlowParser](se.deversity.codekarta.input.parser.ExceptionFlowParser): Belongs to layer: `input`. Prohibited from referencing: [layout, render, cli]
 - [ModuleInfoParser](se.deversity.codekarta.input.parser.ModuleInfoParser): Belongs to layer: `input`. Prohibited from referencing: [layout, render, cli]
 - [ParserSupport](se.deversity.codekarta.input.parser.ParserSupport): Belongs to layer: `input`. Prohibited from referencing: [layout, render, cli]
+- [SourceTree](se.deversity.codekarta.input.parser.SourceTree): Belongs to layer: `input`. Prohibited from referencing: [layout, render, cli]
 - [StateMachineParser](se.deversity.codekarta.input.parser.StateMachineParser): Belongs to layer: `input`. Prohibited from referencing: [layout, render, cli]
 
 ## Deterministic Pure Functions
@@ -157,6 +163,9 @@ AI tools reading this file should respect the guardrails defined below. These ru
 
 ## Load-Bearing Oddities
 - [ParserSupport](se.deversity.codekarta.input.parser.ParserSupport): Looks removable but is deliberate. Invariant: parseJava21 propagates its failures instead of swallowing them; the try/catch that turns a failure into a partial graph stays in each calling parser. Breaks if changed: Wrapping the fault tolerance in here looks like deduplication and silently changes the contract: every caller would inherit one shared recovery policy, and a parser that needs to log its own diagnostic or return a differently-shaped partial graph could no longer do so. The repeated try/catch in the callers is the fault-tolerance rule being stated once per parser, not copy-paste. Not a defect — do not flag.
+
+## Mirrored Elements
+- [MultiFileSequenceParser.pruneToMaxDepth(se.deversity.codekarta.core.model.Graph)](se.deversity.codekarta.input.MultiFileSequenceParser.pruneToMaxDepth(se.deversity.codekarta.core.model.Graph)): Editing this requires the same edit at: se.deversity.codekarta.render.SequenceDiagramRenderer#orderMessages. Both decide where a call tree starts: a METHOD no other method calls (self-calls do not count), then, for a cycle nothing outside calls, its first method in graph order. The tiers cannot share code (input and render may not reference each other), so they are two copies; if they disagree, --max-depth keeps a tree the renderer never draws, or the reverse (issue #229).. Enforced by MultiFileSequenceParserTest.maxDepthKeepsTheCallTreeOfARecursiveEntryMethod / maxDepthCountsFromTheFirstMethodOfACycleWithNoOutsideCaller, and the SequenceDiagramRendererTest twins.
 <!-- VIBETAGS-MODULE-END: code-karta-input -->
 <!-- VIBETAGS-MODULE: code-karta-layout -->
 # This Project
@@ -190,7 +199,24 @@ AI tools reading this file should respect the guardrails defined below. These ru
 
 ## Required Chain-of-Thought Explanations
 - [ElkLayoutEngine.layoutWithElk(se.deversity.codekarta.core.model.Graph)](se.deversity.codekarta.layout.ElkLayoutEngine.layoutWithElk(se.deversity.codekarta.core.model.Graph)): Requires step-by-step mathematical or logical explanation (Chain-of-Thought) of all changes. Complexity: MEDIUM
+
+## Mirrored Elements
+- [RenderedSize.estimateHeight(se.deversity.codekarta.core.model.Node)](se.deversity.codekarta.layout.RenderedSize.estimateHeight(se.deversity.codekarta.core.model.Node)): Editing this requires the same edit at: se.deversity.codekarta.render.SvgRenderer#computeCompartmentHeight. Layout may not reference render, so the compartment-height formula exists twice. If SvgRenderer draws compartments taller than this estimate, both layout engines leave too little room and class boxes overlap; if shorter, diagrams grow gaps.. Enforced by RenderedOverlapTest.theEstimateMatchesWhatSvgRendererDraws, against heights measured from SvgRenderer output; no test compares the two formulas directly.
 <!-- VIBETAGS-MODULE-END: code-karta-layout -->
+<!-- VIBETAGS-MODULE: code-karta-maven-plugin -->
+# This Project
+
+> AI guardrail rules generated from source annotations by VibeTags.
+
+AI tools reading this file should respect the guardrails defined below. These rules were extracted from Java source annotations at compile time and apply to all AI assistants including Windsurf Cascade, Cursor, Claude, GitHub Copilot, and Gemini.
+
+## Locked Files
+
+## Contextual Rules
+
+## Security Audit Requirements
+- [GenerateMojo](se.deversity.codekarta.maven.GenerateMojo): check for Path traversal, Unauthorized file write
+<!-- VIBETAGS-MODULE-END: code-karta-maven-plugin -->
 <!-- VIBETAGS-MODULE: code-karta-render -->
 # This Project
 
@@ -209,13 +235,20 @@ AI tools reading this file should respect the guardrails defined below. These ru
 - [SvgRenderer](se.deversity.codekarta.render.SvgRenderer): Strict test isolation required. No shared mutable state or external resource conflicts. Reason: SvgRendererTest builds its own Graph per case and asserts on returned strings — nothing is written to disk and no static renderer state exists. Keep it that way so the suite stays safe under Surefire forkCount > 1.
 
 ## Architectural Boundary Constraints
+- [JsonRenderer](se.deversity.codekarta.render.JsonRenderer): Belongs to layer: `render`. Prohibited from referencing: [input, layout, cli]
 - [SequenceDiagramRenderer](se.deversity.codekarta.render.SequenceDiagramRenderer): Belongs to layer: `render`. Prohibited from referencing: [input, layout, cli]
 - [SvgRenderer](se.deversity.codekarta.render.SvgRenderer): Belongs to layer: `render`. Prohibited from referencing: [input, layout, cli]
 
 ## Public API Surface Protection
 - [SvgRenderer](se.deversity.codekarta.render.SvgRenderer): Public API surface. Preserve signature, Javadoc, backwards compatibility, and binary/source stability.
 
+## ♻️ Idempotency Guarantees
+- [JsonRenderer](se.deversity.codekarta.render.JsonRenderer): Idempotency guaranteed. Multiple invocations must produce the same result as one. Reason: Two renders of the same graph must be byte-identical: map keys are sorted and the pretty printer is pinned to , because HashMap iteration order and System.lineSeparator() are both unstable. KartaCli's byte-identical-output invariant, and the CI step that diffs regenerated files, depend on it.
+
 ## Load-Bearing Oddities
 - [SvgRenderer.renderNode(se.deversity.codekarta.core.model.Node)](se.deversity.codekarta.render.SvgRenderer.renderNode(se.deversity.codekarta.core.model.Node)): Looks removable but is deliberate. Invariant: A node with a null x or y renders as the empty string rather than raising or substituting a default position. Breaks if changed: Throwing here turns a partially-laid-out graph into no diagram at all, and defaulting the coordinate to 0 stacks every unpositioned node on the origin — both are worse than the node being absent. The LayoutEngine contract deliberately leaves unresolvable positions null and names this skip as the counterpart. Not a defect — do not flag.
+
+## Mirrored Elements
+- [SequenceDiagramRenderer.orderMessages(se.deversity.codekarta.core.model.Graph)](se.deversity.codekarta.render.SequenceDiagramRenderer.orderMessages(se.deversity.codekarta.core.model.Graph)): Editing this requires the same edit at: se.deversity.codekarta.input.MultiFileSequenceParser#pruneToMaxDepth. Both decide where a call tree starts: a METHOD no other method calls (self-calls do not count), then, for a cycle nothing outside calls, its first method in graph order. The tiers cannot share code (input and render may not reference each other), so they are two copies; if they disagree, --max-depth keeps a tree the renderer never draws, or the reverse (issue #229).. Enforced by SequenceDiagramRendererTest.aRecursiveEntryMethodStillStartsItsCallTree / aCycleWithNoOutsideCallerIsDrawnFromItsFirstMethod, and the MultiFileSequenceParserTest maxDepth twins.
 <!-- VIBETAGS-MODULE-END: code-karta-render -->
 <!-- VIBETAGS-END -->

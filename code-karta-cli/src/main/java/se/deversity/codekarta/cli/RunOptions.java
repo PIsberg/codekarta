@@ -27,6 +27,15 @@ import java.util.Set;
  *                       directory is rejected rather than followed.
  * @param maxMembers     compartment lines kept per class before "…(+N more)";
  *                       {@link ClassDiagramParser#UNLIMITED_MEMBERS} keeps all of them
+ * @param format         {@code "svg"} or {@code "json"}. {@code "json"} writes the graph itself
+ *                       rather than a picture of it, for a consumer that wants to run its own
+ *                       checks over the analysis. Layout still runs, so the JSON carries
+ *                       coordinates. Defaults to {@code "svg"} when {@code null}.
+ * @param includeTests   read test source sets ({@code src/test}, {@code src/integrationTest},
+ *                       ...) when the input is a project or repository root. Off by default, so
+ *                       pointing the CLI at a checkout draws the code that ships. Build output,
+ *                       VCS metadata and {@code node_modules} are skipped either way; see
+ *                       {@code SourceTree} in the input tier.
  */
 @AIImmutable(note = "The compact constructor defensively copies customExcludes and defaults layout; withOutputName returns a new instance rather than mutating. Callers pass the same RunOptions down the whole pipeline, so a mutator here would let one stage change another stage's inputs.")
 @AIKeepInSync(
@@ -40,21 +49,98 @@ public record RunOptions(
         int maxDepth,
         boolean modulesOnly,
         String outputName,
-        int maxMembers) {
+        int maxMembers,
+        String format,
+        boolean includeTests) {
 
+    /** The default output format, and what {@code format} becomes when it is {@code null}. */
+    public static final String FORMAT_SVG = "svg";
+
+    /** Writes the IR as JSON instead of an SVG. See {@code JsonRenderer}. */
+    public static final String FORMAT_JSON = "json";
+
+    /** The default layout: the pure-Java BFS grid. */
+    public static final String LAYOUT_SIMPLE = "simple";
+
+    /** The Eclipse Layout Kernel layered layout. */
+    public static final String LAYOUT_ELK = "elk";
+
+    /**
+     * Defaults {@code layout} and {@code format} when {@code null}, stores them lower-case, and
+     * rejects any other value. An unknown layout used to become the simple layout and an unknown
+     * format SVG, without a word (issue #231); checking here covers the CLI, the Maven plugin and
+     * library callers alike.
+     *
+     * @throws IllegalArgumentException for a layout other than {@code simple}/{@code elk} or a
+     *                                  format other than {@code svg}/{@code json}
+     */
     public RunOptions {
-        layout = layout == null ? "simple" : layout;
+        layout = oneOf("layout", layout == null ? LAYOUT_SIMPLE : layout, LAYOUT_SIMPLE, LAYOUT_ELK);
         customExcludes = customExcludes == null ? Collections.emptySet() : Set.copyOf(customExcludes);
+        format = oneOf("format", format == null ? FORMAT_SVG : format, FORMAT_SVG, FORMAT_JSON);
     }
 
-    /** The pipeline as it runs with no flags at all: class diagram, simple layout, capped members. */
+    private static String oneOf(String name, String value, String first, String second) {
+        String lower = value.toLowerCase(java.util.Locale.ROOT);
+        if (!lower.equals(first) && !lower.equals(second)) {
+            throw new IllegalArgumentException(name + " must be '" + first + "' or '" + second
+                    + "', got '" + value + "'.");
+        }
+        return lower;
+    }
+
+    /**
+     * Kept so the pre-0.4 eight-component constructor still compiles. Defaults the format to SVG.
+     *
+     * @deprecated since 0.4.0, use the canonical constructor and pass a format.
+     */
+    @Deprecated(since = "0.4.0", forRemoval = false)
+    public RunOptions(boolean sequenceOnly, String layout, boolean stateMachine,
+                      Set<String> customExcludes, int maxDepth, boolean modulesOnly,
+                      String outputName, int maxMembers) {
+        this(sequenceOnly, layout, stateMachine, customExcludes, maxDepth, modulesOnly,
+                outputName, maxMembers, FORMAT_SVG, false);
+    }
+
+    /**
+     * Kept so the 0.4 nine-component constructor still compiles. Reads production sources only.
+     *
+     * @deprecated since 0.5.0, use the canonical constructor and pass includeTests.
+     */
+    @Deprecated(since = "0.5.0", forRemoval = false)
+    public RunOptions(boolean sequenceOnly, String layout, boolean stateMachine,
+                      Set<String> customExcludes, int maxDepth, boolean modulesOnly,
+                      String outputName, int maxMembers, String format) {
+        this(sequenceOnly, layout, stateMachine, customExcludes, maxDepth, modulesOnly,
+                outputName, maxMembers, format, false);
+    }
+
+    /** @return true when this run should write JSON rather than SVG */
+    public boolean isJson() {
+        return FORMAT_JSON.equalsIgnoreCase(format);
+    }
+
+    /**
+     * The pipeline as it runs with no flags at all: class diagram, simple layout, capped members,
+     * production sources only.
+     */
     public static RunOptions defaults() {
-        return new RunOptions(false, "simple", false, Collections.emptySet(),
-                Integer.MAX_VALUE, false, null, ClassDiagramParser.DEFAULT_MAX_MEMBERS);
+        return new RunOptions(false, LAYOUT_SIMPLE, false, Collections.emptySet(),
+                Integer.MAX_VALUE, false, null, ClassDiagramParser.DEFAULT_MAX_MEMBERS, FORMAT_SVG,
+                false);
     }
 
     public RunOptions withOutputName(String name) {
         return new RunOptions(sequenceOnly, layout, stateMachine, customExcludes,
-                maxDepth, modulesOnly, name, maxMembers);
+                maxDepth, modulesOnly, name, maxMembers, format, includeTests);
+    }
+
+    /**
+     * @param newFormat {@link #FORMAT_SVG} or {@link #FORMAT_JSON}
+     * @return a copy of these options with the format replaced
+     */
+    public RunOptions withFormat(String newFormat) {
+        return new RunOptions(sequenceOnly, layout, stateMachine, customExcludes,
+                maxDepth, modulesOnly, outputName, maxMembers, newFormat, includeTests);
     }
 }

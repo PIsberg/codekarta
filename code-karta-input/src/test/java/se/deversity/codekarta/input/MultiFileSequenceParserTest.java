@@ -159,4 +159,120 @@ class MultiFileSequenceParserTest {
         Files.writeString(file, content);
         return file;
     }
+
+    @Test
+    void repositoryRootDoesNotStitchTestCallers(@TempDir Path repo) throws Exception {
+        Files.writeString(repo.resolve("pom.xml"), "<project/>");
+        Path main = Files.createDirectories(repo.resolve("src/main/java"));
+        Path test = Files.createDirectories(repo.resolve("src/test/java"));
+        write(main, "Repo.java", "public class Repo { public void find() {} }");
+        write(main, "Service.java", """
+                public class Service {
+                    private Repo repo = new Repo();
+                    public void run() { repo.find(); }
+                }
+                """);
+        write(test, "ServiceTest.java", """
+                public class ServiceTest {
+                    void runs() { new Service().run(); }
+                }
+                """);
+
+        Graph production = parser.parse(repo);
+        Graph withTests = new MultiFileSequenceParser(java.util.Set.of(), Integer.MAX_VALUE, true).parse(repo);
+
+        assertNotNull(production.findNode("Service"));
+        assertNull(production.findNode("ServiceTest"), "test callers must not be stitched by default");
+        assertNotNull(withTests.findNode("ServiceTest"), "includeTests must stitch test callers");
+    }
+
+    @Test
+    void methodsDeclaredInRecordsAndEnumsTakePartInTheSequence(@TempDir Path sourceRoot) throws Exception {
+        write(sourceRoot, "Priced.java", """
+                public interface Priced { int price(); }
+                """);
+        write(sourceRoot, "Customer.java", """
+                public class Customer { String name; }
+                """);
+        write(sourceRoot, "Order.java", """
+                public record Order(Customer customer, Status status) implements Priced {
+                    public int price() { return customer.hashCode() + helper(); }
+                    int helper() { return Calc.twice(2); }
+                }
+                """);
+        write(sourceRoot, "Status.java", """
+                public enum Status implements Priced { NEW, PAID; public int price() { return Calc.twice(1); } }
+                """);
+        write(sourceRoot, "Calc.java", """
+                public class Calc { static int twice(int x) { return 2*x; }
+                    public static class Inner { Customer owner; } }
+                """);
+        write(sourceRoot, "Service.java", """
+                public class Service { Calc calc; int run(Order o) { return o.price() + Calc.twice(3); } }
+                """);
+
+        Graph graph = parser.parse(sourceRoot);
+
+        java.util.Set<String> calls = graph.getEdges().stream()
+                .filter(e -> EdgeType.CALLS.equals(e.getType()))
+                .map(e -> e.getSourceId() + " -> " + e.getTargetId())
+                .collect(java.util.stream.Collectors.toSet());
+        assertEquals(java.util.Set.of(
+                "Service.run -> Order.price",
+                "Service.run -> Calc.twice",
+                "Order.price -> Order.helper",
+                "Order.helper -> Calc.twice",
+                "Status.price -> Calc.twice"), calls);
+        assertNotNull(graph.findNode("Order"), "a record is a participant");
+        assertNotNull(graph.findNode("Status"), "an enum is a participant");
+    }
+
+    // --- recursion and cycles under --max-depth (#229) ---
+
+    private static java.util.Set<String> callEdges(Graph graph) {
+        return graph.getEdges().stream()
+                .filter(e -> EdgeType.CALLS.equals(e.getType()))
+                .map(e -> e.getSourceId() + " -> " + e.getTargetId())
+                .collect(java.util.stream.Collectors.toSet());
+    }
+
+    @Test
+    void maxDepthKeepsTheCallTreeOfARecursiveEntryMethod(@TempDir Path sourceRoot) throws Exception {
+        write(sourceRoot, "Walker.java", """
+                public class Walker {
+                    void walk(int n) { visit(n); if (n > 0) walk(n - 1); }
+                    void visit(int n) { Helper.log(n); }
+                }
+                """);
+        write(sourceRoot, "Helper.java", "public class Helper { static void log(int n) { } }");
+
+        Graph graph = new MultiFileSequenceParser(java.util.Set.of(), 3).parse(sourceRoot);
+
+        assertEquals(java.util.Set.of("Walker.walk -> Walker.visit", "Walker.walk -> Walker.walk",
+                "Walker.visit -> Helper.log"), callEdges(graph), "the real depth is 2, so depth 3 keeps everything");
+    }
+
+    @Test
+    void maxDepthCountsFromTheFirstMethodOfACycleWithNoOutsideCaller(@TempDir Path sourceRoot) throws Exception {
+        write(sourceRoot, "A.java", "public class A { static void ping() { B.pong(); } }");
+        write(sourceRoot, "B.java", "public class B { static void pong() { A.ping(); C.log(); } }");
+        write(sourceRoot, "C.java", "public class C { static void log() { D.sink(); } }");
+        write(sourceRoot, "D.java", "public class D { static void sink() { } }");
+
+        Graph graph = new MultiFileSequenceParser(java.util.Set.of(), 2).parse(sourceRoot);
+
+        assertEquals(java.util.Set.of("A.ping -> B.pong", "B.pong -> A.ping", "B.pong -> C.log"), callEdges(graph),
+                "A.ping is depth 0, B.pong 1, C.log 2; D.sink at depth 3 is pruned rather than restarting at 0");
+    }
+
+    @Test
+    void anInterfaceIsTypedInterface(@TempDir Path sourceRoot) throws Exception {
+        write(sourceRoot, "Priced.java", "public interface Priced { int price(); }");
+        write(sourceRoot, "Order.java", "public class Order implements Priced { public int price() { return 1; } }");
+
+        Graph graph = parser.parse(sourceRoot);
+
+        assertEquals("INTERFACE", graph.findNode("Priced").getType());
+        assertEquals("CLASS", graph.findNode("Order").getType());
+    }
 }

@@ -11,6 +11,262 @@ each version heading is the complete record.
 
 ## [Unreleased]
 
+### Added
+
+- **A repository root works as `--input`.** Every directory walk, for every diagram type and for
+  `--split-packages`, now goes through one walker (`SourceTree`) that skips test source sets
+  (`src/test`, `src/integrationTest`, `src/testFixtures`, `src/it`, any `src/*test*`), build
+  output (`target`, `build`, `out`, only when a build file sits beside it), hidden directories
+  such as `.git`, and `node_modules`. Pointed at this repository's root, the class diagram
+  previously drew 72 classes, roughly half of them tests, fixtures and generated `HelpMojo`.
+  The `--input` directory itself is never skipped, so `--input src/test/java` still draws tests.
+- `--include-tests` (CLI), `includeTests` / `karta.includeTests` (Maven plugin, goal level and per
+  `<diagram>`) to read test source sets as well. `RunOptions` gains an `includeTests` component;
+  the nine-component constructor is kept and deprecated.
+
+### Changed
+
+- **The CLI rejects arguments it does not understand, and exits 1.** An unknown flag (a misspelt
+  `--sequnce-only` used to produce a class diagram), a valued flag with no value, an unknown
+  `--layout` (`elkk` became `simple`) or `--format`, and a non-number for `--max-depth` or
+  `--max-members` (previously a warning) now print an error naming the argument and the usage
+  line, and exit 1 without writing anything. `RunOptions` rejects an unknown layout or format with
+  `IllegalArgumentException` and stores both lower-case, so the Maven plugin fails the build on
+  `<layout>elkk</layout>` or `<format>png</format>` instead of drawing something else. Anyone
+  passing extra arguments that used to be ignored will see the run fail. (#231)
+- **Sequence diagrams type interfaces as `INTERFACE`.** Both sequence parsers typed every
+  declaration `CLASS`, so `--sequence-only --format json` disagreed with the class diagram about
+  what an interface is. An interface's lifeline now keeps its place and is drawn with the
+  interface header (`«interface»`, blue) the class diagram already uses. (#237)
+- **State-machine node ids carry their enum.** A state's id is now `OrderStatus.PAID` (the enum
+  named relative to its package, so a nested one is `Shipment.State.PAID`) instead of `PAID`; the
+  label is still the constant. Two enums sharing a constant name (`OrderStatus.ACTIVE`,
+  `Mode.ACTIVE`) were one node joining two machines; they are now two. This changes the ids in
+  `--state-machine --format json` output and the `<g id>` attributes of state-machine SVGs. A
+  bare reference that two enums could both explain, and that neither the switch selector's type
+  nor the file settles, now draws nothing instead of an arbitrary edge. (#239)
+- **Class diagram node ids are qualified names.** A type in a named package now has the id
+  `a.Config` instead of `Config` (default-package types keep the simple name); the label is still
+  the simple name. This changes the `id`, `sourceId`, `targetId` and group `memberIds` values in
+  `--format json` output and the `<g id>` attributes in class-diagram SVGs, so a committed diagram
+  regenerates with a diff. Ids now match the qualified ids `MultiFileSequenceParser` already
+  emitted for sequence diagrams. (#226)
+- A directory input no longer reads test source sets, generated sources under `target/` or
+  `build/`, or anything under a hidden directory. Inputs that were already a source root such as
+  `src/main/java`, which is the Maven plugin's default, draw exactly what they drew before.
+
+### Fixed
+
+- **`--sequence-only` no longer searches `node_modules`, `.git` or build output for source
+  roots.** The symbol solver's roots came from a raw directory walk, the last one in the input
+  tier that did not go through `SourceTree`. It now prunes the same directories every other walk
+  does, test source roots kept so calls into test-only types still resolve. On this repository's
+  root the walk went from a median 152 ms to 5 ms, and 3 roots, copies under
+  `code-karta-maven-plugin/target`, are no longer handed to the solver. (#198)
+- **`--split-packages` draws each package once.** Each package's diagram parsed its directory
+  recursively, so a parent package's diagram repeated every subpackage, and the top-level one was
+  the whole tree again. Each diagram now draws only the types declared directly in its package;
+  the tree is parsed once, so a reference into another package becomes a stub box, and in
+  `--sequence-only` the symbol solver is anchored at the input root, so calls into other packages
+  resolve instead of being dropped. With `--state-machine`, each package draws the transitions
+  found in its own files, with enums resolved across the whole tree (#246).
+  `--split-packages --modules-only`, which had no meaning, is now rejected. (#232, #246)
+- **Maven plugin: a relative `<input>` or `<output>` in `<diagram>` is relative to the module.**
+  It resolved against the directory `mvn` was started in, so in a reactor build run from the root
+  the input was not found and output went under the reactor root, a directory the configuration
+  never named. Relative values now resolve against the module's basedir, as the goal-level
+  `input` and `outputDirectory` always did. (#233)
+- **Parallel builds (`mvn -T`) no longer corrupt diagrams.** The class diagram, state machine,
+  module and single-file sequence parsers each shared one static `JavaParser`, which is not safe
+  for concurrent use, while the Maven plugin declares `threadSafe = true`. Two modules parsed at
+  once could throw an `AssertionError` out of JavaParser, past the parsers' own fault tolerance,
+  or return a partial or empty graph with no warning. In a test that runs 32 parses on 8 threads,
+  32 of 32 went wrong for every one of those parsers; each parse run now creates its own
+  parser, and all 32 match the serial result. (#225)
+- **Types that share a simple name across packages are no longer merged.** `a.Config` and
+  `b.Config` used to become one box with the later file's members, sitting in both package
+  groups, with every edge to either type landing on it and nothing logged. They are now separate
+  nodes, and a field or supertype reference resolves through the file's package and imports; a
+  simple name that two input types share and nothing disambiguates draws no edge rather than a
+  wrong one. (#226)
+- **Records, enums and nested types are drawn.** The class diagram showed a record or enum as an
+  empty box with no relationships, and never showed nested types at all. Records now list their
+  components as fields, with `HAS` edges from them; records and enums get `IMPLEMENTS` edges,
+  their methods, and a `«record»` / `«enum»` stereotype; fields in an enum body get `HAS` edges;
+  and member types are nodes with the id `pkg.Outer.Inner` and the label `Outer.Inner`, resolved
+  from inside and outside their outer type. The sequence parsers (`--sequence-only`, the
+  single-file and stitched multi-file modes) now visit methods declared in records and enums,
+  so calls into and out of them are no longer dropped. On the issue's six-file fixture the class
+  diagram went from 1 edge to 7 and the stitched sequence from 1 call to 5. (#227)
+- **State machines are found in the two most common layouts.** A field named `status`, `phase` or
+  anything else without "state" in it was never treated as a state variable, and in directory
+  mode a file was skipped unless it declared the enum itself, so an `OrderStatus.java` beside an
+  `Order.java` holding the transitions gave "No state transitions found". State variables are
+  now recognised by declared enum type (the name rule stays as the fallback for `var`), and a
+  directory is read in two passes: every enum first, then every file. Both ends of a transition
+  must now be constants of one enum, so a switch that maps one enum onto another no longer
+  draws edges between two machines. (#228)
+- **A recursive method no longer erases its call tree.** Sequence diagrams and `--max-depth`
+  both start from "methods with no incoming call", and a method that calls itself has one, so a
+  tree reachable only through a recursive method rendered as headers with 0 messages, and
+  `--max-depth 3` on a depth-2 tree kept 0 edges. Self-calls no longer count, and a cycle
+  nothing outside calls (`a -> b -> a`) starts from its first method in graph order. (#229)
+- **`--layout elk` no longer stacks class boxes on top of each other.** ELK reserved a fixed 70px
+  for every node while `SvgRenderer` draws a class with member compartments as tall as its
+  members need, so three 505px boxes were laid out on a 90px pitch. ELK now reserves the rendered
+  height, from the same estimate `SimpleLayoutEngine` already used (now shared, in one place).
+  Package groups also lay their members out top to bottom: `DIRECTION = DOWN` was set on the root
+  only, so a chain inside a package came out as one row. (#230)
+
+## [0.4.0] - 2026-08-30
+
+### Changed
+
+- Dependency updates: PMD 7.26.0 to 7.27.0, maven-enforcer-plugin 3.6.2 to 3.6.3, Maven plugin
+  tools 3.15.1 to 3.15.2, maven-invoker-plugin 3.9.0 to 3.10.1, Groovy 4.0.28 to 5.0.8 (a major
+  bump; it only runs the invoker integration-test scripts, which pass unchanged), and PIT 1.25.9
+  to 1.30.0. Jackson, JavaParser, JUnit, ELK, Xtext, Checkstyle, Error Prone, JaCoCo, SpotBugs,
+  ArchUnit, JSpecify and VibeTags were already at their latest stable releases; the pre-release
+  lines offered for the compiler, source, surefire and plugin plugins (4.0.0-beta/3.6.0-M1) and
+  Maven 4.0.0-rc are not taken, and the Maven 3.9.x API pin is deliberate and documented in the
+  parent pom.
+- `COMPATIBILITY.md` moved to `docs/COMPATIBILITY.md`, joining the rest of the documentation;
+  only the GitHub community-health files, the agent briefings and `llms.txt` stay in the root.
+  All links and mentions were updated, and `docs/README.md` now indexes it.
+
+### Added
+
+- **`code-karta-maven-plugin`, with a `karta:generate` goal.** Diagram generation now binds into
+  a consumer's Maven build instead of requiring a hand-run jar. The parameters and a copyable
+  `<plugin>` block are in `docs/MAVEN-PLUGIN.md`, and `PluginDescriptorTest` compares the
+  version documented there against the generated plugin descriptor, so the docs cannot name a
+  stale version without failing `mvn verify`. The goal is exercised by `maven-invoker-plugin`
+  integration tests that run it from real Maven builds, including an aggregator-skip and a
+  fail-on-empty case.
+
+- A parser evaluation suite that runs against Java nobody here wrote. Parsers never crash by
+  contract, which makes a parsing regression silent: the graph gets smaller and every test still
+  passes. `JdkCorpusTest` now parses the building JDK's own `src.zip` on every build (135 files
+  of `java.util`, measured 138 nodes on JDK 21, floor at 110), and a weekly workflow runs
+  `scripts/run-corpus.py` over four projects pinned by commit (guava, picocli, junit5,
+  jackson-databind) with per-project node floors.
+
+- **`--format json`, and `JsonRenderer` for library callers.** code-karta could only produce SVG,
+  which is a dead end for tooling: an architecture rule that should fail a build, a diff between
+  two revisions, a report, or a consumer's own renderer all need the graph, not a drawing of it.
+  `JsonRenderer` writes the IR verbatim, including layout coordinates when a layout engine has
+  run, and it round-trips back into a `Graph`. Output is byte-identical across runs, which two
+  tests pin: `HashMap` iteration order and `DefaultPrettyPrinter`'s platform line separator would
+  each have broken it silently, and `KartaCli.run`'s idempotence rests on it.
+
+  This also puts the Jackson dependency to work. All four model classes carried Jackson
+  annotations and no `ObjectMapper` existed anywhere in `src/main`, so until now the dependency
+  was pure supply-chain surface with nothing behind it.
+
+- `RunOptions` gained a `format` component and `withFormat`. The previous eight-argument
+  constructor is kept and delegates with the format defaulted to `svg`, so existing callers
+  compile and link unchanged.
+
+- Javadoc on the public API of `code-karta-core`. It had none: zero `/**` blocks across all seven
+  model classes, in the module every library consumer imports, while the release profile published
+  a javadoc jar built with `doclint=none`. `Graph`, `Node`, `Edge`, `Group` and the package
+  documentation now state the things the signatures do not, including the null-coordinate contract
+  between layout and render, that duplicate node ids are permitted and the first wins, that edge
+  endpoints need not resolve, and what `Edge.label` means per edge type. `InputParser` and
+  `JavaSourceInputParser` document the fault-tolerance contract and its consequence: an empty
+  graph does not distinguish "nothing to draw" from "nothing parsed".
+- `doclint` is now `all,-missing` instead of `none`, so a broken `@link`, a wrong `@param` name or
+  malformed HTML fails the release build. Confirmed by breaking a reference deliberately: the
+  build fails with "reference not found". `-missing` is deliberate, so the gate does not demand a
+  comment on every accessor and get switched off again.
+
+- Both build wrappers now pin the distribution they will run by SHA-256
+  (`distributionSha256Sum`). Without it a wrapper executes whatever bytes come back from its
+  distribution URL, on every developer machine and every CI runner. The Maven value was derived
+  by fetching `apache-maven-3.9.11-bin.zip`, checking it against the SHA-512 that
+  `downloads.apache.org` publishes over TLS, and hashing the file that matched; the Gradle value
+  is the one Gradle publishes at `<distributionUrl>.sha256`. Verified in both directions: a wrong
+  sum fails with "Failed to validate Maven distribution SHA-256", and a fresh download with the
+  correct sum succeeds. CI also runs `gradle/actions/wrapper-validation` against the committed
+  `gradle-wrapper.jar`, which is a binary every build executes before any other check.
+
+- **All five modules now compile for Java 17** instead of 21, so an application still on 17 can
+  both depend on the library and run the CLI jar. Nothing in the codebase used a language or API
+  feature past 17; the 21 floor was inherited rather than required. Verified end to end rather
+  than by the compiler flag alone: a new `java17` CI job compiles a consumer with JDK 17 and runs
+  it on JDK 17, runs the shipped fat jar on JDK 17, and asserts every jar carries class file major
+  version 61. Locally the same consumer ran on JDK 17.0.5 and produced the same 11170-byte SVG as
+  on 21.
+
+  One runtime caveat, documented in `docs/COMPATIBILITY.md` and `docs/CLI.md`: ELK's transitive
+  `org.eclipse.xtext.xbase.lib` is compiled for Java 21 in every published version, so on a Java
+  17 runtime `--layout elk` falls back to the simple layout and logs a warning.
+
+- A Maven wrapper (`./mvnw`, pinned to 3.9.11). `mvn clean verify` on Maven 3.8.6 fails with a
+  bare `PluginIncompatibleException`, because the SpotBugs plugin declares a 3.8.9 prerequisite
+  and nothing in this repository declared a minimum. CI and the docs now use the wrapper, so
+  contributors and CI run the same Maven.
+- A `maven-enforcer-plugin` toolchain gate. `requireMavenVersion [3.8.9,)` and
+  `requireJavaVersion [21,26)` fail in `validate` with a message naming the toolchain, instead
+  of surfacing later as a SpotBugs plugin error or a JaCoCo instrumentation error that both read
+  like defects in this repository. Verified in both directions: green on JDK 21, and red on
+  JDK 26 with the intended message. This closes the follow-up noted in the 0.3.0 entry below.
+
+- `LICENSE` (MIT). The repository had no license file at all. GitHub reported the license as
+  `null` and an automated OSS review had nothing to read, which is a hard stop for adoption in
+  most companies regardless of what the README badge claimed.
+- `SECURITY.md`, with a threat model, supported versions and private vulnerability reporting.
+- `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1), issue forms and a pull
+  request template.
+- `COMPATIBILITY.md` (now `docs/COMPATIBILITY.md`), stating what counts as public API, what does not, and what a version bump
+  is allowed to break. Previously a consumer had to infer the boundary from the source.
+
+### Fixed
+
+- **Graph construction was O(n²).** `Graph.findNode` and `Graph.addNodeIfAbsent` were
+  `nodes.stream()` linear scans, and they are called once per class, method and call site by every
+  parser and once per node by both layout engines, at 24 sites. Both are now backed by an id
+  index. Measured on the same machine, JDK 21, 20,000 nodes:
+
+  | | scan | indexed |
+  |---|---|---|
+  | 20,000 `addNodeIfAbsent` | 1417 ms | 9 ms |
+  | 20,000 `findNode` | 7492 ms | 1 ms |
+
+  Scaling matters more than the absolute numbers: doubling 10k to 20k took `findNode` from 407 ms
+  to 7492 ms, an 18x rise for 2x the input. The index is derived state, rebuilt whenever the node
+  list length changes, so nodes added or removed through `getNodes()` are still found. Replacing
+  an element in place, or removing one and adding another between lookups, is not covered and is
+  documented as unsupported.
+
+- **`ElkLayoutEngine` did not fall back on the failures ELK actually produces.** Its javadoc
+  promises a transparent fallback to `SimpleLayoutEngine` "for any reason", but it caught only
+  `Exception`. ELK resolves its algorithms through `ServiceLoader`, so its two realistic failures
+  are `ServiceConfigurationError` (a shaded jar that did not merge `META-INF/services`) and
+  `LinkageError` (a dependency built for a newer JDK than the runtime) and both are `Error`s that
+  went straight through. On a Java 17 runtime this is the normal case, not an edge case, because
+  `org.eclipse.xtext.xbase.lib` is compiled for 21. The catch is now
+  `Exception | LinkageError | ServiceConfigurationError`; `OutOfMemoryError` and other Errors
+  still propagate, which a test pins. Three regression tests were written first and confirmed red
+  before the fix.
+
+- **The published `code-karta-cli` artifact could not be used as a dependency.** The shade
+  plugin was generating a dependency-reduced pom that replaced the real one, and because the
+  shaded jar is an attached `all` classifier rather than the main artifact, the reduced pom
+  stripped the four compile dependencies the unshaded main jar actually needs. Verified against
+  Maven Central: `code-karta-cli-0.3.0.pom` declares three dependencies, all of them `test` or
+  `provided` scope, and none of `code-karta-core`, `-input`, `-layout` or `-render`. Declaring
+  `code-karta-cli` as a Maven dependency therefore resolved a jar of three classes with nothing
+  to run them against. `createDependencyReducedPom` is now `false`, the generated file is
+  untracked and ignored, and a CI step fails if it returns. Affects 0.1.0, 0.2.0 and 0.3.0; the
+  fat jar (`-all` classifier) was never affected.
+
+- The declared license disagreed with itself. `pom.xml` declared Apache-2.0 while the README
+  badge showed MIT, so the three artifacts published to Maven Central (0.1.0, 0.2.0, 0.3.0)
+  carry an Apache-2.0 declaration that was never the intent. The project is MIT; `pom.xml` now
+  says so, and the next release corrects the published metadata.
+- The Maven Central badge linked to the 0.1.0 artifact page rather than the artifact.
+
 ## [0.3.0] - 2026-08-23
 
 ### Changed
@@ -143,7 +399,8 @@ First published release, under the `se.deversity.codekarta` group on Maven Centr
   the per-module rules.
 - GitHub Actions for build, test, and Maven Central publishing.
 
-[Unreleased]: https://github.com/PIsberg/codekarta/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/PIsberg/codekarta/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/PIsberg/codekarta/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/PIsberg/codekarta/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/PIsberg/codekarta/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/PIsberg/codekarta/releases/tag/v0.1.0

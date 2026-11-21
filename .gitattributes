@@ -5,6 +5,8 @@
 
 *.bat text eol=crlf
 gradlew.bat text eol=crlf
+mvnw.cmd text eol=crlf
+mvnw text eol=lf
 
 *.jar binary
 *.png binary

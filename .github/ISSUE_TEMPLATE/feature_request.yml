@@ -1,0 +1,36 @@
+name: Feature request
+description: Propose a capability code-karta does not have.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What are you trying to do that code-karta makes hard or impossible today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you would like it to do
+    validations:
+      required: true
+  - type: dropdown
+    id: tier
+    attributes:
+      label: Which tier would this touch, if you know
+      description: >
+        See docs/ARCHITECTURE.md. This is not required, but it shapes the discussion. The pipeline
+        is strictly tiered and a proposal that crosses a tier boundary needs a different design.
+      options:
+        - "Not sure"
+        - "code-karta-core (graph data shape)"
+        - "code-karta-input (Java analysis, diagram semantics)"
+        - "code-karta-layout (coordinate algorithms)"
+        - "code-karta-render (SVG appearance, output formats)"
+        - "code-karta-cli (flags, output naming)"
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What you tried instead
+      description: Existing flags, another tool, or a workaround, and why it fell short.

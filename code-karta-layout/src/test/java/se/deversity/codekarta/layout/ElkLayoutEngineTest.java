@@ -153,4 +153,64 @@ class ElkLayoutEngineTest {
         assertNotNull(graph.findNode("Grouped").getX(), "grouped node must receive x");
         assertNotNull(graph.findNode("Free").getX(),    "ungrouped node must receive x");
     }
+
+    // ELK resolves its layout algorithms through ServiceLoader, so the realistic ways it breaks
+    // are a missing or shaded-away SPI entry (ServiceConfigurationError) and a dependency built
+    // for a newer JDK than the one running (UnsupportedClassVersionError, a LinkageError). Both
+    // are Errors, so the `catch (Exception e)` this class used to have let them straight through
+    // and the pipeline died, despite the class javadoc promising a fallback "for any reason".
+    //
+    // This is not hypothetical: on JDK 17 the ELK path throws ServiceConfigurationError caused by
+    // UnsupportedClassVersionError, because org.eclipse.xtext.xbase.lib is compiled for 21.
+
+    @Test
+    void fallsBackWhenElkThrowsServiceConfigurationError() {
+        Graph graph = new Graph();
+        graph.addNode(new Node("A", "CLASS", "A"));
+        graph.addNode(new Node("B", "CLASS", "B"));
+        graph.addEdge(new Edge("a-b", "A", "B", "EXTENDS"));
+
+        Graph result = new ElkLayoutEngine() {
+            @Override
+            Graph layoutWithElk(Graph g) {
+                throw new java.util.ServiceConfigurationError("no layout algorithm registered");
+            }
+        }.layout(graph);
+
+        assertSame(graph, result, "fallback must still mutate and return the same graph");
+        assertNotNull(graph.findNode("A").getX(), "SimpleLayoutEngine must have positioned A");
+        assertNotNull(graph.findNode("B").getX(), "SimpleLayoutEngine must have positioned B");
+    }
+
+    @Test
+    void fallsBackWhenElkThrowsLinkageError() {
+        Graph graph = new Graph();
+        graph.addNode(new Node("A", "CLASS", "A"));
+
+        Graph result = new ElkLayoutEngine() {
+            @Override
+            Graph layoutWithElk(Graph g) {
+                throw new UnsupportedClassVersionError(
+                        "org/eclipse/xtext/xbase/lib/CollectionLiterals has been compiled by a "
+                                + "more recent version of the Java Runtime");
+            }
+        }.layout(graph);
+
+        assertNotNull(result.findNode("A").getX(), "a LinkageError must not escape layout()");
+    }
+
+    @Test
+    void doesNotSwallowOutOfMemoryError() {
+        Graph graph = new Graph();
+        graph.addNode(new Node("A", "CLASS", "A"));
+
+        // The widened catch is deliberately narrow. An Error that says the JVM is out of resources
+        // is not a layout problem and must not be turned into a diagram.
+        assertThrows(OutOfMemoryError.class, () -> new ElkLayoutEngine() {
+            @Override
+            Graph layoutWithElk(Graph g) {
+                throw new OutOfMemoryError("Java heap space");
+            }
+        }.layout(graph));
+    }
 }

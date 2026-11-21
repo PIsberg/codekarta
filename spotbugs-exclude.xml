@@ -57,4 +57,20 @@
     <Bug pattern="REC_CATCH_EXCEPTION"/>
   </Match>
 
+  <!-- UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR: a Mojo's @Parameter fields are written by
+       Maven's Plexus configurator after construction, never by the class itself. A mojo that
+       initialised them in a constructor would have those values overwritten before execute()
+       runs. SpotBugs sees only that nothing in the class assigns them. -->
+  <Match>
+    <Package name="se.deversity.codekarta.maven"/>
+    <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
+  </Match>
+
+  <!-- HelpMojo is generated at build time by maven-plugin-plugin's helpmojo goal, into
+       target/generated-sources. It is not written here and cannot be fixed here; the next
+       build regenerates it byte for byte. -->
+  <Match>
+    <Class name="~.*\.HelpMojo"/>
+  </Match>
+
 </FindBugsFilter>

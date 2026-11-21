@@ -23,7 +23,7 @@ mvn clean package
 Run it:
 
 ```bash
-java -jar code-karta-cli/target/code-karta-cli-0.3.0-all.jar \
+java -jar code-karta-cli/target/code-karta-cli-0.4.0-all.jar \
   --input <path> \
   --output <dir> \
   [--sequence-only] \
@@ -32,8 +32,10 @@ java -jar code-karta-cli/target/code-karta-cli-0.3.0-all.jar \
   [--exclude <patterns>] \
   [--max-depth <depth>] \
   [--max-members <n>] \
+  [--format svg|json] \
   [--modules-only] \
   [--split-packages] \
+  [--include-tests] \
   [--output-name <file>]
 ```
 
@@ -42,19 +44,21 @@ Input path decides the diagram:
 | Input | Output |
 |---|---|
 | `module-info.java` | `module-diagram.svg` |
-| directory | `class-diagram.svg` |
+| directory (a source root, a module, or a whole repository) | `class-diagram.svg` |
 | single `.java` file | `<classname>-sequence-diagram.svg` with exception-flow analysis |
 | single `.java` file plus `--sequence-only` | call-only sequence diagram |
 | directory plus `--sequence-only` | `sequence-diagram.svg` stitched across files |
 | file or directory plus `--state-machine` | state transition diagram |
 | directory plus `--modules-only` | `modules-diagram.svg` from `module-info.java`, or from the Maven/Gradle reactor when the project declares no JPMS modules |
 
+Any directory walk skips test source sets (`src/test`, `src/*test*`, `src/it`), build output (`target`, `build`, `out` beside a build file), hidden directories and `node_modules`, so a repository root works as `--input`. Use `--include-tests` to read test sources as well.
 Use `--layout elk` for large graphs. Use `--sequence-only` when exception propagation and try/catch regions are noise.
 Use `--state-machine` for enum-backed workflow code where enum constants represent states and switch assignments or `transition(from, to, event)` calls represent transitions.
 Use `--exclude <patterns>` (comma-separated wildcards, e.g. `*Test,se.deversity.codekarta.util.*,Map`) to filter noisy types/methods under scale.
 Use `--max-depth <depth>` (integer) to limit call-sequence stitching hierarchy.
 Use `--output-name <file>` to write several diagrams into one directory — the derived names (`class-diagram.svg` and friends) otherwise collide, forcing one output directory per diagram.
 Use `--max-members <n>` (or `all`) to raise or disable the six-member cap on class compartments; the default suits a large package, not a five-class one.
+Use `--format json` to get the graph rather than a drawing of it: nodes, edges, groups and coordinates, round-trippable into `Graph` and byte-identical across runs. That is the flag for architecture checks, reports, and feeding another tool.
 
 ## Library Usage
 

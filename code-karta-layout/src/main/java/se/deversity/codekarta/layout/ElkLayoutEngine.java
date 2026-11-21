@@ -21,6 +21,7 @@ import se.deversity.vibetags.annotations.AIStrictClasspath;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ServiceConfigurationError;
 import java.util.logging.Logger;
 
 /**
@@ -31,9 +32,12 @@ import java.util.logging.Logger;
  * producing compact, orthogonally-routed diagrams that scale to large class
  * structures without the horizontal explosion of a naive BFS grid layout.
  *
- * <p>If ELK layout fails for any reason (missing service-loader registration,
- * unsupported graph property, etc.) the engine falls back transparently to
- * {@link SimpleLayoutEngine} so the pipeline never produces an empty diagram.
+ * <p>If ELK layout fails for any reason the engine falls back transparently to
+ * {@link SimpleLayoutEngine}, so the pipeline never produces an empty diagram. That includes the
+ * two Errors ELK raises in practice: a {@link java.util.ServiceConfigurationError} when its
+ * ServiceLoader entries are missing, and a {@link LinkageError} when a transitive dependency was
+ * built for a newer JDK than the running one. On a Java 17 runtime the latter is the normal
+ * outcome, because {@code org.eclipse.xtext.xbase.lib} is compiled for Java 21.
  */
 @AIContext(focus = "Group members must be laid out as children of compound ElkNodes; absolute coordinates are compound.x + child.x. ELK's SPI entries must be merged in the fat JAR.", avoids = "Adding ELK options that are unsupported by the layered algorithm — any unknown property silently breaks layout and triggers the SimpleLayoutEngine fallback.")
 @AIArchitecture(belongsTo = "layout", cannotReference = {"input", "render", "cli"})
@@ -43,7 +47,6 @@ public class ElkLayoutEngine implements LayoutEngine {
     private static final Logger log = Logger.getLogger(ElkLayoutEngine.class.getName());
 
     private static final double NODE_WIDTH  = NodeDimensions.DEFAULT_WIDTH;
-    private static final double NODE_HEIGHT = NodeDimensions.DEFAULT_HEIGHT;
 
     @Override
     @AIPerformance(constraint = "Layout runs synchronously in the CLI pipeline — avoid O(n²) or heap-allocating operations on the full node list. ELK's layered algorithm is already O(n log n); the fallback SimpleLayoutEngine is O(n).")
@@ -51,14 +54,26 @@ public class ElkLayoutEngine implements LayoutEngine {
         if (graph.getNodes().isEmpty()) return graph;
         try {
             return layoutWithElk(graph);
-        } catch (Exception e) {
-            log.warning("ELK layout failed (" + e.getMessage() + "), falling back to SimpleLayoutEngine");
+        // Exception is not enough. ELK resolves its algorithms through ServiceLoader, so its two
+        // realistic failures are both Errors: ServiceConfigurationError when the SPI entry is
+        // missing (a shaded jar that did not merge META-INF/services) and LinkageError when a
+        // transitive dependency was built for a newer JDK than the one running. The narrower catch
+        // let both escape, so the pipeline died on exactly the cases the javadoc promises to
+        // survive. org.eclipse.xtext.xbase.lib is compiled for Java 21, which makes the second one
+        // the normal outcome on a Java 17 runtime rather than an edge case.
+        //
+        // Errors outside these two still propagate on purpose: an OutOfMemoryError is not a layout
+        // problem and must not be converted into a diagram.
+        } catch (Exception | LinkageError | ServiceConfigurationError e) {
+            log.warning("ELK layout failed (" + e + "), falling back to SimpleLayoutEngine");
             return new SimpleLayoutEngine().layout(graph);
         }
     }
 
     @AIExplain(AIExplain.ComplexityLevel.MEDIUM)
-    private Graph layoutWithElk(Graph graph) {
+    // Package-private, not private, so a test can substitute a failing ELK call. ELK failures are
+    // ServiceLoader failures in practice, and those cannot be provoked from a unit test otherwise.
+    Graph layoutWithElk(Graph graph) {
         ElkNode root = ElkGraphUtil.createGraph();
         root.setProperty(CoreOptions.ALGORITHM, "org.eclipse.elk.layered");
         root.setProperty(CoreOptions.DIRECTION, Direction.DOWN);
@@ -78,6 +93,9 @@ public class ElkLayoutEngine implements LayoutEngine {
                 ElkNode compound = ElkGraphUtil.createNode(root);
                 compound.setIdentifier(group.getId());
                 compound.setProperty(CoreOptions.ALGORITHM, "org.eclipse.elk.layered");
+                // Not inherited from the root: without it a compound node lays its members out in
+                // ELK's default direction, so a chain inside a package came out as one row.
+                compound.setProperty(CoreOptions.DIRECTION, Direction.DOWN);
                 groupElkNodes.put(group.getId(), compound);
             }
         }
@@ -91,7 +109,9 @@ public class ElkLayoutEngine implements LayoutEngine {
             ElkNode elkNode = ElkGraphUtil.createNode(parent);
             elkNode.setIdentifier(node.getId());
             elkNode.setWidth(NODE_WIDTH);
-            elkNode.setHeight(NODE_HEIGHT);
+            // The height SvgRenderer will draw, not a fixed default: a class box with member
+            // compartments is drawn as tall as its members need, and ELK must leave that room.
+            elkNode.setHeight(RenderedSize.estimateHeight(node));
             elkNodes.put(node.getId(), elkNode);
         }
 

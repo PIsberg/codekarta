@@ -12,7 +12,7 @@ dependencies {
     implementation(project(":code-karta-input"))
     implementation(project(":code-karta-layout"))
     implementation(project(":code-karta-render"))
-    testImplementation("com.tngtech.archunit:archunit-junit5:1.5.0")
+    testImplementation("com.tngtech.archunit:archunit-junit5:1.5.1")
 }
 
 // Fat JAR via shadow plugin — merges META-INF/services so ELK algorithm SPI is found.
@@ -47,6 +47,9 @@ tasks.register("generateDiagrams") {
             .get().archiveFile.get().asFile
         val root = project.rootDir
         val out  = File(root, "docs/diagrams")
+        val examples = File(root, "example-shipping-system/diagrams")
+        val example = File(root, "example-shipping-system/src/main/java")
+        val state = File(example, "com/karta/shipping/state")
 
         listOf(
             // 1. Module diagram — example shipping system
@@ -63,7 +66,17 @@ tasks.register("generateDiagrams") {
                    "--output", "$out", "--sequence-only"),
             // 5. Multi-file stitched sequence — input parsers with ELK layout
             listOf("--input", "$root/code-karta-input/src/main/java/se/deversity/codekarta/input",
-                   "--output", "$out", "--sequence-only", "--layout", "elk")
+                   "--output", "$out", "--sequence-only", "--layout", "elk"),
+            // 6-12. State machines and the example project's diagrams; keep in step with the exec
+            // executions in pom.xml (#249)
+            listOf("--input", "$root/code-karta-cli/src/main/java/se/deversity/codekarta/cli/KartaCli.java",
+                   "--state-machine", "--output", "$out"),
+            listOf("--input", "$state/ShipmentLifecycle.java", "--state-machine", "--output", "$examples"),
+            listOf("--input", "$state/PaymentWorkflow.java", "--state-machine", "--output", "$examples"),
+            listOf("--input", "$state/InventoryReservation.java", "--state-machine", "--output", "$examples"),
+            listOf("--input", "$example/module-info.java", "--output", "$examples"),
+            listOf("--input", "$example/com/karta/shipping/domain", "--output", "$examples"),
+            listOf("--input", "$example/com/karta/shipping/core/OrderProcessor.java", "--output", "$examples")
         ).forEach { args ->
             val pb = ProcessBuilder(listOf("java", "-jar", jar.absolutePath) + args)
                 .directory(root)

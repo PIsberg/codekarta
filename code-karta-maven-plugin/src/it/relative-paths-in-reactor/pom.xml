@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>se.deversity.codekarta.it</groupId>
+    <artifactId>relative-paths-in-reactor</artifactId>
+    <version>1.0</version>
+    <packaging>pom</packaging>
+
+    <!-- Built from this directory, so the JVM's working directory is the reactor root, not the
+         module that declares the relative paths. -->
+    <modules>
+        <module>child</module>
+    </modules>
+</project>

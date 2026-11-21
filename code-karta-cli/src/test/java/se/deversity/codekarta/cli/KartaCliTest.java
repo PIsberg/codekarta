@@ -492,4 +492,338 @@ class KartaCliTest {
         graph.addNode(node);
         return graph;
     }
+
+    // --- --format json ---
+
+    @Test
+    void jsonFormatWritesTheGraphInsteadOfAPicture(@TempDir Path inputDir, @TempDir Path outputDir)
+            throws Exception {
+        Files.writeString(inputDir.resolve("Animal.java"), "public class Animal {}");
+        Files.writeString(inputDir.resolve("Dog.java"), "public class Dog extends Animal {}");
+
+        Path result = KartaCli.run(inputDir, outputDir,
+                RunOptions.defaults().withFormat(RunOptions.FORMAT_JSON));
+
+        assertEquals("class-diagram.json", result.getFileName().toString(),
+                "the derived name takes the format's extension");
+        String json = Files.readString(result);
+        assertFalse(json.contains("<svg"), "json output must not be SVG");
+        assertTrue(json.contains("\"nodes\""));
+        assertTrue(json.contains("\"Animal\""));
+        assertTrue(json.contains("\"EXTENDS\""), "the edge must survive into the JSON");
+    }
+
+    @Test
+    void jsonFormatIncludesLayoutCoordinates(@TempDir Path inputDir, @TempDir Path outputDir)
+            throws Exception {
+        Files.writeString(inputDir.resolve("Animal.java"), "public class Animal {}");
+
+        Path result = KartaCli.run(inputDir, outputDir,
+                RunOptions.defaults().withFormat(RunOptions.FORMAT_JSON));
+
+        String json = Files.readString(result);
+        assertTrue(json.contains("\"x\""),
+                "layout runs before rendering, so coordinates are in the JSON: " + json);
+        assertTrue(json.contains("\"width\""));
+    }
+
+    @Test
+    void jsonOutputIsIdenticalAcrossRuns(@TempDir Path inputDir, @TempDir Path outputDir)
+            throws Exception {
+        Files.writeString(inputDir.resolve("Animal.java"),
+                "public class Animal { private String name; private int age; }");
+
+        RunOptions options = RunOptions.defaults().withFormat(RunOptions.FORMAT_JSON);
+        String first = Files.readString(KartaCli.run(inputDir, outputDir, options));
+        String second = Files.readString(KartaCli.run(inputDir, outputDir, options));
+
+        // Same invariant as the SVG path: a repository can commit this file, and the CI step that
+        // diffs regenerated output would fail on any instability.
+        assertEquals(first, second, "json output must be byte-identical across runs");
+    }
+
+    @Test
+    void explicitOutputNameIsUsedAsGivenEvenForJson(@TempDir Path inputDir, @TempDir Path outputDir)
+            throws Exception {
+        Files.writeString(inputDir.resolve("Animal.java"), "public class Animal {}");
+
+        Path result = KartaCli.run(inputDir, outputDir,
+                RunOptions.defaults()
+                        .withFormat(RunOptions.FORMAT_JSON)
+                        .withOutputName("graph.txt"));
+
+        assertEquals("graph.txt", result.getFileName().toString(),
+                "a caller who names the file has already decided what to call it");
+    }
+
+    @Test
+    void svgStaysTheDefault(@TempDir Path inputDir, @TempDir Path outputDir) throws Exception {
+        Files.writeString(inputDir.resolve("Animal.java"), "public class Animal {}");
+
+        Path result = KartaCli.run(inputDir, outputDir, RunOptions.defaults());
+
+        assertEquals("class-diagram.svg", result.getFileName().toString());
+        assertTrue(Files.readString(result).contains("<svg "));
+    }
+
+    @Test
+    void formatDefaultsToSvgWhenNull() {
+        assertEquals(RunOptions.FORMAT_SVG,
+                new RunOptions(false, "simple", false, null, 1, false, null, 6, null).format());
+    }
+
+    @Test
+    void withFormatExtensionOnlyRewritesSvgNames() {
+        RunOptions json = RunOptions.defaults().withFormat(RunOptions.FORMAT_JSON);
+
+        assertEquals("class-diagram.json", KartaCli.withFormatExtension("class-diagram.svg", json));
+        assertEquals("report.json", KartaCli.withFormatExtension("report", json));
+        assertEquals("class-diagram.svg",
+                KartaCli.withFormatExtension("class-diagram.svg", RunOptions.defaults()));
+    }
+
+    // --- a whole repository as --input ---
+
+    /** A Maven checkout: production code, a test, and generated code under target/. */
+    private static Path repository(Path root) throws Exception {
+        write(root, "pom.xml", "<project/>");
+        write(root, "src/main/java/shop/Order.java", "package shop; public class Order {}");
+        write(root, "src/main/java/shop/billing/Invoice.java",
+                "package shop.billing; public class Invoice { shop.Order order; }");
+        write(root, "src/test/java/shop/OrderTest.java", "package shop; class OrderTest {}");
+        write(root, "src/test/java/shop/support/Fixtures.java", "package shop.support; class Fixtures {}");
+        write(root, "target/generated-sources/shop/OrderMapper.java",
+                "package shop; class OrderMapper {}");
+        return root;
+    }
+
+    private static void write(Path root, String relative, String content) throws Exception {
+        Path file = root.resolve(relative);
+        Files.createDirectories(file.getParent());
+        Files.writeString(file, content);
+    }
+
+    @Test
+    void repositoryRootDrawsProductionCodeOnly(@TempDir Path dir, @TempDir Path outputDir) throws Exception {
+        Path repo = repository(dir);
+
+        String svg = Files.readString(KartaCli.run(repo, outputDir));
+
+        assertTrue(svg.contains(">Order<"), "production class must be drawn");
+        assertTrue(svg.contains(">Invoice<"), "production class in a subpackage must be drawn");
+        assertFalse(svg.contains("OrderTest"), "test class must not be drawn by default");
+        assertFalse(svg.contains("OrderMapper"), "generated class under target/ must not be drawn");
+    }
+
+    @Test
+    void includeTestsFlagDrawsTestSources(@TempDir Path dir, @TempDir Path outputDir) throws Exception {
+        Path repo = repository(dir);
+
+        KartaCli.main(new String[] {
+                "--input", repo.toString(), "--output", outputDir.toString(), "--include-tests"});
+
+        String svg = Files.readString(outputDir.resolve("class-diagram.svg"));
+        assertTrue(svg.contains("OrderTest"), "--include-tests must bring test classes back");
+        assertFalse(svg.contains("OrderMapper"), "build output stays out even with --include-tests");
+    }
+
+    @Test
+    void splitPackagesOverARepositorySkipsTestOnlyPackages(@TempDir Path dir, @TempDir Path outputDir)
+            throws Exception {
+        Path repo = repository(dir);
+
+        java.util.List<Path> written = KartaCli.runPerPackage(repo, outputDir, RunOptions.defaults());
+
+        java.util.List<String> relative = written.stream()
+                .map(p -> outputDir.relativize(p).toString().replace('\\', '/'))
+                .toList();
+        assertEquals(java.util.List.of(
+                "src/main/java/shop/class-diagram.svg",
+                "src/main/java/shop/billing/class-diagram.svg"), relative);
+    }
+
+    // --- argument parsing (#231) ---
+
+    private static String errorFor(String... args) {
+        return assertThrows(IllegalArgumentException.class, () -> KartaCli.parseArgs(args)).getMessage();
+    }
+
+    @Test
+    void anUnknownFlagIsAnErrorRatherThanIgnored() {
+        String message = errorFor("--input", "src", "--sequnce-only");
+
+        assertTrue(message.contains("--sequnce-only"), "the message names the argument: " + message);
+    }
+
+    @Test
+    void aValuedFlagWithNoValueIsAnError() {
+        assertTrue(errorFor("--input", "src", "--max-depth").contains("--max-depth"));
+        assertTrue(errorFor("--input", "src", "--format").contains("--format"));
+        assertTrue(errorFor("--input", "--sequence-only").contains("--input"),
+                "a flag where the value should be is a missing value, not a path called --sequence-only");
+    }
+
+    @Test
+    void anUnknownLayoutOrFormatIsAnError() {
+        assertTrue(errorFor("--input", "src", "--layout", "elkk").contains("elkk"));
+        assertTrue(errorFor("--input", "src", "--format", "png").contains("png"));
+    }
+
+    @Test
+    void aNumberFlagWithANonNumberIsAnError() {
+        assertTrue(errorFor("--input", "src", "--max-depth", "abc").contains("abc"));
+        assertTrue(errorFor("--input", "src", "--max-members", "lots").contains("lots"));
+    }
+
+    @Test
+    void inputIsRequired() {
+        assertTrue(errorFor("--output", "out").contains("--input"));
+    }
+
+    @Test
+    void validArgumentsAreParsed() {
+        KartaCli.Invocation call = KartaCli.parseArgs("--input", "src", "--output", "out",
+                "--sequence-only", "--layout", "ELK", "--format", "json", "--max-depth", "3",
+                "--max-members", "all", "--exclude", "Foo, *Test", "--split-packages", "--include-tests",
+                "--output-name", "x.json");
+
+        assertEquals(Path.of("src"), call.inputPath());
+        assertEquals(Path.of("out"), call.outputDir());
+        assertTrue(call.splitPackages());
+        assertFalse(call.help());
+        RunOptions options = call.options();
+        assertTrue(options.sequenceOnly());
+        assertEquals("elk", options.layout());
+        assertEquals(RunOptions.FORMAT_JSON, options.format());
+        assertEquals(3, options.maxDepth());
+        assertEquals(se.deversity.codekarta.input.parser.ClassDiagramParser.UNLIMITED_MEMBERS, options.maxMembers());
+        assertEquals(java.util.Set.of("Foo", "*Test"), options.customExcludes());
+        assertTrue(options.includeTests());
+        assertEquals("x.json", options.outputName());
+    }
+
+    @Test
+    void defaultsApplyWhenOnlyInputIsGiven() {
+        KartaCli.Invocation call = KartaCli.parseArgs("--input", "src");
+
+        assertEquals(KartaCli.DEFAULT_OUTPUT, call.outputDir());
+        assertEquals(RunOptions.defaults(), call.options());
+    }
+
+    @Test
+    void helpNeedsNoInput() {
+        assertTrue(KartaCli.parseArgs("--help").help());
+        assertTrue(KartaCli.parseArgs("-h").help());
+    }
+
+    @Test
+    void runOptionsRejectsAnUnknownLayoutOrFormat() {
+        RunOptions defaults = RunOptions.defaults();
+        IllegalArgumentException layout = assertThrows(IllegalArgumentException.class, () -> new RunOptions(
+                false, "elkk", false, null, 1, false, null, 6, "svg", false));
+        assertTrue(layout.getMessage().contains("elkk"));
+        IllegalArgumentException format = assertThrows(IllegalArgumentException.class, () -> defaults.withFormat("png"));
+        assertTrue(format.getMessage().contains("png"));
+        assertEquals("elk", new RunOptions(false, "ELK", false, null, 1, false, null, 6, "JSON", false).layout(),
+                "known values are accepted in any case and stored lower-case");
+    }
+
+    // --- --split-packages draws each package once (#232) ---
+
+    @Test
+    void splitPackagesDrawsEachPackageWithoutItsSubpackages(@TempDir Path dir) throws Exception {
+        Path src = dir.resolve("src");
+        writeFile(src.resolve("top/T.java"), "package top; public class T {}");
+        writeFile(src.resolve("top/sub/U.java"), "package top.sub; public class U {}");
+        Path out = dir.resolve("out");
+
+        java.util.List<Path> written = KartaCli.runPerPackage(src, out, RunOptions.defaults().withFormat(RunOptions.FORMAT_JSON));
+
+        assertEquals(java.util.List.of(out.resolve("top/class-diagram.json"), out.resolve("top/sub/class-diagram.json")), written);
+        String top = Files.readString(out.resolve("top/class-diagram.json"));
+        assertTrue(top.contains("\"top.T\""), top);
+        assertFalse(top.contains("top.sub.U"), "the top diagram must not draw its subpackage again: " + top);
+    }
+
+    @Test
+    void splitPackagesKeepsACrossPackageReferenceAsAStub(@TempDir Path dir) throws Exception {
+        Path src = dir.resolve("src");
+        writeFile(src.resolve("top/T.java"), "package top; import top.sub.U; public class T { U u; }");
+        writeFile(src.resolve("top/sub/U.java"), "package top.sub; public class U { int size; }");
+        Path out = dir.resolve("out");
+
+        KartaCli.runPerPackage(src, out, RunOptions.defaults().withFormat(RunOptions.FORMAT_JSON));
+
+        String top = Files.readString(out.resolve("top/class-diagram.json"));
+        assertTrue(top.contains("\"targetId\" : \"top.sub.U\"") || top.contains("\"targetId\":\"top.sub.U\""),
+                "the edge to the other package is kept: " + top);
+        assertFalse(top.contains("size"), "the other package's type is a stub, without its members: " + top);
+    }
+
+    @Test
+    void splitPackagesInSequenceModeResolvesCallsIntoOtherPackages(@TempDir Path dir) throws Exception {
+        Path src = dir.resolve("src");
+        writeFile(src.resolve("a/A.java"), "package a; import b.B; public class A { void go() { B.run(); } }");
+        writeFile(src.resolve("b/B.java"), "package b; public class B { public static void run() { } }");
+        Path out = dir.resolve("out");
+        RunOptions sequence = new RunOptions(true, "simple", false, null, Integer.MAX_VALUE, false, null,
+                6, RunOptions.FORMAT_JSON, false);
+
+        KartaCli.runPerPackage(src, out, sequence);
+
+        String a = Files.readString(firstJson(out.resolve("a")));
+        assertTrue(a.contains("b.B.run"), "the call into package b resolves against the whole tree: " + a);
+        assertFalse(a.contains("\"b.B\""), "package b's own class is not drawn in package a's diagram as a type of a: " + a);
+    }
+
+    @Test
+    void splitPackagesDrawsEachPackagesStateMachineOnceEvenWhenItsEnumLivesElsewhere(@TempDir Path dir) throws Exception {
+        Path src = dir.resolve("src");
+        writeFile(src.resolve("model/OrderStatus.java"), "package model; public enum OrderStatus { NEW, PAID }");
+        writeFile(src.resolve("service/Orders.java"), """
+                package service;
+                import model.OrderStatus;
+                public class Orders {
+                    private OrderStatus status = OrderStatus.NEW;
+                    void pay() { status = OrderStatus.PAID; }
+                }
+                """);
+        writeFile(src.resolve("service/sub/Lamp.java"), """
+                package service.sub;
+                public class Lamp {
+                    enum Light { ON, OFF }
+                    private Light light = Light.ON;
+                    void off() { light = Light.OFF; }
+                }
+                """);
+        Path out = dir.resolve("out");
+        RunOptions stateMachine = new RunOptions(false, "simple", true, null, Integer.MAX_VALUE, false, null,
+                6, RunOptions.FORMAT_JSON, false);
+
+        KartaCli.runPerPackage(src, out, stateMachine);
+
+        String service = Files.readString(firstJson(out.resolve("service")));
+        assertTrue(service.contains("OrderStatus.PAID"), "the enum from package model still resolves: " + service);
+        assertFalse(service.contains("Lamp.Light"), "the subpackage's machine is not drawn again: " + service);
+        assertTrue(Files.readString(firstJson(out.resolve("service/sub"))).contains("Lamp.Light.OFF"));
+    }
+
+    @Test
+    void splitPackagesWithModulesOnlyIsRejected(@TempDir Path dir) {
+        assertTrue(errorFor("--input", "src", "--modules-only", "--split-packages").contains("--split-packages"));
+        RunOptions modules = new RunOptions(false, "simple", false, null, Integer.MAX_VALUE, true, null,
+                6, RunOptions.FORMAT_SVG, false);
+        assertThrows(IllegalArgumentException.class, () -> KartaCli.runPerPackage(dir, dir.resolve("out"), modules));
+    }
+
+    private static Path firstJson(Path dir) throws Exception {
+        try (var files = Files.list(dir)) {
+            return files.filter(p -> p.toString().endsWith(".json")).findFirst().orElseThrow();
+        }
+    }
+
+    private static void writeFile(Path file, String content) throws Exception {
+        Files.createDirectories(file.getParent());
+        Files.writeString(file, content);
+    }
 }
