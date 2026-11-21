@@ -93,6 +93,13 @@ Use `--state-machine` for enum-backed workflow code. Enum constants become `STAT
 parser recognizes switch cases that assign, return, or yield another enum constant, plus explicit
 `transition(from, to, event)` calls.
 
+A state variable is any field, local or parameter whose declared type is one of the input's enums,
+whatever it is called (`status`, `phase`, `mode`); for `var` and other untyped cases, a name
+containing `state` still counts. Given a directory, the parser reads every enum in the tree before
+looking for transitions, so the enum can live in a file of its own. Both ends of a transition must
+be constants of the same enum: a switch that maps one enum onto another is a conversion, not a
+state change, and draws nothing.
+
 ```java
 class Workflow {
   enum State { OPEN, REVIEW, CLOSED }

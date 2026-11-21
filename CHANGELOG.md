@@ -60,6 +60,14 @@ each version heading is the complete record.
   single-file and stitched multi-file modes) now visit methods declared in records and enums,
   so calls into and out of them are no longer dropped. On the issue's six-file fixture the class
   diagram went from 1 edge to 7 and the stitched sequence from 1 call to 5. (#227)
+- **State machines are found in the two most common layouts.** A field named `status`, `phase` or
+  anything else without "state" in it was never treated as a state variable, and in directory
+  mode a file was skipped unless it declared the enum itself, so an `OrderStatus.java` beside an
+  `Order.java` holding the transitions gave "No state transitions found". State variables are
+  now recognised by declared enum type (the name rule stays as the fallback for `var`), and a
+  directory is read in two passes: every enum first, then every file. Both ends of a transition
+  must now be constants of one enum, so a switch that maps one enum onto another no longer
+  draws edges between two machines. (#228)
 
 ## [0.4.0] - 2026-08-30
 
