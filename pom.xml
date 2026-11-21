@@ -66,7 +66,7 @@
         <pmd.version>7.29.0</pmd.version>
         <spotbugs.plugin.version>4.10.5.0</spotbugs.plugin.version>
         <checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
-        <checkstyle.version>14.3.0</checkstyle.version>
+        <checkstyle.version>14.4.0</checkstyle.version>
         <errorprone.version>2.52.0</errorprone.version>
         <jacoco.version>0.8.15</jacoco.version>
         <!-- Coverage and mutation floors. Both are reactor-wide defaults that a module may raise
