@@ -35,6 +35,11 @@ Parses a directory of Java files into class and interface nodes with `EXTENDS`, 
 `HAS` edges. Standard library types such as `String`, primitives, and common collections are
 filtered out so diagrams focus on domain types.
 
+Records and enums are drawn as classes marked `«record»` or `«enum»`: record components are their
+fields and the source of their `HAS` edges, and both get `IMPLEMENTS` edges. Nested types are
+nodes of their own, labelled with the enclosing type (`Calc.Inner`). Methods declared in records
+and enums also appear in the sequence diagrams.
+
 Classes are **automatically grouped by Java package** into nested compound blocks. Filter out
 specific classes, packages, or frameworks with `--exclude`.
 

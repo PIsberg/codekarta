@@ -497,6 +497,117 @@ class ClassDiagramParserTest {
         assertFalse(hasEdge(graph, "u.ArrayList", "u.List", "HAS"), "a List-typed field is still skipped");
     }
 
+    // --- records, enums and nested types (#227) ---
+
+    private static void writeRecordEnumNestedFixture(Path dir) throws Exception {
+        Files.writeString(dir.resolve("Priced.java"), """
+                public interface Priced { int price(); }
+                """);
+        Files.writeString(dir.resolve("Customer.java"), """
+                public class Customer { String name; }
+                """);
+        Files.writeString(dir.resolve("Order.java"), """
+                public record Order(Customer customer, Status status) implements Priced {
+                    public int price() { return customer.hashCode() + helper(); }
+                    int helper() { return Calc.twice(2); }
+                }
+                """);
+        Files.writeString(dir.resolve("Status.java"), """
+                public enum Status implements Priced { NEW, PAID; public int price() { return Calc.twice(1); } }
+                """);
+        Files.writeString(dir.resolve("Calc.java"), """
+                public class Calc { static int twice(int x) { return 2*x; }
+                    public static class Inner { Customer owner; } }
+                """);
+        Files.writeString(dir.resolve("Service.java"), """
+                public class Service { Calc calc; int run(Order o) { return o.price() + Calc.twice(3); } }
+                """);
+    }
+
+    @Test
+    void recordComponentsAreFieldsAndHasSources(@TempDir Path dir) throws Exception {
+        writeRecordEnumNestedFixture(dir);
+
+        Graph graph = parser.parse(dir);
+
+        assertTrue(hasEdge(graph, "Order", "Customer", "HAS"));
+        assertTrue(hasEdge(graph, "Order", "Status", "HAS"));
+        var order = graph.findNode("Order").getProperties();
+        assertEquals("customer: Customer\nstatus: Status", order.get("fields"));
+        assertEquals("price(): int\nhelper(): int", order.get("methods"));
+        assertEquals("«record»", order.get("stereotype"));
+    }
+
+    @Test
+    void recordsAndEnumsGetImplementsEdges(@TempDir Path dir) throws Exception {
+        writeRecordEnumNestedFixture(dir);
+
+        Graph graph = parser.parse(dir);
+
+        assertTrue(hasEdge(graph, "Order", "Priced", "IMPLEMENTS"));
+        assertTrue(hasEdge(graph, "Status", "Priced", "IMPLEMENTS"));
+        var status = graph.findNode("Status").getProperties();
+        assertEquals("price(): int", status.get("methods"));
+        assertEquals("«enum»", status.get("stereotype"));
+    }
+
+    @Test
+    void nestedTypesAreDrawnWithTheirOwnRelationships(@TempDir Path dir) throws Exception {
+        writeRecordEnumNestedFixture(dir);
+
+        Graph graph = parser.parse(dir);
+
+        var inner = graph.findNode("Calc.Inner");
+        assertNotNull(inner, "a static nested class is a type of its own");
+        assertEquals("Calc.Inner", inner.getLabel(), "the label names the enclosing type too");
+        assertTrue(hasEdge(graph, "Calc.Inner", "Customer", "HAS"));
+        assertTrue(hasEdge(graph, "Service", "Calc", "HAS"));
+        assertEquals(7, graph.getNodes().size(), "Priced, Customer, Order, Status, Calc, Calc.Inner, Service");
+    }
+
+    @Test
+    void enumBodyFieldsGetHasEdges(@TempDir Path dir) throws Exception {
+        Files.writeString(dir.resolve("Customer.java"), "public class Customer {}");
+        Files.writeString(dir.resolve("Tier.java"), """
+                public enum Tier {
+                    GOLD, SILVER;
+                    private Customer exemplar;
+                }
+                """);
+
+        Graph graph = parser.parse(dir);
+
+        assertTrue(hasEdge(graph, "Tier", "Customer", "HAS"));
+    }
+
+    @Test
+    void nestedTypeReferencesResolveFromInsideAndOutsideTheirOuterType(@TempDir Path dir) throws Exception {
+        writeAt(dir, "p/Outer.java", """
+                package p;
+                public class Outer {
+                    Inner inner;
+                    public static class Inner {}
+                    public enum Mode { ON, OFF }
+                    public record Pair(Inner left, Mode mode) {}
+                }
+                """);
+        writeAt(dir, "q/User.java", """
+                package q;
+                import p.Outer;
+                public class User { Outer.Inner held; Outer.Mode mode; }
+                """);
+
+        Graph graph = parser.parse(dir);
+
+        assertTrue(hasEdge(graph, "p.Outer", "p.Outer.Inner", "HAS"), "a member type is in scope inside its outer type");
+        assertTrue(hasEdge(graph, "p.Outer.Pair", "p.Outer.Inner", "HAS"), "and inside a sibling member type");
+        assertTrue(hasEdge(graph, "p.Outer.Pair", "p.Outer.Mode", "HAS"));
+        assertTrue(hasEdge(graph, "q.User", "p.Outer.Inner", "HAS"), "Outer.Inner resolves through the import of Outer");
+        assertTrue(hasEdge(graph, "q.User", "p.Outer.Mode", "HAS"));
+        assertEquals(java.util.List.of("p.Outer", "p.Outer.Inner", "p.Outer.Mode", "p.Outer.Pair"),
+                groupMembers(graph, "p"), "nested types sit in their package's group");
+    }
+
     private static java.util.List<String> groupMembers(Graph graph, String packageName) {
         return graph.getGroups().stream()
                 .filter(g -> packageName.equals(g.getLabel()))
