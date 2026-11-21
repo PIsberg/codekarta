@@ -90,7 +90,7 @@ jobs:
           done
 
       - name: Upload fat JAR
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: code-karta-cli-maven
           path: code-karta-cli/target/code-karta-cli-*-all.jar
@@ -98,7 +98,7 @@ jobs:
 
       - name: Upload coverage report
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: jacoco-report
           path: '*/target/site/jacoco/'
@@ -130,7 +130,7 @@ jobs:
 
       - name: Upload mutation report
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: pit-reports
           path: '*/target/pit-reports/'
@@ -264,7 +264,7 @@ jobs:
       # before any other check does. gradle-wrapper.properties now pins the distribution by
       # SHA-256; this validates the jar itself against Gradle's published checksums.
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+        uses: gradle/actions/wrapper-validation@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
 
       - name: Test all modules
         run: ./gradlew test
@@ -282,7 +282,7 @@ jobs:
           fi
 
       - name: Upload fat JAR
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: code-karta-cli-gradle
           path: code-karta-cli/build/libs/code-karta-cli-*-all.jar
