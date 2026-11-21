@@ -143,4 +143,79 @@ class StateMachineParserTest {
         assertNotNull(new StateMachineParser(true).parse(repo).findNode("START"),
                 "includeTests must read test sources");
     }
+
+    // --- state variables by type, enums from other files (#228) ---
+
+    private static final String ORDER_WITH_STATUS_FIELD = """
+            public class Order {
+                private OrderStatus status = OrderStatus.NEW;
+                void pay()  { switch (status) { case NEW -> status = OrderStatus.PAID; default -> {} } }
+                void ship() { this.status = OrderStatus.SHIPPED; }
+            }
+            """;
+
+    @Test
+    void aFieldTypedAsTheEnumIsAStateVariableWhateverItIsCalled(@TempDir Path dir) throws Exception {
+        Path source = dir.resolve("Order.java");
+        Files.writeString(source, ORDER_WITH_STATUS_FIELD.replace(
+                "public class Order {", "public class Order {\n    enum OrderStatus { NEW, PAID, SHIPPED }"));
+
+        Graph graph = parser.parse(source);
+
+        assertTransition(graph, "NEW", "PAID", "pay");
+        assertTransition(graph, "NEW", "SHIPPED", "ship");
+    }
+
+    @Test
+    void anEnumDeclaredInAnotherFileDrivesTheTransitionsOfADirectory(@TempDir Path dir) throws Exception {
+        Files.writeString(dir.resolve("OrderStatus.java"), "public enum OrderStatus { NEW, PAID, SHIPPED }");
+        Files.writeString(dir.resolve("Order.java"), ORDER_WITH_STATUS_FIELD);
+
+        Graph graph = parser.parse(dir);
+
+        assertTransition(graph, "NEW", "PAID", "pay");
+        assertTransition(graph, "NEW", "SHIPPED", "ship");
+    }
+
+    @Test
+    void aLocalTypedAsTheEnumIsAStateVariable(@TempDir Path dir) throws Exception {
+        Files.writeString(dir.resolve("Phase.java"), "public enum Phase { PLAN, BUILD, SHIP }");
+        Files.writeString(dir.resolve("Release.java"), """
+                public class Release {
+                    void run() {
+                        Phase current = Phase.PLAN;
+                        current = Phase.BUILD;
+                        current = Phase.SHIP;
+                    }
+                }
+                """);
+
+        Graph graph = parser.parse(dir);
+
+        assertTransition(graph, "PLAN", "BUILD", "run");
+        assertTransition(graph, "BUILD", "SHIP", "run");
+    }
+
+    @Test
+    void aSwitchThatMapsOneEnumOntoAnotherIsNotATransition(@TempDir Path dir) throws Exception {
+        Path source = dir.resolve("Mapper.java");
+        Files.writeString(source, """
+                public class Mapper {
+                    enum OrderStatus { NEW, PAID }
+                    enum PaymentStatus { PENDING, CAPTURED }
+                    PaymentStatus toPayment(OrderStatus s) {
+                        switch (s) {
+                            case NEW: return PaymentStatus.PENDING;
+                            case PAID: return PaymentStatus.CAPTURED;
+                            default: return PaymentStatus.PENDING;
+                        }
+                    }
+                }
+                """);
+
+        Graph graph = parser.parse(source);
+
+        assertEquals(0, graph.getEdges().size(),
+                "NEW and PENDING belong to different enums, so mapping one to the other is not a state change");
+    }
 }
