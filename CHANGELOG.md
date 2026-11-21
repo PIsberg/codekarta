@@ -46,6 +46,13 @@ each version heading is the complete record.
 
 ### Fixed
 
+- **`--split-packages` draws each package once.** Each package's diagram parsed its directory
+  recursively, so a parent package's diagram repeated every subpackage, and the top-level one was
+  the whole tree again. Each diagram now draws only the types declared directly in its package;
+  the tree is parsed once, so a reference into another package becomes a stub box, and in
+  `--sequence-only` the symbol solver is anchored at the input root, so calls into other packages
+  resolve instead of being dropped. `--state-machine --split-packages` keeps the old behaviour
+  for now (#246). (#232)
 - **Maven plugin: a relative `<input>` or `<output>` in `<diagram>` is relative to the module.**
   It resolved against the directory `mvn` was started in, so in a reactor build run from the root
   the input was not found and output went under the reactor root, a directory the configuration
