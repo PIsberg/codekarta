@@ -238,4 +238,64 @@ class GenerateMojoTest {
         mojo.setIncludeTests(true);
         assertTrue(mojo.toRunOptions(new Diagram()).includeTests());
     }
+
+    @Test
+    void anUnknownLayoutFailsTheBuildNamingTheParameter(@TempDir Path in, @TempDir Path out) throws Exception {
+        writeSources(in);
+        GenerateMojo mojo = mojo(in, out, "jar");
+        mojo.setLayout("elkk");
+
+        MojoExecutionException thrown = assertThrows(MojoExecutionException.class, mojo::execute);
+
+        assertTrue(thrown.getMessage().contains("elkk"), thrown.getMessage());
+        assertTrue(thrown.getMessage().contains("layout"), thrown.getMessage());
+    }
+
+    @Test
+    void anUnknownFormatInADiagramFailsTheBuild(@TempDir Path in, @TempDir Path out) throws Exception {
+        writeSources(in);
+        GenerateMojo mojo = mojo(in, out, "jar");
+        Diagram diagram = new Diagram();
+        diagram.setFormat("png");
+        mojo.setDiagrams(List.of(diagram));
+
+        MojoExecutionException thrown = assertThrows(MojoExecutionException.class, mojo::execute);
+
+        assertTrue(thrown.getMessage().contains("png"), thrown.getMessage());
+    }
+
+    @Test
+    void relativeDiagramPathsResolveAgainstTheModuleNotTheWorkingDirectory(@TempDir Path module) throws Exception {
+        // Names that exist nowhere under the test JVM's working directory: resolved against it,
+        // the input is missing and nothing is written, so the test cannot pollute the checkout.
+        writeSources(module.resolve("karta-src-233"));
+        MavenProject project = new MavenProject();
+        project.setPackaging("jar");
+        project.setFile(module.resolve("pom.xml").toFile());
+        GenerateMojo mojo = mojo(module.resolve("unused"), module.resolve("unused-out"), "jar");
+        mojo.setProject(project);
+        mojo.setFailOnEmpty(true);
+        Diagram diagram = new Diagram();
+        diagram.setInput("karta-src-233");
+        diagram.setOutput("karta-out-233");
+        mojo.setDiagrams(List.of(diagram));
+
+        mojo.execute();
+
+        assertTrue(Files.exists(module.resolve("karta-out-233/class-diagram.svg")),
+                "a relative <input>/<output> in <diagram> is relative to the module's basedir");
+        assertFalse(Files.exists(Path.of("karta-out-233")), "nothing may be written under the working directory");
+    }
+
+    @Test
+    void splitPackagesWithModulesOnlyFailsTheBuild(@TempDir Path in, @TempDir Path out) throws Exception {
+        writeSources(in);
+        GenerateMojo mojo = mojo(in, out, "jar");
+        mojo.setSplitPackages(true);
+        mojo.setModulesOnly(true);
+
+        MojoExecutionException thrown = assertThrows(MojoExecutionException.class, mojo::execute);
+
+        assertTrue(thrown.getMessage().contains("--split-packages"), thrown.getMessage());
+    }
 }

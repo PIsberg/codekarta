@@ -88,6 +88,7 @@ Detailed per-element guardrails live in scoped rule files that load automaticall
 
 - `se.deversity.codekarta.layout.ElkLayoutEngine` → `.gemini/rules/se-deversity-codekarta-layout-ElkLayoutEngine.md`
 - `se.deversity.codekarta.layout.LayoutEngine` → `.gemini/rules/se-deversity-codekarta-layout-LayoutEngine.md`
+- `se.deversity.codekarta.layout.RenderedSize` → `.gemini/rules/se-deversity-codekarta-layout-RenderedSize.md`
 - `se.deversity.codekarta.layout.SimpleLayoutEngine` → `.gemini/rules/se-deversity-codekarta-layout-SimpleLayoutEngine.md`
 <!-- VIBETAGS-MODULE-END: code-karta-layout -->
 <!-- VIBETAGS-MODULE: code-karta-maven-plugin -->
