@@ -30,6 +30,16 @@ each version heading is the complete record.
   `build/`, or anything under a hidden directory. Inputs that were already a source root such as
   `src/main/java`, which is the Maven plugin's default, draw exactly what they drew before.
 
+### Fixed
+
+- **Parallel builds (`mvn -T`) no longer corrupt diagrams.** The class diagram, state machine,
+  module and single-file sequence parsers each shared one static `JavaParser`, which is not safe
+  for concurrent use, while the Maven plugin declares `threadSafe = true`. Two modules parsed at
+  once could throw an `AssertionError` out of JavaParser, past the parsers' own fault tolerance,
+  or return a partial or empty graph with no warning. In a test that runs 32 parses on 8 threads,
+  32 of 32 went wrong for every one of those parsers; each parse run now creates its own
+  parser, and all 32 match the serial result. (#225)
+
 ## [0.4.0] - 2026-08-30
 
 ### Changed

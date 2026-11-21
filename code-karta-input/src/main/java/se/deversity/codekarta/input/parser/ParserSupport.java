@@ -40,10 +40,21 @@ import java.util.function.Function;
     suppressAudit = true)
 public final class ParserSupport {
 
-    private static final JavaParser PARSER = new JavaParser(
-            new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21));
-
     private ParserSupport() {
+    }
+
+    /**
+     * A new parser at the Java 21 language level, for one parse run on one thread.
+     *
+     * <p>A {@link JavaParser} reuses one internal generated parser between calls and is not safe
+     * for concurrent use, so it is never held in a static field. The Maven plugin declares
+     * {@code threadSafe = true}, and under {@code mvn -T} a shared instance made parses throw
+     * {@link AssertionError} from inside JavaParser or return partial graphs (issue #225).
+     * {@code ParserConcurrencyTest} fails if a parser goes back to sharing one.
+     */
+    public static JavaParser newJava21Parser() {
+        return new JavaParser(
+                new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21));
     }
 
     /** Null-safe normalisation used by every parser constructor taking excludes. */
@@ -58,7 +69,7 @@ public final class ParserSupport {
      * unparseable sources surface as {@link java.util.NoSuchElementException}.
      */
     public static CompilationUnit parseJava21(Path sourceFile) throws java.io.IOException {
-        return PARSER.parse(Files.readString(sourceFile)).getResult().orElseThrow();
+        return newJava21Parser().parse(Files.readString(sourceFile)).getResult().orElseThrow();
     }
 
     /**
