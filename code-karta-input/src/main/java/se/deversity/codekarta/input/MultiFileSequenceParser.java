@@ -189,7 +189,7 @@ public class MultiFileSequenceParser {
                 if (FilterMatcher.matchesAny(className, customExcludes)) {
                     return;
                 }
-                graph.addNodeIfAbsent(new Node(className, NodeType.CLASS, className));
+                graph.addNodeIfAbsent(new Node(className, ParserSupport.nodeTypeOf(classDecl), className));
 
                 Set<String> localMethods = classDecl.findAll(MethodDeclaration.class).stream()
                         .map(MethodDeclaration::getNameAsString)

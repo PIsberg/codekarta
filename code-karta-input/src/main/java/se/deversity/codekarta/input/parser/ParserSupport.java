@@ -96,6 +96,13 @@ public final class ParserSupport {
         return types;
     }
 
+    /** {@link NodeType#INTERFACE} for an interface, {@link NodeType#CLASS} for every other type. */
+    public static String nodeTypeOf(TypeDeclaration<?> type) {
+        return type instanceof ClassOrInterfaceDeclaration coid && coid.isInterface()
+                ? NodeType.INTERFACE
+                : NodeType.CLASS;
+    }
+
     /**
      * Shared per-class prologue of the single-file parsers: iterates the
      * compilation unit's class, interface, record and enum declarations, skips excluded names,
@@ -109,7 +116,7 @@ public final class ParserSupport {
             if (FilterMatcher.matchesAny(className, customExcludes)) {
                 return;
             }
-            graph.addNodeIfAbsent(new Node(className, NodeType.CLASS, className));
+            graph.addNodeIfAbsent(new Node(className, nodeTypeOf(classDecl), className));
             body.accept(classDecl, className);
         });
     }

@@ -143,8 +143,10 @@ class SequenceDiagramRenderer {
             if ("METHOD".equals(type)) {
                 String prefix = participantPrefix(node.getId());
                 seen.putIfAbsent(prefix, "CLASS");
-            } else if ("CLASS".equals(type)) {
-                seen.putIfAbsent(node.getId(), "CLASS");
+            } else if ("CLASS".equals(type) || "INTERFACE".equals(type)) {
+                // An interface takes its lane where it is declared, exactly like a class, and keeps
+                // its type so the header is drawn as an interface (issue #237).
+                seen.putIfAbsent(node.getId(), type);
             }
         }
 
