@@ -35,6 +35,11 @@ Parses a directory of Java files into class and interface nodes with `EXTENDS`, 
 `HAS` edges. Standard library types such as `String`, primitives, and common collections are
 filtered out so diagrams focus on domain types.
 
+Records and enums are drawn as classes marked `«record»` or `«enum»`: record components are their
+fields and the source of their `HAS` edges, and both get `IMPLEMENTS` edges. Nested types are
+nodes of their own, labelled with the enclosing type (`Calc.Inner`). Methods declared in records
+and enums also appear in the sequence diagrams.
+
 Classes are **automatically grouped by Java package** into nested compound blocks. Filter out
 specific classes, packages, or frameworks with `--exclude`.
 
@@ -87,6 +92,13 @@ java -jar code-karta-cli/target/code-karta-cli-0.4.0-all.jar \
 Use `--state-machine` for enum-backed workflow code. Enum constants become `STATE` nodes. The
 parser recognizes switch cases that assign, return, or yield another enum constant, plus explicit
 `transition(from, to, event)` calls.
+
+A state variable is any field, local or parameter whose declared type is one of the input's enums,
+whatever it is called (`status`, `phase`, `mode`); for `var` and other untyped cases, a name
+containing `state` still counts. Given a directory, the parser reads every enum in the tree before
+looking for transitions, so the enum can live in a file of its own. Both ends of a transition must
+be constants of the same enum: a switch that maps one enum onto another is a conversion, not a
+state change, and draws nothing.
 
 ```java
 class Workflow {

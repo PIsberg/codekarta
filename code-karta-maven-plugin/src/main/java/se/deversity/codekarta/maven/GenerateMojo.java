@@ -169,7 +169,14 @@ public class GenerateMojo extends AbstractMojo {
             return countOrFail(0, in);
         }
 
-        RunOptions options = toRunOptions(diagram);
+        RunOptions options;
+        try {
+            options = toRunOptions(diagram);
+        } catch (IllegalArgumentException e) {
+            // RunOptions names the parameter and the value; say which plugin setting carried it.
+            throw new MojoExecutionException("code-karta: invalid configuration for " + in + ": "
+                    + e.getMessage() + " Check <layout> and <format>, at goal level and in <diagram>.", e);
+        }
         try {
             if (diagram.isSplitPackages() || splitPackages) {
                 List<Path> paths = KartaCli.runPerPackage(in, outDir, options);

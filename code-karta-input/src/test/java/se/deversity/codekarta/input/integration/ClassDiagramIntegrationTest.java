@@ -22,6 +22,9 @@ class ClassDiagramIntegrationTest {
             .resolve("src/main/java/com/karta/shipping/domain");
     private static Graph graph;
 
+    /** Node ids of packaged types are qualified (issue #226); labels stay the simple name. */
+    private static final String PKG = "se.deversity.codekarta.shipping.domain.";
+
     @BeforeAll
     static void parse() {
         assumeTrue(Files.exists(DOMAIN_DIR),
@@ -33,36 +36,37 @@ class ClassDiagramIntegrationTest {
 
     @Test
     void shippingUnitIsInterface() {
-        Node node = graph.findNode("ShippingUnit");
+        Node node = graph.findNode(PKG + "ShippingUnit");
         assertNotNull(node, "ShippingUnit node must be present");
         assertEquals("INTERFACE", node.getType(), "ShippingUnit must be typed INTERFACE");
     }
 
     @Test
     void cargoIsClass() {
-        Node node = graph.findNode("Cargo");
+        Node node = graph.findNode(PKG + "Cargo");
         assertNotNull(node, "Cargo node must be present");
         assertEquals("CLASS", node.getType(), "Cargo must be typed CLASS");
     }
 
     @Test
     void expressCargoIsClass() {
-        Node node = graph.findNode("ExpressCargo");
+        Node node = graph.findNode(PKG + "ExpressCargo");
         assertNotNull(node, "ExpressCargo node must be present");
         assertEquals("CLASS", node.getType(), "ExpressCargo must be typed CLASS");
+        assertEquals("ExpressCargo", node.getLabel(), "the label is the simple name");
     }
 
     // --- Relationship assertions ---
 
     @Test
     void cargoImplementsShippingUnit() {
-        assertTrue(hasEdge("Cargo", "ShippingUnit", "IMPLEMENTS"),
+        assertTrue(hasEdge(PKG + "Cargo", PKG + "ShippingUnit", "IMPLEMENTS"),
                 "Cargo must have an IMPLEMENTS edge to ShippingUnit");
     }
 
     @Test
     void expressCargoExtendsCargo() {
-        assertTrue(hasEdge("ExpressCargo", "Cargo", "EXTENDS"),
+        assertTrue(hasEdge(PKG + "ExpressCargo", PKG + "Cargo", "EXTENDS"),
                 "ExpressCargo must have an EXTENDS edge to Cargo");
     }
 
