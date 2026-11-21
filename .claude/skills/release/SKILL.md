@@ -107,7 +107,20 @@ Draft them from the commit range, in terms of what a consumer will notice: the f
 can now pass, the diagram that now renders, the diff that will stop appearing. Not "refactored
 KartaCli".
 
-### 7. Stop here and ask
+### 7. Confirm the signing key, then stop here and ask
+
+Check that the release key is published where Maven Central looks it up, by fingerprint, and has
+not expired:
+
+```bash
+bash scripts/check-signing-key.sh --public 7BFC2C221E08FFEF9490E89232CB829466F1A422
+```
+
+It must say `1 usable signing key(s)`. Two releases went wrong on this. v0.3.0's key had expired,
+and gpg reported it as "no default secret key". The replacement key was then rejected by Central
+because `keyserver.ubuntu.com` answered inconsistently while it propagated. `keys.openpgp.org`,
+which this script queries, served it reliably (#114). `publish.yml` repeats the check against the
+secret key before Maven runs, but by then the tag is already pushed.
 
 Present to the human:
 

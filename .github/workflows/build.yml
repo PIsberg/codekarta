@@ -2,7 +2,9 @@ name: Build and Test
 
 on:
   push:
-    branches: [ main, "improvements/**", "feature/**", "fix/**", "chore/**", "docs/**" ]
+    # release/** because the release skill names the branch release/v<X.Y.Z>, and that branch is
+    # the last stop before an irreversible publish: it should not wait for a PR to get CI (#113).
+    branches: [ main, "improvements/**", "feature/**", "fix/**", "chore/**", "docs/**", "release/**" ]
   pull_request:
     branches: [ main ]
 
@@ -25,6 +27,11 @@ jobs:
       # jobs below test different dependency sets, and the failure it produces there is confusing.
       - name: Check pom.xml against build.gradle.kts
         run: python3 scripts/check-build-parity.py
+
+      # publish.yml runs check-signing-key.sh before a release. A check that only runs on release
+      # day is one nobody has seen work, so its cases run here against throwaway keyrings (#114).
+      - name: The release signing-key check works
+        run: bash scripts/test-check-signing-key.sh
 
   maven:
     name: Maven — verify, package, regenerate
