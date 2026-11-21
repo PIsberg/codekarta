@@ -63,7 +63,7 @@
         <library.release>17</library.release>
         <maven.compiler.release>${library.release}</maven.compiler.release>
         <pmd.plugin.version>3.28.0</pmd.plugin.version>
-        <pmd.version>7.28.0</pmd.version>
+        <pmd.version>7.29.0</pmd.version>
         <spotbugs.plugin.version>4.10.5.0</spotbugs.plugin.version>
         <checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
         <checkstyle.version>14.3.0</checkstyle.version>
@@ -79,7 +79,7 @@
         <jackson.version>2.22.4</jackson.version>
         <javaparser.version>3.28.2</javaparser.version>
         <junit.version>6.1.3</junit.version>
-        <elk.version>0.12.0</elk.version>
+        <elk.version>0.12.1</elk.version>
         <!-- ELK 0.12.x no longer drags in xbase.lib transitively but still needs it at runtime -->
         <xtext.version>2.44.0</xtext.version>
         <vibetags.version>1.3.2</vibetags.version>
