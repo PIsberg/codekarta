@@ -1,7 +1,6 @@
 package se.deversity.codekarta.input.parser;
 
 import com.github.javaparser.JavaParser;
-import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.EnumDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
@@ -38,8 +37,6 @@ import java.util.logging.Logger;
 public class StateMachineParser {
 
     private static final Logger log = Logger.getLogger(StateMachineParser.class.getName());
-    private static final JavaParser PARSER = new JavaParser(
-            new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21));
 
     private final boolean includeTests;
 
@@ -58,13 +55,14 @@ public class StateMachineParser {
 
     public Graph parse(Path path) {
         Graph graph = new Graph();
+        JavaParser parser = ParserSupport.newJava21Parser();
         try {
             if (Files.isDirectory(path)) {
                 SourceTree.javaFiles(path, includeTests).stream()
                         .filter(p -> !"module-info.java".equals(String.valueOf(p.getFileName())))
-                        .forEach(p -> parseFile(p, graph));
+                        .forEach(p -> parseFile(parser, p, graph));
             } else {
-                parseFile(path, graph);
+                parseFile(parser, path, graph);
             }
         } catch (Exception e) {
             log.warning("Failed to parse state machine input " + path + ": " + e.getMessage());
@@ -72,9 +70,9 @@ public class StateMachineParser {
         return graph;
     }
 
-    private void parseFile(Path file, Graph graph) {
+    private void parseFile(JavaParser parser, Path file, Graph graph) {
         try {
-            CompilationUnit cu = PARSER.parse(Files.readString(file)).getResult().orElseThrow();
+            CompilationUnit cu = parser.parse(Files.readString(file)).getResult().orElseThrow();
             Set<String> states = collectStates(cu, graph);
             if (states.isEmpty()) {
                 return;
