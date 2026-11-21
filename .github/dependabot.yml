@@ -1,21 +1,51 @@
 version: 2
+
+# Weekly rather than daily: a daily schedule kept 13 dependency PRs open at once, most of them
+# waiting on the hand step described under "Dependency updates" in CONTRIBUTING.md (#234).
 updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: daily
+      interval: weekly
+    groups:
+      # init, autobuild, analyze and upload-sarif must run at one version: CodeQL refuses a
+      # configuration written by one version and read by another. Bumped one step per PR, every
+      # one of those PRs failed "Analyze (java)" (#234).
+      codeql-action:
+        patterns:
+          - "github/codeql-action*"
 
   - package-ecosystem: maven
     directory: /
     schedule:
-      interval: daily
+      interval: weekly
+    ignore:
+      # maven.api.version is the oldest Maven that can run the plugin, held on 3.9.x on purpose
+      # (see the comment on it in pom.xml). Patch releases still arrive.
+      - dependency-name: "org.apache.maven:maven-plugin-api"
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
+      - dependency-name: "org.apache.maven:maven-core"
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
+      # The wrapper's Maven tracks the same 3.9 line, and a new distribution needs its SHA-256
+      # recomputed by hand from the published SHA-512 (see .mvn/wrapper/maven-wrapper.properties).
+      - dependency-name: "org.apache.maven:apache-maven"
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
 
   # The Gradle build is a second, independently resolved dependency set that CI tests in its own
   # job. Without this entry dependabot bumped pom.xml only, and build.gradle.kts silently fell
   # behind — jspecify 1.0.0 against 1.0.1 and junit 6.1.2 against 6.1.3, both live on main.
-  # scripts/check-build-parity.py fails the build when the two disagree; this keeps the bumps
-  # arriving so that check has something to agree about.
+  #
+  # The versions scripts/check-build-parity.py compares are ignored here: Dependabot cannot group
+  # across ecosystems, so a shared version arrived as two PRs, a Maven half and a Gradle half,
+  # and the parity check failed both (#234). The Maven PR now carries the bump alone; its parity
+  # failure names the one build.gradle.kts line to change, as CONTRIBUTING.md describes.
+  # Gradle-only dependencies still get their own bumps.
   - package-ecosystem: gradle
     directory: /
     schedule:
-      interval: daily
+      interval: weekly
+    ignore:
+      - dependency-name: "se.deversity.vibetags:*"
+      - dependency-name: "org.junit.jupiter:junit-jupiter"
+      - dependency-name: "org.junit.platform:junit-platform-launcher"
+      - dependency-name: "org.jspecify:jspecify"
