@@ -267,7 +267,9 @@ class ClassDiagramParserTest {
         var group = graph.getGroups().get(0);
         assertEquals("package-se.deversity.codekarta.shipping", group.getId());
         assertEquals("se.deversity.codekarta.shipping", group.getLabel());
-        assertTrue(group.getMemberIds().contains("Status"), "Status must be a member of the package group");
+        assertEquals(java.util.List.of("se.deversity.codekarta.shipping.Status"), group.getMemberIds(),
+                "a packaged type's node id is its qualified name");
+        assertEquals("Status", graph.findNode("se.deversity.codekarta.shipping.Status").getLabel());
     }
 
     @Test
@@ -364,9 +366,9 @@ class ClassDiagramParserTest {
 
         Graph graph = parser.parse(repo);
 
-        assertNotNull(graph.findNode("Order"), "production class must be drawn");
-        assertNull(graph.findNode("OrderTest"), "test sources must not be drawn by default");
-        assertNull(graph.findNode("OrderMapper"), "generated sources under target/ must not be drawn");
+        assertNotNull(graph.findNode("app.Order"), "production class must be drawn");
+        assertNull(graph.findNode("app.OrderTest"), "test sources must not be drawn by default");
+        assertNull(graph.findNode("app.OrderMapper"), "generated sources under target/ must not be drawn");
     }
 
     @Test
@@ -378,7 +380,239 @@ class ClassDiagramParserTest {
         Graph graph = new ClassDiagramParser(java.util.Set.of(), ClassDiagramParser.DEFAULT_MAX_MEMBERS, true)
                 .parse(repo);
 
-        assertNotNull(graph.findNode("Order"));
-        assertNotNull(graph.findNode("OrderTest"), "includeTests must bring test sources back");
+        assertNotNull(graph.findNode("app.Order"));
+        assertNotNull(graph.findNode("app.OrderTest"), "includeTests must bring test sources back");
+    }
+
+    // --- types that share a simple name across packages (#226) ---
+
+    @Test
+    void typesWithTheSameSimpleNameInDifferentPackagesStaySeparate(@TempDir Path dir) throws Exception {
+        writeAt(dir, "a/Config.java", "package a; public class Config { int timeout; String host; }");
+        writeAt(dir, "b/Config.java", "package b; public class Config { boolean verbose; }");
+        writeAt(dir, "b/User.java", "package b; public class User { Config config; }");
+
+        Graph graph = parser.parse(dir);
+
+        assertEquals(3, graph.getNodes().size(), "a.Config, b.Config and b.User are three types");
+        var aConfig = graph.findNode("a.Config");
+        var bConfig = graph.findNode("b.Config");
+        assertNotNull(aConfig);
+        assertNotNull(bConfig);
+        assertEquals("Config", aConfig.getLabel(), "the label stays the simple name");
+        assertEquals("timeout: int\nhost: String", aConfig.getProperties().get("fields"));
+        assertEquals("verbose: boolean", bConfig.getProperties().get("fields"));
+        assertTrue(hasEdge(graph, "b.User", "b.Config", "HAS"), "a same-package reference resolves to its own package");
+        assertFalse(hasEdge(graph, "b.User", "a.Config", "HAS"));
+        assertEquals(java.util.List.of("a.Config"), groupMembers(graph, "a"));
+        assertEquals(java.util.List.of("b.Config", "b.User"), groupMembers(graph, "b"));
+    }
+
+    @Test
+    void anImportDecidesWhichSameNamedTypeAReferenceMeans(@TempDir Path dir) throws Exception {
+        writeAt(dir, "a/Config.java", "package a; public class Config {}");
+        writeAt(dir, "a/Base.java", "package a; public class Base {}");
+        writeAt(dir, "b/Config.java", "package b; public class Config {}");
+        writeAt(dir, "b/Base.java", "package b; public class Base {}");
+        writeAt(dir, "c/Service.java", """
+                package c;
+                import a.Config;
+                import b.*;
+                public class Service extends Base {
+                    Config config;
+                    java.util.List<Config> history;
+                }
+                """);
+
+        Graph graph = parser.parse(dir);
+
+        assertTrue(hasEdge(graph, "c.Service", "a.Config", "HAS"), "a single-type import wins");
+        assertFalse(hasEdge(graph, "c.Service", "b.Config", "HAS"),
+                "a single-type import shadows the same name from an on-demand import");
+        assertTrue(hasEdge(graph, "c.Service", "b.Base", "EXTENDS"), "an on-demand import resolves the supertype");
+        assertEquals(2, graph.getEdges().stream()
+                .filter(e -> "HAS".equals(e.getType()) && "a.Config".equals(e.getTargetId())).count(),
+                "both the plain field and the generic container point at the imported type");
+    }
+
+    @Test
+    void aFullyQualifiedReferenceResolvesWithoutAnImport(@TempDir Path dir) throws Exception {
+        writeAt(dir, "a/Config.java", "package a; public class Config {}");
+        writeAt(dir, "b/Config.java", "package b; public class Config {}");
+        writeAt(dir, "c/Service.java", "package c; public class Service { b.Config config; }");
+
+        Graph graph = parser.parse(dir);
+
+        assertTrue(hasEdge(graph, "c.Service", "b.Config", "HAS"));
+        assertFalse(hasEdge(graph, "c.Service", "a.Config", "HAS"));
+    }
+
+    @Test
+    void anUnambiguousSimpleNameStillResolvesAcrossPackages(@TempDir Path dir) throws Exception {
+        // No import: the source would not compile, but diagrams are drawn from partial trees too,
+        // and a name only one type carries can only mean that type.
+        writeAt(dir, "a/Engine.java", "package a; public class Engine {}");
+        writeAt(dir, "b/Car.java", "package b; public class Car { Engine engine; }");
+
+        Graph graph = parser.parse(dir);
+
+        assertTrue(hasEdge(graph, "b.Car", "a.Engine", "HAS"));
+    }
+
+    @Test
+    void anAmbiguousSimpleNameDrawsNoEdgeRatherThanAGuess(@TempDir Path dir) throws Exception {
+        writeAt(dir, "a/Config.java", "package a; public class Config {}");
+        writeAt(dir, "b/Config.java", "package b; public class Config {}");
+        writeAt(dir, "c/Service.java", "package c; public class Service { Config config; }");
+
+        Graph graph = parser.parse(dir);
+
+        assertEquals(java.util.List.of(), graph.getEdges(), "neither Config is more likely than the other");
+    }
+
+    @Test
+    void sameNamedInterfacesInDifferentPackagesGetTheirOwnImplementsEdges(@TempDir Path dir) throws Exception {
+        writeAt(dir, "a/Handler.java", "package a; public interface Handler {}");
+        writeAt(dir, "b/Handler.java", "package b; public interface Handler {}");
+        writeAt(dir, "a/AImpl.java", "package a; public class AImpl implements Handler {}");
+        writeAt(dir, "b/BImpl.java", "package b; public class BImpl implements Handler {}");
+
+        Graph graph = parser.parse(dir);
+
+        assertTrue(hasEdge(graph, "a.AImpl", "a.Handler", "IMPLEMENTS"));
+        assertTrue(hasEdge(graph, "b.BImpl", "b.Handler", "IMPLEMENTS"));
+        assertEquals("INTERFACE", graph.findNode("a.Handler").getType());
+        assertEquals("INTERFACE", graph.findNode("b.Handler").getType());
+    }
+
+    @Test
+    void aDeclaredSupertypeIsDrawnEvenWhenItsNameIsAStdlibName(@TempDir Path dir) throws Exception {
+        writeAt(dir, "u/List.java", "package u; public interface List<E> {}");
+        writeAt(dir, "u/ArrayList.java", "package u; public class ArrayList<E> implements List<E> { List<E> self; }");
+
+        Graph graph = parser.parse(dir);
+
+        assertTrue(hasEdge(graph, "u.ArrayList", "u.List", "IMPLEMENTS"),
+                "the stdlib skip-list is for field types; a supertype declared in this run is drawn");
+        assertFalse(hasEdge(graph, "u.ArrayList", "u.List", "HAS"), "a List-typed field is still skipped");
+    }
+
+    // --- records, enums and nested types (#227) ---
+
+    private static void writeRecordEnumNestedFixture(Path dir) throws Exception {
+        Files.writeString(dir.resolve("Priced.java"), """
+                public interface Priced { int price(); }
+                """);
+        Files.writeString(dir.resolve("Customer.java"), """
+                public class Customer { String name; }
+                """);
+        Files.writeString(dir.resolve("Order.java"), """
+                public record Order(Customer customer, Status status) implements Priced {
+                    public int price() { return customer.hashCode() + helper(); }
+                    int helper() { return Calc.twice(2); }
+                }
+                """);
+        Files.writeString(dir.resolve("Status.java"), """
+                public enum Status implements Priced { NEW, PAID; public int price() { return Calc.twice(1); } }
+                """);
+        Files.writeString(dir.resolve("Calc.java"), """
+                public class Calc { static int twice(int x) { return 2*x; }
+                    public static class Inner { Customer owner; } }
+                """);
+        Files.writeString(dir.resolve("Service.java"), """
+                public class Service { Calc calc; int run(Order o) { return o.price() + Calc.twice(3); } }
+                """);
+    }
+
+    @Test
+    void recordComponentsAreFieldsAndHasSources(@TempDir Path dir) throws Exception {
+        writeRecordEnumNestedFixture(dir);
+
+        Graph graph = parser.parse(dir);
+
+        assertTrue(hasEdge(graph, "Order", "Customer", "HAS"));
+        assertTrue(hasEdge(graph, "Order", "Status", "HAS"));
+        var order = graph.findNode("Order").getProperties();
+        assertEquals("customer: Customer\nstatus: Status", order.get("fields"));
+        assertEquals("price(): int\nhelper(): int", order.get("methods"));
+        assertEquals("«record»", order.get("stereotype"));
+    }
+
+    @Test
+    void recordsAndEnumsGetImplementsEdges(@TempDir Path dir) throws Exception {
+        writeRecordEnumNestedFixture(dir);
+
+        Graph graph = parser.parse(dir);
+
+        assertTrue(hasEdge(graph, "Order", "Priced", "IMPLEMENTS"));
+        assertTrue(hasEdge(graph, "Status", "Priced", "IMPLEMENTS"));
+        var status = graph.findNode("Status").getProperties();
+        assertEquals("price(): int", status.get("methods"));
+        assertEquals("«enum»", status.get("stereotype"));
+    }
+
+    @Test
+    void nestedTypesAreDrawnWithTheirOwnRelationships(@TempDir Path dir) throws Exception {
+        writeRecordEnumNestedFixture(dir);
+
+        Graph graph = parser.parse(dir);
+
+        var inner = graph.findNode("Calc.Inner");
+        assertNotNull(inner, "a static nested class is a type of its own");
+        assertEquals("Calc.Inner", inner.getLabel(), "the label names the enclosing type too");
+        assertTrue(hasEdge(graph, "Calc.Inner", "Customer", "HAS"));
+        assertTrue(hasEdge(graph, "Service", "Calc", "HAS"));
+        assertEquals(7, graph.getNodes().size(), "Priced, Customer, Order, Status, Calc, Calc.Inner, Service");
+    }
+
+    @Test
+    void enumBodyFieldsGetHasEdges(@TempDir Path dir) throws Exception {
+        Files.writeString(dir.resolve("Customer.java"), "public class Customer {}");
+        Files.writeString(dir.resolve("Tier.java"), """
+                public enum Tier {
+                    GOLD, SILVER;
+                    private Customer exemplar;
+                }
+                """);
+
+        Graph graph = parser.parse(dir);
+
+        assertTrue(hasEdge(graph, "Tier", "Customer", "HAS"));
+    }
+
+    @Test
+    void nestedTypeReferencesResolveFromInsideAndOutsideTheirOuterType(@TempDir Path dir) throws Exception {
+        writeAt(dir, "p/Outer.java", """
+                package p;
+                public class Outer {
+                    Inner inner;
+                    public static class Inner {}
+                    public enum Mode { ON, OFF }
+                    public record Pair(Inner left, Mode mode) {}
+                }
+                """);
+        writeAt(dir, "q/User.java", """
+                package q;
+                import p.Outer;
+                public class User { Outer.Inner held; Outer.Mode mode; }
+                """);
+
+        Graph graph = parser.parse(dir);
+
+        assertTrue(hasEdge(graph, "p.Outer", "p.Outer.Inner", "HAS"), "a member type is in scope inside its outer type");
+        assertTrue(hasEdge(graph, "p.Outer.Pair", "p.Outer.Inner", "HAS"), "and inside a sibling member type");
+        assertTrue(hasEdge(graph, "p.Outer.Pair", "p.Outer.Mode", "HAS"));
+        assertTrue(hasEdge(graph, "q.User", "p.Outer.Inner", "HAS"), "Outer.Inner resolves through the import of Outer");
+        assertTrue(hasEdge(graph, "q.User", "p.Outer.Mode", "HAS"));
+        assertEquals(java.util.List.of("p.Outer", "p.Outer.Inner", "p.Outer.Mode", "p.Outer.Pair"),
+                groupMembers(graph, "p"), "nested types sit in their package's group");
+    }
+
+    private static java.util.List<String> groupMembers(Graph graph, String packageName) {
+        return graph.getGroups().stream()
+                .filter(g -> packageName.equals(g.getLabel()))
+                .findFirst()
+                .map(g -> g.getMemberIds())
+                .orElseThrow();
     }
 }

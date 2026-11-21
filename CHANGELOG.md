@@ -26,9 +26,96 @@ each version heading is the complete record.
 
 ### Changed
 
+- **The CLI rejects arguments it does not understand, and exits 1.** An unknown flag (a misspelt
+  `--sequnce-only` used to produce a class diagram), a valued flag with no value, an unknown
+  `--layout` (`elkk` became `simple`) or `--format`, and a non-number for `--max-depth` or
+  `--max-members` (previously a warning) now print an error naming the argument and the usage
+  line, and exit 1 without writing anything. `RunOptions` rejects an unknown layout or format with
+  `IllegalArgumentException` and stores both lower-case, so the Maven plugin fails the build on
+  `<layout>elkk</layout>` or `<format>png</format>` instead of drawing something else. Anyone
+  passing extra arguments that used to be ignored will see the run fail. (#231)
+- **Sequence diagrams type interfaces as `INTERFACE`.** Both sequence parsers typed every
+  declaration `CLASS`, so `--sequence-only --format json` disagreed with the class diagram about
+  what an interface is. An interface's lifeline now keeps its place and is drawn with the
+  interface header (`«interface»`, blue) the class diagram already uses. (#237)
+- **State-machine node ids carry their enum.** A state's id is now `OrderStatus.PAID` (the enum
+  named relative to its package, so a nested one is `Shipment.State.PAID`) instead of `PAID`; the
+  label is still the constant. Two enums sharing a constant name (`OrderStatus.ACTIVE`,
+  `Mode.ACTIVE`) were one node joining two machines; they are now two. This changes the ids in
+  `--state-machine --format json` output and the `<g id>` attributes of state-machine SVGs. A
+  bare reference that two enums could both explain, and that neither the switch selector's type
+  nor the file settles, now draws nothing instead of an arbitrary edge. (#239)
+- **Class diagram node ids are qualified names.** A type in a named package now has the id
+  `a.Config` instead of `Config` (default-package types keep the simple name); the label is still
+  the simple name. This changes the `id`, `sourceId`, `targetId` and group `memberIds` values in
+  `--format json` output and the `<g id>` attributes in class-diagram SVGs, so a committed diagram
+  regenerates with a diff. Ids now match the qualified ids `MultiFileSequenceParser` already
+  emitted for sequence diagrams. (#226)
 - A directory input no longer reads test source sets, generated sources under `target/` or
   `build/`, or anything under a hidden directory. Inputs that were already a source root such as
   `src/main/java`, which is the Maven plugin's default, draw exactly what they drew before.
+
+### Fixed
+
+- **`--sequence-only` no longer searches `node_modules`, `.git` or build output for source
+  roots.** The symbol solver's roots came from a raw directory walk, the last one in the input
+  tier that did not go through `SourceTree`. It now prunes the same directories every other walk
+  does, test source roots kept so calls into test-only types still resolve. On this repository's
+  root the walk went from a median 152 ms to 5 ms, and 3 roots, copies under
+  `code-karta-maven-plugin/target`, are no longer handed to the solver. (#198)
+- **`--split-packages` draws each package once.** Each package's diagram parsed its directory
+  recursively, so a parent package's diagram repeated every subpackage, and the top-level one was
+  the whole tree again. Each diagram now draws only the types declared directly in its package;
+  the tree is parsed once, so a reference into another package becomes a stub box, and in
+  `--sequence-only` the symbol solver is anchored at the input root, so calls into other packages
+  resolve instead of being dropped. `--state-machine --split-packages` keeps the old behaviour
+  for now (#246). (#232)
+- **Maven plugin: a relative `<input>` or `<output>` in `<diagram>` is relative to the module.**
+  It resolved against the directory `mvn` was started in, so in a reactor build run from the root
+  the input was not found and output went under the reactor root, a directory the configuration
+  never named. Relative values now resolve against the module's basedir, as the goal-level
+  `input` and `outputDirectory` always did. (#233)
+- **Parallel builds (`mvn -T`) no longer corrupt diagrams.** The class diagram, state machine,
+  module and single-file sequence parsers each shared one static `JavaParser`, which is not safe
+  for concurrent use, while the Maven plugin declares `threadSafe = true`. Two modules parsed at
+  once could throw an `AssertionError` out of JavaParser, past the parsers' own fault tolerance,
+  or return a partial or empty graph with no warning. In a test that runs 32 parses on 8 threads,
+  32 of 32 went wrong for every one of those parsers; each parse run now creates its own
+  parser, and all 32 match the serial result. (#225)
+- **Types that share a simple name across packages are no longer merged.** `a.Config` and
+  `b.Config` used to become one box with the later file's members, sitting in both package
+  groups, with every edge to either type landing on it and nothing logged. They are now separate
+  nodes, and a field or supertype reference resolves through the file's package and imports; a
+  simple name that two input types share and nothing disambiguates draws no edge rather than a
+  wrong one. (#226)
+- **Records, enums and nested types are drawn.** The class diagram showed a record or enum as an
+  empty box with no relationships, and never showed nested types at all. Records now list their
+  components as fields, with `HAS` edges from them; records and enums get `IMPLEMENTS` edges,
+  their methods, and a `«record»` / `«enum»` stereotype; fields in an enum body get `HAS` edges;
+  and member types are nodes with the id `pkg.Outer.Inner` and the label `Outer.Inner`, resolved
+  from inside and outside their outer type. The sequence parsers (`--sequence-only`, the
+  single-file and stitched multi-file modes) now visit methods declared in records and enums,
+  so calls into and out of them are no longer dropped. On the issue's six-file fixture the class
+  diagram went from 1 edge to 7 and the stitched sequence from 1 call to 5. (#227)
+- **State machines are found in the two most common layouts.** A field named `status`, `phase` or
+  anything else without "state" in it was never treated as a state variable, and in directory
+  mode a file was skipped unless it declared the enum itself, so an `OrderStatus.java` beside an
+  `Order.java` holding the transitions gave "No state transitions found". State variables are
+  now recognised by declared enum type (the name rule stays as the fallback for `var`), and a
+  directory is read in two passes: every enum first, then every file. Both ends of a transition
+  must now be constants of one enum, so a switch that maps one enum onto another no longer
+  draws edges between two machines. (#228)
+- **A recursive method no longer erases its call tree.** Sequence diagrams and `--max-depth`
+  both start from "methods with no incoming call", and a method that calls itself has one, so a
+  tree reachable only through a recursive method rendered as headers with 0 messages, and
+  `--max-depth 3` on a depth-2 tree kept 0 edges. Self-calls no longer count, and a cycle
+  nothing outside calls (`a -> b -> a`) starts from its first method in graph order. (#229)
+- **`--layout elk` no longer stacks class boxes on top of each other.** ELK reserved a fixed 70px
+  for every node while `SvgRenderer` draws a class with member compartments as tall as its
+  members need, so three 505px boxes were laid out on a 90px pitch. ELK now reserves the rendered
+  height, from the same estimate `SimpleLayoutEngine` already used (now shared, in one place).
+  Package groups also lay their members out top to bottom: `DIRECTION = DOWN` was set on the root
+  only, so a chain inside a package came out as one row. (#230)
 
 ## [0.4.0] - 2026-08-30
 
