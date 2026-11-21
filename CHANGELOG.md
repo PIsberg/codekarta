@@ -46,6 +46,11 @@ each version heading is the complete record.
 
 ### Fixed
 
+- **Maven plugin: a relative `<input>` or `<output>` in `<diagram>` is relative to the module.**
+  It resolved against the directory `mvn` was started in, so in a reactor build run from the root
+  the input was not found and output went under the reactor root, a directory the configuration
+  never named. Relative values now resolve against the module's basedir, as the goal-level
+  `input` and `outputDirectory` always did. (#233)
 - **Parallel builds (`mvn -T`) no longer corrupt diagrams.** The class diagram, state machine,
   module and single-file sequence parsers each shared one static `JavaParser`, which is not safe
   for concurrent use, while the Maven plugin declares `threadSafe = true`. Two modules parsed at

@@ -106,6 +106,12 @@ express:
   in the execution and a per-diagram `false` cannot cancel it. Set such flags per diagram, not at
   the goal level, when they should not apply to all of them.
 
+A relative `<input>` or `<output>` inside `<diagram>` is relative to the module that declares it,
+the same as the goal-level `input` and `outputDirectory`. So `<input>src/main/java/com/example</input>`
+means the same thing whether the build runs from the module, from the reactor root, or through
+`mvn -f`. Before 0.5.0 it resolved against the directory `mvn` was started in. `${project.basedir}`
+in front still works.
+
 ## Committing diagrams
 
 `outputDirectory` defaults under `target/` so that a build does not write into the source tree
