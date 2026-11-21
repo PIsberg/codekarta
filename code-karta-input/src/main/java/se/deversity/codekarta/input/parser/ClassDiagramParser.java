@@ -1,7 +1,6 @@
 package se.deversity.codekarta.input.parser;
 
 import com.github.javaparser.JavaParser;
-import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
@@ -35,8 +34,6 @@ import java.util.logging.Logger;
 public class ClassDiagramParser {
 
     private static final Logger log = Logger.getLogger(ClassDiagramParser.class.getName());
-    private static final JavaParser PARSER = new JavaParser(
-            new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21));
 
     private static final Set<String> SKIP_TYPES = Set.of(
             "int", "long", "double", "float", "boolean", "byte", "short", "char",
@@ -94,13 +91,14 @@ public class ClassDiagramParser {
     public Graph parse(Path sourceDirectory) {
         Graph graph = new Graph();
         List<CompilationUnit> units = new ArrayList<>();
+        JavaParser parser = ParserSupport.newJava21Parser();
         try {
             // SourceTree sorts: walk order is filesystem-defined (NTFS name order, ext4 hash
             // order), and node order reaches the rendered SVG that consumers commit.
             List<Path> javaFiles = SourceTree.javaFiles(sourceDirectory, includeTests);
             for (Path file : javaFiles) {
                 try {
-                    units.add(PARSER.parse(Files.readString(file)).getResult().orElseThrow());
+                    units.add(parser.parse(Files.readString(file)).getResult().orElseThrow());
                 } catch (Exception e) {
                     log.warning("Failed to parse " + file + ": " + e.getMessage());
                 }
