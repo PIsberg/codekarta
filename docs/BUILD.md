@@ -86,7 +86,9 @@ looks green locally and fails in CI.
 ## Diagram regeneration
 
 `mvn verify` and `./gradlew :code-karta-cli:generateDiagrams` run the built JAR against
-code-karta's own source to refresh `docs/diagrams/`. The run is idempotent — identical input
+code-karta's own source and the example project to refresh `docs/diagrams/` and
+`example-shipping-system/diagrams/`. Every committed diagram is on that list; one left off it drifts
+unnoticed, as seven did until #249. The run is idempotent — identical input
 produces byte-identical SVG — so a clean tree stays clean.
 
 Both CI jobs check this with `git diff --exit-code` after regenerating. Downstream repositories
