@@ -233,4 +233,25 @@ class SequenceDiagramRendererTest {
         assertEquals(List.of("A.ping->B.pong", "B.pong->A.ping", "B.pong->C.log"),
                 messages.stream().map(m -> m.fromId() + "->" + m.toId()).toList());
     }
+
+    // ------------------------------------------------------------------ interfaces (#237)
+
+    @Test
+    void anInterfaceKeepsItsPlaceInTheLifelineOrderAndItsType() {
+        Graph graph = new Graph();
+        graph.addNode(new Node("Api", "INTERFACE", "Api"));
+        graph.addNode(new Node("Impl", "CLASS", "Impl"));
+        graph.addNode(new Node("Api.call", "METHOD", "call"));
+        graph.addNode(new Node("Impl.run", "METHOD", "run"));
+        Edge call = new Edge("e1", "Impl.run", "Api.call", "CALLS");
+        call.setLabel("1");
+        graph.addEdge(call);
+
+        List<SequenceDiagramRenderer.Participant> participants =
+                new SequenceDiagramRenderer(renderer).buildParticipants(graph);
+
+        assertEquals(List.of("Api", "Impl"), participants.stream().map(SequenceDiagramRenderer.Participant::id).toList(),
+                "an INTERFACE node is placed where it is declared, exactly as a CLASS node would be");
+        assertEquals("INTERFACE", participants.get(0).type(), "and keeps its type, so it is drawn as an interface");
+    }
 }

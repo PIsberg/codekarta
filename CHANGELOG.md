@@ -34,6 +34,10 @@ each version heading is the complete record.
   `IllegalArgumentException` and stores both lower-case, so the Maven plugin fails the build on
   `<layout>elkk</layout>` or `<format>png</format>` instead of drawing something else. Anyone
   passing extra arguments that used to be ignored will see the run fail. (#231)
+- **Sequence diagrams type interfaces as `INTERFACE`.** Both sequence parsers typed every
+  declaration `CLASS`, so `--sequence-only --format json` disagreed with the class diagram about
+  what an interface is. An interface's lifeline now keeps its place and is drawn with the
+  interface header (`«interface»`, blue) the class diagram already uses. (#237)
 - **State-machine node ids carry their enum.** A state's id is now `OrderStatus.PAID` (the enum
   named relative to its package, so a nested one is `Shipment.State.PAID`) instead of `PAID`; the
   label is still the constant. Two enums sharing a constant name (`OrderStatus.ACTIVE`,

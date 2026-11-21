@@ -162,4 +162,18 @@ class CallSequenceParserTest {
         assertTrue(graph.getEdges().stream().anyMatch(e ->
                 "Status.next".equals(e.getSourceId()) && "Status.advance".equals(e.getTargetId())));
     }
+
+    @Test
+    void anInterfaceIsTypedInterface(@TempDir Path dir) throws Exception {
+        Path file = write(dir, "Api.java", """
+                public interface Api {
+                    default int twice(int x) { return helper(x) * 2; }
+                    int helper(int x);
+                }
+                """);
+
+        Graph graph = parser.parse(file);
+
+        assertEquals("INTERFACE", graph.findNode("Api").getType());
+    }
 }

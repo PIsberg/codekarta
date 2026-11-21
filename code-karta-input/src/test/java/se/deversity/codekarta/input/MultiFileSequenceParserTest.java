@@ -264,4 +264,15 @@ class MultiFileSequenceParserTest {
         assertEquals(java.util.Set.of("A.ping -> B.pong", "B.pong -> A.ping", "B.pong -> C.log"), callEdges(graph),
                 "A.ping is depth 0, B.pong 1, C.log 2; D.sink at depth 3 is pruned rather than restarting at 0");
     }
+
+    @Test
+    void anInterfaceIsTypedInterface(@TempDir Path sourceRoot) throws Exception {
+        write(sourceRoot, "Priced.java", "public interface Priced { int price(); }");
+        write(sourceRoot, "Order.java", "public class Order implements Priced { public int price() { return 1; } }");
+
+        Graph graph = parser.parse(sourceRoot);
+
+        assertEquals("INTERFACE", graph.findNode("Priced").getType());
+        assertEquals("CLASS", graph.findNode("Order").getType());
+    }
 }
