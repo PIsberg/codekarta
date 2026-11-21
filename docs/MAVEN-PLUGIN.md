@@ -121,6 +121,12 @@ This is how plugins are actually adopted, so two ordinary cases are deliberately
 - **A `pom`-packaging aggregator** is skipped with a message saying so, because it has no sources
   of its own. Set `modulesOnly` to draw the reactor there instead.
 
+## Invalid settings
+
+A `<layout>` other than `simple`/`elk` or a `<format>` other than `svg`/`json`, at goal level or
+in a `<diagram>`, fails the build with a message naming the setting and the value. Before 0.5.0,
+`<layout>elkk</layout>` quietly became the simple layout and `<format>png</format>` SVG.
+
 ## When nothing is drawn
 
 Parsers never throw. A parse failure logs a warning and returns an empty graph, which means a
