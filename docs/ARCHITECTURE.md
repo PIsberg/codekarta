@@ -55,15 +55,24 @@ Example graph:
 ```json
 {
   "nodes": [
-    { "id": "Cargo", "type": "CLASS", "label": "Cargo", "x": 20, "y": 150, "width": 150, "height": 50 },
-    { "id": "ShippingUnit", "type": "INTERFACE", "label": "ShippingUnit", "x": 220, "y": 20, "width": 150, "height": 50 }
+    { "id": "shipping.Cargo", "type": "CLASS", "label": "Cargo", "x": 20, "y": 150, "width": 150, "height": 50 },
+    { "id": "shipping.ShippingUnit", "type": "INTERFACE", "label": "ShippingUnit", "x": 220, "y": 20, "width": 150, "height": 50 }
   ],
   "edges": [
-    { "id": "Cargo-implements-ShippingUnit", "sourceId": "Cargo", "targetId": "ShippingUnit", "type": "IMPLEMENTS" }
+    { "id": "shipping.Cargo-implements-shipping.ShippingUnit", "sourceId": "shipping.Cargo", "targetId": "shipping.ShippingUnit", "type": "IMPLEMENTS" }
   ],
-  "groups": []
+  "groups": [
+    { "id": "package-shipping", "label": "shipping", "memberIds": ["shipping.Cargo", "shipping.ShippingUnit"] }
+  ]
 }
 ```
+
+In a class diagram a type's node `id` is its qualified name (`shipping.Cargo`; just `Cargo` in the
+default package) and its `label` is the simple name, so two `Config` classes in different
+packages stay two nodes. A field or supertype reference resolves the way `javac` would: a
+qualified name, then a single-type import, then the file's own package, then on-demand imports.
+A simple name none of those settle resolves only if exactly one type in the input carries it;
+otherwise no edge is drawn rather than a guessed one.
 
 ## Input Tier
 
