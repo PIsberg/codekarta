@@ -727,4 +727,63 @@ class KartaCliTest {
         assertEquals("elk", new RunOptions(false, "ELK", false, null, 1, false, null, 6, "JSON", false).layout(),
                 "known values are accepted in any case and stored lower-case");
     }
+
+    // --- --split-packages draws each package once (#232) ---
+
+    @Test
+    void splitPackagesDrawsEachPackageWithoutItsSubpackages(@TempDir Path dir) throws Exception {
+        Path src = dir.resolve("src");
+        writeFile(src.resolve("top/T.java"), "package top; public class T {}");
+        writeFile(src.resolve("top/sub/U.java"), "package top.sub; public class U {}");
+        Path out = dir.resolve("out");
+
+        java.util.List<Path> written = KartaCli.runPerPackage(src, out, RunOptions.defaults().withFormat(RunOptions.FORMAT_JSON));
+
+        assertEquals(java.util.List.of(out.resolve("top/class-diagram.json"), out.resolve("top/sub/class-diagram.json")), written);
+        String top = Files.readString(out.resolve("top/class-diagram.json"));
+        assertTrue(top.contains("\"top.T\""), top);
+        assertFalse(top.contains("top.sub.U"), "the top diagram must not draw its subpackage again: " + top);
+    }
+
+    @Test
+    void splitPackagesKeepsACrossPackageReferenceAsAStub(@TempDir Path dir) throws Exception {
+        Path src = dir.resolve("src");
+        writeFile(src.resolve("top/T.java"), "package top; import top.sub.U; public class T { U u; }");
+        writeFile(src.resolve("top/sub/U.java"), "package top.sub; public class U { int size; }");
+        Path out = dir.resolve("out");
+
+        KartaCli.runPerPackage(src, out, RunOptions.defaults().withFormat(RunOptions.FORMAT_JSON));
+
+        String top = Files.readString(out.resolve("top/class-diagram.json"));
+        assertTrue(top.contains("\"targetId\" : \"top.sub.U\"") || top.contains("\"targetId\":\"top.sub.U\""),
+                "the edge to the other package is kept: " + top);
+        assertFalse(top.contains("size"), "the other package's type is a stub, without its members: " + top);
+    }
+
+    @Test
+    void splitPackagesInSequenceModeResolvesCallsIntoOtherPackages(@TempDir Path dir) throws Exception {
+        Path src = dir.resolve("src");
+        writeFile(src.resolve("a/A.java"), "package a; import b.B; public class A { void go() { B.run(); } }");
+        writeFile(src.resolve("b/B.java"), "package b; public class B { public static void run() { } }");
+        Path out = dir.resolve("out");
+        RunOptions sequence = new RunOptions(true, "simple", false, null, Integer.MAX_VALUE, false, null,
+                6, RunOptions.FORMAT_JSON, false);
+
+        KartaCli.runPerPackage(src, out, sequence);
+
+        String a = Files.readString(firstJson(out.resolve("a")));
+        assertTrue(a.contains("b.B.run"), "the call into package b resolves against the whole tree: " + a);
+        assertFalse(a.contains("\"b.B\""), "package b's own class is not drawn in package a's diagram as a type of a: " + a);
+    }
+
+    private static Path firstJson(Path dir) throws Exception {
+        try (var files = Files.list(dir)) {
+            return files.filter(p -> p.toString().endsWith(".json")).findFirst().orElseThrow();
+        }
+    }
+
+    private static void writeFile(Path file, String content) throws Exception {
+        Files.createDirectories(file.getParent());
+        Files.writeString(file, content);
+    }
 }

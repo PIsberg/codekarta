@@ -96,8 +96,39 @@ public class ClassDiagramParser {
     }
 
     public Graph parse(Path sourceDirectory) {
-        Graph graph = new Graph();
-        List<CompilationUnit> units = new ArrayList<>();
+        List<ParsedUnit> units = parseUnits(sourceDirectory);
+        return buildGraph(units, indexOf(units));
+    }
+
+    /**
+     * One class diagram per directory holding a {@code .java} file, each drawing only the types
+     * declared directly in that directory, keyed by directory in sorted order.
+     *
+     * <p>The whole tree is parsed once and indexed, so a field or supertype in one package that
+     * names a type in another still resolves. That type appears as a stub node: its label, no
+     * members, no package group. Drawing each directory by parsing it recursively instead
+     * repeated every subpackage's classes in each parent package's diagram, so the top-level
+     * diagram was the whole tree again (issue #232).
+     */
+    public Map<Path, Graph> parsePerDirectory(Path sourceDirectory) {
+        List<ParsedUnit> units = parseUnits(sourceDirectory);
+        TypeIndex index = indexOf(units);
+        Map<Path, List<ParsedUnit>> byDirectory = new java.util.TreeMap<>();
+        for (ParsedUnit unit : units) {
+            Path dir = unit.file().getParent();
+            if (dir != null) {
+                byDirectory.computeIfAbsent(dir, k -> new ArrayList<>()).add(unit);
+            }
+        }
+        Map<Path, Graph> graphs = new java.util.LinkedHashMap<>();
+        byDirectory.forEach((dir, dirUnits) -> graphs.put(dir, buildGraph(dirUnits, index)));
+        return graphs;
+    }
+
+    private record ParsedUnit(Path file, CompilationUnit cu) {}
+
+    private List<ParsedUnit> parseUnits(Path sourceDirectory) {
+        List<ParsedUnit> units = new ArrayList<>();
         JavaParser parser = ParserSupport.newJava21Parser();
         try {
             // SourceTree sorts: walk order is filesystem-defined (NTFS name order, ext4 hash
@@ -105,7 +136,7 @@ public class ClassDiagramParser {
             List<Path> javaFiles = SourceTree.javaFiles(sourceDirectory, includeTests);
             for (Path file : javaFiles) {
                 try {
-                    units.add(parser.parse(Files.readString(file)).getResult().orElseThrow());
+                    units.add(new ParsedUnit(file, parser.parse(Files.readString(file)).getResult().orElseThrow()));
                 } catch (Exception e) {
                     log.warning("Failed to parse " + file + ": " + e.getMessage());
                 }
@@ -113,20 +144,29 @@ public class ClassDiagramParser {
         } catch (IOException e) {
             log.warning("Error walking directory " + sourceDirectory + ": " + e.getMessage());
         }
+        return units;
+    }
 
-        // Pass 1: types declared in this parse run. Relationship targets outside this set are
-        // external (JDK, third-party) and are kept out of the diagram.
+    /**
+     * Pass 1: types declared in this parse run. Relationship targets outside this set are
+     * external (JDK, third-party) and are kept out of the diagram.
+     */
+    private static TypeIndex indexOf(List<ParsedUnit> units) {
         TypeIndex index = new TypeIndex();
-        for (CompilationUnit cu : units) {
-            String packageName = packageOf(cu);
-            cu.getTypes().forEach(t -> index.addWithMembers(packageName, null, t));
+        for (ParsedUnit unit : units) {
+            String packageName = packageOf(unit.cu());
+            unit.cu().getTypes().forEach(t -> index.addWithMembers(packageName, null, t));
         }
+        return index;
+    }
 
-        // Pass 2: nodes, package groups, and edges
-        for (CompilationUnit cu : units) {
+    /** Pass 2: nodes, package groups and edges for {@code units}, resolved against {@code index}. */
+    private Graph buildGraph(List<ParsedUnit> units, TypeIndex index) {
+        Graph graph = new Graph();
+        for (ParsedUnit unit : units) {
             try {
-                Scope scope = new Scope(cu);
-                for (TypeDeclaration<?> type : cu.getTypes()) {
+                Scope scope = new Scope(unit.cu());
+                for (TypeDeclaration<?> type : unit.cu().getTypes()) {
                     processType(type, null, List.of(), graph, scope, index);
                 }
             } catch (Exception e) {

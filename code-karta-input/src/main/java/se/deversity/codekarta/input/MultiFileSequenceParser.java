@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -106,8 +107,51 @@ public class MultiFileSequenceParser {
      * at {@code sourceRoot}.
      */
     public Graph parse(Path sourceRoot, List<Path> files) {
+        ParsedSources sources = parseSources(sourceRoot, files);
         Graph graph = new Graph();
+        for (ParsedFile parsed : sources.files()) {
+            parseFile(parsed.cu(), graph, sources.projectClasses());
+        }
+        pruneToMaxDepth(graph);
+        return graph;
+    }
 
+    /**
+     * One stitched sequence graph per directory holding a {@code .java} file, each drawing the
+     * methods declared directly in that directory, keyed by directory in sorted order.
+     *
+     * <p>Every file under {@code sourceRoot} is parsed once, with the symbol solver anchored at
+     * {@code sourceRoot} itself, so a call from one package into another still resolves and the
+     * callee appears as a participant. Running each package directory as its own root instead
+     * drew every subpackage again in its parent's diagram and anchored the solver at the
+     * package, so cross-package calls fell back to scope-based names (issue #232).
+     */
+    public Map<Path, Graph> parsePerDirectory(Path sourceRoot) {
+        ParsedSources sources = parseSources(sourceRoot, collectJavaSources(sourceRoot));
+        Map<Path, List<CompilationUnit>> byDirectory = new java.util.TreeMap<>();
+        for (ParsedFile parsed : sources.files()) {
+            Path dir = parsed.file().getParent();
+            if (dir != null) {
+                byDirectory.computeIfAbsent(dir, k -> new java.util.ArrayList<>()).add(parsed.cu());
+            }
+        }
+        Map<Path, Graph> graphs = new java.util.LinkedHashMap<>();
+        byDirectory.forEach((dir, cus) -> {
+            Graph graph = new Graph();
+            for (CompilationUnit cu : cus) {
+                parseFile(cu, graph, sources.projectClasses());
+            }
+            pruneToMaxDepth(graph);
+            graphs.put(dir, graph);
+        });
+        return graphs;
+    }
+
+    private record ParsedFile(Path file, CompilationUnit cu) {}
+
+    private record ParsedSources(List<ParsedFile> files, Set<String> projectClasses) {}
+
+    private ParsedSources parseSources(Path sourceRoot, List<Path> files) {
         CombinedTypeSolver typeSolver = new CombinedTypeSolver(new ReflectionTypeSolver(false));
         for (Path root : findSourceRoots(sourceRoot)) {
             typeSolver.add(new JavaParserTypeSolver(root));
@@ -118,15 +162,15 @@ public class MultiFileSequenceParser {
                 .setSymbolResolver(new JavaSymbolSolver(typeSolver));
 
         JavaParser parser = new JavaParser(config);
-        java.util.List<CompilationUnit> cus = new java.util.ArrayList<>();
-        java.util.Set<String> projectClasses = new java.util.HashSet<>();
+        List<ParsedFile> parsed = new java.util.ArrayList<>();
+        Set<String> projectClasses = new java.util.HashSet<>();
 
         for (Path file : files) {
             try {
                 ParseResult<CompilationUnit> result = parser.parse(Files.readString(file));
                 if (result.isSuccessful() && result.getResult().isPresent()) {
                     CompilationUnit cu = result.getResult().get();
-                    cus.add(cu);
+                    parsed.add(new ParsedFile(file, cu));
                     projectClasses.addAll(ParserSupport.collectProjectClasses(cu));
                 } else {
                     log.warning("Failed to parse " + file);
@@ -135,13 +179,7 @@ public class MultiFileSequenceParser {
                 log.warning("Failed to parse " + file + ": " + e.getMessage());
             }
         }
-
-        for (CompilationUnit cu : cus) {
-            parseFile(cu, graph, projectClasses);
-        }
-
-        pruneToMaxDepth(graph);
-        return graph;
+        return new ParsedSources(parsed, projectClasses);
     }
 
     private void parseFile(CompilationUnit cu, Graph graph, Set<String> projectClasses) {

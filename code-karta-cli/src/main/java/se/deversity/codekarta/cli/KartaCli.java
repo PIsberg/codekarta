@@ -10,6 +10,7 @@ import se.deversity.codekarta.layout.SimpleLayoutEngine;
 import se.deversity.codekarta.render.JsonRenderer;
 import se.deversity.codekarta.render.SvgRenderer;
 
+import org.jspecify.annotations.Nullable;
 import se.deversity.vibetags.annotations.AIAudit;
 import se.deversity.vibetags.annotations.AIContract;
 import se.deversity.vibetags.annotations.AIIdempotent;
@@ -257,18 +258,33 @@ public class KartaCli {
     /**
      * Runs the full parse → layout → render pipeline and writes the SVG to outputDir.
      *
-     * <p>This is the one implementation; every other {@code run} overload delegates here.
+     * <p>Every other public {@code run} overload delegates here.
      *
      * @return the path of the written SVG file, or {@code null} when there was nothing worth
      *         drawing (the reason is logged)
      */
-    @SuppressWarnings({"PMD.UnusedAssignment", "UnusedVariable"}) // 'state' assignments are extracted by StateMachineParser as the pipeline diagram
     public static Path run(Path inputPath, Path outputDir, RunOptions options) throws IOException {
+        return run(inputPath, outputDir, options, null);
+    }
+
+    /**
+     * {@link #run(Path, Path, RunOptions)} with the parse step already done: {@code parsed} is
+     * laid out, rendered and written as if {@code inputPath} had produced it, or, when
+     * {@code null}, {@code inputPath} is parsed as usual. {@link #runPerPackage} parses a tree
+     * once and hands each package's graph in here.
+     *
+     * <p>This is the one implementation; every other {@code run} overload delegates here.
+     */
+    @SuppressWarnings({"PMD.UnusedAssignment", "UnusedVariable"}) // 'state' assignments are extracted by StateMachineParser as the pipeline diagram
+    static Path run(Path inputPath, Path outputDir, RunOptions options, @Nullable Graph parsed)
+            throws IOException {
         Files.createDirectories(outputDir);
 
         PipelineStage state = PipelineStage.PARSING;
         Graph graph;
-        if (options.stateMachine()) {
+        if (parsed != null) {
+            graph = parsed;
+        } else if (options.stateMachine()) {
             log.fine(() -> "State-machine mode for input: " + inputPath);
             graph = new StateMachineParser(options.includeTests()).parse(inputPath);
         } else if (options.modulesOnly() && Files.isDirectory(inputPath)) {
@@ -412,7 +428,10 @@ public class KartaCli {
      * <p>Every directory holding at least one {@code .java} file is rendered, skipping the same
      * test source sets, build output and VCS directories a single run skips, and the output mirrors
      * the package structure under {@code outputDir} so the diagram for {@code a.b.c} is easy to
-     * find. A package that yields nothing renderable is skipped, not failed: the caller asked for
+     * find. Each diagram draws the types (or, with {@code sequenceOnly}, the methods) declared
+     * directly in its directory, not those of its subpackages; the tree is parsed once, so a
+     * reference into another package still resolves, to a stub node or a cross-package call.
+     * State-machine and module runs still render each directory recursively (#246). A package that yields nothing renderable is skipped, not failed: the caller asked for
      * whatever is there, and one empty package should not abort the other forty.
      *
      * <p>Public because the Maven plugin drives it. Everything the CLI can do from a flag, an
@@ -435,6 +454,23 @@ public class KartaCli {
             return single == null ? java.util.List.of() : java.util.List.of(single);
         }
 
+        if (!options.stateMachine() && !options.modulesOnly()) {
+            // Each package drawn from its own files, the tree parsed once so references into
+            // other packages still resolve (to stub nodes, or to cross-package calls).
+            java.util.Map<Path, Graph> graphs = options.sequenceOnly()
+                    ? new MultiFileSequenceParser(options.customExcludes(), options.maxDepth(),
+                            options.includeTests()).parsePerDirectory(inputRoot)
+                    : new se.deversity.codekarta.input.parser.ClassDiagramParser(options.customExcludes(),
+                            options.maxMembers(), options.includeTests()).parsePerDirectory(inputRoot);
+            java.util.List<Path> written = new java.util.ArrayList<>();
+            for (java.util.Map.Entry<Path, Graph> entry : graphs.entrySet()) {
+                writePackage(inputRoot, outputDir, options, entry.getKey(), entry.getValue(), written);
+            }
+            return written;
+        }
+
+        // State machines and module graphs keep the recursive per-directory run: a package's
+        // state machine can depend on an enum declared in a subpackage (#246).
         // The same walk the parsers use, so a repository root yields its production packages and
         // not test packages, generated sources, or anything under .git or node_modules.
         java.util.List<Path> packageDirs = se.deversity.codekarta.input.parser.SourceTree
@@ -447,19 +483,25 @@ public class KartaCli {
 
         java.util.List<Path> written = new java.util.ArrayList<>();
         for (Path pkg : packageDirs) {
-            Path relative = inputRoot.relativize(pkg);
-            Path target = relative.toString().isEmpty() ? outputDir : outputDir.resolve(relative);
-            try {
-                Path svg = run(pkg, target, options);
-                if (svg != null) {
-                    written.add(svg);
-                }
-            } catch (IOException e) {
-                // One unreadable package must not cost the caller the other forty.
-                log.warning(() -> "Skipped " + pkg + ": " + e.getMessage());
-            }
+            writePackage(inputRoot, outputDir, options, pkg, null, written);
         }
         return written;
+    }
+
+    /** Writes one package's diagram under the mirrored output path; parses {@code pkg} if {@code graph} is null. */
+    private static void writePackage(Path inputRoot, Path outputDir, RunOptions options, Path pkg,
+                                     @Nullable Graph graph, java.util.List<Path> written) {
+        Path relative = inputRoot.relativize(pkg);
+        Path target = relative.toString().isEmpty() ? outputDir : outputDir.resolve(relative);
+        try {
+            Path file = run(pkg, target, options, graph);
+            if (file != null) {
+                written.add(file);
+            }
+        } catch (IOException e) {
+            // One unreadable package must not cost the caller the other forty.
+            log.warning(() -> "Skipped " + pkg + ": " + e.getMessage());
+        }
     }
 
     /** Canvas dimensions as written into the rendered {@code <svg>} root element. */
