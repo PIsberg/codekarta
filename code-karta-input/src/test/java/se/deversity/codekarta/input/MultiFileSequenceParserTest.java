@@ -226,4 +226,42 @@ class MultiFileSequenceParserTest {
         assertNotNull(graph.findNode("Order"), "a record is a participant");
         assertNotNull(graph.findNode("Status"), "an enum is a participant");
     }
+
+    // --- recursion and cycles under --max-depth (#229) ---
+
+    private static java.util.Set<String> callEdges(Graph graph) {
+        return graph.getEdges().stream()
+                .filter(e -> EdgeType.CALLS.equals(e.getType()))
+                .map(e -> e.getSourceId() + " -> " + e.getTargetId())
+                .collect(java.util.stream.Collectors.toSet());
+    }
+
+    @Test
+    void maxDepthKeepsTheCallTreeOfARecursiveEntryMethod(@TempDir Path sourceRoot) throws Exception {
+        write(sourceRoot, "Walker.java", """
+                public class Walker {
+                    void walk(int n) { visit(n); if (n > 0) walk(n - 1); }
+                    void visit(int n) { Helper.log(n); }
+                }
+                """);
+        write(sourceRoot, "Helper.java", "public class Helper { static void log(int n) { } }");
+
+        Graph graph = new MultiFileSequenceParser(java.util.Set.of(), 3).parse(sourceRoot);
+
+        assertEquals(java.util.Set.of("Walker.walk -> Walker.visit", "Walker.walk -> Walker.walk",
+                "Walker.visit -> Helper.log"), callEdges(graph), "the real depth is 2, so depth 3 keeps everything");
+    }
+
+    @Test
+    void maxDepthCountsFromTheFirstMethodOfACycleWithNoOutsideCaller(@TempDir Path sourceRoot) throws Exception {
+        write(sourceRoot, "A.java", "public class A { static void ping() { B.pong(); } }");
+        write(sourceRoot, "B.java", "public class B { static void pong() { A.ping(); C.log(); } }");
+        write(sourceRoot, "C.java", "public class C { static void log() { D.sink(); } }");
+        write(sourceRoot, "D.java", "public class D { static void sink() { } }");
+
+        Graph graph = new MultiFileSequenceParser(java.util.Set.of(), 2).parse(sourceRoot);
+
+        assertEquals(java.util.Set.of("A.ping -> B.pong", "B.pong -> A.ping", "B.pong -> C.log"), callEdges(graph),
+                "A.ping is depth 0, B.pong 1, C.log 2; D.sink at depth 3 is pruned rather than restarting at 0");
+    }
 }

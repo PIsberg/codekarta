@@ -68,6 +68,11 @@ each version heading is the complete record.
   directory is read in two passes: every enum first, then every file. Both ends of a transition
   must now be constants of one enum, so a switch that maps one enum onto another no longer
   draws edges between two machines. (#228)
+- **A recursive method no longer erases its call tree.** Sequence diagrams and `--max-depth`
+  both start from "methods with no incoming call", and a method that calls itself has one, so a
+  tree reachable only through a recursive method rendered as headers with 0 messages, and
+  `--max-depth 3` on a depth-2 tree kept 0 edges. Self-calls no longer count, and a cycle
+  nothing outside calls (`a -> b -> a`) starts from its first method in graph order. (#229)
 
 ## [0.4.0] - 2026-08-30
 
