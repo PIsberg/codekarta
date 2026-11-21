@@ -7,6 +7,7 @@ import se.deversity.codekarta.core.model.Node;
 import org.jspecify.annotations.Nullable;
 import se.deversity.vibetags.annotations.AIArchitecture;
 import se.deversity.vibetags.annotations.AIContext;
+import se.deversity.vibetags.annotations.AIKeepInSync;
 import se.deversity.vibetags.annotations.AIParallelTests;
 
 import java.util.ArrayList;
@@ -192,14 +193,22 @@ class SequenceDiagramRenderer {
 
     // ------------------------------------------------------------------ message ordering
 
+    @AIKeepInSync(
+        mirrors = "se.deversity.codekarta.input.MultiFileSequenceParser#pruneToMaxDepth",
+        reason = "Both decide where a call tree starts: a METHOD no other method calls (self-calls do not count), then, for a cycle nothing outside calls, its first method in graph order. The tiers cannot share code (input and render may not reference each other), so they are two copies; if they disagree, --max-depth keeps a tree the renderer never draws, or the reverse (issue #229).",
+        enforcedBy = "SequenceDiagramRendererTest.aRecursiveEntryMethodStillStartsItsCallTree / aCycleWithNoOutsideCallerIsDrawnFromItsFirstMethod, and the MultiFileSequenceParserTest maxDepth twins")
     List<Message> orderMessages(Graph graph) {
         // adjacency: sourceId → outgoing CALLS edges, sorted by sequence integer label
         Map<String, List<Edge>> outgoing = new LinkedHashMap<>();
-        Set<String> hasIncomingCalls = new HashSet<>();
+        Set<String> calledByOthers = new HashSet<>();
         for (Edge e : graph.getEdges()) {
             if ("CALLS".equals(e.getType())) {
                 outgoing.computeIfAbsent(e.getSourceId(), k -> new ArrayList<>()).add(e);
-                hasIncomingCalls.add(e.getTargetId());
+                // A self-call does not make a method a callee: a recursive method that nothing
+                // else calls is still where its call tree starts (issue #229).
+                if (!e.getSourceId().equals(e.getTargetId())) {
+                    calledByOthers.add(e.getTargetId());
+                }
             }
         }
         outgoing.values().forEach(list ->
@@ -208,11 +217,21 @@ class SequenceDiagramRenderer {
         List<Message> messages = new ArrayList<>();
         int[] step = {0};
         Set<String> visitedEdges = new HashSet<>();
+        Set<String> visitedNodes = new HashSet<>();
 
-        // DFS from entry methods (no incoming CALLS)
+        // Entry points: methods no other method calls. Kept in step with
+        // MultiFileSequenceParser.pruneToMaxDepth, which must agree on where a tree starts.
         for (Node n : graph.getNodes()) {
-            if ("METHOD".equals(n.getType()) && !hasIncomingCalls.contains(n.getId())) {
-                dfs(n.getId(), outgoing, messages, step, visitedEdges);
+            if ("METHOD".equals(n.getType()) && !calledByOthers.contains(n.getId())) {
+                dfs(n.getId(), outgoing, messages, step, visitedEdges, visitedNodes);
+            }
+        }
+        // A cycle nothing outside calls (a -> b -> a) has no entry point: start it from its
+        // first method in graph order, which is deterministic because node order is.
+        for (Node n : graph.getNodes()) {
+            if ("METHOD".equals(n.getType()) && !visitedNodes.contains(n.getId())
+                    && outgoing.containsKey(n.getId())) {
+                dfs(n.getId(), outgoing, messages, step, visitedEdges, visitedNodes);
             }
         }
 
@@ -231,14 +250,15 @@ class SequenceDiagramRenderer {
     }
 
     private void dfs(String nodeId, Map<String, List<Edge>> outgoing,
-                     List<Message> messages, int[] step, Set<String> visitedEdges) {
+                     List<Message> messages, int[] step, Set<String> visitedEdges, Set<String> visitedNodes) {
+        visitedNodes.add(nodeId);
         for (Edge e : outgoing.getOrDefault(nodeId, List.of())) {
             if (!visitedEdges.add(e.getId())) continue; // guard against cycles
             String methodName = simpleMethodName(e.getTargetId());
             String seqNum     = e.getLabel() != null ? e.getLabel() : "";
             messages.add(new Message(e.getSourceId(), e.getTargetId(), step[0]++,
                     seqNum.isEmpty() ? methodName : seqNum + ": " + methodName, "CALLS"));
-            dfs(e.getTargetId(), outgoing, messages, step, visitedEdges);
+            dfs(e.getTargetId(), outgoing, messages, step, visitedEdges, visitedNodes);
         }
     }
 

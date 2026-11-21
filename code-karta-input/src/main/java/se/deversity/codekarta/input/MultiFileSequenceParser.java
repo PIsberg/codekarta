@@ -4,7 +4,6 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
@@ -28,12 +27,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import se.deversity.vibetags.annotations.AIArchitecture;
 import se.deversity.vibetags.annotations.AIContext;
+import se.deversity.vibetags.annotations.AIKeepInSync;
 
 /**
  * Parses multiple Java source files and stitches their call graphs into a
@@ -106,8 +107,51 @@ public class MultiFileSequenceParser {
      * at {@code sourceRoot}.
      */
     public Graph parse(Path sourceRoot, List<Path> files) {
+        ParsedSources sources = parseSources(sourceRoot, files);
         Graph graph = new Graph();
+        for (ParsedFile parsed : sources.files()) {
+            parseFile(parsed.cu(), graph, sources.projectClasses());
+        }
+        pruneToMaxDepth(graph);
+        return graph;
+    }
 
+    /**
+     * One stitched sequence graph per directory holding a {@code .java} file, each drawing the
+     * methods declared directly in that directory, keyed by directory in sorted order.
+     *
+     * <p>Every file under {@code sourceRoot} is parsed once, with the symbol solver anchored at
+     * {@code sourceRoot} itself, so a call from one package into another still resolves and the
+     * callee appears as a participant. Running each package directory as its own root instead
+     * drew every subpackage again in its parent's diagram and anchored the solver at the
+     * package, so cross-package calls fell back to scope-based names (issue #232).
+     */
+    public Map<Path, Graph> parsePerDirectory(Path sourceRoot) {
+        ParsedSources sources = parseSources(sourceRoot, collectJavaSources(sourceRoot));
+        Map<Path, List<CompilationUnit>> byDirectory = new java.util.TreeMap<>();
+        for (ParsedFile parsed : sources.files()) {
+            Path dir = parsed.file().getParent();
+            if (dir != null) {
+                byDirectory.computeIfAbsent(dir, k -> new java.util.ArrayList<>()).add(parsed.cu());
+            }
+        }
+        Map<Path, Graph> graphs = new java.util.LinkedHashMap<>();
+        byDirectory.forEach((dir, cus) -> {
+            Graph graph = new Graph();
+            for (CompilationUnit cu : cus) {
+                parseFile(cu, graph, sources.projectClasses());
+            }
+            pruneToMaxDepth(graph);
+            graphs.put(dir, graph);
+        });
+        return graphs;
+    }
+
+    private record ParsedFile(Path file, CompilationUnit cu) {}
+
+    private record ParsedSources(List<ParsedFile> files, Set<String> projectClasses) {}
+
+    private ParsedSources parseSources(Path sourceRoot, List<Path> files) {
         CombinedTypeSolver typeSolver = new CombinedTypeSolver(new ReflectionTypeSolver(false));
         for (Path root : findSourceRoots(sourceRoot)) {
             typeSolver.add(new JavaParserTypeSolver(root));
@@ -118,15 +162,15 @@ public class MultiFileSequenceParser {
                 .setSymbolResolver(new JavaSymbolSolver(typeSolver));
 
         JavaParser parser = new JavaParser(config);
-        java.util.List<CompilationUnit> cus = new java.util.ArrayList<>();
-        java.util.Set<String> projectClasses = new java.util.HashSet<>();
+        List<ParsedFile> parsed = new java.util.ArrayList<>();
+        Set<String> projectClasses = new java.util.HashSet<>();
 
         for (Path file : files) {
             try {
                 ParseResult<CompilationUnit> result = parser.parse(Files.readString(file));
                 if (result.isSuccessful() && result.getResult().isPresent()) {
                     CompilationUnit cu = result.getResult().get();
-                    cus.add(cu);
+                    parsed.add(new ParsedFile(file, cu));
                     projectClasses.addAll(ParserSupport.collectProjectClasses(cu));
                 } else {
                     log.warning("Failed to parse " + file);
@@ -135,19 +179,13 @@ public class MultiFileSequenceParser {
                 log.warning("Failed to parse " + file + ": " + e.getMessage());
             }
         }
-
-        for (CompilationUnit cu : cus) {
-            parseFile(cu, graph, projectClasses);
-        }
-
-        pruneToMaxDepth(graph);
-        return graph;
+        return new ParsedSources(parsed, projectClasses);
     }
 
     private void parseFile(CompilationUnit cu, Graph graph, Set<String> projectClasses) {
         try {
 
-            cu.findAll(ClassOrInterfaceDeclaration.class).forEach(classDecl -> {
+            ParserSupport.methodBearingTypes(cu).forEach(classDecl -> {
                 String className = classDecl.getFullyQualifiedName().orElse(classDecl.getNameAsString());
                 if (FilterMatcher.matchesAny(className, customExcludes)) {
                     return;
@@ -242,48 +280,47 @@ public class MultiFileSequenceParser {
                 : null; // unscoped non-local call (e.g. static import) — skip
     }
 
+    @AIKeepInSync(
+        mirrors = "se.deversity.codekarta.render.SequenceDiagramRenderer#orderMessages",
+        reason = "Both decide where a call tree starts: a METHOD no other method calls (self-calls do not count), then, for a cycle nothing outside calls, its first method in graph order. The tiers cannot share code (input and render may not reference each other), so they are two copies; if they disagree, --max-depth keeps a tree the renderer never draws, or the reverse (issue #229).",
+        enforcedBy = "MultiFileSequenceParserTest.maxDepthKeepsTheCallTreeOfARecursiveEntryMethod / maxDepthCountsFromTheFirstMethodOfACycleWithNoOutsideCaller, and the SequenceDiagramRendererTest twins")
     private void pruneToMaxDepth(Graph graph) {
         if (maxDepth == Integer.MAX_VALUE) {
             return;
         }
-        // 1. Identify all nodes that have incoming CALLS edges
-        java.util.Set<String> hasIncoming = new java.util.HashSet<>();
+        // 1. Call adjacency, and which methods some other method calls. A self-call does not
+        //    count: a recursive method nothing else calls is still an entry point (issue #229).
+        java.util.Map<String, java.util.List<String>> callees = new java.util.HashMap<>();
+        java.util.Set<String> calledByOthers = new java.util.HashSet<>();
         for (Edge edge : graph.getEdges()) {
             if ("CALLS".equalsIgnoreCase(edge.getType())) {
-                hasIncoming.add(edge.getTargetId());
+                callees.computeIfAbsent(edge.getSourceId(), k -> new java.util.ArrayList<>()).add(edge.getTargetId());
+                if (!edge.getSourceId().equals(edge.getTargetId())) {
+                    calledByOthers.add(edge.getTargetId());
+                }
             }
         }
 
-        // 2. Entry points are METHOD nodes with no incoming CALLS edges
-        java.util.Queue<String> queue = new java.util.ArrayDeque<>();
+        // 2. Minimum call depth of every reachable method, from depth-0 entry points: methods no
+        //    other method calls, then, for a cycle nothing outside calls, its first method in
+        //    graph order. Depths are computed in full before pruning, so a method beyond the
+        //    limit is not mistaken for an unreached cycle and restarted at 0. Kept in step with
+        //    SequenceDiagramRenderer.orderMessages, which must agree on where a tree starts.
         java.util.Map<String, Integer> depths = new java.util.HashMap<>();
+        java.util.Deque<String> queue = new java.util.ArrayDeque<>();
         for (Node node : graph.getNodes()) {
-            if (NodeType.METHOD.equals(node.getType()) && !hasIncoming.contains(node.getId())) {
+            if (NodeType.METHOD.equals(node.getType()) && !calledByOthers.contains(node.getId())) {
                 depths.put(node.getId(), 0);
                 queue.add(node.getId());
             }
         }
-
-        // BFS to find the minimum depth of each node
-        java.util.Set<String> visited = new java.util.HashSet<>();
-        while (!queue.isEmpty()) {
-            String current = queue.poll();
-            int currentDepth = depths.get(current);
-            if (!visited.add(current)) {
-                continue;
-            }
-            if (currentDepth >= maxDepth) {
-                continue;
-            }
-            for (Edge edge : graph.getEdges()) {
-                if ("CALLS".equalsIgnoreCase(edge.getType()) && current.equals(edge.getSourceId())) {
-                    String target = edge.getTargetId();
-                    int nextDepth = currentDepth + 1;
-                    if (nextDepth < depths.getOrDefault(target, Integer.MAX_VALUE)) {
-                        depths.put(target, nextDepth);
-                        queue.add(target);
-                    }
-                }
+        relaxDepths(queue, depths, callees);
+        for (Node node : graph.getNodes()) {
+            if (NodeType.METHOD.equals(node.getType()) && !depths.containsKey(node.getId())
+                    && callees.containsKey(node.getId())) {
+                depths.put(node.getId(), 0);
+                queue.add(node.getId());
+                relaxDepths(queue, depths, callees);
             }
         }
 
@@ -292,7 +329,8 @@ public class MultiFileSequenceParser {
         java.util.Set<String> keepNodeIds = new java.util.HashSet<>();
         for (Node node : graph.getNodes()) {
             // Keep class nodes and non-method nodes, or method nodes within maxDepth
-            if (!NodeType.METHOD.equals(node.getType()) || depths.containsKey(node.getId())) {
+            if (!NodeType.METHOD.equals(node.getType())
+                    || depths.getOrDefault(node.getId(), Integer.MAX_VALUE) <= maxDepth) {
                 keepNodes.add(node);
                 keepNodeIds.add(node.getId());
             }
@@ -315,6 +353,21 @@ public class MultiFileSequenceParser {
         graph.setGroups(graph.getGroups().stream()
                 .filter(g -> !g.getMemberIds().isEmpty())
                 .collect(java.util.stream.Collectors.toList()));
+    }
+
+    /** Unit-weight shortest paths from what is queued, lowering a depth whenever a shorter path appears. */
+    private static void relaxDepths(java.util.Deque<String> queue, java.util.Map<String, Integer> depths,
+                                    java.util.Map<String, java.util.List<String>> callees) {
+        while (!queue.isEmpty()) {
+            String current = queue.poll();
+            int nextDepth = depths.get(current) + 1;
+            for (String target : callees.getOrDefault(current, java.util.List.of())) {
+                if (nextDepth < depths.getOrDefault(target, Integer.MAX_VALUE)) {
+                    depths.put(target, nextDepth);
+                    queue.add(target);
+                }
+            }
+        }
     }
 
     private List<Path> collectJavaSources(Path root) {
