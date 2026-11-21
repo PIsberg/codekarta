@@ -59,10 +59,34 @@ public record RunOptions(
     /** Writes the IR as JSON instead of an SVG. See {@code JsonRenderer}. */
     public static final String FORMAT_JSON = "json";
 
+    /** The default layout: the pure-Java BFS grid. */
+    public static final String LAYOUT_SIMPLE = "simple";
+
+    /** The Eclipse Layout Kernel layered layout. */
+    public static final String LAYOUT_ELK = "elk";
+
+    /**
+     * Defaults {@code layout} and {@code format} when {@code null}, stores them lower-case, and
+     * rejects any other value. An unknown layout used to become the simple layout and an unknown
+     * format SVG, without a word (issue #231); checking here covers the CLI, the Maven plugin and
+     * library callers alike.
+     *
+     * @throws IllegalArgumentException for a layout other than {@code simple}/{@code elk} or a
+     *                                  format other than {@code svg}/{@code json}
+     */
     public RunOptions {
-        layout = layout == null ? "simple" : layout;
+        layout = oneOf("layout", layout == null ? LAYOUT_SIMPLE : layout, LAYOUT_SIMPLE, LAYOUT_ELK);
         customExcludes = customExcludes == null ? Collections.emptySet() : Set.copyOf(customExcludes);
-        format = format == null ? FORMAT_SVG : format;
+        format = oneOf("format", format == null ? FORMAT_SVG : format, FORMAT_SVG, FORMAT_JSON);
+    }
+
+    private static String oneOf(String name, String value, String first, String second) {
+        String lower = value.toLowerCase(java.util.Locale.ROOT);
+        if (!lower.equals(first) && !lower.equals(second)) {
+            throw new IllegalArgumentException(name + " must be '" + first + "' or '" + second
+                    + "', got '" + value + "'.");
+        }
+        return lower;
     }
 
     /**
@@ -101,7 +125,7 @@ public record RunOptions(
      * production sources only.
      */
     public static RunOptions defaults() {
-        return new RunOptions(false, "simple", false, Collections.emptySet(),
+        return new RunOptions(false, LAYOUT_SIMPLE, false, Collections.emptySet(),
                 Integer.MAX_VALUE, false, null, ClassDiagramParser.DEFAULT_MAX_MEMBERS, FORMAT_SVG,
                 false);
     }

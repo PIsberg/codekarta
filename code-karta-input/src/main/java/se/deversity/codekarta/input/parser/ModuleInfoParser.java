@@ -1,7 +1,6 @@
 package se.deversity.codekarta.input.parser;
 
 import com.github.javaparser.JavaParser;
-import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.modules.ModuleDeclaration;
 import com.github.javaparser.ast.modules.ModuleDirective;
@@ -25,14 +24,12 @@ import se.deversity.vibetags.annotations.AIContext;
 public class ModuleInfoParser {
 
     private static final Logger log = Logger.getLogger(ModuleInfoParser.class.getName());
-    private static final JavaParser PARSER = new JavaParser(
-            new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21));
 
     public Graph parse(Path moduleInfoFile) {
         Graph graph = new Graph();
         try {
             String source = Files.readString(moduleInfoFile);
-            CompilationUnit cu = PARSER.parse(source).getResult().orElseThrow();
+            CompilationUnit cu = ParserSupport.newJava21Parser().parse(source).getResult().orElseThrow();
             cu.getModule().ifPresentOrElse(
                     module -> buildGraph(module, graph),
                     () -> log.warning("No module declaration found in: " + moduleInfoFile));
@@ -55,6 +52,7 @@ public class ModuleInfoParser {
      */
     public Graph parseDirectory(Path root, boolean includeTests) {
         Graph graph = new Graph();
+        JavaParser parser = ParserSupport.newJava21Parser();
         try {
             // SourceTree sorts: walk order is filesystem-defined, and it reaches the SVG.
             SourceTree.javaFiles(root, includeTests).stream()
@@ -62,7 +60,7 @@ public class ModuleInfoParser {
                   .forEach(p -> {
                       try {
                           String source = Files.readString(p);
-                          CompilationUnit cu = PARSER.parse(source).getResult().orElseThrow();
+                          CompilationUnit cu = parser.parse(source).getResult().orElseThrow();
                           cu.getModule().ifPresent(module -> buildGraph(module, graph));
                       } catch (Exception e) {
                           log.warning("Failed to parse " + p + ": " + e.getMessage());
