@@ -105,4 +105,28 @@ class SourceTreeTest {
         org.junit.jupiter.api.Assertions.assertThrows(IOException.class,
                 () -> SourceTree.javaFiles(dir.resolve("nope"), false));
     }
+
+    // --- symbol-solver roots (#198) ---
+
+    @Test
+    void sourceRootsSkipVendoredHiddenAndBuildOutputTreesButKeepTestRoots(@TempDir Path dir) throws IOException {
+        write(dir, "pom.xml", "<project/>");
+        write(dir, "src/main/java/app/Order.java", "package app; class Order {}");
+        write(dir, "src/test/java/app/OrderTest.java", "package app; class OrderTest {}");
+        write(dir, "node_modules/pkg/src/main/java/x/X.java", "package x; class X {}");
+        write(dir, ".git/src/main/java/y/Y.java", "package y; class Y {}");
+        write(dir, "target/checkout/src/main/java/z/Z.java", "package z; class Z {}");
+
+        List<Path> roots = SourceTree.sourceRoots(dir);
+
+        // Test roots stay: a production call into a type declared only in tests should resolve.
+        assertEquals(List.of(dir.resolve("src/main/java"), dir.resolve("src/test/java")), roots);
+    }
+
+    @Test
+    void aTreeWithoutAMainOrTestSourceRootHasNoSourceRoots(@TempDir Path dir) throws IOException {
+        write(dir, "app/Order.java", "package app; class Order {}");
+
+        assertEquals(List.of(), SourceTree.sourceRoots(dir));
+    }
 }

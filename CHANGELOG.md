@@ -46,6 +46,12 @@ each version heading is the complete record.
 
 ### Fixed
 
+- **`--sequence-only` no longer searches `node_modules`, `.git` or build output for source
+  roots.** The symbol solver's roots came from a raw directory walk, the last one in the input
+  tier that did not go through `SourceTree`. It now prunes the same directories every other walk
+  does, test source roots kept so calls into test-only types still resolve. On this repository's
+  root the walk went from a median 152 ms to 5 ms, and 3 roots, copies under
+  `code-karta-maven-plugin/target`, are no longer handed to the solver. (#198)
 - **`--split-packages` draws each package once.** Each package's diagram parsed its directory
   recursively, so a parent package's diagram repeated every subpackage, and the top-level one was
   the whole tree again. Each diagram now draws only the types declared directly in its package;
