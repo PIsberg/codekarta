@@ -106,6 +106,12 @@ express:
   in the execution and a per-diagram `false` cannot cancel it. Set such flags per diagram, not at
   the goal level, when they should not apply to all of them.
 
+A relative `<input>` or `<output>` inside `<diagram>` is relative to the module that declares it,
+the same as the goal-level `input` and `outputDirectory`. So `<input>src/main/java/com/example</input>`
+means the same thing whether the build runs from the module, from the reactor root, or through
+`mvn -f`. Before 0.5.0 it resolved against the directory `mvn` was started in. `${project.basedir}`
+in front still works.
+
 ## Committing diagrams
 
 `outputDirectory` defaults under `target/` so that a build does not write into the source tree
@@ -120,6 +126,13 @@ This is how plugins are actually adopted, so two ordinary cases are deliberately
 - **A module with no `src/main/java`** logs at debug level and moves on.
 - **A `pom`-packaging aggregator** is skipped with a message saying so, because it has no sources
   of its own. Set `modulesOnly` to draw the reactor there instead.
+
+## Invalid settings
+
+A `<layout>` other than `simple`/`elk` or a `<format>` other than `svg`/`json`, at goal level or
+in a `<diagram>`, fails the build with a message naming the setting and the value, and so does
+`splitPackages` together with `modulesOnly`, which has no per-package meaning. Before 0.5.0,
+`<layout>elkk</layout>` quietly became the simple layout and `<format>png</format>` SVG.
 
 ## When nothing is drawn
 

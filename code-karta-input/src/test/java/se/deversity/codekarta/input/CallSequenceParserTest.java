@@ -129,4 +129,51 @@ class CallSequenceParserTest {
         Files.writeString(file, content);
         return file;
     }
+
+    @Test
+    void methodsOfARecordAreSequenced(@TempDir Path dir) throws Exception {
+        Path file = write(dir, "Order.java", """
+                public record Order(int amount) {
+                    public int price() { return helper(); }
+                    int helper() { return amount; }
+                }
+                """);
+
+        Graph graph = parser.parse(file);
+
+        assertNotNull(graph.findNode("Order"), "a record is a participant");
+        assertNotNull(graph.findNode("Order.price"));
+        assertTrue(graph.getEdges().stream().anyMatch(e ->
+                "Order.price".equals(e.getSourceId()) && "Order.helper".equals(e.getTargetId())));
+    }
+
+    @Test
+    void methodsOfAnEnumAreSequenced(@TempDir Path dir) throws Exception {
+        Path file = write(dir, "Status.java", """
+                public enum Status {
+                    NEW, PAID;
+                    public Status next() { return advance(); }
+                    Status advance() { return PAID; }
+                }
+                """);
+
+        Graph graph = parser.parse(file);
+
+        assertTrue(graph.getEdges().stream().anyMatch(e ->
+                "Status.next".equals(e.getSourceId()) && "Status.advance".equals(e.getTargetId())));
+    }
+
+    @Test
+    void anInterfaceIsTypedInterface(@TempDir Path dir) throws Exception {
+        Path file = write(dir, "Api.java", """
+                public interface Api {
+                    default int twice(int x) { return helper(x) * 2; }
+                    int helper(int x);
+                }
+                """);
+
+        Graph graph = parser.parse(file);
+
+        assertEquals("INTERFACE", graph.findNode("Api").getType());
+    }
 }

@@ -28,7 +28,7 @@ java -jar code-karta-cli/target/code-karta-cli-0.4.0-all.jar \
 | `--sequence-only` | off | Emits only `CALLS` edges. For directory input, parses all Java files together into one stitched sequence graph. |
 | `--state-machine` | off | Emits `STATE` nodes and `TRANSITION` edges from enum constants, switch cases, state assignments, and `transition(from, to, event)` calls. |
 | `--modules-only` | off | Cross-module diagram. Reads `module-info.java` when the project declares JPMS modules, and otherwise the build reactor — Maven `<modules>` or Gradle `include(...)` — with `HAS` for aggregation and `REQUIRES` for intra-reactor dependencies. |
-| `--split-packages` | off | Emits one diagram per package instead of one for the whole tree, mirroring the package structure under `--output`. |
+| `--split-packages` | off | Emits one diagram per package instead of one for the whole tree, mirroring the package structure under `--output`. Each diagram draws only the types declared directly in its package, not its subpackages; a reference into another package is kept, drawn as a plain stub box (class diagrams) or a call to that package's method (`--sequence-only`). With `--state-machine`, each package draws the transitions found in its own files, resolving enums declared anywhere in the tree. Cannot be combined with `--modules-only`. |
 | `--include-tests` | off | Also read test source sets (`src/test`, `src/integrationTest`, `src/testFixtures`, `src/it`, any `src/*test*`) when `--input` is a project or repository root. Build output and VCS directories stay skipped. |
 | `--layout simple\|elk` | `simple` | `simple` is the pure-Java BFS grid. `elk` uses Eclipse Layout Kernel layered layout and is better for larger graphs. Needs a Java 21 runtime: ELK's transitive `xtext.xbase.lib` is compiled for 21, so on Java 17 this falls back to `simple` and logs a warning. |
 | `--exclude <patterns>` | off | Comma-separated wildcard patterns of classes or methods to exclude (e.g. `*Test,se.deversity.codekarta.util.*,Map`) to reduce visual clutter. |
@@ -39,6 +39,20 @@ java -jar code-karta-cli/target/code-karta-cli-0.4.0-all.jar \
 The flag set here, `KartaCli.printUsage()`, and the `RunOptions` record are three copies of the
 same list. `RunOptions` carries an `@AIKeepInSync` guardrail naming the other two, because
 nothing in the build catches a flag that was added to one and not the others.
+
+## Mistyped arguments
+
+The CLI rejects what it does not understand instead of falling back to a default. An unknown flag,
+a flag that needs a value and has none (or has another flag in its place), a `--layout` other than
+`simple`/`elk`, a `--format` other than `svg`/`json`, and a non-number for `--max-depth` or
+`--max-members` each print `Error:` naming the argument, then the usage line, and exit with code 1.
+Nothing is written. Layout and format names are case-insensitive.
+
+```
+$ java -jar code-karta-cli-0.4.0-all.jar --input src --sequnce-only
+Error: unknown argument '--sequnce-only'.
+Usage: karta --input <path> ...
+```
 
 ## Choosing flags
 
