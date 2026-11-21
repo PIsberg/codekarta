@@ -2,7 +2,9 @@ name: Build and Test
 
 on:
   push:
-    branches: [ main, "improvements/**", "feature/**", "fix/**", "chore/**", "docs/**" ]
+    # release/** because the release skill names the branch release/v<X.Y.Z>, and that branch is
+    # the last stop before an irreversible publish: it should not wait for a PR to get CI (#113).
+    branches: [ main, "improvements/**", "feature/**", "fix/**", "chore/**", "docs/**", "release/**" ]
   pull_request:
     branches: [ main ]
 
