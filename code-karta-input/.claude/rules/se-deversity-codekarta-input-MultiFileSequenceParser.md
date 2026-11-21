@@ -12,4 +12,10 @@ paths: ["**/MultiFileSequenceParser.java"]
 ## Architectural Boundary Constraints
 - **Layer**: input
 - **Prohibited References**: layout, render, cli
+
+### Rules for method pruneToMaxDepth
+- **Rule**: Free to change, but every mirror must change in the same commit.
+- **Mirrors**: se.deversity.codekarta.render.SequenceDiagramRenderer#orderMessages
+- **Reason**: Both decide where a call tree starts: a METHOD no other method calls (self-calls do not count), then, for a cycle nothing outside calls, its first method in graph order. The tiers cannot share code (input and render may not reference each other), so they are two copies; if they disagree, --max-depth keeps a tree the renderer never draws, or the reverse (issue #229).
+- **Enforced by**: MultiFileSequenceParserTest.maxDepthKeepsTheCallTreeOfARecursiveEntryMethod / maxDepthCountsFromTheFirstMethodOfACycleWithNoOutsideCaller, and the SequenceDiagramRendererTest twins
 <!-- VIBETAGS-END -->

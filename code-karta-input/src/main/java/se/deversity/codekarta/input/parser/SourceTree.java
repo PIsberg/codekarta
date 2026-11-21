@@ -97,6 +97,52 @@ public final class SourceTree {
         return files;
     }
 
+    /**
+     * Directories under {@code root} that a symbol solver should resolve types against: every
+     * {@code java} directory directly under a {@code main} or {@code test} directory, sorted.
+     *
+     * <p>Pruned like {@link #javaFiles}, except that test source sets are kept: a production call
+     * into a type declared only in tests should still resolve, even though tests are not drawn. A
+     * raw {@code Files.walk} here descended into {@code node_modules}, {@code .git} and build
+     * output and handed the solver whatever source roots it found there (issue #198).
+     *
+     * @throws IOException if {@code root} itself cannot be walked, for the caller to log
+     */
+    public static List<Path> sourceRoots(Path root) throws IOException {
+        List<Path> roots = new ArrayList<>();
+        Files.walkFileTree(root, new SimpleFileVisitor<>() {
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+                if (!dir.equals(root) && isPruned(dir, true)) {
+                    return FileVisitResult.SKIP_SUBTREE;
+                }
+                if (isSourceRoot(dir)) {
+                    roots.add(dir);
+                }
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFileFailed(Path file, IOException e) throws IOException {
+                if (file.equals(root)) {
+                    throw e;
+                }
+                log.warning(() -> "Skipping unreadable " + file + ": " + e.getMessage());
+                return FileVisitResult.CONTINUE;
+            }
+        });
+        roots.sort(null);
+        return roots;
+    }
+
+    private static boolean isSourceRoot(Path dir) {
+        Path name = dir.getFileName();
+        Path parent = dir.getParent();
+        Path parentName = parent == null ? null : parent.getFileName();
+        return name != null && "java".equals(name.toString()) && parentName != null
+                && ("main".equals(parentName.toString()) || "test".equals(parentName.toString()));
+    }
+
     /** True when nothing under {@code dir} should be read. Never asked about the walk root. */
     static boolean isPruned(Path dir, boolean includeTests) {
         Path fileName = dir.getFileName();

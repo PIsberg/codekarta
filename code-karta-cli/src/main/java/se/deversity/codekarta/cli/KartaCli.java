@@ -10,6 +10,7 @@ import se.deversity.codekarta.layout.SimpleLayoutEngine;
 import se.deversity.codekarta.render.JsonRenderer;
 import se.deversity.codekarta.render.SvgRenderer;
 
+import org.jspecify.annotations.Nullable;
 import se.deversity.vibetags.annotations.AIAudit;
 import se.deversity.vibetags.annotations.AIContract;
 import se.deversity.vibetags.annotations.AIIdempotent;
@@ -44,8 +45,20 @@ public class KartaCli {
      */
     enum PipelineStage { PARSING, LAYOUT, RENDERING, WRITING, DONE }
 
+    /** What one command line asks for. {@code help} means print the usage and stop. */
+    record Invocation(Path inputPath, Path outputDir, boolean splitPackages, boolean help, RunOptions options) {}
+
+    /**
+     * Reads a command line. Anything it does not understand is an error rather than a default:
+     * an unknown flag, a flag that needs a value and has none (the next argument is another
+     * flag, or there is none), and a value outside what the flag accepts. Lenient parsing turned
+     * a misspelt {@code --sequnce-only} into a class diagram and {@code --layout elkk} into the
+     * simple layout, with exit code 0 (issue #231).
+     *
+     * @throws IllegalArgumentException naming the offending argument
+     */
     @SuppressWarnings("PMD.AvoidReassigningLoopVariables") // args[++i] is the standard flag-value idiom
-    public static void main(String[] args) {
+    static Invocation parseArgs(String... args) {
         Path inputPath = null;
         Path outputDir = DEFAULT_OUTPUT;
         boolean sequenceOnly = false;
@@ -53,7 +66,7 @@ public class KartaCli {
         boolean modulesOnly = false;
         boolean splitPackages = false;
         boolean includeTests = false;
-        String layout = "simple";
+        String layout = RunOptions.LAYOUT_SIMPLE;
         String outputName = null;
         String format = RunOptions.FORMAT_SVG;
         java.util.Set<String> customExcludes = java.util.Collections.emptySet();
@@ -61,73 +74,85 @@ public class KartaCli {
         int maxMembers = se.deversity.codekarta.input.parser.ClassDiagramParser.DEFAULT_MAX_MEMBERS;
 
         for (int i = 0; i < args.length; i++) {
-            switch (args[i]) {
-                case "--input"         -> { if (i + 1 < args.length) inputPath = Path.of(args[++i]); }
-                case "--output"        -> { if (i + 1 < args.length) outputDir = Path.of(args[++i]); }
-                case "--output-name"   -> { if (i + 1 < args.length) outputName = args[++i]; }
-                case "--layout"        -> { if (i + 1 < args.length) layout = args[++i]; }
+            String flag = args[i];
+            switch (flag) {
+                case "--input"         -> inputPath = Path.of(valueOf(args, ++i, flag));
+                case "--output"        -> outputDir = Path.of(valueOf(args, ++i, flag));
+                case "--output-name"   -> outputName = valueOf(args, ++i, flag);
+                case "--layout"        -> layout = valueOf(args, ++i, flag);
+                case "--format"        -> format = valueOf(args, ++i, flag);
                 case "--sequence-only" -> sequenceOnly = true;
                 case "--state-machine" -> stateMachine = true;
                 case "--modules-only"  -> modulesOnly = true;
                 case "--split-packages" -> splitPackages = true;
                 case "--include-tests" -> includeTests = true;
-                case "--exclude"       -> {
-                    if (i + 1 < args.length) {
-                        String rawExcludes = args[++i];
-                        customExcludes = java.util.Arrays.stream(rawExcludes.split(","))
-                                .map(String::trim)
-                                .filter(s -> !s.isEmpty())
-                                .collect(java.util.stream.Collectors.toSet());
-                    }
-                }
-                case "--max-depth"     -> {
-                    if (i + 1 < args.length) {
-                        try {
-                            maxDepth = Integer.parseInt(args[++i]);
-                        } catch (NumberFormatException e) {
-                            System.err.println("Warning: --max-depth must be an integer, ignoring.");
-                        }
-                    }
-                }
+                case "--exclude"       -> customExcludes = java.util.Arrays.stream(valueOf(args, ++i, flag).split(","))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .collect(java.util.stream.Collectors.toSet());
+                case "--max-depth"     -> maxDepth = intValueOf(valueOf(args, ++i, flag), flag, "an integer");
                 case "--max-members"   -> {
-                    if (i + 1 < args.length) {
-                        String raw = args[++i];
-                        if ("all".equalsIgnoreCase(raw)) {
-                            maxMembers = se.deversity.codekarta.input.parser.ClassDiagramParser.UNLIMITED_MEMBERS;
-                        } else {
-                            try {
-                                maxMembers = Integer.parseInt(raw);
-                            } catch (NumberFormatException e) {
-                                System.err.println("Warning: --max-members must be an integer or 'all', ignoring.");
-                            }
-                        }
-                    }
+                    String raw = valueOf(args, ++i, flag);
+                    maxMembers = "all".equalsIgnoreCase(raw)
+                            ? se.deversity.codekarta.input.parser.ClassDiagramParser.UNLIMITED_MEMBERS
+                            : intValueOf(raw, flag, "an integer or 'all'");
                 }
-                case "--format"        -> {
-                    if (i + 1 < args.length) {
-                        String raw = args[++i];
-                        if (RunOptions.FORMAT_SVG.equalsIgnoreCase(raw)
-                                || RunOptions.FORMAT_JSON.equalsIgnoreCase(raw)) {
-                            format = raw.toLowerCase(java.util.Locale.ROOT);
-                        } else {
-                            System.err.println("Warning: --format must be 'svg' or 'json', got '"
-                                    + raw + "'. Using svg.");
-                        }
-                    }
+                case "--help", "-h"    -> {
+                    return new Invocation(null, outputDir, false, true, RunOptions.defaults());
                 }
-                case "--help", "-h"    -> { printUsage(); System.exit(0); }
-                default -> { /* unknown args are ignored */ }
+                default -> throw new IllegalArgumentException("unknown argument '" + flag + "'.");
             }
         }
 
         if (inputPath == null) {
-            System.err.println("Error: --input is required.");
+            throw new IllegalArgumentException("--input is required.");
+        }
+        if (splitPackages && modulesOnly) {
+            throw new IllegalArgumentException("--split-packages cannot be combined with --modules-only.");
+        }
+        // RunOptions checks layout and format, so the CLI, the Maven plugin and library callers
+        // all reject the same values with the same message.
+        return new Invocation(inputPath, outputDir, splitPackages, false,
+                new RunOptions(sequenceOnly, layout, stateMachine, customExcludes,
+                        maxDepth, modulesOnly, outputName, maxMembers, format, includeTests));
+    }
+
+    /** The value after {@code flag}; a missing one, or another flag in its place, is an error. */
+    private static String valueOf(String[] args, int index, String flag) {
+        if (index >= args.length || args[index].startsWith("--")) {
+            throw new IllegalArgumentException(flag + " needs a value.");
+        }
+        return args[index];
+    }
+
+    private static int intValueOf(String raw, String flag, String expected) {
+        try {
+            return Integer.parseInt(raw);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(flag + " must be " + expected + ", got '" + raw + "'.", e);
+        }
+    }
+
+    public static void main(String[] args) {
+        Invocation call;
+        try {
+            call = parseArgs(args);
+        } catch (IllegalArgumentException e) {
+            System.err.println("Error: " + e.getMessage());
             printUsage();
             System.exit(1);
+            return;
         }
+        if (call.help()) {
+            printUsage();
+            System.exit(0);
+            return;
+        }
+        Path inputPath = call.inputPath();
+        Path outputDir = call.outputDir();
+        boolean splitPackages = call.splitPackages();
 
-        RunOptions options = new RunOptions(sequenceOnly, layout, stateMachine, customExcludes,
-                maxDepth, modulesOnly, outputName, maxMembers, format, includeTests);
+        RunOptions options = call.options();
 
         try {
             if (splitPackages) {
@@ -236,18 +261,33 @@ public class KartaCli {
     /**
      * Runs the full parse → layout → render pipeline and writes the SVG to outputDir.
      *
-     * <p>This is the one implementation; every other {@code run} overload delegates here.
+     * <p>Every other public {@code run} overload delegates here.
      *
      * @return the path of the written SVG file, or {@code null} when there was nothing worth
      *         drawing (the reason is logged)
      */
-    @SuppressWarnings({"PMD.UnusedAssignment", "UnusedVariable"}) // 'state' assignments are extracted by StateMachineParser as the pipeline diagram
     public static Path run(Path inputPath, Path outputDir, RunOptions options) throws IOException {
+        return run(inputPath, outputDir, options, null);
+    }
+
+    /**
+     * {@link #run(Path, Path, RunOptions)} with the parse step already done: {@code parsed} is
+     * laid out, rendered and written as if {@code inputPath} had produced it, or, when
+     * {@code null}, {@code inputPath} is parsed as usual. {@link #runPerPackage} parses a tree
+     * once and hands each package's graph in here.
+     *
+     * <p>This is the one implementation; every other {@code run} overload delegates here.
+     */
+    @SuppressWarnings({"PMD.UnusedAssignment", "UnusedVariable"}) // 'state' assignments are extracted by StateMachineParser as the pipeline diagram
+    static Path run(Path inputPath, Path outputDir, RunOptions options, @Nullable Graph parsed)
+            throws IOException {
         Files.createDirectories(outputDir);
 
         PipelineStage state = PipelineStage.PARSING;
         Graph graph;
-        if (options.stateMachine()) {
+        if (parsed != null) {
+            graph = parsed;
+        } else if (options.stateMachine()) {
             log.fine(() -> "State-machine mode for input: " + inputPath);
             graph = new StateMachineParser(options.includeTests()).parse(inputPath);
         } else if (options.modulesOnly() && Files.isDirectory(inputPath)) {
@@ -391,7 +431,12 @@ public class KartaCli {
      * <p>Every directory holding at least one {@code .java} file is rendered, skipping the same
      * test source sets, build output and VCS directories a single run skips, and the output mirrors
      * the package structure under {@code outputDir} so the diagram for {@code a.b.c} is easy to
-     * find. A package that yields nothing renderable is skipped, not failed: the caller asked for
+     * find. Each diagram draws the types (or, with {@code sequenceOnly}, the methods) declared
+     * directly in its directory, not those of its subpackages; the tree is parsed once, so a
+     * reference into another package still resolves, to a stub node or a cross-package call.
+     * With {@code stateMachine}, each directory draws the transitions found in its own files and
+     * the enums it declares. {@code modulesOnly} cannot be split: it is rejected with
+     * {@link IllegalArgumentException}. A package that yields nothing renderable is skipped, not failed: the caller asked for
      * whatever is there, and one empty package should not abort the other forty.
      *
      * <p>Public because the Maven plugin drives it. Everything the CLI can do from a flag, an
@@ -408,37 +453,46 @@ public class KartaCli {
      */
     public static java.util.List<Path> runPerPackage(Path inputRoot, Path outputDir,
                                               RunOptions options) throws IOException {
+        if (options.modulesOnly()) {
+            // Modules are not per package: a module-info.java describes a whole source set.
+            throw new IllegalArgumentException("--split-packages cannot be combined with --modules-only.");
+        }
         if (!Files.isDirectory(inputRoot)) {
             log.info(() -> "--split-packages needs a directory; " + inputRoot + " is a file.");
             Path single = run(inputRoot, outputDir, options);
             return single == null ? java.util.List.of() : java.util.List.of(single);
         }
 
-        // The same walk the parsers use, so a repository root yields its production packages and
-        // not test packages, generated sources, or anything under .git or node_modules.
-        java.util.List<Path> packageDirs = se.deversity.codekarta.input.parser.SourceTree
-                .javaFiles(inputRoot, options.includeTests()).stream()
-                .map(Path::getParent)
-                .filter(java.util.Objects::nonNull)
-                .distinct()
-                .sorted()
-                .toList();
-
+        // Each package drawn from its own files, the tree parsed once so references into other
+        // packages still resolve (to stub nodes, cross-package calls, or enums).
+        java.util.Map<Path, Graph> graphs = options.stateMachine()
+                ? new StateMachineParser(options.includeTests()).parsePerDirectory(inputRoot)
+                : options.sequenceOnly()
+                ? new MultiFileSequenceParser(options.customExcludes(), options.maxDepth(),
+                        options.includeTests()).parsePerDirectory(inputRoot)
+                : new se.deversity.codekarta.input.parser.ClassDiagramParser(options.customExcludes(),
+                        options.maxMembers(), options.includeTests()).parsePerDirectory(inputRoot);
         java.util.List<Path> written = new java.util.ArrayList<>();
-        for (Path pkg : packageDirs) {
-            Path relative = inputRoot.relativize(pkg);
-            Path target = relative.toString().isEmpty() ? outputDir : outputDir.resolve(relative);
-            try {
-                Path svg = run(pkg, target, options);
-                if (svg != null) {
-                    written.add(svg);
-                }
-            } catch (IOException e) {
-                // One unreadable package must not cost the caller the other forty.
-                log.warning(() -> "Skipped " + pkg + ": " + e.getMessage());
-            }
+        for (java.util.Map.Entry<Path, Graph> entry : graphs.entrySet()) {
+            writePackage(inputRoot, outputDir, options, entry.getKey(), entry.getValue(), written);
         }
         return written;
+    }
+
+    /** Writes one package's already-parsed diagram under the mirrored output path. */
+    private static void writePackage(Path inputRoot, Path outputDir, RunOptions options, Path pkg,
+                                     Graph graph, java.util.List<Path> written) {
+        Path relative = inputRoot.relativize(pkg);
+        Path target = relative.toString().isEmpty() ? outputDir : outputDir.resolve(relative);
+        try {
+            Path file = run(pkg, target, options, graph);
+            if (file != null) {
+                written.add(file);
+            }
+        } catch (IOException e) {
+            // One unreadable package must not cost the caller the other forty.
+            log.warning(() -> "Skipped " + pkg + ": " + e.getMessage());
+        }
     }
 
     /** Canvas dimensions as written into the rendered {@code <svg>} root element. */
@@ -477,7 +531,7 @@ public class KartaCli {
     }
 
     private static LayoutEngine resolveLayout(String name) {
-        return "elk".equalsIgnoreCase(name) ? new ElkLayoutEngine() : new SimpleLayoutEngine();
+        return RunOptions.LAYOUT_ELK.equals(name) ? new ElkLayoutEngine() : new SimpleLayoutEngine();
     }
 
     /**
