@@ -27,3 +27,4 @@ code-karta-maven-plugin/build
 # exactly that. The diagram lands here rather than in the test's temporary directory. It is an
 # artifact of -Pmutation, not of any build a user runs.
 code-karta-maven-plugin/class-diagram.svg
+.vibetags-generate.lock
