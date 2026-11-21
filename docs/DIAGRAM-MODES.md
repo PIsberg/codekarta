@@ -100,6 +100,13 @@ looking for transitions, so the enum can live in a file of its own. Both ends of
 be constants of the same enum: a switch that maps one enum onto another is a conversion, not a
 state change, and draws nothing.
 
+A state's id is its enum, named relative to the package, plus the constant (`OrderStatus.PAID`,
+`Shipment.State.CREATED`); the box shows the constant. Two enums that share a constant name stay
+two machines. A bare constant (a switch label, a string in `transition(...)`) belongs to the enum
+that declares both ends of the transition; when several do, the switch selector's or assigned
+variable's declared type decides, then an enum declared in the same file, and otherwise nothing is
+drawn.
+
 ```java
 class Workflow {
   enum State { OPEN, REVIEW, CLOSED }

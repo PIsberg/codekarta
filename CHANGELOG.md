@@ -34,6 +34,13 @@ each version heading is the complete record.
   `IllegalArgumentException` and stores both lower-case, so the Maven plugin fails the build on
   `<layout>elkk</layout>` or `<format>png</format>` instead of drawing something else. Anyone
   passing extra arguments that used to be ignored will see the run fail. (#231)
+- **State-machine node ids carry their enum.** A state's id is now `OrderStatus.PAID` (the enum
+  named relative to its package, so a nested one is `Shipment.State.PAID`) instead of `PAID`; the
+  label is still the constant. Two enums sharing a constant name (`OrderStatus.ACTIVE`,
+  `Mode.ACTIVE`) were one node joining two machines; they are now two. This changes the ids in
+  `--state-machine --format json` output and the `<g id>` attributes of state-machine SVGs. A
+  bare reference that two enums could both explain, and that neither the switch selector's type
+  nor the file settles, now draws nothing instead of an arbitrary edge. (#239)
 - **Class diagram node ids are qualified names.** A type in a named package now has the id
   `a.Config` instead of `Config` (default-package types keep the simple name); the label is still
   the simple name. This changes the `id`, `sourceId`, `targetId` and group `memberIds` values in
