@@ -238,4 +238,29 @@ class GenerateMojoTest {
         mojo.setIncludeTests(true);
         assertTrue(mojo.toRunOptions(new Diagram()).includeTests());
     }
+
+    @Test
+    void anUnknownLayoutFailsTheBuildNamingTheParameter(@TempDir Path in, @TempDir Path out) throws Exception {
+        writeSources(in);
+        GenerateMojo mojo = mojo(in, out, "jar");
+        mojo.setLayout("elkk");
+
+        MojoExecutionException thrown = assertThrows(MojoExecutionException.class, mojo::execute);
+
+        assertTrue(thrown.getMessage().contains("elkk"), thrown.getMessage());
+        assertTrue(thrown.getMessage().contains("layout"), thrown.getMessage());
+    }
+
+    @Test
+    void anUnknownFormatInADiagramFailsTheBuild(@TempDir Path in, @TempDir Path out) throws Exception {
+        writeSources(in);
+        GenerateMojo mojo = mojo(in, out, "jar");
+        Diagram diagram = new Diagram();
+        diagram.setFormat("png");
+        mojo.setDiagrams(List.of(diagram));
+
+        MojoExecutionException thrown = assertThrows(MojoExecutionException.class, mojo::execute);
+
+        assertTrue(thrown.getMessage().contains("png"), thrown.getMessage());
+    }
 }

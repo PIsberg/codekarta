@@ -641,4 +641,90 @@ class KartaCliTest {
                 "src/main/java/shop/class-diagram.svg",
                 "src/main/java/shop/billing/class-diagram.svg"), relative);
     }
+
+    // --- argument parsing (#231) ---
+
+    private static String errorFor(String... args) {
+        return assertThrows(IllegalArgumentException.class, () -> KartaCli.parseArgs(args)).getMessage();
+    }
+
+    @Test
+    void anUnknownFlagIsAnErrorRatherThanIgnored() {
+        String message = errorFor("--input", "src", "--sequnce-only");
+
+        assertTrue(message.contains("--sequnce-only"), "the message names the argument: " + message);
+    }
+
+    @Test
+    void aValuedFlagWithNoValueIsAnError() {
+        assertTrue(errorFor("--input", "src", "--max-depth").contains("--max-depth"));
+        assertTrue(errorFor("--input", "src", "--format").contains("--format"));
+        assertTrue(errorFor("--input", "--sequence-only").contains("--input"),
+                "a flag where the value should be is a missing value, not a path called --sequence-only");
+    }
+
+    @Test
+    void anUnknownLayoutOrFormatIsAnError() {
+        assertTrue(errorFor("--input", "src", "--layout", "elkk").contains("elkk"));
+        assertTrue(errorFor("--input", "src", "--format", "png").contains("png"));
+    }
+
+    @Test
+    void aNumberFlagWithANonNumberIsAnError() {
+        assertTrue(errorFor("--input", "src", "--max-depth", "abc").contains("abc"));
+        assertTrue(errorFor("--input", "src", "--max-members", "lots").contains("lots"));
+    }
+
+    @Test
+    void inputIsRequired() {
+        assertTrue(errorFor("--output", "out").contains("--input"));
+    }
+
+    @Test
+    void validArgumentsAreParsed() {
+        KartaCli.Invocation call = KartaCli.parseArgs("--input", "src", "--output", "out",
+                "--sequence-only", "--layout", "ELK", "--format", "json", "--max-depth", "3",
+                "--max-members", "all", "--exclude", "Foo, *Test", "--split-packages", "--include-tests",
+                "--output-name", "x.json");
+
+        assertEquals(Path.of("src"), call.inputPath());
+        assertEquals(Path.of("out"), call.outputDir());
+        assertTrue(call.splitPackages());
+        assertFalse(call.help());
+        RunOptions options = call.options();
+        assertTrue(options.sequenceOnly());
+        assertEquals("elk", options.layout());
+        assertEquals(RunOptions.FORMAT_JSON, options.format());
+        assertEquals(3, options.maxDepth());
+        assertEquals(se.deversity.codekarta.input.parser.ClassDiagramParser.UNLIMITED_MEMBERS, options.maxMembers());
+        assertEquals(java.util.Set.of("Foo", "*Test"), options.customExcludes());
+        assertTrue(options.includeTests());
+        assertEquals("x.json", options.outputName());
+    }
+
+    @Test
+    void defaultsApplyWhenOnlyInputIsGiven() {
+        KartaCli.Invocation call = KartaCli.parseArgs("--input", "src");
+
+        assertEquals(KartaCli.DEFAULT_OUTPUT, call.outputDir());
+        assertEquals(RunOptions.defaults(), call.options());
+    }
+
+    @Test
+    void helpNeedsNoInput() {
+        assertTrue(KartaCli.parseArgs("--help").help());
+        assertTrue(KartaCli.parseArgs("-h").help());
+    }
+
+    @Test
+    void runOptionsRejectsAnUnknownLayoutOrFormat() {
+        RunOptions defaults = RunOptions.defaults();
+        IllegalArgumentException layout = assertThrows(IllegalArgumentException.class, () -> new RunOptions(
+                false, "elkk", false, null, 1, false, null, 6, "svg", false));
+        assertTrue(layout.getMessage().contains("elkk"));
+        IllegalArgumentException format = assertThrows(IllegalArgumentException.class, () -> defaults.withFormat("png"));
+        assertTrue(format.getMessage().contains("png"));
+        assertEquals("elk", new RunOptions(false, "ELK", false, null, 1, false, null, 6, "JSON", false).layout(),
+                "known values are accepted in any case and stored lower-case");
+    }
 }

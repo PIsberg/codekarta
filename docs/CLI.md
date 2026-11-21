@@ -40,6 +40,20 @@ The flag set here, `KartaCli.printUsage()`, and the `RunOptions` record are thre
 same list. `RunOptions` carries an `@AIKeepInSync` guardrail naming the other two, because
 nothing in the build catches a flag that was added to one and not the others.
 
+## Mistyped arguments
+
+The CLI rejects what it does not understand instead of falling back to a default. An unknown flag,
+a flag that needs a value and has none (or has another flag in its place), a `--layout` other than
+`simple`/`elk`, a `--format` other than `svg`/`json`, and a non-number for `--max-depth` or
+`--max-members` each print `Error:` naming the argument, then the usage line, and exit with code 1.
+Nothing is written. Layout and format names are case-insensitive.
+
+```
+$ java -jar code-karta-cli-0.4.0-all.jar --input src --sequnce-only
+Error: unknown argument '--sequnce-only'.
+Usage: karta --input <path> ...
+```
+
 ## Choosing flags
 
 - `--split-packages` with a repository root as `--input` for a first look at an unfamiliar
