@@ -160,8 +160,8 @@ public class GenerateMojo extends AbstractMojo {
     }
 
     private int generate(Diagram diagram) throws MojoExecutionException {
-        Path in = Path.of(firstNonBlank(diagram.getInput(), input.getPath()));
-        Path outDir = Path.of(firstNonBlank(diagram.getOutput(), outputDirectory.getPath()));
+        Path in = moduleRelative(diagram.getInput(), input);
+        Path outDir = moduleRelative(diagram.getOutput(), outputDirectory);
 
         if (!Files.exists(in)) {
             // A module with no src/main/java is ordinary in a reactor, not a misconfiguration.
@@ -231,6 +231,27 @@ public class GenerateMojo extends AbstractMojo {
                 diagramMembers != null ? diagramMembers : maxMembers,
                 firstNonBlank(diagram.getFormat(), format),
                 diagram.isIncludeTests() || includeTests);
+    }
+
+    /**
+     * The path a {@code <diagram>} value names, or the goal-level default when it is blank.
+     *
+     * <p>The goal-level parameters are {@code File}s, which Maven resolves against the module's
+     * basedir. The {@code <diagram>} values are plain strings, and {@code Path.of} resolved a
+     * relative one against the JVM's working directory: the reactor root in a multi-module
+     * build, or wherever {@code mvn -f} was run. The input was then not found, and output went to
+     * a directory the configuration never named (issue #233). A relative value now resolves
+     * against the module's basedir, the same as the goal-level parameters; an absolute one is
+     * used as given. Nothing widens what a configured path can reach: the pom author picks the
+     * path either way, and this only changes which directory a relative one starts from.
+     */
+    private Path moduleRelative(String diagramValue, File goalDefault) {
+        if (diagramValue == null || diagramValue.isBlank()) {
+            return goalDefault.toPath();
+        }
+        Path path = Path.of(diagramValue);
+        File basedir = project.getBasedir();
+        return path.isAbsolute() || basedir == null ? path : basedir.toPath().resolve(path);
     }
 
     private static String firstNonBlank(String specific, String fallback) {
