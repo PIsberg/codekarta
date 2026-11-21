@@ -22,6 +22,9 @@ whole detection surface — see [`DIAGRAM-MODES.md`](DIAGRAM-MODES.md#state-tran
 
 ## Regenerating the fixture diagrams
 
+`mvn verify` regenerates all six, and CI fails if the result differs from what is committed. The
+commands it runs, for regenerating by hand:
+
 ```bash
 mvn clean package -q
 

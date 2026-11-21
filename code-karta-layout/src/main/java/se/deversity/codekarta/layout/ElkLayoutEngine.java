@@ -47,7 +47,6 @@ public class ElkLayoutEngine implements LayoutEngine {
     private static final Logger log = Logger.getLogger(ElkLayoutEngine.class.getName());
 
     private static final double NODE_WIDTH  = NodeDimensions.DEFAULT_WIDTH;
-    private static final double NODE_HEIGHT = NodeDimensions.DEFAULT_HEIGHT;
 
     @Override
     @AIPerformance(constraint = "Layout runs synchronously in the CLI pipeline — avoid O(n²) or heap-allocating operations on the full node list. ELK's layered algorithm is already O(n log n); the fallback SimpleLayoutEngine is O(n).")
@@ -94,6 +93,9 @@ public class ElkLayoutEngine implements LayoutEngine {
                 ElkNode compound = ElkGraphUtil.createNode(root);
                 compound.setIdentifier(group.getId());
                 compound.setProperty(CoreOptions.ALGORITHM, "org.eclipse.elk.layered");
+                // Not inherited from the root: without it a compound node lays its members out in
+                // ELK's default direction, so a chain inside a package came out as one row.
+                compound.setProperty(CoreOptions.DIRECTION, Direction.DOWN);
                 groupElkNodes.put(group.getId(), compound);
             }
         }
@@ -107,7 +109,9 @@ public class ElkLayoutEngine implements LayoutEngine {
             ElkNode elkNode = ElkGraphUtil.createNode(parent);
             elkNode.setIdentifier(node.getId());
             elkNode.setWidth(NODE_WIDTH);
-            elkNode.setHeight(NODE_HEIGHT);
+            // The height SvgRenderer will draw, not a fixed default: a class box with member
+            // compartments is drawn as tall as its members need, and ELK must leave that room.
+            elkNode.setHeight(RenderedSize.estimateHeight(node));
             elkNodes.put(node.getId(), elkNode);
         }
 
