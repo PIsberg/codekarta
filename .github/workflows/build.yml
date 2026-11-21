@@ -264,7 +264,7 @@ jobs:
       # before any other check does. gradle-wrapper.properties now pins the distribution by
       # SHA-256; this validates the jar itself against Gradle's published checksums.
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+        uses: gradle/actions/wrapper-validation@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
 
       - name: Test all modules
         run: ./gradlew test
