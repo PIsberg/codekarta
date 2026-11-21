@@ -73,6 +73,12 @@ each version heading is the complete record.
   tree reachable only through a recursive method rendered as headers with 0 messages, and
   `--max-depth 3` on a depth-2 tree kept 0 edges. Self-calls no longer count, and a cycle
   nothing outside calls (`a -> b -> a`) starts from its first method in graph order. (#229)
+- **`--layout elk` no longer stacks class boxes on top of each other.** ELK reserved a fixed 70px
+  for every node while `SvgRenderer` draws a class with member compartments as tall as its
+  members need, so three 505px boxes were laid out on a 90px pitch. ELK now reserves the rendered
+  height, from the same estimate `SimpleLayoutEngine` already used (now shared, in one place).
+  Package groups also lay their members out top to bottom: `DIRECTION = DOWN` was set on the root
+  only, so a chain inside a package came out as one row. (#230)
 
 ## [0.4.0] - 2026-08-30
 

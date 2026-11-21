@@ -199,6 +199,9 @@ AI tools reading this file should respect the guardrails defined below. These ru
 
 ## Required Chain-of-Thought Explanations
 - [ElkLayoutEngine.layoutWithElk(se.deversity.codekarta.core.model.Graph)](se.deversity.codekarta.layout.ElkLayoutEngine.layoutWithElk(se.deversity.codekarta.core.model.Graph)): Requires step-by-step mathematical or logical explanation (Chain-of-Thought) of all changes. Complexity: MEDIUM
+
+## Mirrored Elements
+- [RenderedSize.estimateHeight(se.deversity.codekarta.core.model.Node)](se.deversity.codekarta.layout.RenderedSize.estimateHeight(se.deversity.codekarta.core.model.Node)): Editing this requires the same edit at: se.deversity.codekarta.render.SvgRenderer#computeCompartmentHeight. Layout may not reference render, so the compartment-height formula exists twice. If SvgRenderer draws compartments taller than this estimate, both layout engines leave too little room and class boxes overlap; if shorter, diagrams grow gaps.. Enforced by RenderedOverlapTest.theEstimateMatchesWhatSvgRendererDraws, against heights measured from SvgRenderer output; no test compares the two formulas directly.
 <!-- VIBETAGS-MODULE-END: code-karta-layout -->
 <!-- VIBETAGS-MODULE: code-karta-maven-plugin -->
 # This Project

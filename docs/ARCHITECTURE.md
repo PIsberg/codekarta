@@ -125,6 +125,10 @@ Implementations mutate the same `Graph` instance and return it for chaining. The
 | `SimpleLayoutEngine` | Default pure-Java layout. Uses root discovery plus breadth-first depth levels and a row/column grid. Predictable and dependency-light. |
 | `ElkLayoutEngine` | Large or dense graphs. Uses Eclipse Layout Kernel layered layout for crossing reduction and routed edges. Falls back to simple layout if ELK fails. |
 
+Both engines size nodes for what the renderer will draw. `SvgRenderer` draws a class or interface with member compartments as tall as its members need, whatever height layout assigned, so each engine reserves `RenderedSize.estimateHeight(node)` (package-private in `code-karta-layout`): the compartment height for a node with `fields` or `methods`, otherwise `NodeDimensions.DEFAULT_HEIGHT`. `SimpleLayoutEngine` uses it as the row pitch, and `ElkLayoutEngine` gives it to ELK as the node height. Layout may not reference render, so the formula mirrors `SvgRenderer.computeCompartmentHeight`; `@AIKeepInSync` names the pair, and `RenderedOverlapTest` lays out the same wide classes with both engines and fails if any two boxes overlap at their rendered height.
+
+`ElkLayoutEngine` sets `DIRECTION = DOWN` on the root and on every compound (package) node. ELK does not inherit the option, so without the second setting the members of a package were laid out in one row.
+
 CLI selection:
 
 ```bash
