@@ -83,6 +83,28 @@ inside the markers. Change the annotation in the Java source and recompile. The 
 `docs/diagrams/`, which `mvn verify` regenerates. CI fails if regenerated output differs from what
 is committed, so run `mvn clean verify` and commit the result.
 
+## Dependency updates
+
+Dependabot opens one pull request per ecosystem per week (`.github/dependabot.yml`). Three kinds
+cannot go green on their own, and each needs one local step:
+
+- **A version shared by the Maven and Gradle builds** (VibeTags, JUnit, JSpecify): the Maven pull
+  request bumps `pom.xml` only, and the "Maven and Gradle agree on shared versions" job fails,
+  printing the mismatch. Set the same version on the `build.gradle.kts` line it names, run
+  `python3 scripts/check-build-parity.py`, and push to the Dependabot branch. The Gradle entry
+  ignores these dependencies, so there is no second pull request to close.
+- **A bump that changes generated output** (the VibeTags processor regenerates the guardrail
+  files; a Gradle wrapper or Maven bump can change regenerated files too): the "Regeneration is
+  idempotent and committed" step fails. Check out the branch, run `mvn clean verify`, and commit
+  the result.
+- **A Maven wrapper bump** to a new distribution needs `distributionSha256Sum` recomputed by hand,
+  as `.mvn/wrapper/maven-wrapper.properties` describes. Minor and major Maven bumps are ignored
+  for that reason and because the plugin API is held on 3.9.x on purpose (`maven.api.version`
+  in `pom.xml`); patch releases still arrive.
+
+The `github/codeql-action` steps are grouped into one pull request: CodeQL refuses to run with
+its steps at different versions.
+
 ## Commits and pull requests
 
 - Branch from `main`. Do not commit to `main` directly.
