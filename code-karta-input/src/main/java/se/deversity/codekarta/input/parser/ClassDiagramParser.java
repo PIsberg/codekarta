@@ -1,8 +1,8 @@
 package se.deversity.codekarta.input.parser;
 
 import com.github.javaparser.JavaParser;
-import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
@@ -14,6 +14,7 @@ import se.deversity.codekarta.core.model.Node;
 import se.deversity.vibetags.annotations.AIArchitecture;
 import se.deversity.vibetags.annotations.AIContext;
 import se.deversity.vibetags.annotations.AIParallelTests;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,6 +22,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,8 +37,6 @@ import java.util.logging.Logger;
 public class ClassDiagramParser {
 
     private static final Logger log = Logger.getLogger(ClassDiagramParser.class.getName());
-    private static final JavaParser PARSER = new JavaParser(
-            new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21));
 
     private static final Set<String> SKIP_TYPES = Set.of(
             "int", "long", "double", "float", "boolean", "byte", "short", "char",
@@ -94,13 +94,14 @@ public class ClassDiagramParser {
     public Graph parse(Path sourceDirectory) {
         Graph graph = new Graph();
         List<CompilationUnit> units = new ArrayList<>();
+        JavaParser parser = ParserSupport.newJava21Parser();
         try {
             // SourceTree sorts: walk order is filesystem-defined (NTFS name order, ext4 hash
             // order), and node order reaches the rendered SVG that consumers commit.
             List<Path> javaFiles = SourceTree.javaFiles(sourceDirectory, includeTests);
             for (Path file : javaFiles) {
                 try {
-                    units.add(PARSER.parse(Files.readString(file)).getResult().orElseThrow());
+                    units.add(parser.parse(Files.readString(file)).getResult().orElseThrow());
                 } catch (Exception e) {
                     log.warning("Failed to parse " + file + ": " + e.getMessage());
                 }
@@ -109,21 +110,20 @@ public class ClassDiagramParser {
             log.warning("Error walking directory " + sourceDirectory + ": " + e.getMessage());
         }
 
-        // Pass 1: types declared in this parse run — relationship targets outside
-        // this set are external (JDK, third-party) and are kept out of the diagram
-        Set<String> declaredTypes = new HashSet<>();
+        // Pass 1: types declared in this parse run. Relationship targets outside this set are
+        // external (JDK, third-party) and are kept out of the diagram.
+        TypeIndex index = new TypeIndex();
         for (CompilationUnit cu : units) {
-            cu.getTypes().forEach(t -> declaredTypes.add(t.getNameAsString()));
+            String packageName = packageOf(cu);
+            cu.getTypes().forEach(t -> index.add(packageName, t.getNameAsString()));
         }
 
         // Pass 2: nodes, package groups, and edges
         for (CompilationUnit cu : units) {
             try {
-                String packageName = cu.getPackageDeclaration()
-                        .map(pd -> pd.getNameAsString())
-                        .orElse(null);
+                Scope scope = new Scope(cu);
                 for (TypeDeclaration<?> type : cu.getTypes()) {
-                    processType(type, graph, packageName, declaredTypes);
+                    processType(type, graph, scope, index);
                 }
             } catch (Exception e) {
                 log.warning("Failed to process compilation unit: " + e.getMessage());
@@ -132,87 +132,194 @@ public class ClassDiagramParser {
         return graph;
     }
 
-    private void processType(TypeDeclaration<?> type, Graph graph, String packageName, Set<String> declaredTypes) {
-        String name = type.getNameAsString();
-        if (FilterMatcher.matchesAny(name, customExcludes)) {
+    private static @Nullable String packageOf(CompilationUnit cu) {
+        return cu.getPackageDeclaration().map(pd -> pd.getNameAsString()).orElse(null);
+    }
+
+    /**
+     * Node id of a type: its qualified name, or the simple name in the default package.
+     *
+     * <p>Two types that share a simple name in different packages are different nodes. Keyed by
+     * simple name they merged into one box with the later file's members, a membership in both
+     * package groups, and every edge to either type (issue #226). The node label stays the simple
+     * name; the package group around the box says which package it is in.
+     */
+    static String typeId(@Nullable String packageName, String simpleName) {
+        return packageName == null || packageName.isEmpty() ? simpleName : packageName + "." + simpleName;
+    }
+
+    private static String simpleName(String typeName) {
+        return typeName.substring(typeName.lastIndexOf('.') + 1);
+    }
+
+    /** Every type declared in this parse run, by node id and by simple name. */
+    private static final class TypeIndex {
+        private final Set<String> ids = new HashSet<>();
+        private final Map<String, Set<String>> idsBySimpleName = new HashMap<>();
+
+        void add(@Nullable String packageName, String simpleName) {
+            String id = typeId(packageName, simpleName);
+            ids.add(id);
+            idsBySimpleName.computeIfAbsent(simpleName, k -> new LinkedHashSet<>()).add(id);
+        }
+
+        boolean contains(String id) {
+            return ids.contains(id);
+        }
+
+        /** The only declared type with this simple name, or {@code null} if none or several. */
+        @Nullable String unique(String simpleName) {
+            Set<String> candidates = idsBySimpleName.getOrDefault(simpleName, Set.of());
+            return candidates.size() == 1 ? candidates.iterator().next() : null;
+        }
+    }
+
+    /** What a type name written in one compilation unit can refer to: its package and imports. */
+    private static final class Scope {
+        final @Nullable String packageName;
+        private final Map<String, String> singleTypeImports = new HashMap<>();
+        private final List<String> onDemandImports = new ArrayList<>();
+
+        Scope(CompilationUnit cu) {
+            this.packageName = packageOf(cu);
+            for (ImportDeclaration imp : cu.getImports()) {
+                if (imp.isStatic()) {
+                    continue;
+                }
+                String name = imp.getNameAsString();
+                if (imp.isAsterisk()) {
+                    onDemandImports.add(name);
+                } else {
+                    singleTypeImports.put(simpleName(name), name);
+                }
+            }
+        }
+
+        /**
+         * The node id a type name written in this unit refers to, or {@code null} when it names
+         * no type of this parse run or could name several. Java's own precedence: a qualified
+         * name, then a single-type import, then the unit's package, then on-demand imports. A
+         * simple name that none of those settle still resolves when exactly one declared type
+         * carries it, since diagrams are drawn from partial source trees too; when several do,
+         * no edge beats a wrong one.
+         */
+        @Nullable String resolve(String typeName, TypeIndex index) {
+            if (typeName.indexOf('.') >= 0) {
+                return index.contains(typeName) ? typeName : null;
+            }
+            String imported = singleTypeImports.get(typeName);
+            if (imported != null) {
+                return index.contains(imported) ? imported : null;
+            }
+            String samePackage = typeId(packageName, typeName);
+            if (index.contains(samePackage)) {
+                return samePackage;
+            }
+            String onDemand = null;
+            for (String pkg : onDemandImports) {
+                String candidate = typeId(pkg, typeName);
+                if (index.contains(candidate)) {
+                    if (onDemand != null) {
+                        return null;
+                    }
+                    onDemand = candidate;
+                }
+            }
+            return onDemand != null ? onDemand : index.unique(typeName);
+        }
+    }
+
+    private void processType(TypeDeclaration<?> type, Graph graph, Scope scope, TypeIndex index) {
+        String simple = type.getNameAsString();
+        if (FilterMatcher.matchesAny(simple, customExcludes)) {
             return;
         }
+        String id = typeId(scope.packageName, simple);
         String nodeType = (type instanceof ClassOrInterfaceDeclaration coid && coid.isInterface())
                 ? "INTERFACE"
                 : "CLASS";
 
-        graph.addNodeIfAbsent(new Node(name, nodeType, name));
+        graph.addNodeIfAbsent(new Node(id, nodeType, simple));
         // Update the stored node (may have been added as a stub by another file's reference)
-        Node typeNode = graph.findNode(name);
+        Node typeNode = graph.findNode(id);
         if (typeNode != null) {
             typeNode.setType(nodeType);
             typeNode.setProperties(buildProperties(type));
         }
 
-        if (packageName != null) {
-            String groupId = "package-" + packageName;
+        if (scope.packageName != null) {
+            String groupId = "package-" + scope.packageName;
             Group pkgGroup = graph.getGroups().stream()
                     .filter(g -> groupId.equals(g.getId()))
                     .findFirst()
                     .orElse(null);
             if (pkgGroup == null) {
-                pkgGroup = new Group(groupId, packageName);
+                pkgGroup = new Group(groupId, scope.packageName);
                 graph.addGroup(pkgGroup);
             }
-            if (!pkgGroup.getMemberIds().contains(name)) {
-                pkgGroup.addMember(name);
+            if (!pkgGroup.getMemberIds().contains(id)) {
+                pkgGroup.addMember(id);
             }
         }
 
         if (type instanceof ClassOrInterfaceDeclaration coid) {
             for (var extended : coid.getExtendedTypes()) {
-                String parent = extended.getNameAsString();
-                // Only link to types declared in this parse run — external supertypes
+                // Only link to types declared in this parse run: external supertypes
                 // (RuntimeException, AutoCloseable, …) would clutter the diagram
-                if (!declaredTypes.contains(parent) || FilterMatcher.matchesAny(parent, customExcludes)) {
+                String parent = supertypeTarget(extended.getNameWithScope(), scope, index);
+                if (parent == null) {
                     continue;
                 }
-                graph.addNodeIfAbsent(new Node(parent, "CLASS", parent));
-                graph.addEdge(new Edge(name + "-extends-" + parent, name, parent, "EXTENDS"));
+                graph.addNodeIfAbsent(new Node(parent, "CLASS", simpleName(parent)));
+                graph.addEdge(new Edge(id + "-extends-" + parent, id, parent, "EXTENDS"));
             }
             for (var implemented : coid.getImplementedTypes()) {
-                String iface = implemented.getNameAsString();
-                if (!declaredTypes.contains(iface) || FilterMatcher.matchesAny(iface, customExcludes)) {
+                String iface = supertypeTarget(implemented.getNameWithScope(), scope, index);
+                if (iface == null) {
                     continue;
                 }
-                graph.addNodeIfAbsent(new Node(iface, "INTERFACE", iface));
-                graph.addEdge(new Edge(name + "-implements-" + iface, name, iface, "IMPLEMENTS"));
+                graph.addNodeIfAbsent(new Node(iface, "INTERFACE", simpleName(iface)));
+                graph.addEdge(new Edge(id + "-implements-" + iface, id, iface, "IMPLEMENTS"));
             }
             for (FieldDeclaration field : coid.getFields()) {
                 String fullType  = field.getElementType().asString();
-                String rawType   = rawType(fullType);
                 String fieldName = field.getVariables().get(0).getNameAsString();
 
-                if (declaredTypes.contains(rawType) && !SKIP_TYPES.contains(rawType)
-                        && !FilterMatcher.matchesAny(rawType, customExcludes)) {
-                    // Direct domain type: Engine engine → HAS Engine
-                    graph.addNodeIfAbsent(new Node(rawType, "CLASS", rawType));
-                    Edge hasEdge = new Edge(
-                            name + "-has-" + fieldName + "-" + rawType,
-                            name, rawType, "HAS");
-                    hasEdge.setLabel(fieldName);
-                    graph.addEdge(hasEdge);
-                } else {
+                // Direct domain type: Engine engine → HAS Engine
+                String target = fieldTarget(rawType(fullType), scope, index);
+                if (target == null) {
                     // Container of domain type: List<Node> → HAS Node, Map<String,Node> → HAS Node
                     String innerType = innerGenericType(fullType);
-                    if (innerType != null && declaredTypes.contains(innerType)
-                            && !SKIP_TYPES.contains(innerType)
-                            && !FilterMatcher.matchesAny(innerType, customExcludes)) {
-                        graph.addNodeIfAbsent(new Node(innerType, "CLASS", innerType));
-                        Edge hasEdge = new Edge(
-                                name + "-has-" + fieldName + "-" + innerType,
-                                name, innerType, "HAS");
-                        hasEdge.setLabel(fieldName);
-                        graph.addEdge(hasEdge);
-                    }
+                    target = innerType != null ? fieldTarget(innerType, scope, index) : null;
+                }
+                if (target != null) {
+                    graph.addNodeIfAbsent(new Node(target, "CLASS", simpleName(target)));
+                    Edge hasEdge = new Edge(id + "-has-" + fieldName + "-" + target, id, target, "HAS");
+                    hasEdge.setLabel(fieldName);
+                    graph.addEdge(hasEdge);
                 }
             }
         }
+    }
+
+    /**
+     * The node id a supertype points at, or {@code null} for an excluded name or a type this
+     * parse run does not declare. {@link #SKIP_TYPES} does not apply: a declared {@code List}
+     * interface is a real supertype (the JDK corpus test pins {@code ArrayList -> List}).
+     */
+    private @Nullable String supertypeTarget(String typeName, Scope scope, TypeIndex index) {
+        return FilterMatcher.matchesAny(simpleName(typeName), customExcludes)
+                ? null
+                : scope.resolve(typeName, index);
+    }
+
+    /**
+     * The node id a field type points at, or {@code null} when it is not drawn: a stdlib type,
+     * an excluded name, or a type this parse run does not declare. {@code typeName} must
+     * already be raw ({@link #rawType}) so {@code List<Node>} is checked as {@code List}.
+     */
+    private @Nullable String fieldTarget(String typeName, Scope scope, TypeIndex index) {
+        return SKIP_TYPES.contains(simpleName(typeName)) ? null : supertypeTarget(typeName, scope, index);
     }
 
     private Map<String, String> buildProperties(TypeDeclaration<?> type) {

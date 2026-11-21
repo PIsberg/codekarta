@@ -26,9 +26,31 @@ each version heading is the complete record.
 
 ### Changed
 
+- **Class diagram node ids are qualified names.** A type in a named package now has the id
+  `a.Config` instead of `Config` (default-package types keep the simple name); the label is still
+  the simple name. This changes the `id`, `sourceId`, `targetId` and group `memberIds` values in
+  `--format json` output and the `<g id>` attributes in class-diagram SVGs, so a committed diagram
+  regenerates with a diff. Ids now match the qualified ids `MultiFileSequenceParser` already
+  emitted for sequence diagrams. (#226)
 - A directory input no longer reads test source sets, generated sources under `target/` or
   `build/`, or anything under a hidden directory. Inputs that were already a source root such as
   `src/main/java`, which is the Maven plugin's default, draw exactly what they drew before.
+
+### Fixed
+
+- **Parallel builds (`mvn -T`) no longer corrupt diagrams.** The class diagram, state machine,
+  module and single-file sequence parsers each shared one static `JavaParser`, which is not safe
+  for concurrent use, while the Maven plugin declares `threadSafe = true`. Two modules parsed at
+  once could throw an `AssertionError` out of JavaParser, past the parsers' own fault tolerance,
+  or return a partial or empty graph with no warning. In a test that runs 32 parses on 8 threads,
+  32 of 32 went wrong for every one of those parsers; each parse run now creates its own
+  parser, and all 32 match the serial result. (#225)
+- **Types that share a simple name across packages are no longer merged.** `a.Config` and
+  `b.Config` used to become one box with the later file's members, sitting in both package
+  groups, with every edge to either type landing on it and nothing logged. They are now separate
+  nodes, and a field or supertype reference resolves through the file's package and imports; a
+  simple name that two input types share and nothing disambiguates draws no edge rather than a
+  wrong one. (#226)
 
 ## [0.4.0] - 2026-08-30
 
