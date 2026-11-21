@@ -44,8 +44,20 @@ public class KartaCli {
      */
     enum PipelineStage { PARSING, LAYOUT, RENDERING, WRITING, DONE }
 
+    /** What one command line asks for. {@code help} means print the usage and stop. */
+    record Invocation(Path inputPath, Path outputDir, boolean splitPackages, boolean help, RunOptions options) {}
+
+    /**
+     * Reads a command line. Anything it does not understand is an error rather than a default:
+     * an unknown flag, a flag that needs a value and has none (the next argument is another
+     * flag, or there is none), and a value outside what the flag accepts. Lenient parsing turned
+     * a misspelt {@code --sequnce-only} into a class diagram and {@code --layout elkk} into the
+     * simple layout, with exit code 0 (issue #231).
+     *
+     * @throws IllegalArgumentException naming the offending argument
+     */
     @SuppressWarnings("PMD.AvoidReassigningLoopVariables") // args[++i] is the standard flag-value idiom
-    public static void main(String[] args) {
+    static Invocation parseArgs(String... args) {
         Path inputPath = null;
         Path outputDir = DEFAULT_OUTPUT;
         boolean sequenceOnly = false;
@@ -53,7 +65,7 @@ public class KartaCli {
         boolean modulesOnly = false;
         boolean splitPackages = false;
         boolean includeTests = false;
-        String layout = "simple";
+        String layout = RunOptions.LAYOUT_SIMPLE;
         String outputName = null;
         String format = RunOptions.FORMAT_SVG;
         java.util.Set<String> customExcludes = java.util.Collections.emptySet();
@@ -61,73 +73,82 @@ public class KartaCli {
         int maxMembers = se.deversity.codekarta.input.parser.ClassDiagramParser.DEFAULT_MAX_MEMBERS;
 
         for (int i = 0; i < args.length; i++) {
-            switch (args[i]) {
-                case "--input"         -> { if (i + 1 < args.length) inputPath = Path.of(args[++i]); }
-                case "--output"        -> { if (i + 1 < args.length) outputDir = Path.of(args[++i]); }
-                case "--output-name"   -> { if (i + 1 < args.length) outputName = args[++i]; }
-                case "--layout"        -> { if (i + 1 < args.length) layout = args[++i]; }
+            String flag = args[i];
+            switch (flag) {
+                case "--input"         -> inputPath = Path.of(valueOf(args, ++i, flag));
+                case "--output"        -> outputDir = Path.of(valueOf(args, ++i, flag));
+                case "--output-name"   -> outputName = valueOf(args, ++i, flag);
+                case "--layout"        -> layout = valueOf(args, ++i, flag);
+                case "--format"        -> format = valueOf(args, ++i, flag);
                 case "--sequence-only" -> sequenceOnly = true;
                 case "--state-machine" -> stateMachine = true;
                 case "--modules-only"  -> modulesOnly = true;
                 case "--split-packages" -> splitPackages = true;
                 case "--include-tests" -> includeTests = true;
-                case "--exclude"       -> {
-                    if (i + 1 < args.length) {
-                        String rawExcludes = args[++i];
-                        customExcludes = java.util.Arrays.stream(rawExcludes.split(","))
-                                .map(String::trim)
-                                .filter(s -> !s.isEmpty())
-                                .collect(java.util.stream.Collectors.toSet());
-                    }
-                }
-                case "--max-depth"     -> {
-                    if (i + 1 < args.length) {
-                        try {
-                            maxDepth = Integer.parseInt(args[++i]);
-                        } catch (NumberFormatException e) {
-                            System.err.println("Warning: --max-depth must be an integer, ignoring.");
-                        }
-                    }
-                }
+                case "--exclude"       -> customExcludes = java.util.Arrays.stream(valueOf(args, ++i, flag).split(","))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .collect(java.util.stream.Collectors.toSet());
+                case "--max-depth"     -> maxDepth = intValueOf(valueOf(args, ++i, flag), flag, "an integer");
                 case "--max-members"   -> {
-                    if (i + 1 < args.length) {
-                        String raw = args[++i];
-                        if ("all".equalsIgnoreCase(raw)) {
-                            maxMembers = se.deversity.codekarta.input.parser.ClassDiagramParser.UNLIMITED_MEMBERS;
-                        } else {
-                            try {
-                                maxMembers = Integer.parseInt(raw);
-                            } catch (NumberFormatException e) {
-                                System.err.println("Warning: --max-members must be an integer or 'all', ignoring.");
-                            }
-                        }
-                    }
+                    String raw = valueOf(args, ++i, flag);
+                    maxMembers = "all".equalsIgnoreCase(raw)
+                            ? se.deversity.codekarta.input.parser.ClassDiagramParser.UNLIMITED_MEMBERS
+                            : intValueOf(raw, flag, "an integer or 'all'");
                 }
-                case "--format"        -> {
-                    if (i + 1 < args.length) {
-                        String raw = args[++i];
-                        if (RunOptions.FORMAT_SVG.equalsIgnoreCase(raw)
-                                || RunOptions.FORMAT_JSON.equalsIgnoreCase(raw)) {
-                            format = raw.toLowerCase(java.util.Locale.ROOT);
-                        } else {
-                            System.err.println("Warning: --format must be 'svg' or 'json', got '"
-                                    + raw + "'. Using svg.");
-                        }
-                    }
+                case "--help", "-h"    -> {
+                    return new Invocation(null, outputDir, false, true, RunOptions.defaults());
                 }
-                case "--help", "-h"    -> { printUsage(); System.exit(0); }
-                default -> { /* unknown args are ignored */ }
+                default -> throw new IllegalArgumentException("unknown argument '" + flag + "'.");
             }
         }
 
         if (inputPath == null) {
-            System.err.println("Error: --input is required.");
+            throw new IllegalArgumentException("--input is required.");
+        }
+        // RunOptions checks layout and format, so the CLI, the Maven plugin and library callers
+        // all reject the same values with the same message.
+        return new Invocation(inputPath, outputDir, splitPackages, false,
+                new RunOptions(sequenceOnly, layout, stateMachine, customExcludes,
+                        maxDepth, modulesOnly, outputName, maxMembers, format, includeTests));
+    }
+
+    /** The value after {@code flag}; a missing one, or another flag in its place, is an error. */
+    private static String valueOf(String[] args, int index, String flag) {
+        if (index >= args.length || args[index].startsWith("--")) {
+            throw new IllegalArgumentException(flag + " needs a value.");
+        }
+        return args[index];
+    }
+
+    private static int intValueOf(String raw, String flag, String expected) {
+        try {
+            return Integer.parseInt(raw);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(flag + " must be " + expected + ", got '" + raw + "'.", e);
+        }
+    }
+
+    public static void main(String[] args) {
+        Invocation call;
+        try {
+            call = parseArgs(args);
+        } catch (IllegalArgumentException e) {
+            System.err.println("Error: " + e.getMessage());
             printUsage();
             System.exit(1);
+            return;
         }
+        if (call.help()) {
+            printUsage();
+            System.exit(0);
+            return;
+        }
+        Path inputPath = call.inputPath();
+        Path outputDir = call.outputDir();
+        boolean splitPackages = call.splitPackages();
 
-        RunOptions options = new RunOptions(sequenceOnly, layout, stateMachine, customExcludes,
-                maxDepth, modulesOnly, outputName, maxMembers, format, includeTests);
+        RunOptions options = call.options();
 
         try {
             if (splitPackages) {
@@ -477,7 +498,7 @@ public class KartaCli {
     }
 
     private static LayoutEngine resolveLayout(String name) {
-        return "elk".equalsIgnoreCase(name) ? new ElkLayoutEngine() : new SimpleLayoutEngine();
+        return RunOptions.LAYOUT_ELK.equals(name) ? new ElkLayoutEngine() : new SimpleLayoutEngine();
     }
 
     /**

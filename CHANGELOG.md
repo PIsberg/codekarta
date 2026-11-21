@@ -26,6 +26,14 @@ each version heading is the complete record.
 
 ### Changed
 
+- **The CLI rejects arguments it does not understand, and exits 1.** An unknown flag (a misspelt
+  `--sequnce-only` used to produce a class diagram), a valued flag with no value, an unknown
+  `--layout` (`elkk` became `simple`) or `--format`, and a non-number for `--max-depth` or
+  `--max-members` (previously a warning) now print an error naming the argument and the usage
+  line, and exit 1 without writing anything. `RunOptions` rejects an unknown layout or format with
+  `IllegalArgumentException` and stores both lower-case, so the Maven plugin fails the build on
+  `<layout>elkk</layout>` or `<format>png</format>` instead of drawing something else. Anyone
+  passing extra arguments that used to be ignored will see the run fail. (#231)
 - **Class diagram node ids are qualified names.** A type in a named package now has the id
   `a.Config` instead of `Config` (default-package types keep the simple name); the label is still
   the simple name. This changes the `id`, `sourceId`, `targetId` and group `memberIds` values in
