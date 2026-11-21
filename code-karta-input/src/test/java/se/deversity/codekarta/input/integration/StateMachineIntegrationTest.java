@@ -51,7 +51,7 @@ class StateMachineIntegrationTest {
 
     @Test
     void shipmentEnumConstantsAreStateNodes() {
-        for (String s : new String[]{"CREATED", "PROCESSING", "IN_TRANSIT", "DELIVERED", "FAILED", "CANCELLED"}) {
+        for (String s : new String[]{"ShipmentLifecycle.State.CREATED", "ShipmentLifecycle.State.PROCESSING", "ShipmentLifecycle.State.IN_TRANSIT", "ShipmentLifecycle.State.DELIVERED", "ShipmentLifecycle.State.FAILED", "ShipmentLifecycle.State.CANCELLED"}) {
             Node n = shipmentGraph.findNode(s);
             assertNotNull(n, "Expected STATE node: " + s);
             assertEquals("STATE", n.getType());
@@ -60,21 +60,21 @@ class StateMachineIntegrationTest {
 
     @Test
     void shipmentAdvanceHappyPath() {
-        assertTransition(shipmentGraph, "CREATED",    "PROCESSING", "advance");
-        assertTransition(shipmentGraph, "PROCESSING", "IN_TRANSIT", "advance");
-        assertTransition(shipmentGraph, "IN_TRANSIT", "DELIVERED",  "advance");
+        assertTransition(shipmentGraph, "ShipmentLifecycle.State.CREATED",    "ShipmentLifecycle.State.PROCESSING", "advance");
+        assertTransition(shipmentGraph, "ShipmentLifecycle.State.PROCESSING", "ShipmentLifecycle.State.IN_TRANSIT", "advance");
+        assertTransition(shipmentGraph, "ShipmentLifecycle.State.IN_TRANSIT", "ShipmentLifecycle.State.DELIVERED",  "advance");
     }
 
     @Test
     void shipmentFailTransitions() {
-        assertTransition(shipmentGraph, "PROCESSING", "FAILED", "fail");
-        assertTransition(shipmentGraph, "IN_TRANSIT", "FAILED", "fail");
+        assertTransition(shipmentGraph, "ShipmentLifecycle.State.PROCESSING", "ShipmentLifecycle.State.FAILED", "fail");
+        assertTransition(shipmentGraph, "ShipmentLifecycle.State.IN_TRANSIT", "ShipmentLifecycle.State.FAILED", "fail");
     }
 
     @Test
     void shipmentCancelTransitions() {
-        assertTransition(shipmentGraph, "CREATED",    "CANCELLED", "cancel");
-        assertTransition(shipmentGraph, "PROCESSING", "CANCELLED", "cancel");
+        assertTransition(shipmentGraph, "ShipmentLifecycle.State.CREATED",    "ShipmentLifecycle.State.CANCELLED", "cancel");
+        assertTransition(shipmentGraph, "ShipmentLifecycle.State.PROCESSING", "ShipmentLifecycle.State.CANCELLED", "cancel");
     }
 
     @Test
@@ -88,7 +88,7 @@ class StateMachineIntegrationTest {
 
     @Test
     void paymentEnumConstantsAreStateNodes() {
-        for (String s : new String[]{"PENDING", "AUTHORIZING", "AUTHORIZED", "CAPTURING", "CAPTURED", "REFUNDED", "DECLINED"}) {
+        for (String s : new String[]{"PaymentWorkflow.State.PENDING", "PaymentWorkflow.State.AUTHORIZING", "PaymentWorkflow.State.AUTHORIZED", "PaymentWorkflow.State.CAPTURING", "PaymentWorkflow.State.CAPTURED", "PaymentWorkflow.State.REFUNDED", "PaymentWorkflow.State.DECLINED"}) {
             Node n = paymentGraph.findNode(s);
             assertNotNull(n, "Expected STATE node: " + s);
             assertEquals("STATE", n.getType());
@@ -97,13 +97,13 @@ class StateMachineIntegrationTest {
 
     @Test
     void paymentDslTransitionsWithEventLabels() {
-        assertTransition(paymentGraph, "PENDING",     "AUTHORIZING", "initiate");
-        assertTransition(paymentGraph, "AUTHORIZING", "AUTHORIZED",  "authOk");
-        assertTransition(paymentGraph, "AUTHORIZING", "DECLINED",    "authDenied");
-        assertTransition(paymentGraph, "AUTHORIZED",  "CAPTURING",   "capture");
-        assertTransition(paymentGraph, "CAPTURING",   "CAPTURED",    "captureOk");
-        assertTransition(paymentGraph, "CAPTURING",   "DECLINED",    "captureFailed");
-        assertTransition(paymentGraph, "CAPTURED",    "REFUNDED",    "refund");
+        assertTransition(paymentGraph, "PaymentWorkflow.State.PENDING",     "PaymentWorkflow.State.AUTHORIZING", "initiate");
+        assertTransition(paymentGraph, "PaymentWorkflow.State.AUTHORIZING", "PaymentWorkflow.State.AUTHORIZED",  "authOk");
+        assertTransition(paymentGraph, "PaymentWorkflow.State.AUTHORIZING", "PaymentWorkflow.State.DECLINED",    "authDenied");
+        assertTransition(paymentGraph, "PaymentWorkflow.State.AUTHORIZED",  "PaymentWorkflow.State.CAPTURING",   "capture");
+        assertTransition(paymentGraph, "PaymentWorkflow.State.CAPTURING",   "PaymentWorkflow.State.CAPTURED",    "captureOk");
+        assertTransition(paymentGraph, "PaymentWorkflow.State.CAPTURING",   "PaymentWorkflow.State.DECLINED",    "captureFailed");
+        assertTransition(paymentGraph, "PaymentWorkflow.State.CAPTURED",    "PaymentWorkflow.State.REFUNDED",    "refund");
     }
 
     @Test
@@ -116,7 +116,7 @@ class StateMachineIntegrationTest {
 
     @Test
     void inventoryEnumConstantsAreStateNodes() {
-        for (String s : new String[]{"IDLE", "CHECKING", "RESERVED", "ALLOCATED", "COMMITTED", "RELEASED"}) {
+        for (String s : new String[]{"InventoryReservation.ReservationState.IDLE", "InventoryReservation.ReservationState.CHECKING", "InventoryReservation.ReservationState.RESERVED", "InventoryReservation.ReservationState.ALLOCATED", "InventoryReservation.ReservationState.COMMITTED", "InventoryReservation.ReservationState.RELEASED"}) {
             Node n = inventoryGraph.findNode(s);
             assertNotNull(n, "Expected STATE node: " + s);
             assertEquals("STATE", n.getType());
@@ -126,16 +126,16 @@ class StateMachineIntegrationTest {
     @Test
     void inventoryReservationChain() {
         // Field initialiser IDLE drives the first link; each subsequent assignment extends the chain
-        assertTransition(inventoryGraph, "IDLE",      "CHECKING",  "processReservation");
-        assertTransition(inventoryGraph, "CHECKING",  "RESERVED",  "processReservation");
-        assertTransition(inventoryGraph, "RESERVED",  "ALLOCATED", "processReservation");
-        assertTransition(inventoryGraph, "ALLOCATED", "COMMITTED", "processReservation");
+        assertTransition(inventoryGraph, "InventoryReservation.ReservationState.IDLE",      "InventoryReservation.ReservationState.CHECKING",  "processReservation");
+        assertTransition(inventoryGraph, "InventoryReservation.ReservationState.CHECKING",  "InventoryReservation.ReservationState.RESERVED",  "processReservation");
+        assertTransition(inventoryGraph, "InventoryReservation.ReservationState.RESERVED",  "InventoryReservation.ReservationState.ALLOCATED", "processReservation");
+        assertTransition(inventoryGraph, "InventoryReservation.ReservationState.ALLOCATED", "InventoryReservation.ReservationState.COMMITTED", "processReservation");
     }
 
     @Test
     void inventoryReleaseTransition() {
         // Field initialiser IDLE is the implicit prev for single-assignment methods
-        assertTransition(inventoryGraph, "IDLE", "RELEASED", "release");
+        assertTransition(inventoryGraph, "InventoryReservation.ReservationState.IDLE", "InventoryReservation.ReservationState.RELEASED", "release");
     }
 
     // ── Directory parse combines all three files ─────────────────────────────
@@ -145,10 +145,11 @@ class StateMachineIntegrationTest {
         StateMachineParser parser = new StateMachineParser();
         Graph combined = parser.parse(STATE_DIR);
 
-        // spot-check one node from each machine (names are unique across files)
-        assertNotNull(combined.findNode("CREATED"),    "shipment state missing from combined graph");
-        assertNotNull(combined.findNode("PENDING"),    "payment state missing from combined graph");
-        assertNotNull(combined.findNode("CHECKING"),   "inventory state missing from combined graph");
+        // spot-check one node from each machine; ids carry the enum, so ShipmentLifecycle.State
+        // and PaymentWorkflow.State stay apart even though both enums are called State
+        assertNotNull(combined.findNode("ShipmentLifecycle.State.CREATED"),    "shipment state missing from combined graph");
+        assertNotNull(combined.findNode("PaymentWorkflow.State.PENDING"),    "payment state missing from combined graph");
+        assertNotNull(combined.findNode("InventoryReservation.ReservationState.CHECKING"),   "inventory state missing from combined graph");
 
         // at least 7+7+5 = 19 transitions
         assertTrue(transitionCount(combined) >= 19,
