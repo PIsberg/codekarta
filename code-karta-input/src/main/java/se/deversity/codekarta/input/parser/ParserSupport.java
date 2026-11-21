@@ -4,7 +4,10 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.EnumDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.RecordDeclaration;
+import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.stmt.TryStmt;
 import se.deversity.codekarta.core.model.Graph;
@@ -17,8 +20,10 @@ import se.deversity.vibetags.annotations.AILoadBearing;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -40,10 +45,21 @@ import java.util.function.Function;
     suppressAudit = true)
 public final class ParserSupport {
 
-    private static final JavaParser PARSER = new JavaParser(
-            new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21));
-
     private ParserSupport() {
+    }
+
+    /**
+     * A new parser at the Java 21 language level, for one parse run on one thread.
+     *
+     * <p>A {@link JavaParser} reuses one internal generated parser between calls and is not safe
+     * for concurrent use, so it is never held in a static field. The Maven plugin declares
+     * {@code threadSafe = true}, and under {@code mvn -T} a shared instance made parses throw
+     * {@link AssertionError} from inside JavaParser or return partial graphs (issue #225).
+     * {@code ParserConcurrencyTest} fails if a parser goes back to sharing one.
+     */
+    public static JavaParser newJava21Parser() {
+        return new JavaParser(
+                new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21));
     }
 
     /** Null-safe normalisation used by every parser constructor taking excludes. */
@@ -58,18 +74,37 @@ public final class ParserSupport {
      * unparseable sources surface as {@link java.util.NoSuchElementException}.
      */
     public static CompilationUnit parseJava21(Path sourceFile) throws java.io.IOException {
-        return PARSER.parse(Files.readString(sourceFile)).getResult().orElseThrow();
+        return newJava21Parser().parse(Files.readString(sourceFile)).getResult().orElseThrow();
+    }
+
+    /**
+     * Every class, interface, record and enum declared in {@code root}, nested ones included,
+     * in source order. Annotation types are left out: they declare no methods a call could reach.
+     *
+     * <p>Searching for {@code ClassOrInterfaceDeclaration} alone dropped records and enums, and
+     * with them every method declared in one and every call into one (issue #227).
+     */
+    public static List<TypeDeclaration<?>> methodBearingTypes(com.github.javaparser.ast.Node root) {
+        List<TypeDeclaration<?>> types = new ArrayList<>();
+        root.walk(TypeDeclaration.class, type -> {
+            if (type instanceof ClassOrInterfaceDeclaration
+                    || type instanceof RecordDeclaration
+                    || type instanceof EnumDeclaration) {
+                types.add(type);
+            }
+        });
+        return types;
     }
 
     /**
      * Shared per-class prologue of the single-file parsers: iterates the
-     * compilation unit's class/interface declarations, skips excluded names,
+     * compilation unit's class, interface, record and enum declarations, skips excluded names,
      * adds a CLASS node for each accepted declaration, and hands the
      * declaration plus its name to {@code body}.
      */
     public static void forEachIncludedClass(CompilationUnit cu, Set<String> customExcludes,
-            Graph graph, java.util.function.BiConsumer<ClassOrInterfaceDeclaration, String> body) {
-        cu.findAll(ClassOrInterfaceDeclaration.class).forEach(classDecl -> {
+            Graph graph, java.util.function.BiConsumer<TypeDeclaration<?>, String> body) {
+        methodBearingTypes(cu).forEach(classDecl -> {
             String className = classDecl.getNameAsString();
             if (FilterMatcher.matchesAny(className, customExcludes)) {
                 return;
@@ -83,7 +118,7 @@ public final class ParserSupport {
      * Method name → raw return type (generics stripped), used to resolve
      * chained local calls such as {@code resolveLayout(x).layout(g)}.
      */
-    public static Map<String, String> returnTypesOf(ClassOrInterfaceDeclaration classDecl) {
+    public static Map<String, String> returnTypesOf(TypeDeclaration<?> classDecl) {
         Map<String, String> returnTypes = new HashMap<>();
         classDecl.findAll(MethodDeclaration.class).forEach(m -> {
             String rt = m.getType().asString();
@@ -130,7 +165,7 @@ public final class ParserSupport {
 
     public static java.util.Set<String> collectProjectClasses(CompilationUnit cu) {
         java.util.Set<String> projectClasses = new java.util.HashSet<>();
-        cu.findAll(com.github.javaparser.ast.body.ClassOrInterfaceDeclaration.class).forEach(cd -> {
+        methodBearingTypes(cu).forEach(cd -> {
             projectClasses.add(cd.getFullyQualifiedName().orElse(cd.getNameAsString()));
             projectClasses.add(cd.getNameAsString());
         });
