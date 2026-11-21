@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import se.deversity.vibetags.annotations.AIArchitecture;
 import se.deversity.vibetags.annotations.AIContext;
 import se.deversity.vibetags.annotations.AIKeepInSync;
@@ -384,22 +383,9 @@ public class MultiFileSequenceParser {
 
     private List<Path> findSourceRoots(Path root) {
         List<Path> roots = new java.util.ArrayList<>();
-        try (Stream<Path> stream = Files.walk(root)) {
-            stream.filter(Files::isDirectory)
-                  .filter(p -> {
-                      Path fn = p.getFileName();
-                      return fn != null && "java".equals(fn.toString());
-                  })
-                  .filter(p -> {
-                      Path parent = p.getParent();
-                      if (parent == null) return false;
-                      Path pfn = parent.getFileName();
-                      return pfn != null && ("main".equals(pfn.toString()) || "test".equals(pfn.toString()));
-                  })
-                  // sorted(): source-root order decides which module's classes are stitched
-                  // first, and Files.walk order is filesystem-defined.
-                  .sorted()
-                  .forEach(roots::add);
+        try {
+            // Sorted: source-root order decides which module's classes are stitched first.
+            roots.addAll(SourceTree.sourceRoots(root));
         } catch (IOException e) {
             log.warning("Cannot walk source root to find type solver roots: " + e.getMessage());
         }
