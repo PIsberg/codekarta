@@ -51,6 +51,15 @@ each version heading is the complete record.
   nodes, and a field or supertype reference resolves through the file's package and imports; a
   simple name that two input types share and nothing disambiguates draws no edge rather than a
   wrong one. (#226)
+- **Records, enums and nested types are drawn.** The class diagram showed a record or enum as an
+  empty box with no relationships, and never showed nested types at all. Records now list their
+  components as fields, with `HAS` edges from them; records and enums get `IMPLEMENTS` edges,
+  their methods, and a `«record»` / `«enum»` stereotype; fields in an enum body get `HAS` edges;
+  and member types are nodes with the id `pkg.Outer.Inner` and the label `Outer.Inner`, resolved
+  from inside and outside their outer type. The sequence parsers (`--sequence-only`, the
+  single-file and stitched multi-file modes) now visit methods declared in records and enums,
+  so calls into and out of them are no longer dropped. On the issue's six-file fixture the class
+  diagram went from 1 edge to 7 and the stitched sequence from 1 call to 5. (#227)
 
 ## [0.4.0] - 2026-08-30
 

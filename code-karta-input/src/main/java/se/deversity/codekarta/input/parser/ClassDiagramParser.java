@@ -3,10 +3,15 @@ package se.deversity.codekarta.input.parser;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.EnumDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.body.RecordDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
+import com.github.javaparser.ast.nodeTypes.NodeWithImplements;
 import se.deversity.codekarta.core.model.Edge;
 import se.deversity.codekarta.core.model.Graph;
 import se.deversity.codekarta.core.model.Group;
@@ -21,7 +26,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -115,7 +119,7 @@ public class ClassDiagramParser {
         TypeIndex index = new TypeIndex();
         for (CompilationUnit cu : units) {
             String packageName = packageOf(cu);
-            cu.getTypes().forEach(t -> index.add(packageName, t.getNameAsString()));
+            cu.getTypes().forEach(t -> index.addWithMembers(packageName, null, t));
         }
 
         // Pass 2: nodes, package groups, and edges
@@ -123,7 +127,7 @@ public class ClassDiagramParser {
             try {
                 Scope scope = new Scope(cu);
                 for (TypeDeclaration<?> type : cu.getTypes()) {
-                    processType(type, graph, scope, index);
+                    processType(type, null, List.of(), graph, scope, index);
                 }
             } catch (Exception e) {
                 log.warning("Failed to process compilation unit: " + e.getMessage());
@@ -152,19 +156,48 @@ public class ClassDiagramParser {
         return typeName.substring(typeName.lastIndexOf('.') + 1);
     }
 
+    /** Name of a type relative to its package: {@code Calc} or, nested, {@code Calc.Inner}. */
+    private static String relativeName(@Nullable String outerRelativeName, TypeDeclaration<?> type) {
+        return outerRelativeName == null
+                ? type.getNameAsString()
+                : outerRelativeName + "." + type.getNameAsString();
+    }
+
+    /** Member types of {@code type}: nested classes, interfaces, records and enums. */
+    private static List<TypeDeclaration<?>> memberTypes(TypeDeclaration<?> type) {
+        List<TypeDeclaration<?>> members = new ArrayList<>();
+        for (BodyDeclaration<?> member : type.getMembers()) {
+            if (member instanceof TypeDeclaration<?> nested) {
+                members.add(nested);
+            }
+        }
+        return members;
+    }
+
     /** Every type declared in this parse run, by node id and by simple name. */
     private static final class TypeIndex {
-        private final Set<String> ids = new HashSet<>();
+        private final Map<String, String> labelsById = new HashMap<>();
         private final Map<String, Set<String>> idsBySimpleName = new HashMap<>();
 
-        void add(@Nullable String packageName, String simpleName) {
-            String id = typeId(packageName, simpleName);
-            ids.add(id);
-            idsBySimpleName.computeIfAbsent(simpleName, k -> new LinkedHashSet<>()).add(id);
+        /** Indexes {@code type} and, recursively, its member types. */
+        void addWithMembers(@Nullable String packageName, @Nullable String outerRelativeName,
+                            TypeDeclaration<?> type) {
+            String relative = relativeName(outerRelativeName, type);
+            String id = typeId(packageName, relative);
+            labelsById.put(id, relative);
+            idsBySimpleName.computeIfAbsent(type.getNameAsString(), k -> new LinkedHashSet<>()).add(id);
+            for (TypeDeclaration<?> nested : memberTypes(type)) {
+                addWithMembers(packageName, relative, nested);
+            }
         }
 
         boolean contains(String id) {
-            return ids.contains(id);
+            return labelsById.containsKey(id);
+        }
+
+        /** Display name of a declared type: its name relative to its package. */
+        String label(String id) {
+            return labelsById.getOrDefault(id, simpleName(id));
         }
 
         /** The only declared type with this simple name, or {@code null} if none or several. */
@@ -197,15 +230,29 @@ public class ClassDiagramParser {
 
         /**
          * The node id a type name written in this unit refers to, or {@code null} when it names
-         * no type of this parse run or could name several. Java's own precedence: a qualified
-         * name, then a single-type import, then the unit's package, then on-demand imports. A
+         * no type of this parse run or could name several. Java's own precedence: member types
+         * of the enclosing types (innermost first), then a single-type import, then the unit's
+         * package, then on-demand imports. A dotted name is either qualified ({@code b.Config})
+         * or a member-type path ({@code Outer.Inner}) whose head resolves like a simple name. A
          * simple name that none of those settle still resolves when exactly one declared type
          * carries it, since diagrams are drawn from partial source trees too; when several do,
          * no edge beats a wrong one.
          */
-        @Nullable String resolve(String typeName, TypeIndex index) {
-            if (typeName.indexOf('.') >= 0) {
-                return index.contains(typeName) ? typeName : null;
+        @Nullable String resolve(String typeName, TypeIndex index, List<String> enclosingIds) {
+            int dot = typeName.indexOf('.');
+            if (dot >= 0) {
+                if (index.contains(typeName)) {
+                    return typeName;
+                }
+                String head = resolve(typeName.substring(0, dot), index, enclosingIds);
+                String member = head != null ? head + typeName.substring(dot) : null;
+                return member != null && index.contains(member) ? member : null;
+            }
+            for (String enclosing : enclosingIds) {
+                String memberType = enclosing + "." + typeName;
+                if (index.contains(memberType)) {
+                    return memberType;
+                }
             }
             String imported = singleTypeImports.get(typeName);
             if (imported != null) {
@@ -229,17 +276,27 @@ public class ClassDiagramParser {
         }
     }
 
-    private void processType(TypeDeclaration<?> type, Graph graph, Scope scope, TypeIndex index) {
+    /**
+     * Adds {@code type}, its relationships, and then its member types.
+     *
+     * @param enclosingIds ids of the types around {@code type}, innermost first
+     */
+    private void processType(TypeDeclaration<?> type, @Nullable String outerRelativeName,
+                             List<String> enclosingIds, Graph graph, Scope scope, TypeIndex index) {
         String simple = type.getNameAsString();
         if (FilterMatcher.matchesAny(simple, customExcludes)) {
             return;
         }
-        String id = typeId(scope.packageName, simple);
+        String relative = relativeName(outerRelativeName, type);
+        String id = typeId(scope.packageName, relative);
+        List<String> inScope = new ArrayList<>(enclosingIds.size() + 1);
+        inScope.add(id);
+        inScope.addAll(enclosingIds);
         String nodeType = (type instanceof ClassOrInterfaceDeclaration coid && coid.isInterface())
                 ? "INTERFACE"
                 : "CLASS";
 
-        graph.addNodeIfAbsent(new Node(id, nodeType, simple));
+        graph.addNodeIfAbsent(new Node(id, nodeType, relative));
         // Update the stored node (may have been added as a stub by another file's reference)
         Node typeNode = graph.findNode(id);
         if (typeNode != null) {
@@ -266,40 +323,67 @@ public class ClassDiagramParser {
             for (var extended : coid.getExtendedTypes()) {
                 // Only link to types declared in this parse run: external supertypes
                 // (RuntimeException, AutoCloseable, …) would clutter the diagram
-                String parent = supertypeTarget(extended.getNameWithScope(), scope, index);
+                String parent = supertypeTarget(extended.getNameWithScope(), inScope, scope, index);
                 if (parent == null) {
                     continue;
                 }
-                graph.addNodeIfAbsent(new Node(parent, "CLASS", simpleName(parent)));
+                graph.addNodeIfAbsent(new Node(parent, "CLASS", index.label(parent)));
                 graph.addEdge(new Edge(id + "-extends-" + parent, id, parent, "EXTENDS"));
             }
-            for (var implemented : coid.getImplementedTypes()) {
-                String iface = supertypeTarget(implemented.getNameWithScope(), scope, index);
+        }
+        // Classes, interfaces, records and enums; annotation types have neither supertypes
+        // nor fields worth an edge
+        if (type instanceof NodeWithImplements<?> implementing) {
+            for (var implemented : implementing.getImplementedTypes()) {
+                String iface = supertypeTarget(implemented.getNameWithScope(), inScope, scope, index);
                 if (iface == null) {
                     continue;
                 }
-                graph.addNodeIfAbsent(new Node(iface, "INTERFACE", simpleName(iface)));
+                graph.addNodeIfAbsent(new Node(iface, "INTERFACE", index.label(iface)));
                 graph.addEdge(new Edge(id + "-implements-" + iface, id, iface, "IMPLEMENTS"));
             }
-            for (FieldDeclaration field : coid.getFields()) {
-                String fullType  = field.getElementType().asString();
-                String fieldName = field.getVariables().get(0).getNameAsString();
-
+            for (Member member : members(type)) {
                 // Direct domain type: Engine engine → HAS Engine
-                String target = fieldTarget(rawType(fullType), scope, index);
+                String target = fieldTarget(rawType(member.type()), inScope, scope, index);
                 if (target == null) {
                     // Container of domain type: List<Node> → HAS Node, Map<String,Node> → HAS Node
-                    String innerType = innerGenericType(fullType);
-                    target = innerType != null ? fieldTarget(innerType, scope, index) : null;
+                    String innerType = innerGenericType(member.type());
+                    target = innerType != null ? fieldTarget(innerType, inScope, scope, index) : null;
                 }
                 if (target != null) {
-                    graph.addNodeIfAbsent(new Node(target, "CLASS", simpleName(target)));
-                    Edge hasEdge = new Edge(id + "-has-" + fieldName + "-" + target, id, target, "HAS");
-                    hasEdge.setLabel(fieldName);
+                    graph.addNodeIfAbsent(new Node(target, "CLASS", index.label(target)));
+                    Edge hasEdge = new Edge(id + "-has-" + member.name() + "-" + target, id, target, "HAS");
+                    hasEdge.setLabel(member.name());
                     graph.addEdge(hasEdge);
                 }
             }
         }
+
+        for (TypeDeclaration<?> nested : memberTypes(type)) {
+            processType(nested, relative, inScope, graph, scope, index);
+        }
+    }
+
+    /** A field or record component: its name and its declared type as written. */
+    private record Member(String name, String type) {}
+
+    /**
+     * The members a HAS edge can start from, in declaration order: record components first,
+     * then fields. Only the first variable of a multi-variable field declaration is used, as
+     * one {@code int a, b;} declaration has one type.
+     */
+    private static List<Member> members(TypeDeclaration<?> type) {
+        List<Member> members = new ArrayList<>();
+        if (type instanceof RecordDeclaration rec) {
+            for (Parameter component : rec.getParameters()) {
+                members.add(new Member(component.getNameAsString(), component.getType().asString()));
+            }
+        }
+        for (FieldDeclaration field : type.getFields()) {
+            members.add(new Member(field.getVariables().get(0).getNameAsString(),
+                    field.getElementType().asString()));
+        }
+        return members;
     }
 
     /**
@@ -307,10 +391,11 @@ public class ClassDiagramParser {
      * parse run does not declare. {@link #SKIP_TYPES} does not apply: a declared {@code List}
      * interface is a real supertype (the JDK corpus test pins {@code ArrayList -> List}).
      */
-    private @Nullable String supertypeTarget(String typeName, Scope scope, TypeIndex index) {
+    private @Nullable String supertypeTarget(String typeName, List<String> enclosingIds,
+                                             Scope scope, TypeIndex index) {
         return FilterMatcher.matchesAny(simpleName(typeName), customExcludes)
                 ? null
-                : scope.resolve(typeName, index);
+                : scope.resolve(typeName, index, enclosingIds);
     }
 
     /**
@@ -318,14 +403,22 @@ public class ClassDiagramParser {
      * an excluded name, or a type this parse run does not declare. {@code typeName} must
      * already be raw ({@link #rawType}) so {@code List<Node>} is checked as {@code List}.
      */
-    private @Nullable String fieldTarget(String typeName, Scope scope, TypeIndex index) {
-        return SKIP_TYPES.contains(simpleName(typeName)) ? null : supertypeTarget(typeName, scope, index);
+    private @Nullable String fieldTarget(String typeName, List<String> enclosingIds,
+                                         Scope scope, TypeIndex index) {
+        return SKIP_TYPES.contains(simpleName(typeName))
+                ? null
+                : supertypeTarget(typeName, enclosingIds, scope, index);
     }
 
     private Map<String, String> buildProperties(TypeDeclaration<?> type) {
         Map<String, String> props = new HashMap<>();
 
         List<String> fieldLines = new ArrayList<>();
+        if (type instanceof RecordDeclaration rec) {
+            for (Parameter component : rec.getParameters()) {
+                fieldLines.add(component.getNameAsString() + ": " + component.getType().asString());
+            }
+        }
         for (FieldDeclaration field : type.getFields()) {
             String displayType = field.getElementType().asString();
             for (var v : field.getVariables()) {
@@ -336,25 +429,29 @@ public class ClassDiagramParser {
             props.put("fields", formatList(fieldLines));
         }
 
-        if (type instanceof ClassOrInterfaceDeclaration coid) {
-            List<String> methodLines = new ArrayList<>();
-            for (MethodDeclaration m : coid.getMethods()) {
-                StringBuilder sig = new StringBuilder(m.getNameAsString()).append("(");
-                var params = m.getParameters();
-                for (int i = 0; i < params.size(); i++) {
-                    if (i > 0) sig.append(", ");
-                    sig.append(params.get(i).getType().asString());
-                }
-                sig.append("): ").append(m.getType().asString());
-                methodLines.add(sig.toString());
+        List<String> methodLines = new ArrayList<>();
+        for (MethodDeclaration m : type.getMethods()) {
+            StringBuilder sig = new StringBuilder(m.getNameAsString()).append("(");
+            var params = m.getParameters();
+            for (int i = 0; i < params.size(); i++) {
+                if (i > 0) sig.append(", ");
+                sig.append(params.get(i).getType().asString());
             }
-            if (!methodLines.isEmpty()) {
-                props.put("methods", formatList(methodLines));
-            }
+            sig.append("): ").append(m.getType().asString());
+            methodLines.add(sig.toString());
+        }
+        if (!methodLines.isEmpty()) {
+            props.put("methods", formatList(methodLines));
         }
 
-        // Detect constants-class pattern: only static-final fields, no instance methods
-        if (type instanceof ClassOrInterfaceDeclaration coid) {
+        // NodeType is locked, so records and enums stay CLASS and say what they are through the
+        // stereotype override SvgRenderer already draws.
+        if (type instanceof RecordDeclaration) {
+            props.put("stereotype", "«record»");
+        } else if (type instanceof EnumDeclaration) {
+            props.put("stereotype", "«enum»");
+        } else if (type instanceof ClassOrInterfaceDeclaration coid) {
+            // Constants-class pattern: only static-final fields, no methods
             boolean isConstantsClass = !type.getFields().isEmpty()
                     && coid.getMethods().isEmpty()
                     && type.getFields().stream().allMatch(f -> f.isStatic() && f.isFinal());

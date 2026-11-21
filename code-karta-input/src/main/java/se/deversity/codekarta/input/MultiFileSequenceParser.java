@@ -4,7 +4,6 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
@@ -147,7 +146,7 @@ public class MultiFileSequenceParser {
     private void parseFile(CompilationUnit cu, Graph graph, Set<String> projectClasses) {
         try {
 
-            cu.findAll(ClassOrInterfaceDeclaration.class).forEach(classDecl -> {
+            ParserSupport.methodBearingTypes(cu).forEach(classDecl -> {
                 String className = classDecl.getFullyQualifiedName().orElse(classDecl.getNameAsString());
                 if (FilterMatcher.matchesAny(className, customExcludes)) {
                     return;
