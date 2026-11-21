@@ -776,6 +776,46 @@ class KartaCliTest {
         assertFalse(a.contains("\"b.B\""), "package b's own class is not drawn in package a's diagram as a type of a: " + a);
     }
 
+    @Test
+    void splitPackagesDrawsEachPackagesStateMachineOnceEvenWhenItsEnumLivesElsewhere(@TempDir Path dir) throws Exception {
+        Path src = dir.resolve("src");
+        writeFile(src.resolve("model/OrderStatus.java"), "package model; public enum OrderStatus { NEW, PAID }");
+        writeFile(src.resolve("service/Orders.java"), """
+                package service;
+                import model.OrderStatus;
+                public class Orders {
+                    private OrderStatus status = OrderStatus.NEW;
+                    void pay() { status = OrderStatus.PAID; }
+                }
+                """);
+        writeFile(src.resolve("service/sub/Lamp.java"), """
+                package service.sub;
+                public class Lamp {
+                    enum Light { ON, OFF }
+                    private Light light = Light.ON;
+                    void off() { light = Light.OFF; }
+                }
+                """);
+        Path out = dir.resolve("out");
+        RunOptions stateMachine = new RunOptions(false, "simple", true, null, Integer.MAX_VALUE, false, null,
+                6, RunOptions.FORMAT_JSON, false);
+
+        KartaCli.runPerPackage(src, out, stateMachine);
+
+        String service = Files.readString(firstJson(out.resolve("service")));
+        assertTrue(service.contains("OrderStatus.PAID"), "the enum from package model still resolves: " + service);
+        assertFalse(service.contains("Lamp.Light"), "the subpackage's machine is not drawn again: " + service);
+        assertTrue(Files.readString(firstJson(out.resolve("service/sub"))).contains("Lamp.Light.OFF"));
+    }
+
+    @Test
+    void splitPackagesWithModulesOnlyIsRejected(@TempDir Path dir) {
+        assertTrue(errorFor("--input", "src", "--modules-only", "--split-packages").contains("--split-packages"));
+        RunOptions modules = new RunOptions(false, "simple", false, null, Integer.MAX_VALUE, true, null,
+                6, RunOptions.FORMAT_SVG, false);
+        assertThrows(IllegalArgumentException.class, () -> KartaCli.runPerPackage(dir, dir.resolve("out"), modules));
+    }
+
     private static Path firstJson(Path dir) throws Exception {
         try (var files = Files.list(dir)) {
             return files.filter(p -> p.toString().endsWith(".json")).findFirst().orElseThrow();

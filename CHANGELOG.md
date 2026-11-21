@@ -68,8 +68,9 @@ each version heading is the complete record.
   the whole tree again. Each diagram now draws only the types declared directly in its package;
   the tree is parsed once, so a reference into another package becomes a stub box, and in
   `--sequence-only` the symbol solver is anchored at the input root, so calls into other packages
-  resolve instead of being dropped. `--state-machine --split-packages` keeps the old behaviour
-  for now (#246). (#232)
+  resolve instead of being dropped. With `--state-machine`, each package draws the transitions
+  found in its own files, with enums resolved across the whole tree (#246).
+  `--split-packages --modules-only`, which had no meaning, is now rejected. (#232, #246)
 - **Maven plugin: a relative `<input>` or `<output>` in `<diagram>` is relative to the module.**
   It resolved against the directory `mvn` was started in, so in a reactor build run from the root
   the input was not found and output went under the reactor root, a directory the configuration

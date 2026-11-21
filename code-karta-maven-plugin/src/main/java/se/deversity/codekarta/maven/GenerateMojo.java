@@ -191,6 +191,10 @@ public class GenerateMojo extends AbstractMojo {
             }
             getLog().info("code-karta: " + result);
             return 1;
+        } catch (IllegalArgumentException e) {
+            // splitPackages with modulesOnly: runPerPackage rejects the combination by name.
+            throw new MojoExecutionException("code-karta: invalid configuration for " + in + ": "
+                    + e.getMessage(), e);
         } catch (IOException e) {
             throw new MojoExecutionException("code-karta could not write to " + outDir, e);
         }
