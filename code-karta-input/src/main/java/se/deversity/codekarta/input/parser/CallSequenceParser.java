@@ -1,14 +1,13 @@
 package se.deversity.codekarta.input.parser;
 
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.CallableDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.RecordDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import se.deversity.codekarta.core.model.Edge;
 import se.deversity.codekarta.core.model.Graph;
 import se.deversity.codekarta.core.model.Node;
@@ -51,61 +50,29 @@ public class CallSequenceParser {
                 Map<String, String> returnTypes = ParserSupport.returnTypesOf(classDecl);
                 Map<String, TypeDeclaration<?>> fileTypes = typesByName(cu);
 
-                // Direct methods only: findAll would reach into nested and anonymous classes and
-                // draw their methods on this class's lifeline (#265). Calls made inside an
-                // anonymous class or lambda still count, for the method that declares it.
-                classDecl.getMethods().forEach(method -> {
+                // Direct methods and constructors only: findAll would reach into nested and
+                // anonymous classes and draw their methods on this class's lifeline (#265). Calls
+                // made inside an anonymous class or lambda still count, for the method declaring it.
+                MethodIds.callables(classDecl).forEach(method -> {
                     String qualifiedMethod = MethodIds.of(className, classDecl, method);
-                    if (FilterMatcher.matchesAny(className + "." + method.getNameAsString(), customExcludes)
-                            || FilterMatcher.matchesAny(qualifiedMethod, customExcludes) || FilterMatcher.matchesAny(method.getNameAsString(), customExcludes)) {
+                    String label = MethodIds.labelOf(method);
+                    if (FilterMatcher.matchesAny(className + "." + label, customExcludes)
+                            || FilterMatcher.matchesAny(qualifiedMethod, customExcludes) || FilterMatcher.matchesAny(label, customExcludes)) {
                         return;
                     }
-                    graph.addNodeIfAbsent(new Node(qualifiedMethod, "METHOD", method.getNameAsString()));
-                    Map<String, String> varTypes = receiverTypes(classDecl, method, returnTypes);
+                    graph.addNodeIfAbsent(new Node(qualifiedMethod, "METHOD", label));
+                    SingleFileCallees callees = new SingleFileCallees(className, classDecl, returnTypes,
+                            receiverTypes(classDecl, method, returnTypes), fileTypes, externalTypes, customExcludes);
 
                     int[] order = { 0 };
-                    method.accept(new VoidVisitorAdapter<Void>() {
-                        @Override
-                        public void visit(MethodCallExpr call, Void arg) {
-                            String name = call.getNameAsString();
-                            if (FilterMatcher.matchesAny(name, customExcludes)) {
-                                super.visit(call, null);
-                                return;
-                            }
-                            String callee;
-                            if (call.getScope().isPresent()) {
-                                if (SequenceFilterUtil.shouldSkipScopedCall(name)) {
-                                    super.visit(call, null);
-                                    return;
-                                }
-                                String scopeName = resolveScope(call.getScope().get(), returnTypes, className, varTypes);
-                                if (scopeName == null || externalTypes.contains(scopeName)) {
-                                    super.visit(call, null);
-                                    return;
-                                }
-                                callee = calleeIn(scopeName, call, fileTypes);
-                            } else if (returnTypes.containsKey(name)) {
-                                // local method call — qualify so it joins this class's lifeline
-                                callee = MethodIds.forLocalCall(className, classDecl, call);
-                            } else {
-                                // unscoped non-local call (static import etc.) — not attributable
-                                super.visit(call, null);
-                                return;
-                            }
-
-                            if (FilterMatcher.matchesAny(callee, customExcludes)) {
-                                super.visit(call, null);
-                                return;
-                            }
-                            graph.addNodeIfAbsent(new Node(callee, "METHOD", name));
-                            int seq = ++order[0];
-                            Edge edge = new Edge(qualifiedMethod + "-calls-" + callee + "-" + seq,
-                                    qualifiedMethod, callee, "CALLS");
-                            edge.setLabel(String.valueOf(seq));
-                            graph.addEdge(edge);
-                            super.visit(call, null);
-                        }
-                    }, null);
+                    SingleFileCallees.forEachCall(method, callees, callee -> {
+                        graph.addNodeIfAbsent(new Node(callee.id(), "METHOD", callee.label()));
+                        int seq = ++order[0];
+                        Edge edge = new Edge(qualifiedMethod + "-calls-" + callee.id() + "-" + seq,
+                                qualifiedMethod, callee.id(), "CALLS");
+                        edge.setLabel(String.valueOf(seq));
+                        graph.addEdge(edge);
+                    });
                 });
             });
         } catch (Exception e) {
@@ -153,7 +120,7 @@ public class CallSequenceParser {
      * escaped the stdlib filter, which knows type names, and every variable of one type drew a
      * lifeline of its own (issue #268).
      */
-    static Map<String, String> receiverTypes(TypeDeclaration<?> classDecl, MethodDeclaration method,
+    static Map<String, String> receiverTypes(TypeDeclaration<?> classDecl, CallableDeclaration<?> method,
                                              Map<String, String> returnTypes) {
         Map<String, String> types = new HashMap<>();
         if (classDecl instanceof RecordDeclaration record) {

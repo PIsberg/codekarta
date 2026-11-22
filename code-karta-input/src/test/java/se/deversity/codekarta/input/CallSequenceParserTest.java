@@ -133,6 +133,69 @@ class CallSequenceParserTest {
         assertTrue(graph.getNodes().isEmpty(), "every class of the excluded package is dropped");
     }
 
+
+    // --- method references and constructors (#271) ---
+
+    /** this::convert, processor::handle and Util::canonical are calls; they drew nothing. */
+    @Test
+    void methodReferencesAreCallsInSourceOrder(@TempDir Path dir) throws Exception {
+        Graph graph = parser.parse(write(dir, "R.java", """
+                public class R {
+                    private Processor processor = new Processor();
+                    void run(java.util.List<String> items) {
+                        items.forEach(this::convert);
+                        items.forEach(processor::handle);
+                        items.forEach(Util::canonical);
+                    }
+                    void convert(String s) {}
+                }
+                class Processor { void handle(String s) {} }
+                class Util { static void canonical(String s) {} }
+                """));
+
+        assertEquals(java.util.List.of("1 R.run -> R.convert", "2 R.run -> Processor.handle",
+                "3 R.run -> Util.canonical"), orderedCallsFrom(graph, "R.run"));
+    }
+
+    /**
+     * A constructor's body is a sequence like any method's, and new of a type declared in the
+     * file is a call to its constructor; both were invisible. new of a stdlib type stays out.
+     */
+    @Test
+    void constructorsAndInstantiationsOfFileTypesAreCalls(@TempDir Path dir) throws Exception {
+        Graph graph = parser.parse(write(dir, "Order.java", """
+                public class Order {
+                    private final Validator validator;
+                    Order(String id) {
+                        java.util.List<String> notes = new java.util.ArrayList<>();
+                        validator = new Validator();
+                        validator.check(id);
+                        audit();
+                    }
+                    Order(String id, int priority) { this(id); }
+                    void audit() {}
+                    static Order create() { return new Order("x", 1); }
+                }
+                class Validator { void check(String id) {} }
+                """));
+
+        assertEquals("new", graph.findNode("Order.new(String)").getLabel());
+        assertEquals(java.util.List.of("1 Order.new(String) -> Validator.new",
+                "2 Order.new(String) -> Validator.check", "3 Order.new(String) -> Order.audit"),
+                orderedCallsFrom(graph, "Order.new(String)"));
+        assertEquals(java.util.List.of("1 Order.create -> Order.new(String,int)"),
+                orderedCallsFrom(graph, "Order.create"), "new picks the constructor by argument count");
+    }
+
+    /** "seq source -> target" of the CALLS edges leaving {@code source}, in sequence order. */
+    private static java.util.List<String> orderedCallsFrom(Graph graph, String source) {
+        return graph.getEdges().stream()
+                .filter(e -> "CALLS".equals(e.getType()) && source.equals(e.getSourceId()))
+                .sorted(java.util.Comparator.comparingInt(e -> Integer.parseInt(e.getLabel())))
+                .map(e -> e.getLabel() + " " + e.getSourceId() + " -> " + e.getTargetId())
+                .toList();
+    }
+
     // --- receivers typed by declaration (#268) ---
 
     /**
@@ -180,8 +243,9 @@ class CallSequenceParserTest {
                 class Repo { void find() {} }
                 """));
 
-        assertEquals(java.util.Set.of("Q.go -> Repo.find"), callEdges(graph));
-        assertEquals(4, graph.getEdges().size(), "one CALLS edge per call, all to Repo.find");
+        // The two new Repo() inside go() are constructor calls since #271; the field initialiser's is not in a method.
+        assertEquals(java.util.Set.of("Q.go -> Repo.find", "Q.go -> Repo.new"), callEdges(graph));
+        assertEquals(6, graph.getEdges().size(), "one CALLS edge per call: four to Repo.find, two to Repo.new");
         for (String var : java.util.List.of("param", "local", "inferred", "field")) {
             assertNull(graph.findNode(var + ".find"), var + " must not become a participant");
         }

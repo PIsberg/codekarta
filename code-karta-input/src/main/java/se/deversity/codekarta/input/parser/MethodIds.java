@@ -1,9 +1,12 @@
 package se.deversity.codekarta.input.parser;
 
+import com.github.javaparser.ast.body.CallableDeclaration;
+import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.type.Type;
+import com.github.javaparser.resolution.declarations.ResolvedConstructorDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import se.deversity.vibetags.annotations.AIArchitecture;
 
@@ -28,16 +31,62 @@ public final class MethodIds {
     private MethodIds() {
     }
 
-    /** The id of a method declared directly in {@code owner}, whose node id is {@code ownerId}. */
-    public static String of(String ownerId, TypeDeclaration<?> owner, MethodDeclaration method) {
-        String name = method.getNameAsString();
-        if (owner.getMethodsByName(name).size() < 2) {
+    /** The name part of a constructor's id and its node label: {@code Owner.new}. A keyword, so no method can clash. */
+    public static final String CONSTRUCTOR = "new";
+
+    /**
+     * The id of a method or constructor declared directly in {@code owner}, whose node id is
+     * {@code ownerId}. A constructor is {@code Owner.new}, suffixed like an overloaded method when
+     * the type declares more than one.
+     */
+    public static String of(String ownerId, TypeDeclaration<?> owner, CallableDeclaration<?> callable) {
+        boolean constructor = callable instanceof ConstructorDeclaration;
+        String name = constructor ? CONSTRUCTOR : callable.getNameAsString();
+        int siblings = constructor ? owner.getConstructors().size() : owner.getMethodsByName(name).size();
+        if (siblings < 2) {
             return ownerId + "." + name;
         }
         StringJoiner params = new StringJoiner(",", "(", ")");
-        method.getParameters().forEach(p -> params.add(
+        callable.getParameters().forEach(p -> params.add(
                 simpleType(p.getType()) + (p.isVarArgs() ? "[]" : "")));
         return ownerId + "." + name + params;
+    }
+
+    /** The node label: the method's name, or {@link #CONSTRUCTOR} for a constructor. */
+    public static String labelOf(CallableDeclaration<?> callable) {
+        return callable instanceof ConstructorDeclaration ? CONSTRUCTOR : callable.getNameAsString();
+    }
+
+    /** The methods and constructors {@code owner} declares itself, in declaration order. */
+    public static List<CallableDeclaration<?>> callables(TypeDeclaration<?> owner) {
+        List<CallableDeclaration<?>> callables = new java.util.ArrayList<>();
+        owner.getMembers().forEach(member -> {
+            if (member instanceof MethodDeclaration || member instanceof ConstructorDeclaration) {
+                callables.add((CallableDeclaration<?>) member);
+            }
+        });
+        return callables;
+    }
+
+    /** The id for {@code new Owner(...)} with {@code args} arguments; {@code Owner.new} when no constructor is declared. */
+    public static String forCreation(String ownerId, TypeDeclaration<?> owner, int args) {
+        List<ConstructorDeclaration> constructors = owner.getConstructors();
+        return constructors.isEmpty() ? ownerId + "." + CONSTRUCTOR : of(ownerId, owner, pick(constructors, args));
+    }
+
+    /**
+     * The id for a method reference {@code Owner::identifier}, or {@code Owner::new}. A reference
+     * carries no argument count, so of several overloads the first declared one is named.
+     *
+     * @return the id, or {@code null} when {@code owner} declares no method of that name
+     */
+    public static String forReference(String ownerId, TypeDeclaration<?> owner, String identifier) {
+        if (CONSTRUCTOR.equals(identifier)) {
+            List<ConstructorDeclaration> constructors = owner.getConstructors();
+            return constructors.isEmpty() ? ownerId + "." + CONSTRUCTOR : of(ownerId, owner, constructors.get(0));
+        }
+        List<MethodDeclaration> methods = owner.getMethodsByName(identifier);
+        return methods.isEmpty() ? null : of(ownerId, owner, methods.get(0));
     }
 
     /**
@@ -52,15 +101,18 @@ public final class MethodIds {
         if (candidates.isEmpty()) {
             return null;
         }
-        int args = call.getArguments().size();
-        MethodDeclaration chosen = candidates.stream()
+        return of(ownerId, owner, pick(candidates, call.getArguments().size()));
+    }
+
+    /** The overload taking exactly {@code args} arguments, else a varargs one that accepts them, else the first. */
+    private static <T extends CallableDeclaration<?>> T pick(List<T> candidates, int args) {
+        return candidates.stream()
                 .filter(m -> !isVarArgs(m) && m.getParameters().size() == args)
                 .findFirst()
                 .or(() -> candidates.stream()
                         .filter(m -> isVarArgs(m) && args >= m.getParameters().size() - 1)
                         .findFirst())
                 .orElse(candidates.get(0));
-        return of(ownerId, owner, chosen);
     }
 
     /**
@@ -99,6 +151,25 @@ public final class MethodIds {
         return simpleType(type.asString());
     }
 
+    /** The id for a constructor call the symbol solver resolved, matching {@link #of} for its declaration. */
+    public static String forResolvedConstructor(ResolvedConstructorDeclaration resolved) {
+        String declaringType = resolved.declaringType().getQualifiedName();
+        int constructors;
+        try {
+            constructors = resolved.declaringType().getConstructors().size();
+        } catch (RuntimeException e) {
+            constructors = 1;
+        }
+        if (constructors < 2) {
+            return declaringType + "." + CONSTRUCTOR;
+        }
+        StringJoiner params = new StringJoiner(",", "(", ")");
+        for (int i = 0; i < resolved.getNumberOfParams(); i++) {
+            params.add(simpleType(resolved.getParam(i).describeType()));
+        }
+        return declaringType + "." + CONSTRUCTOR + params;
+    }
+
     /** {@code java.util.Map<K, List<V>>} → {@code Map}; array and varargs brackets kept as {@code []}. */
     static String simpleType(String type) {
         StringBuilder raw = new StringBuilder();
@@ -117,7 +188,7 @@ public final class MethodIds {
         return dot >= 0 ? s.substring(dot + 1) : s;
     }
 
-    private static boolean isVarArgs(MethodDeclaration method) {
+    private static boolean isVarArgs(CallableDeclaration<?> method) {
         return !method.getParameters().isEmpty()
                 && method.getParameters().get(method.getParameters().size() - 1).isVarArgs();
     }

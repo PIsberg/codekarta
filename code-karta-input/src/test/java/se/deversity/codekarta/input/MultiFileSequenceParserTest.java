@@ -247,6 +247,54 @@ class MultiFileSequenceParserTest {
         assertTrue(graph.getGroups().isEmpty(), "multi-file sequence diagrams draw no try/catch frames");
     }
 
+    // --- method references and constructors (#271) ---
+
+    @Test
+    void methodReferencesAndConstructorsAreCallsAcrossFiles(@TempDir Path sourceRoot) throws Exception {
+        Path pkg = Files.createDirectories(sourceRoot.resolve("p"));
+        write(pkg, "R.java", "package p;\n" + """
+                public class R {
+                    private Processor processor = new Processor();
+                    void run(java.util.List<String> items) {
+                        items.forEach(this::convert);
+                        items.forEach(processor::handle);
+                        items.forEach(Util::canonical);
+                    }
+                    void convert(String s) {}
+                }
+                class Processor { void handle(String s) {} }
+                class Util { static void canonical(String s) {} }
+                """.replace("    void convert(String s) {}",
+                        "    void convert(String s) {}\n    java.util.function.Supplier<Processor> make() { return Processor::new; }"));
+        write(pkg, "Order.java", "package p;\n" + """
+                public class Order {
+                    private final Validator validator;
+                    Order(String id) {
+                        java.util.List<String> notes = new java.util.ArrayList<>();
+                        validator = new Validator();
+                        validator.check(id);
+                        audit();
+                    }
+                    Order(String id, int priority) { this(id); }
+                    void audit() {}
+                    static Order create() { return new Order("x", 1); }
+                }
+                class Validator { void check(String id) {} }
+                """);
+
+        Graph graph = parser.parse(sourceRoot);
+
+        java.util.Set<String> calls = callEdges(graph);
+        java.util.List<String> expected = java.util.List.of(
+                "p.R.run -> p.R.convert", "p.R.run -> p.Processor.handle", "p.R.run -> p.Util.canonical",
+                "p.R.make -> p.Processor.new",
+                "p.Order.new(String) -> p.Validator.new", "p.Order.new(String) -> p.Validator.check",
+                "p.Order.new(String) -> p.Order.audit", "p.Order.create -> p.Order.new(String,int)");
+        assertEquals(java.util.List.of(), expected.stream().filter(c -> !calls.contains(c)).toList(),
+                "calls missing from the stitched graph");
+        assertTrue(calls.stream().noneMatch(c -> c.contains("ArrayList")), "stdlib constructors stay out");
+    }
+
     // --- nested types, anonymous classes and overloads (#265) ---
 
     @Test

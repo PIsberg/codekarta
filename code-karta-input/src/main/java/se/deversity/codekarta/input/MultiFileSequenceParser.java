@@ -7,6 +7,8 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.MethodReferenceExpr;
+import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
@@ -193,52 +195,63 @@ public class MultiFileSequenceParser {
                 }
                 graph.addNodeIfAbsent(new Node(className, ParserSupport.nodeTypeOf(classDecl), className));
 
-                // Direct methods only: findAll would reach into nested and anonymous classes and
-                // draw their methods on this class's lifeline (#265). Calls made inside an
-                // anonymous class or lambda still count, for the method that declares it.
-                classDecl.getMethods().forEach(method -> {
+                // Direct methods and constructors only: findAll would reach into nested and
+                // anonymous classes and draw their methods on this class's lifeline (#265). Calls
+                // made inside an anonymous class or lambda still count, for the method declaring it.
+                MethodIds.callables(classDecl).forEach(method -> {
                     String methodId = MethodIds.of(className, classDecl, method);
-                    if (FilterMatcher.matchesAny(className + "." + method.getNameAsString(), customExcludes)
-                            || FilterMatcher.matchesAny(methodId, customExcludes) || FilterMatcher.matchesAny(method.getNameAsString(), customExcludes)) {
+                    String label = MethodIds.labelOf(method);
+                    if (FilterMatcher.matchesAny(className + "." + label, customExcludes)
+                            || FilterMatcher.matchesAny(methodId, customExcludes) || FilterMatcher.matchesAny(label, customExcludes)) {
                         return;
                     }
-                    graph.addNodeIfAbsent(new Node(methodId, NodeType.METHOD, method.getNameAsString()));
+                    graph.addNodeIfAbsent(new Node(methodId, NodeType.METHOD, label));
 
                     int[] seq = { 0 };
                     method.accept(new VoidVisitorAdapter<Void>() {
                         @Override
                         public void visit(MethodCallExpr call, Void arg) {
-                            String calleeId = resolveCallee(call, className, classDecl);
+                            record(resolveCallee(call, className, classDecl), call.getNameAsString());
+                            super.visit(call, null);
+                        }
+
+                        // this::convert, processor::handle, Type::new: calls too (#271)
+                        @Override
+                        public void visit(MethodReferenceExpr ref, Void arg) {
+                            record(resolveReference(ref, className, classDecl), ref.getIdentifier());
+                            super.visit(ref, null);
+                        }
+
+                        // new OrderValidator(...): a call to that project class's constructor (#271)
+                        @Override
+                        public void visit(ObjectCreationExpr creation, Void arg) {
+                            if (creation.getAnonymousClassBody().isEmpty()) {
+                                record(resolveCreation(creation), MethodIds.CONSTRUCTOR);
+                            }
+                            super.visit(creation, null);
+                        }
+
+                        private void record(String calleeId, String calleeLabel) {
                             if (calleeId == null) {
-                                super.visit(call, null);
                                 return;
                             }
-
-                            String calleeClass = calleeId;
                             int dotIdx = calleeId.lastIndexOf('.');
-                            if (dotIdx != -1) {
-                                calleeClass = calleeId.substring(0, dotIdx);
-                            }
-                            if (dotIdx == -1 || !projectClasses.contains(calleeClass)) {
-                                super.visit(call, null);
+                            if (dotIdx == -1 || !projectClasses.contains(calleeId.substring(0, dotIdx))) {
                                 return;
                             }
-
-                            if (FilterMatcher.matchesAny(call.getNameAsString(), customExcludes) || FilterMatcher.matchesAny(calleeId, customExcludes)) {
-                                super.visit(call, null);
+                            if (FilterMatcher.matchesAny(calleeLabel, customExcludes) || FilterMatcher.matchesAny(calleeId, customExcludes)) {
                                 return;
                             }
-                            graph.addNodeIfAbsent(new Node(calleeId, NodeType.METHOD, call.getNameAsString()));
+                            graph.addNodeIfAbsent(new Node(calleeId, NodeType.METHOD, calleeLabel));
 
                             int n = ++seq[0];
                             Edge edge = new Edge(methodId + "-calls-" + calleeId + "-" + n,
                                     methodId, calleeId, EdgeType.CALLS);
                             edge.setLabel(String.valueOf(n));
                             graph.addEdge(edge);
-
-                            super.visit(call, null);
                         }
-                    }, null);                });
+                    }, null);
+                });
             });
 
         } catch (Exception e) {
@@ -253,6 +266,42 @@ public class MultiFileSequenceParser {
      * expression string, or a bare static-import name here would leak
      * non-project participants into the diagram — skip those instead.
      */
+    /** A method reference's target, by the symbol solver, else {@code this::name} within the owner. */
+    private String resolveReference(MethodReferenceExpr ref, String ownerClass, TypeDeclaration<?> owner) {
+        if (MethodIds.CONSTRUCTOR.equals(ref.getIdentifier())) {
+            return constructorReference(ref);
+        }
+        try {
+            return MethodIds.forResolved(ref.resolve());
+        } catch (Exception ignored) {
+            // Symbol resolution unavailable for this reference
+        }
+        return ref.getScope().isThisExpr() ? MethodIds.forReference(ownerClass, owner, ref.getIdentifier()) : null;
+    }
+
+    /** {@code Type::new}: the referenced type's constructor, the only or else the first declared one. */
+    private String constructorReference(MethodReferenceExpr ref) {
+        try {
+            var type = ref.getScope().asTypeExpr().getType().resolve().asReferenceType().getTypeDeclaration().orElseThrow();
+            var constructors = type.getConstructors();
+            if (constructors.size() < 2) {
+                return type.getQualifiedName() + "." + MethodIds.CONSTRUCTOR;
+            }
+            return MethodIds.forResolvedConstructor(constructors.get(0));
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    /** {@code new Type(...)}: the constructor the symbol solver picks, or {@code null} when it cannot. */
+    private String resolveCreation(ObjectCreationExpr creation) {
+        try {
+            return MethodIds.forResolvedConstructor(creation.resolve());
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
     private String resolveCallee(MethodCallExpr call, String ownerClass, TypeDeclaration<?> owner) {
         try {
             ResolvedMethodDeclaration resolved = call.resolve();

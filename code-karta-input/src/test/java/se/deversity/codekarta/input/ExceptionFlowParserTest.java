@@ -270,6 +270,83 @@ class ExceptionFlowParserTest {
                 "overload delegation is not a self-call");
     }
 
+
+    // --- method references and constructors (#271) ---
+
+    /** this::convert, processor::handle and Util::canonical are calls; they drew nothing. */
+    @Test
+    void methodReferencesAreCallsInSourceOrder(@TempDir Path dir) throws Exception {
+        Graph graph = parser.parse(write(dir, "R.java", """
+                public class R {
+                    private Processor processor = new Processor();
+                    void run(java.util.List<String> items) {
+                        items.forEach(this::convert);
+                        items.forEach(processor::handle);
+                        items.forEach(Util::canonical);
+                    }
+                    void convert(String s) {}
+                }
+                class Processor { void handle(String s) {} }
+                class Util { static void canonical(String s) {} }
+                """));
+
+        assertEquals(java.util.List.of("1 R.run -> R.convert", "2 R.run -> Processor.handle",
+                "3 R.run -> Util.canonical"), orderedCallsFrom(graph, "R.run"));
+    }
+
+    /**
+     * A constructor's body is a sequence like any method's, and new of a type declared in the
+     * file is a call to its constructor; both were invisible. new of a stdlib type stays out.
+     */
+    @Test
+    void constructorsAndInstantiationsOfFileTypesAreCalls(@TempDir Path dir) throws Exception {
+        Graph graph = parser.parse(write(dir, "Order.java", """
+                public class Order {
+                    private final Validator validator;
+                    Order(String id) {
+                        java.util.List<String> notes = new java.util.ArrayList<>();
+                        validator = new Validator();
+                        validator.check(id);
+                        audit();
+                    }
+                    Order(String id, int priority) { this(id); }
+                    void audit() {}
+                    static Order create() { return new Order("x", 1); }
+                }
+                class Validator { void check(String id) {} }
+                """));
+
+        assertEquals("new", graph.findNode("Order.new(String)").getLabel());
+        assertEquals(java.util.List.of("1 Order.new(String) -> Validator.new",
+                "2 Order.new(String) -> Validator.check", "3 Order.new(String) -> Order.audit"),
+                orderedCallsFrom(graph, "Order.new(String)"));
+        assertEquals(java.util.List.of("1 Order.create -> Order.new(String,int)"),
+                orderedCallsFrom(graph, "Order.create"), "new picks the constructor by argument count");
+    }
+
+    /** "seq source -> target" of the CALLS edges leaving {@code source}, in sequence order. */
+    private static java.util.List<String> orderedCallsFrom(Graph graph, String source) {
+        return graph.getEdges().stream()
+                .filter(e -> "CALLS".equals(e.getType()) && source.equals(e.getSourceId()))
+                .sorted(java.util.Comparator.comparingInt(e -> Integer.parseInt(e.getLabel())))
+                .map(e -> e.getLabel() + " " + e.getSourceId() + " -> " + e.getTargetId())
+                .toList();
+    }
+
+    /** A constructor that declares a checked exception propagates it like a method does. */
+    @Test
+    void aConstructorsDeclaredExceptionPropagatesToItsCreator(@TempDir Path dir) throws Exception {
+        Graph graph = parser.parse(write(dir, "Conn.java", """
+                public class Conn {
+                    Conn() throws java.io.IOException { }
+                    static Conn open() throws java.io.IOException { return new Conn(); }
+                }
+                """));
+
+        assertTrue(graph.getEdges().stream().anyMatch(e -> EdgeType.EXCEPTION_PROPAGATION.equals(e.getType())
+                && "Conn.new".equals(e.getSourceId()) && "Conn.open".equals(e.getTargetId())));
+    }
+
     /** Same receiver typing as CallSequenceParser: the variable's declared type, not its name (#268). */
     @Test
     void callsOnTypedVariablesUseTheDeclaredType(@TempDir Path dir) throws Exception {

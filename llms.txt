@@ -144,6 +144,7 @@ AI tools reading this file should respect the guardrails defined below. These ru
 - [MethodIds](se.deversity.codekarta.input.parser.MethodIds): Belongs to layer: `input`. Prohibited from referencing: [layout, render, cli]
 - [ModuleInfoParser](se.deversity.codekarta.input.parser.ModuleInfoParser): Belongs to layer: `input`. Prohibited from referencing: [layout, render, cli]
 - [ParserSupport](se.deversity.codekarta.input.parser.ParserSupport): Belongs to layer: `input`. Prohibited from referencing: [layout, render, cli]
+- [SingleFileCallees](se.deversity.codekarta.input.parser.SingleFileCallees): Belongs to layer: `input`. Prohibited from referencing: [layout, render, cli]
 - [SourceTree](se.deversity.codekarta.input.parser.SourceTree): Belongs to layer: `input`. Prohibited from referencing: [layout, render, cli]
 - [StateMachineParser](se.deversity.codekarta.input.parser.StateMachineParser): Belongs to layer: `input`. Prohibited from referencing: [layout, render, cli]
 
