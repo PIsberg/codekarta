@@ -330,6 +330,49 @@ class ClassDiagramParserTest {
         assertNotNull(graph.findNode("b.Node"), "the other package's Node is not excluded");
     }
 
+    // ------------------------------------------------------------------ field shapes (#270)
+
+    /**
+     * Field targets came from slicing the type string, which lost the domain type behind an
+     * array, a wildcard, a nested container or a map key, and read only the first variable of a
+     * multi-variable declaration.
+     */
+    @Test
+    void everyFieldShapeThatReferencesADomainTypeGetsAHasEdge(@TempDir Path dir) throws Exception {
+        for (String name : java.util.List.of("Cargo", "Port", "OrderId", "Berth")) {
+            Files.writeString(dir.resolve(name + ".java"), "public class " + name + " {}");
+        }
+        Files.writeString(dir.resolve("Ship.java"), """
+                import java.util.*;
+                import java.util.function.Consumer;
+                public class Ship {
+                    private Cargo[] hold;
+                    private Cargo legacy[];
+                    private List<? extends Cargo> manifest;
+                    private Consumer<? super Port> onArrival;
+                    private Map<OrderId, List<Cargo>> byOrder;
+                    private Optional<List<Port>> nextPort;
+                    private Berth primary, secondary;
+                    private String name;
+                }
+                """);
+
+        Graph graph = new ClassDiagramParser().parse(dir);
+
+        assertEquals(java.util.Set.of(
+                "hold->Cargo", "legacy->Cargo", "manifest->Cargo", "onArrival->Port",
+                "byOrder->OrderId", "byOrder->Cargo", "nextPort->Port",
+                "primary->Berth", "secondary->Berth"), hasEdgesFrom(graph, "Ship"));
+    }
+
+    /** Field name and target of every HAS edge leaving {@code source}, as "field->Target". */
+    private static java.util.Set<String> hasEdgesFrom(Graph graph, String source) {
+        return graph.getEdges().stream()
+                .filter(e -> "HAS".equals(e.getType()) && source.equals(e.getSourceId()))
+                .map(e -> e.getLabel() + "->" + e.getTargetId())
+                .collect(java.util.stream.Collectors.toSet());
+    }
+
     // ------------------------------------------------------------------ member cap
 
     @Test

@@ -50,7 +50,8 @@ These are the things not derivable from reading a single file.
 - **`NodeType` / `EdgeType` string values** are matched by identity in `SvgRenderer`'s class-name
   map and in every parser. Adding or renaming a constant is a coordinated pipeline-wide change.
 - **`ClassDiagramParser` filters stdlib types** (`String`, `List`, primitives, …) so diagrams stay
-  domain-focused. `rawType()` must run before the skip-list lookup or `List<Node>` slips through.
+  domain-focused. Field targets come from walking the declared `Type` AST (`referencedTypeNames`),
+  which yields raw names, so the skip list sees `List`, not `List<Node>`, and `Node` still gets its edge.
 - **`KartaCli.run` is idempotent** — the same inputs regenerate byte-identical SVG. Diagram
   regeneration in `mvn verify` depends on it, so a clean tree stays clean.
 - **Everything shipped compiles for Java 17** (`<library.release>` in the parent pom), tests
