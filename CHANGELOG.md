@@ -57,6 +57,18 @@ each version heading is the complete record.
 
 ### Fixed
 
+- **`--modules-only` no longer reads build files outside `--input`.** The Gradle reader followed
+  `include("../x")` and `include(":..:x")` out of the root (a crafted `settings.gradle.kts` drew,
+  and read the build file of, a directory beside the checkout), and both the Maven and Gradle
+  readers checked containment lexically, so a module directory that is a symbolic link out of the
+  tree passed. Paths are now checked as spelled and after following links, and an escaping one is
+  skipped with a warning. (#264)
+- **`--output-name` is honoured with `--output .`.** The name was checked by comparing the
+  normalised file's parent with `--output`, and `./alpha.svg` normalises to `alpha.svg`, which
+  has no parent, so a plain name fell back to the derived one. (#264)
+- **The CLI and Maven plugin refuse to write a diagram through a symbolic link.** A link already in
+  `--output` under the diagram's name redirected the write, or for a dangling link created a file,
+  wherever it pointed. The run now fails with an `IOException` naming the link. (#264)
 - **`--sequence-only` no longer searches `node_modules`, `.git` or build output for source
   roots.** The symbol solver's roots came from a raw directory walk, the last one in the input
   tier that did not go through `SourceTree`. It now prunes the same directories every other walk

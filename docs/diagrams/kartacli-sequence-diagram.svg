@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="4340" height="5620" viewBox="0 0 4340 5620">
+<svg xmlns="http://www.w3.org/2000/svg" width="4560" height="5890" viewBox="0 0 4560 5890">
 <defs>
 <style>
 svg { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
@@ -55,36 +55,40 @@ text { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe
   <path d="M0,0 L8,4 L0,8 Z" fill="#dc2626"/>
 </marker>
 </defs>
-<rect width="4340" height="5620" fill="#f9fafb"/>
-<rect width="4340" height="5620" fill="url(#dotGrid)"/>
+<rect width="4560" height="5890" fill="#f9fafb"/>
+<rect width="4560" height="5890" fill="url(#dotGrid)"/>
 <rect class="group-rect" x="91.0" y="166.0" width="198.0" height="74.0" rx="4" fill="#fef9c3" fill-opacity="0.35" stroke="#ca8a04" stroke-dasharray="6,3" stroke-width="1.2"/>
 <rect x="91.0" y="166.0" width="194.0" height="16" rx="2" fill="#fef08a"/>
 <text x="95.0" y="177.0" font-family="sans-serif" font-size="10" fill="#713f12">catch(IllegalArgumentException)</text>
-<rect class="group-rect" x="91.0" y="1138.0" width="198.0" height="4232.0" rx="4" fill="#fef9c3" fill-opacity="0.35" stroke="#ca8a04" stroke-dasharray="6,3" stroke-width="1.2"/>
+<rect class="group-rect" x="91.0" y="1138.0" width="198.0" height="4556.0" rx="4" fill="#fef9c3" fill-opacity="0.35" stroke="#ca8a04" stroke-dasharray="6,3" stroke-width="1.2"/>
 <rect x="91.0" y="1138.0" width="138.0" height="16" rx="2" fill="#fef08a"/>
 <text x="95.0" y="1149.0" font-family="sans-serif" font-size="10" fill="#713f12">catch(IOException)</text>
-<rect class="group-rect" x="91.0" y="1246.0" width="198.0" height="4070.0" rx="4" fill="#fef9c3" fill-opacity="0.35" stroke="#ca8a04" stroke-dasharray="6,3" stroke-width="1.2"/>
+<rect class="group-rect" x="91.0" y="3298.0" width="3498.0" height="128.0" rx="4" fill="#fef9c3" fill-opacity="0.35" stroke="#ca8a04" stroke-dasharray="6,3" stroke-width="1.2"/>
+<rect x="91.0" y="3298.0" width="299.0" height="16" rx="2" fill="#fef08a"/>
+<text x="95.0" y="3309.0" font-family="sans-serif" font-size="10" fill="#713f12">catch(java.nio.file.InvalidPathException)</text>
+<rect class="group-rect" x="91.0" y="1246.0" width="198.0" height="4448.0" rx="4" fill="#fef9c3" fill-opacity="0.35" stroke="#ca8a04" stroke-dasharray="6,3" stroke-width="1.2"/>
 <rect x="91.0" y="1246.0" width="138.0" height="16" rx="2" fill="#fef08a"/>
 <text x="95.0" y="1257.0" font-family="sans-serif" font-size="10" fill="#713f12">catch(IOException)</text>
-<line x1="190.0" y1="98.0" x2="190.0" y2="5526.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="410.0" y1="98.0" x2="410.0" y2="5526.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="630.0" y1="98.0" x2="630.0" y2="5526.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="850.0" y1="98.0" x2="850.0" y2="5526.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="1070.0" y1="98.0" x2="1070.0" y2="5526.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="1290.0" y1="98.0" x2="1290.0" y2="5526.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="1510.0" y1="98.0" x2="1510.0" y2="5526.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="1730.0" y1="98.0" x2="1730.0" y2="5526.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="1950.0" y1="98.0" x2="1950.0" y2="5526.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="2170.0" y1="98.0" x2="2170.0" y2="5526.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="2390.0" y1="98.0" x2="2390.0" y2="5526.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="2610.0" y1="98.0" x2="2610.0" y2="5526.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="2830.0" y1="98.0" x2="2830.0" y2="5526.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="3050.0" y1="98.0" x2="3050.0" y2="5526.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="3270.0" y1="98.0" x2="3270.0" y2="5526.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="3490.0" y1="98.0" x2="3490.0" y2="5526.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="3710.0" y1="98.0" x2="3710.0" y2="5526.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="3930.0" y1="98.0" x2="3930.0" y2="5526.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="4150.0" y1="98.0" x2="4150.0" y2="5526.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="190.0" y1="98.0" x2="190.0" y2="5796.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="410.0" y1="98.0" x2="410.0" y2="5796.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="630.0" y1="98.0" x2="630.0" y2="5796.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="850.0" y1="98.0" x2="850.0" y2="5796.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="1070.0" y1="98.0" x2="1070.0" y2="5796.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="1290.0" y1="98.0" x2="1290.0" y2="5796.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="1510.0" y1="98.0" x2="1510.0" y2="5796.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="1730.0" y1="98.0" x2="1730.0" y2="5796.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="1950.0" y1="98.0" x2="1950.0" y2="5796.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="2170.0" y1="98.0" x2="2170.0" y2="5796.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="2390.0" y1="98.0" x2="2390.0" y2="5796.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="2610.0" y1="98.0" x2="2610.0" y2="5796.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="2830.0" y1="98.0" x2="2830.0" y2="5796.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="3050.0" y1="98.0" x2="3050.0" y2="5796.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="3270.0" y1="98.0" x2="3270.0" y2="5796.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="3490.0" y1="98.0" x2="3490.0" y2="5796.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="3710.0" y1="98.0" x2="3710.0" y2="5796.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="3930.0" y1="98.0" x2="3930.0" y2="5796.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="4150.0" y1="98.0" x2="4150.0" y2="5796.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="4370.0" y1="98.0" x2="4370.0" y2="5796.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
 <rect x="185.0" y="123.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <rect x="185.0" y="177.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <rect x="185.0" y="231.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
@@ -144,35 +148,39 @@ text { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe
 <rect x="845.0" y="3147.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <rect x="3265.0" y="3201.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <rect x="185.0" y="3255.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="3309.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="185.0" y="3363.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="3485.0" y="3309.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="3485.0" y="3363.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <rect x="185.0" y="3417.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <rect x="845.0" y="3471.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="3525.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="3579.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="185.0" y="3633.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="3925.0" y="3687.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="4145.0" y="3741.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="4145.0" y="3795.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="4145.0" y="3849.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1945.0" y="3903.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="3957.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="4011.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="3485.0" y="4065.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="4119.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="185.0" y="3525.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="185.0" y="3579.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="845.0" y="3633.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="845.0" y="3687.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="845.0" y="3741.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="185.0" y="3795.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="185.0" y="3849.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="4145.0" y="3903.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="4365.0" y="3957.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="4365.0" y="4011.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="4365.0" y="4065.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1945.0" y="4119.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <rect x="845.0" y="4173.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <rect x="845.0" y="4227.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1285.0" y="4281.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="3705.0" y="4281.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <rect x="845.0" y="4335.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <rect x="845.0" y="4389.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <rect x="845.0" y="4443.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1505.0" y="4497.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1285.0" y="4497.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <rect x="845.0" y="4551.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="185.0" y="4605.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="185.0" y="4659.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="3705.0" y="4713.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="3705.0" y="4767.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="845.0" y="4605.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="845.0" y="4659.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1505.0" y="4713.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="845.0" y="4767.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <rect x="185.0" y="4821.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="185.0" y="4875.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="3925.0" y="4929.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="3925.0" y="4983.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="185.0" y="5037.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <path class="edge-line" data-source="KartaCli.main" data-target="KartaCli.printUsage" data-type="CALLS" d="M195.0 130.0 C231.0 125.0 231.0 159.3 195.0 154.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
 <text class="edge-label" data-source="KartaCli.main" data-target="KartaCli.printUsage" data-type="CALLS" x="235.0" y="134.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: printUsage</text>
 <path class="edge-line" data-source="KartaCli.main" data-target="KartaCli.parseArgs" data-type="CALLS" d="M195.0 184.0 C231.0 179.0 231.0 213.3 195.0 208.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
@@ -289,88 +297,98 @@ text { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe
 <text class="edge-label" data-source="KartaCli.resolveOutputFile" data-target="options.outputName" data-type="CALLS" x="520.0" y="3145.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: outputName</text>
 <line class="edge-line" data-source="KartaCli.resolveOutputFile" data-target="requested.isBlank" data-type="CALLS" x1="190.0" y1="3208.0" x2="3265.0" y2="3208.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
 <text class="edge-label" data-source="KartaCli.resolveOutputFile" data-target="requested.isBlank" data-type="CALLS" x="1730.0" y="3199.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2: isBlank</text>
-<path class="edge-line" data-source="KartaCli.resolveOutputFile" data-target="KartaCli.withFormatExtension" data-type="CALLS" d="M195.0 3262.0 C231.0 3257.0 231.0 3291.3 195.0 3286.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.resolveOutputFile" data-target="KartaCli.withFormatExtension" data-type="CALLS" x="235.0" y="3266.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3: withFormatExtension</text>
-<line class="edge-line" data-source="KartaCli.withFormatExtension" data-target="options.isJson" data-type="CALLS" x1="190.0" y1="3316.0" x2="845.0" y2="3316.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.withFormatExtension" data-target="options.isJson" data-type="CALLS" x="520.0" y="3307.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: isJson</text>
-<path class="edge-line" data-source="KartaCli.resolveOutputFile" data-target="KartaCli.deriveOutputName" data-type="CALLS" d="M195.0 3370.0 C231.0 3365.0 231.0 3399.3 195.0 3394.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.resolveOutputFile" data-target="KartaCli.deriveOutputName" data-type="CALLS" x="235.0" y="3374.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4: deriveOutputName</text>
-<path class="edge-line" data-source="KartaCli.deriveOutputName" data-target="KartaCli.deriveOutputName" data-type="CALLS" d="M195.0 3424.0 C231.0 3419.0 231.0 3453.3 195.0 3448.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.deriveOutputName" data-target="KartaCli.deriveOutputName" data-type="CALLS" x="235.0" y="3428.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: deriveOutputName</text>
-<line class="edge-line" data-source="KartaCli.resolveOutputFile" data-target="options.sequenceOnly" data-type="CALLS" x1="190.0" y1="3478.0" x2="845.0" y2="3478.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.resolveOutputFile" data-target="options.sequenceOnly" data-type="CALLS" x="520.0" y="3469.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5: sequenceOnly</text>
-<line class="edge-line" data-source="KartaCli.resolveOutputFile" data-target="options.stateMachine" data-type="CALLS" x1="190.0" y1="3532.0" x2="845.0" y2="3532.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.resolveOutputFile" data-target="options.stateMachine" data-type="CALLS" x="520.0" y="3523.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">6: stateMachine</text>
-<line class="edge-line" data-source="KartaCli.resolveOutputFile" data-target="options.modulesOnly" data-type="CALLS" x1="190.0" y1="3586.0" x2="845.0" y2="3586.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.resolveOutputFile" data-target="options.modulesOnly" data-type="CALLS" x="520.0" y="3577.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">7: modulesOnly</text>
-<path class="edge-line" data-source="KartaCli.run" data-target="KartaCli.warnIfOversized" data-type="CALLS" d="M195.0 3640.0 C231.0 3635.0 231.0 3669.3 195.0 3664.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.run" data-target="KartaCli.warnIfOversized" data-type="CALLS" x="235.0" y="3644.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">30: warnIfOversized</text>
-<line class="edge-line" data-source="KartaCli.warnIfOversized" data-target="SVG_CANVAS.matcher" data-type="CALLS" x1="190.0" y1="3694.0" x2="3925.0" y2="3694.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.warnIfOversized" data-target="SVG_CANVAS.matcher" data-type="CALLS" x="2060.0" y="3685.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: matcher</text>
-<line class="edge-line" data-source="KartaCli.warnIfOversized" data-target="matcher.find" data-type="CALLS" x1="190.0" y1="3748.0" x2="4145.0" y2="3748.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.warnIfOversized" data-target="matcher.find" data-type="CALLS" x="2170.0" y="3739.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2: find</text>
-<line class="edge-line" data-source="KartaCli.warnIfOversized" data-target="matcher.group" data-type="CALLS" x1="190.0" y1="3802.0" x2="4145.0" y2="3802.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.warnIfOversized" data-target="matcher.group" data-type="CALLS" x="2170.0" y="3793.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3: group</text>
-<line class="edge-line" data-source="KartaCli.warnIfOversized" data-target="matcher.group" data-type="CALLS" x1="190.0" y1="3856.0" x2="4145.0" y2="3856.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.warnIfOversized" data-target="matcher.group" data-type="CALLS" x="2170.0" y="3847.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4: group</text>
-<line class="edge-line" data-source="KartaCli.warnIfOversized" data-target="graph.getNodes" data-type="CALLS" x1="190.0" y1="3910.0" x2="1945.0" y2="3910.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.warnIfOversized" data-target="graph.getNodes" data-type="CALLS" x="1070.0" y="3901.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5: getNodes</text>
-<line class="edge-line" data-source="KartaCli.runPerPackage" data-target="options.stateMachine" data-type="CALLS" x1="190.0" y1="3964.0" x2="845.0" y2="3964.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="options.stateMachine" data-type="CALLS" x="520.0" y="3955.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3: stateMachine</text>
-<line class="edge-line" data-source="KartaCli.runPerPackage" data-target="options.sequenceOnly" data-type="CALLS" x1="190.0" y1="4018.0" x2="845.0" y2="4018.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="options.sequenceOnly" data-type="CALLS" x="520.0" y="4009.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4: sequenceOnly</text>
-<line class="edge-line" data-source="KartaCli.runPerPackage" data-target="ClassDiagramParser.parsePerDirectory" data-type="CALLS" x1="190.0" y1="4072.0" x2="3485.0" y2="4072.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="ClassDiagramParser.parsePerDirectory" data-type="CALLS" x="1840.0" y="4063.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5: parsePerDirectory</text>
-<line class="edge-line" data-source="KartaCli.runPerPackage" data-target="options.customExcludes" data-type="CALLS" x1="190.0" y1="4126.0" x2="845.0" y2="4126.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="options.customExcludes" data-type="CALLS" x="520.0" y="4117.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">6: customExcludes</text>
-<line class="edge-line" data-source="KartaCli.runPerPackage" data-target="options.maxMembers" data-type="CALLS" x1="190.0" y1="4180.0" x2="845.0" y2="4180.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="options.maxMembers" data-type="CALLS" x="520.0" y="4171.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">7: maxMembers</text>
-<line class="edge-line" data-source="KartaCli.runPerPackage" data-target="options.includeTests" data-type="CALLS" x1="190.0" y1="4234.0" x2="845.0" y2="4234.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="options.includeTests" data-type="CALLS" x="520.0" y="4225.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">8: includeTests</text>
-<line class="edge-line" data-source="KartaCli.runPerPackage" data-target="MultiFileSequenceParser.parsePerDirectory" data-type="CALLS" x1="190.0" y1="4288.0" x2="1285.0" y2="4288.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="MultiFileSequenceParser.parsePerDirectory" data-type="CALLS" x="740.0" y="4279.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">9: parsePerDirectory</text>
+<path class="edge-line" data-source="KartaCli.resolveOutputFile" data-target="KartaCli.isBareFileName" data-type="CALLS" d="M195.0 3262.0 C231.0 3257.0 231.0 3291.3 195.0 3286.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.resolveOutputFile" data-target="KartaCli.isBareFileName" data-type="CALLS" x="235.0" y="3266.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3: isBareFileName</text>
+<line class="edge-line" data-source="KartaCli.isBareFileName" data-target="path.getNameCount" data-type="CALLS" x1="190.0" y1="3316.0" x2="3485.0" y2="3316.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.isBareFileName" data-target="path.getNameCount" data-type="CALLS" x="1840.0" y="3307.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: getNameCount</text>
+<line class="edge-line" data-source="KartaCli.isBareFileName" data-target="path.getRoot" data-type="CALLS" x1="190.0" y1="3370.0" x2="3485.0" y2="3370.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.isBareFileName" data-target="path.getRoot" data-type="CALLS" x="1840.0" y="3361.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2: getRoot</text>
+<path class="edge-line" data-source="KartaCli.resolveOutputFile" data-target="KartaCli.withFormatExtension" data-type="CALLS" d="M195.0 3424.0 C231.0 3419.0 231.0 3453.3 195.0 3448.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.resolveOutputFile" data-target="KartaCli.withFormatExtension" data-type="CALLS" x="235.0" y="3428.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4: withFormatExtension</text>
+<line class="edge-line" data-source="KartaCli.withFormatExtension" data-target="options.isJson" data-type="CALLS" x1="190.0" y1="3478.0" x2="845.0" y2="3478.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.withFormatExtension" data-target="options.isJson" data-type="CALLS" x="520.0" y="3469.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: isJson</text>
+<path class="edge-line" data-source="KartaCli.resolveOutputFile" data-target="KartaCli.deriveOutputName" data-type="CALLS" d="M195.0 3532.0 C231.0 3527.0 231.0 3561.3 195.0 3556.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.resolveOutputFile" data-target="KartaCli.deriveOutputName" data-type="CALLS" x="235.0" y="3536.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5: deriveOutputName</text>
+<path class="edge-line" data-source="KartaCli.deriveOutputName" data-target="KartaCli.deriveOutputName" data-type="CALLS" d="M195.0 3586.0 C231.0 3581.0 231.0 3615.3 195.0 3610.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.deriveOutputName" data-target="KartaCli.deriveOutputName" data-type="CALLS" x="235.0" y="3590.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: deriveOutputName</text>
+<line class="edge-line" data-source="KartaCli.resolveOutputFile" data-target="options.sequenceOnly" data-type="CALLS" x1="190.0" y1="3640.0" x2="845.0" y2="3640.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.resolveOutputFile" data-target="options.sequenceOnly" data-type="CALLS" x="520.0" y="3631.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">6: sequenceOnly</text>
+<line class="edge-line" data-source="KartaCli.resolveOutputFile" data-target="options.stateMachine" data-type="CALLS" x1="190.0" y1="3694.0" x2="845.0" y2="3694.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.resolveOutputFile" data-target="options.stateMachine" data-type="CALLS" x="520.0" y="3685.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">7: stateMachine</text>
+<line class="edge-line" data-source="KartaCli.resolveOutputFile" data-target="options.modulesOnly" data-type="CALLS" x1="190.0" y1="3748.0" x2="845.0" y2="3748.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.resolveOutputFile" data-target="options.modulesOnly" data-type="CALLS" x="520.0" y="3739.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">8: modulesOnly</text>
+<path class="edge-line" data-source="KartaCli.run" data-target="KartaCli.writeInsideOutputDir" data-type="CALLS" d="M195.0 3802.0 C231.0 3797.0 231.0 3831.3 195.0 3826.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.run" data-target="KartaCli.writeInsideOutputDir" data-type="CALLS" x="235.0" y="3806.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">30: writeInsideOutputDir</text>
+<path class="edge-line" data-source="KartaCli.run" data-target="KartaCli.warnIfOversized" data-type="CALLS" d="M195.0 3856.0 C231.0 3851.0 231.0 3885.3 195.0 3880.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.run" data-target="KartaCli.warnIfOversized" data-type="CALLS" x="235.0" y="3860.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">31: warnIfOversized</text>
+<line class="edge-line" data-source="KartaCli.warnIfOversized" data-target="SVG_CANVAS.matcher" data-type="CALLS" x1="190.0" y1="3910.0" x2="4145.0" y2="3910.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.warnIfOversized" data-target="SVG_CANVAS.matcher" data-type="CALLS" x="2170.0" y="3901.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: matcher</text>
+<line class="edge-line" data-source="KartaCli.warnIfOversized" data-target="matcher.find" data-type="CALLS" x1="190.0" y1="3964.0" x2="4365.0" y2="3964.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.warnIfOversized" data-target="matcher.find" data-type="CALLS" x="2280.0" y="3955.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2: find</text>
+<line class="edge-line" data-source="KartaCli.warnIfOversized" data-target="matcher.group" data-type="CALLS" x1="190.0" y1="4018.0" x2="4365.0" y2="4018.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.warnIfOversized" data-target="matcher.group" data-type="CALLS" x="2280.0" y="4009.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3: group</text>
+<line class="edge-line" data-source="KartaCli.warnIfOversized" data-target="matcher.group" data-type="CALLS" x1="190.0" y1="4072.0" x2="4365.0" y2="4072.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.warnIfOversized" data-target="matcher.group" data-type="CALLS" x="2280.0" y="4063.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4: group</text>
+<line class="edge-line" data-source="KartaCli.warnIfOversized" data-target="graph.getNodes" data-type="CALLS" x1="190.0" y1="4126.0" x2="1945.0" y2="4126.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.warnIfOversized" data-target="graph.getNodes" data-type="CALLS" x="1070.0" y="4117.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5: getNodes</text>
+<line class="edge-line" data-source="KartaCli.runPerPackage" data-target="options.stateMachine" data-type="CALLS" x1="190.0" y1="4180.0" x2="845.0" y2="4180.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="options.stateMachine" data-type="CALLS" x="520.0" y="4171.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3: stateMachine</text>
+<line class="edge-line" data-source="KartaCli.runPerPackage" data-target="options.sequenceOnly" data-type="CALLS" x1="190.0" y1="4234.0" x2="845.0" y2="4234.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="options.sequenceOnly" data-type="CALLS" x="520.0" y="4225.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4: sequenceOnly</text>
+<line class="edge-line" data-source="KartaCli.runPerPackage" data-target="ClassDiagramParser.parsePerDirectory" data-type="CALLS" x1="190.0" y1="4288.0" x2="3705.0" y2="4288.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="ClassDiagramParser.parsePerDirectory" data-type="CALLS" x="1950.0" y="4279.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5: parsePerDirectory</text>
 <line class="edge-line" data-source="KartaCli.runPerPackage" data-target="options.customExcludes" data-type="CALLS" x1="190.0" y1="4342.0" x2="845.0" y2="4342.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="options.customExcludes" data-type="CALLS" x="520.0" y="4333.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">10: customExcludes</text>
-<line class="edge-line" data-source="KartaCli.runPerPackage" data-target="options.maxDepth" data-type="CALLS" x1="190.0" y1="4396.0" x2="845.0" y2="4396.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="options.maxDepth" data-type="CALLS" x="520.0" y="4387.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">11: maxDepth</text>
+<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="options.customExcludes" data-type="CALLS" x="520.0" y="4333.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">6: customExcludes</text>
+<line class="edge-line" data-source="KartaCli.runPerPackage" data-target="options.maxMembers" data-type="CALLS" x1="190.0" y1="4396.0" x2="845.0" y2="4396.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="options.maxMembers" data-type="CALLS" x="520.0" y="4387.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">7: maxMembers</text>
 <line class="edge-line" data-source="KartaCli.runPerPackage" data-target="options.includeTests" data-type="CALLS" x1="190.0" y1="4450.0" x2="845.0" y2="4450.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="options.includeTests" data-type="CALLS" x="520.0" y="4441.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">12: includeTests</text>
-<line class="edge-line" data-source="KartaCli.runPerPackage" data-target="StateMachineParser.parsePerDirectory" data-type="CALLS" x1="190.0" y1="4504.0" x2="1505.0" y2="4504.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="StateMachineParser.parsePerDirectory" data-type="CALLS" x="850.0" y="4495.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">13: parsePerDirectory</text>
-<line class="edge-line" data-source="KartaCli.runPerPackage" data-target="options.includeTests" data-type="CALLS" x1="190.0" y1="4558.0" x2="845.0" y2="4558.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="options.includeTests" data-type="CALLS" x="520.0" y="4549.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">14: includeTests</text>
-<path class="edge-line" data-source="KartaCli.runPerPackage" data-target="KartaCli.writePackage" data-type="CALLS" d="M195.0 4612.0 C231.0 4607.0 231.0 4641.3 195.0 4636.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="KartaCli.writePackage" data-type="CALLS" x="235.0" y="4616.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">15: writePackage</text>
-<path class="edge-line" data-source="KartaCli.writePackage" data-target="KartaCli.run" data-type="CALLS" d="M195.0 4666.0 C231.0 4661.0 231.0 4695.3 195.0 4690.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.writePackage" data-target="KartaCli.run" data-type="CALLS" x="235.0" y="4670.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: run</text>
-<line class="edge-line" data-source="KartaCli.runPerPackage" data-target="entry.getKey" data-type="CALLS" x1="190.0" y1="4720.0" x2="3705.0" y2="4720.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="entry.getKey" data-type="CALLS" x="1950.0" y="4711.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">16: getKey</text>
-<line class="edge-line" data-source="KartaCli.runPerPackage" data-target="entry.getValue" data-type="CALLS" x1="190.0" y1="4774.0" x2="3705.0" y2="4774.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="entry.getValue" data-type="CALLS" x="1950.0" y="4765.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">17: getValue</text>
-<path class="edge-line" data-source="KartaCli.main" data-target="KartaCli.run" data-type="CALLS" d="M195.0 4828.0 C231.0 4823.0 231.0 4857.3 195.0 4852.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="KartaCli.main" data-target="KartaCli.run" data-type="CALLS" x="235.0" y="4832.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">10: run</text>
-<path class="edge-line" data-source="KartaCli.run" data-target="KartaCli.main" data-type="EXCEPTION_PROPAGATION" d="M195.0 4882.0 C231.0 4877.0 231.0 4911.3 195.0 4906.3" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#seq-marker-exc)"/>
-<text class="edge-label" data-source="KartaCli.run" data-target="KartaCli.main" data-type="EXCEPTION_PROPAGATION" x="235.0" y="4886.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#dc2626" font-style="italic">throws</text>
-<path class="edge-line" data-source="KartaCli.run" data-target="KartaCli.run" data-type="EXCEPTION_PROPAGATION" d="M195.0 4936.0 C231.0 4931.0 231.0 4965.3 195.0 4960.3" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#seq-marker-exc)"/>
-<text class="edge-label" data-source="KartaCli.run" data-target="KartaCli.run" data-type="EXCEPTION_PROPAGATION" x="235.0" y="4940.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#dc2626" font-style="italic">throws</text>
-<path class="edge-line" data-source="KartaCli.run" data-target="KartaCli.run" data-type="EXCEPTION_PROPAGATION" d="M195.0 4990.0 C231.0 4985.0 231.0 5019.3 195.0 5014.3" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#seq-marker-exc)"/>
-<text class="edge-label" data-source="KartaCli.run" data-target="KartaCli.run" data-type="EXCEPTION_PROPAGATION" x="235.0" y="4994.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#dc2626" font-style="italic">throws</text>
-<path class="edge-line" data-source="KartaCli.run" data-target="KartaCli.run" data-type="EXCEPTION_PROPAGATION" d="M195.0 5044.0 C231.0 5039.0 231.0 5073.3 195.0 5068.3" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#seq-marker-exc)"/>
-<text class="edge-label" data-source="KartaCli.run" data-target="KartaCli.run" data-type="EXCEPTION_PROPAGATION" x="235.0" y="5048.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#dc2626" font-style="italic">throws</text>
-<path class="edge-line" data-source="KartaCli.run" data-target="KartaCli.run" data-type="EXCEPTION_PROPAGATION" d="M195.0 5098.0 C231.0 5093.0 231.0 5127.3 195.0 5122.3" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#seq-marker-exc)"/>
-<text class="edge-label" data-source="KartaCli.run" data-target="KartaCli.run" data-type="EXCEPTION_PROPAGATION" x="235.0" y="5102.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#dc2626" font-style="italic">throws</text>
+<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="options.includeTests" data-type="CALLS" x="520.0" y="4441.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">8: includeTests</text>
+<line class="edge-line" data-source="KartaCli.runPerPackage" data-target="MultiFileSequenceParser.parsePerDirectory" data-type="CALLS" x1="190.0" y1="4504.0" x2="1285.0" y2="4504.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="MultiFileSequenceParser.parsePerDirectory" data-type="CALLS" x="740.0" y="4495.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">9: parsePerDirectory</text>
+<line class="edge-line" data-source="KartaCli.runPerPackage" data-target="options.customExcludes" data-type="CALLS" x1="190.0" y1="4558.0" x2="845.0" y2="4558.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="options.customExcludes" data-type="CALLS" x="520.0" y="4549.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">10: customExcludes</text>
+<line class="edge-line" data-source="KartaCli.runPerPackage" data-target="options.maxDepth" data-type="CALLS" x1="190.0" y1="4612.0" x2="845.0" y2="4612.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="options.maxDepth" data-type="CALLS" x="520.0" y="4603.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">11: maxDepth</text>
+<line class="edge-line" data-source="KartaCli.runPerPackage" data-target="options.includeTests" data-type="CALLS" x1="190.0" y1="4666.0" x2="845.0" y2="4666.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="options.includeTests" data-type="CALLS" x="520.0" y="4657.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">12: includeTests</text>
+<line class="edge-line" data-source="KartaCli.runPerPackage" data-target="StateMachineParser.parsePerDirectory" data-type="CALLS" x1="190.0" y1="4720.0" x2="1505.0" y2="4720.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="StateMachineParser.parsePerDirectory" data-type="CALLS" x="850.0" y="4711.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">13: parsePerDirectory</text>
+<line class="edge-line" data-source="KartaCli.runPerPackage" data-target="options.includeTests" data-type="CALLS" x1="190.0" y1="4774.0" x2="845.0" y2="4774.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="options.includeTests" data-type="CALLS" x="520.0" y="4765.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">14: includeTests</text>
+<path class="edge-line" data-source="KartaCli.runPerPackage" data-target="KartaCli.writePackage" data-type="CALLS" d="M195.0 4828.0 C231.0 4823.0 231.0 4857.3 195.0 4852.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="KartaCli.writePackage" data-type="CALLS" x="235.0" y="4832.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">15: writePackage</text>
+<path class="edge-line" data-source="KartaCli.writePackage" data-target="KartaCli.run" data-type="CALLS" d="M195.0 4882.0 C231.0 4877.0 231.0 4911.3 195.0 4906.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.writePackage" data-target="KartaCli.run" data-type="CALLS" x="235.0" y="4886.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: run</text>
+<line class="edge-line" data-source="KartaCli.runPerPackage" data-target="entry.getKey" data-type="CALLS" x1="190.0" y1="4936.0" x2="3925.0" y2="4936.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="entry.getKey" data-type="CALLS" x="2060.0" y="4927.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">16: getKey</text>
+<line class="edge-line" data-source="KartaCli.runPerPackage" data-target="entry.getValue" data-type="CALLS" x1="190.0" y1="4990.0" x2="3925.0" y2="4990.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="entry.getValue" data-type="CALLS" x="2060.0" y="4981.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">17: getValue</text>
+<path class="edge-line" data-source="KartaCli.main" data-target="KartaCli.run" data-type="CALLS" d="M195.0 5044.0 C231.0 5039.0 231.0 5073.3 195.0 5068.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="KartaCli.main" data-target="KartaCli.run" data-type="CALLS" x="235.0" y="5048.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">10: run</text>
+<path class="edge-line" data-source="KartaCli.run" data-target="KartaCli.main" data-type="EXCEPTION_PROPAGATION" d="M195.0 5098.0 C231.0 5093.0 231.0 5127.3 195.0 5122.3" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#seq-marker-exc)"/>
+<text class="edge-label" data-source="KartaCli.run" data-target="KartaCli.main" data-type="EXCEPTION_PROPAGATION" x="235.0" y="5102.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#dc2626" font-style="italic">throws</text>
 <path class="edge-line" data-source="KartaCli.run" data-target="KartaCli.run" data-type="EXCEPTION_PROPAGATION" d="M195.0 5152.0 C231.0 5147.0 231.0 5181.3 195.0 5176.3" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#seq-marker-exc)"/>
 <text class="edge-label" data-source="KartaCli.run" data-target="KartaCli.run" data-type="EXCEPTION_PROPAGATION" x="235.0" y="5156.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#dc2626" font-style="italic">throws</text>
 <path class="edge-line" data-source="KartaCli.run" data-target="KartaCli.run" data-type="EXCEPTION_PROPAGATION" d="M195.0 5206.0 C231.0 5201.0 231.0 5235.3 195.0 5230.3" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#seq-marker-exc)"/>
 <text class="edge-label" data-source="KartaCli.run" data-target="KartaCli.run" data-type="EXCEPTION_PROPAGATION" x="235.0" y="5210.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#dc2626" font-style="italic">throws</text>
 <path class="edge-line" data-source="KartaCli.run" data-target="KartaCli.run" data-type="EXCEPTION_PROPAGATION" d="M195.0 5260.0 C231.0 5255.0 231.0 5289.3 195.0 5284.3" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#seq-marker-exc)"/>
 <text class="edge-label" data-source="KartaCli.run" data-target="KartaCli.run" data-type="EXCEPTION_PROPAGATION" x="235.0" y="5264.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#dc2626" font-style="italic">throws</text>
-<path class="edge-line" data-source="KartaCli.run" data-target="KartaCli.runPerPackage" data-type="EXCEPTION_PROPAGATION" d="M195.0 5314.0 C231.0 5309.0 231.0 5343.3 195.0 5338.3" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#seq-marker-exc)"/>
-<text class="edge-label" data-source="KartaCli.run" data-target="KartaCli.runPerPackage" data-type="EXCEPTION_PROPAGATION" x="235.0" y="5318.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#dc2626" font-style="italic">throws</text>
-<path class="edge-line" data-source="KartaCli.run" data-target="KartaCli.writePackage" data-type="EXCEPTION_PROPAGATION" d="M195.0 5368.0 C231.0 5363.0 231.0 5397.3 195.0 5392.3" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#seq-marker-exc)"/>
-<text class="edge-label" data-source="KartaCli.run" data-target="KartaCli.writePackage" data-type="EXCEPTION_PROPAGATION" x="235.0" y="5372.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#dc2626" font-style="italic">throws</text>
-<path class="edge-line" data-source="KartaCli.runPerPackage" data-target="KartaCli.main" data-type="EXCEPTION_PROPAGATION" d="M195.0 5422.0 C231.0 5417.0 231.0 5451.3 195.0 5446.3" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#seq-marker-exc)"/>
-<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="KartaCli.main" data-type="EXCEPTION_PROPAGATION" x="235.0" y="5426.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#dc2626" font-style="italic">throws</text>
+<path class="edge-line" data-source="KartaCli.run" data-target="KartaCli.run" data-type="EXCEPTION_PROPAGATION" d="M195.0 5314.0 C231.0 5309.0 231.0 5343.3 195.0 5338.3" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#seq-marker-exc)"/>
+<text class="edge-label" data-source="KartaCli.run" data-target="KartaCli.run" data-type="EXCEPTION_PROPAGATION" x="235.0" y="5318.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#dc2626" font-style="italic">throws</text>
+<path class="edge-line" data-source="KartaCli.run" data-target="KartaCli.run" data-type="EXCEPTION_PROPAGATION" d="M195.0 5368.0 C231.0 5363.0 231.0 5397.3 195.0 5392.3" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#seq-marker-exc)"/>
+<text class="edge-label" data-source="KartaCli.run" data-target="KartaCli.run" data-type="EXCEPTION_PROPAGATION" x="235.0" y="5372.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#dc2626" font-style="italic">throws</text>
+<path class="edge-line" data-source="KartaCli.run" data-target="KartaCli.run" data-type="EXCEPTION_PROPAGATION" d="M195.0 5422.0 C231.0 5417.0 231.0 5451.3 195.0 5446.3" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#seq-marker-exc)"/>
+<text class="edge-label" data-source="KartaCli.run" data-target="KartaCli.run" data-type="EXCEPTION_PROPAGATION" x="235.0" y="5426.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#dc2626" font-style="italic">throws</text>
+<path class="edge-line" data-source="KartaCli.run" data-target="KartaCli.run" data-type="EXCEPTION_PROPAGATION" d="M195.0 5476.0 C231.0 5471.0 231.0 5505.3 195.0 5500.3" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#seq-marker-exc)"/>
+<text class="edge-label" data-source="KartaCli.run" data-target="KartaCli.run" data-type="EXCEPTION_PROPAGATION" x="235.0" y="5480.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#dc2626" font-style="italic">throws</text>
+<path class="edge-line" data-source="KartaCli.run" data-target="KartaCli.runPerPackage" data-type="EXCEPTION_PROPAGATION" d="M195.0 5530.0 C231.0 5525.0 231.0 5559.3 195.0 5554.3" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#seq-marker-exc)"/>
+<text class="edge-label" data-source="KartaCli.run" data-target="KartaCli.runPerPackage" data-type="EXCEPTION_PROPAGATION" x="235.0" y="5534.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#dc2626" font-style="italic">throws</text>
+<path class="edge-line" data-source="KartaCli.run" data-target="KartaCli.writePackage" data-type="EXCEPTION_PROPAGATION" d="M195.0 5584.0 C231.0 5579.0 231.0 5613.3 195.0 5608.3" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#seq-marker-exc)"/>
+<text class="edge-label" data-source="KartaCli.run" data-target="KartaCli.writePackage" data-type="EXCEPTION_PROPAGATION" x="235.0" y="5588.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#dc2626" font-style="italic">throws</text>
+<path class="edge-line" data-source="KartaCli.writeInsideOutputDir" data-target="KartaCli.run" data-type="EXCEPTION_PROPAGATION" d="M195.0 5638.0 C231.0 5633.0 231.0 5667.3 195.0 5662.3" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#seq-marker-exc)"/>
+<text class="edge-label" data-source="KartaCli.writeInsideOutputDir" data-target="KartaCli.run" data-type="EXCEPTION_PROPAGATION" x="235.0" y="5642.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#dc2626" font-style="italic">throws</text>
+<path class="edge-line" data-source="KartaCli.runPerPackage" data-target="KartaCli.main" data-type="EXCEPTION_PROPAGATION" d="M195.0 5692.0 C231.0 5687.0 231.0 5721.3 195.0 5716.3" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#seq-marker-exc)"/>
+<text class="edge-label" data-source="KartaCli.runPerPackage" data-target="KartaCli.main" data-type="EXCEPTION_PROPAGATION" x="235.0" y="5696.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#dc2626" font-style="italic">throws</text>
 <g id="KartaCli">
   <title>KartaCli</title>
   <rect class="node-rect" x="105.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
@@ -446,28 +464,33 @@ text { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe
   <rect class="node-rect" x="3185.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
   <text class="node-label" x="3270.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">requested</text>
 </g>
+<g id="path">
+  <title>path</title>
+  <rect class="node-rect" x="3405.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="3490.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">path</text>
+</g>
 <g id="ClassDiagramParser">
   <title>ClassDiagramParser</title>
-  <rect class="node-rect" x="3405.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="3490.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">ClassDiagramParser</text>
+  <rect class="node-rect" x="3625.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="3710.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">ClassDiagramParser</text>
 </g>
 <g id="entry">
   <title>entry</title>
-  <rect class="node-rect" x="3625.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="3710.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">entry</text>
+  <rect class="node-rect" x="3845.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="3930.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">entry</text>
 </g>
 <g id="SVG_CANVAS">
   <title>SVG_CANVAS</title>
-  <rect class="node-rect" x="3845.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="3930.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">SVG_CANVAS</text>
+  <rect class="node-rect" x="4065.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="4150.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">SVG_CANVAS</text>
 </g>
 <g id="matcher">
   <title>matcher</title>
-  <rect class="node-rect" x="4065.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="4150.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">matcher</text>
+  <rect class="node-rect" x="4285.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="4370.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">matcher</text>
 </g>
 <a class="diagram-attribution" href="https://github.com/PIsberg/codekarta" target="_blank" rel="noopener noreferrer">
-  <text x="4324.0" y="5604.0" text-anchor="end" font-family="sans-serif" font-size="11" fill="#6b7280" text-decoration="underline">Created with https://github.com/PIsberg/codekarta</text>
+  <text x="4544.0" y="5874.0" text-anchor="end" font-family="sans-serif" font-size="11" fill="#6b7280" text-decoration="underline">Created with https://github.com/PIsberg/codekarta</text>
 </a>
 <script type="text/javascript">
 <![CDATA[

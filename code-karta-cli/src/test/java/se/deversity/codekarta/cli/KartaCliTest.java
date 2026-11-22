@@ -353,6 +353,50 @@ class KartaCliTest {
         assertFalse(Files.exists(dir.resolve("escaped.svg")), "nothing may be written outside --output");
     }
 
+    /**
+     * {@code --output .} normalises {@code ./alpha.svg} to the bare {@code alpha.svg}, whose
+     * parent is null, so a parent-equals-output check silently dropped a perfectly plain name.
+     */
+    @Test
+    void outputNameIsHonouredWhenOutputIsTheCurrentDirectory() {
+        RunOptions options = RunOptions.defaults().withOutputName("alpha.svg");
+
+        assertEquals(Path.of(".").resolve("alpha.svg"),
+                KartaCli.resolveOutputFile(Path.of("Alpha.java"), Path.of("."), options));
+        assertEquals(Path.of("alpha.svg"),
+                KartaCli.resolveOutputFile(Path.of("Alpha.java"), Path.of(""), options));
+    }
+
+    /**
+     * A link already sitting in --output, under the name the diagram is about to take, would
+     * otherwise carry the write to wherever it points. The output directory is the boundary.
+     */
+    @Test
+    void aSymlinkInTheOutputDirectoryIsNotWrittenThrough(@TempDir Path dir) throws Exception {
+        Path src = dir.resolve("src/com/example");
+        writeClass(src, "Alpha");
+        Path out = Files.createDirectories(dir.resolve("out"));
+        Path victim = Files.writeString(dir.resolve("victim.txt"), "untouched");
+        symlinkOrAbort(out.resolve("class-diagram.svg"), victim);
+
+        assertThrows(java.io.IOException.class, () -> KartaCli.run(src, out, RunOptions.defaults()));
+        assertEquals("untouched", Files.readString(victim), "the link's target must not be overwritten");
+    }
+
+    /** A dangling link is the worse case: following it would create a file outside --output. */
+    @Test
+    void aDanglingSymlinkInTheOutputDirectoryDoesNotCreateItsTarget(@TempDir Path dir) throws Exception {
+        Path src = dir.resolve("src/com/example");
+        writeClass(src, "Alpha");
+        Path out = Files.createDirectories(dir.resolve("out"));
+        Path victim = dir.resolve("created-outside.svg");
+        symlinkOrAbort(out.resolve("alpha.svg"), victim);
+
+        assertThrows(java.io.IOException.class,
+                () -> KartaCli.run(src, out, RunOptions.defaults().withOutputName("alpha.svg")));
+        assertFalse(Files.exists(victim), "nothing may be created outside --output");
+    }
+
     @Test
     void outputNameWithASubdirectoryIsRefused(@TempDir Path dir) throws Exception {
         Path src = dir.resolve("src/com/example");
@@ -819,6 +863,18 @@ class KartaCliTest {
     private static Path firstJson(Path dir) throws Exception {
         try (var files = Files.list(dir)) {
             return files.filter(p -> p.toString().endsWith(".json")).findFirst().orElseThrow();
+        }
+    }
+
+    /**
+     * Creating a symlink needs a privilege Windows withholds by default, so the symlink cases run
+     * on CI (Linux) and report as aborted, not passed, where the link cannot be made.
+     */
+    private static void symlinkOrAbort(Path link, Path target) throws java.io.IOException {
+        try {
+            Files.createSymbolicLink(link, target);
+        } catch (UnsupportedOperationException | java.nio.file.FileSystemException e) {
+            org.junit.jupiter.api.Assumptions.abort("cannot create a symbolic link here: " + e.getMessage());
         }
     }
 

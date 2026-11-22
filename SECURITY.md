@@ -46,7 +46,11 @@ modes are therefore:
 - **Path traversal or unintended writes.** `KartaCli` resolves the `--output` directory and derives
   filenames from input identifiers. A crafted class or file name that escapes the output directory
   is a vulnerability. This is why `KartaCli` carries an `@AIAudit` guardrail naming exactly these
-  two checks.
+  two checks. `--output-name` must be a bare file name, and the diagram is never written through
+  a symbolic link already sitting in `--output` under that name: the run fails instead.
+- **Reads outside the input tree.** `--modules-only` follows Maven `<module>` entries and Gradle
+  `include(...)` paths from build files you did not write. A path that resolves outside the
+  `--input` root, by `..` or through a symbolic link, is skipped with a warning rather than read.
 - **Denial of service through pathological input.** A source tree that drives the parser or layout
   engine into unbounded memory or time. Report it if you find one, though be aware that graph
   construction is O(n) per node with an index and large inputs are expected to be slow rather than

@@ -6,7 +6,10 @@ import se.deversity.codekarta.core.model.Edge;
 import se.deversity.codekarta.core.model.Graph;
 import se.deversity.codekarta.input.parser.BuildReactorParser;
 
+import org.junit.jupiter.api.Assumptions;
+
 import java.io.IOException;
+import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Set;
@@ -106,6 +109,27 @@ class BuildReactorParserTest {
                 "a <module> pointing out of the tree must not be followed");
     }
 
+    /**
+     * The lexical check above cannot see a symlink: {@code repo/linked} normalises to a path
+     * inside the root while the pom it reaches lives outside it. An untrusted checkout can ship
+     * exactly that link.
+     */
+    @Test
+    void aSymlinkedModuleDirectoryLeadingOutOfTheRootIsNotFollowed(@TempDir Path root) throws IOException {
+        Path repo = Files.createDirectories(root.resolve("repo"));
+        Path outside = Files.createDirectories(root.resolve("outside"));
+        writeModulePom(outside, "outside-module");
+        writeModulePom(repo.resolve("alpha"), "alpha");
+        Files.writeString(repo.resolve("pom.xml"), aggregatorPom("parent", "alpha", "linked"));
+        symlinkOrAbort(repo.resolve("linked"), outside);
+
+        Graph graph = parser.parse(repo);
+
+        assertFalse(ids(graph).contains("outside-module"),
+                "a <module> reached through a symlink out of the tree must not be followed");
+        assertTrue(ids(graph).contains("alpha"), "the legitimate module is still read");
+    }
+
     @Test
     void anExternalEntityInAPomIsNotResolved(@TempDir Path root) throws IOException {
         Path secret = root.resolve("secret.txt");
@@ -162,6 +186,42 @@ class BuildReactorParserTest {
 
         assertEquals(Set.of("demo", "alpha", "beta"), ids(graph));
         assertTrue(hasEdge(graph, "demo", "alpha", "HAS"));
+    }
+
+    /**
+     * {@code include("../outside")} and the colon spelling {@code include(":..:outside")} both
+     * resolve to a directory beside the root. Maven's walk already refused that; Gradle's did not.
+     */
+    @Test
+    void gradleIncludesEscapingTheRootAreNotFollowed(@TempDir Path root) throws IOException {
+        Path repo = Files.createDirectories(root.resolve("repo"));
+        Path outside = Files.createDirectories(root.resolve("outside"));
+        Files.writeString(outside.resolve("build.gradle.kts"), "dependencies { implementation(project(\":alpha\")) }\n");
+        Files.writeString(repo.resolve("settings.gradle.kts"),
+                "rootProject.name = \"demo\"\n"
+              + "include(\"alpha\")\n"
+              + "include(\"../outside\")\n"
+              + "include(\":..:..:outside\")\n");
+
+        Graph graph = parser.parse(repo);
+
+        assertEquals(Set.of("demo", "alpha"), ids(graph),
+                "an include() resolving outside the root must not become a module");
+    }
+
+    @Test
+    void aSymlinkedGradleProjectLeadingOutOfTheRootIsNotFollowed(@TempDir Path root) throws IOException {
+        Path repo = Files.createDirectories(root.resolve("repo"));
+        Path outside = Files.createDirectories(root.resolve("outside"));
+        Files.writeString(outside.resolve("build.gradle.kts"), "dependencies { implementation(project(\":alpha\")) }\n");
+        Files.writeString(repo.resolve("settings.gradle.kts"),
+                "rootProject.name = \"demo\"\ninclude(\"alpha\", \"linked\")\n");
+        symlinkOrAbort(repo.resolve("linked"), outside);
+
+        Graph graph = parser.parse(repo);
+
+        assertEquals(Set.of("demo", "alpha"), ids(graph),
+                "a project reached through a symlink out of the tree must not become a module");
     }
 
     @Test
@@ -272,6 +332,18 @@ class BuildReactorParserTest {
               .append(dependency).append("</artifactId></dependency>\n");
         }
         Files.writeString(dir.resolve("pom.xml"), sb.append("  </dependencies>\n</project>\n").toString());
+    }
+
+    /**
+     * Creating a symlink needs a privilege Windows withholds by default, so the symlink cases run
+     * on CI (Linux) and report as aborted, not passed, where the link cannot be made.
+     */
+    static void symlinkOrAbort(Path link, Path target) throws IOException {
+        try {
+            Files.createSymbolicLink(link, target);
+        } catch (UnsupportedOperationException | FileSystemException e) {
+            Assumptions.abort("cannot create a symbolic link here: " + e.getMessage());
+        }
     }
 
     private Set<String> ids(Graph graph) {

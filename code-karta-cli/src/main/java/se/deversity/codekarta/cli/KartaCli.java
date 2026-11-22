@@ -334,7 +334,7 @@ public class KartaCli {
 
         state = PipelineStage.WRITING;
         Path outputFile = resolveOutputFile(inputPath, outputDir, options);
-        Files.writeString(outputFile, rendered);
+        writeInsideOutputDir(outputFile, rendered);
 
         if (!json) {
             warnIfOversized(rendered, graph, outputFile);
@@ -379,14 +379,11 @@ public class KartaCli {
     static Path resolveOutputFile(Path inputPath, Path outputDir, RunOptions options) {
         String requested = options.outputName();
         if (requested != null && !requested.isBlank()) {
-            Path candidate = outputDir.resolve(requested).normalize();
-            Path parent = candidate.getParent();
-            boolean isBareName = Path.of(requested).getNameCount() == 1
-                    && !requested.contains("..")
-                    && parent != null
-                    && parent.equals(outputDir.normalize());
-            if (isBareName) {
-                return candidate;
+            // Judge the name on its own rather than by comparing parents: with --output "."
+            // the resolved candidate normalises to a bare "alpha.svg" with no parent at all,
+            // and a parent-equals-output check then dropped a perfectly plain name.
+            if (isBareFileName(requested)) {
+                return outputDir.resolve(requested);
             }
             log.warning(() -> "--output-name '" + requested + "' is not a plain file name inside "
                     + outputDir + "; using the derived name instead.");
@@ -395,6 +392,40 @@ public class KartaCli {
                 deriveOutputName(inputPath, options.sequenceOnly(),
                         options.stateMachine(), options.modulesOnly()),
                 options));
+    }
+
+    /** One path element, no root or drive, and nothing that walks: {@code .}, {@code ..}. */
+    private static boolean isBareFileName(String name) {
+        if (name.contains("..") || name.indexOf('/') >= 0 || name.indexOf('\\') >= 0) {
+            return false;
+        }
+        try {
+            Path path = Path.of(name);
+            return path.getNameCount() == 1 && path.getRoot() == null && !".".equals(name);
+        } catch (java.nio.file.InvalidPathException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Writes the diagram, refusing to go through a symbolic link.
+     *
+     * <p>The name is already a bare file name inside {@code outputDir}, so the one remaining way
+     * out is a link that is already sitting there under that name: following it would overwrite,
+     * or for a dangling link create, a file wherever it points. A diagram has no reason to be
+     * written through a link, so refuse rather than resolve it. {@code NOFOLLOW_LINKS} closes the
+     * window between the check and the open on platforms that support it.
+     */
+    private static void writeInsideOutputDir(Path outputFile, String content) throws IOException {
+        if (Files.isSymbolicLink(outputFile)) {
+            throw new IOException("Refusing to write " + outputFile
+                    + ": it is a symbolic link, and following it could write outside the output directory.");
+        }
+        Files.writeString(outputFile, content, java.nio.charset.StandardCharsets.UTF_8,
+                java.nio.file.StandardOpenOption.CREATE,
+                java.nio.file.StandardOpenOption.TRUNCATE_EXISTING,
+                java.nio.file.StandardOpenOption.WRITE,
+                java.nio.file.LinkOption.NOFOLLOW_LINKS);
     }
 
     /**

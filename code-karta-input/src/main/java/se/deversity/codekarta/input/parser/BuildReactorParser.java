@@ -89,18 +89,23 @@ public class BuildReactorParser {
         // is null, and every module then looks unreadable. Which is exactly how this was found
         // — against a real repo, where the Gradle fallback quietly covered for the failure.
         Path root = inputRoot.toAbsolutePath().normalize();
-        if (Files.isRegularFile(root.resolve("pom.xml"))) {
-            parseMaven(root, graph);
+        Path realRoot = realPath(root);
+        if (realRoot == null) {
+            return graph;
+        }
+        Path rootPom = root.resolve("pom.xml");
+        if (Files.isRegularFile(rootPom) && staysInside(root, realRoot, rootPom)) {
+            parseMaven(root, realRoot, graph);
         }
         if (graph.getNodes().isEmpty()) {
-            parseGradle(root, graph);
+            parseGradle(root, realRoot, graph);
         }
         return graph;
     }
 
     // ------------------------------------------------------------------ Maven
 
-    private void parseMaven(Path root, Graph graph) {
+    private void parseMaven(Path root, Path realRoot, Graph graph) {
         // artifactId → its own pom, in reactor declaration order
         Map<String, Path> reactor = new LinkedHashMap<>();
         // aggregator artifactId → the artifactIds it declares
@@ -130,7 +135,7 @@ public class BuildReactorParser {
 
             Path base = pom.getParent();
             for (String module : directChildTexts(project, "modules", "module")) {
-                Path modulePom = resolveModulePom(root, base, module);
+                Path modulePom = resolveModulePom(root, realRoot, base, module);
                 if (modulePom == null) {
                     log.warning(() -> "Module '" + module + "' declared in " + pom + " is not readable, skipping it.");
                     continue;
@@ -180,18 +185,18 @@ public class BuildReactorParser {
      *
      * @return the module's pom, or {@code null} when it is missing or escapes the reactor root
      */
-    private Path resolveModulePom(Path root, Path base, String module) {
+    private Path resolveModulePom(Path root, Path realRoot, Path base, String module) {
         if (base == null || module.isBlank()) {
             return null;
         }
         Path candidate = base.resolve(module).normalize();
-        // A <module> reaching outside the tree the caller pointed at is not something to follow.
-        if (!candidate.startsWith(root.normalize())) {
-            log.warning(() -> "Module '" + module + "' resolves outside " + root + ", skipping it.");
-            return null;
-        }
         if (Files.isDirectory(candidate)) {
             candidate = candidate.resolve("pom.xml");
+        }
+        // A <module> reaching outside the tree the caller pointed at is not something to follow.
+        if (!staysInside(root, realRoot, candidate)) {
+            log.warning(() -> "Module '" + module + "' resolves outside " + root + ", skipping it.");
+            return null;
         }
         return Files.isRegularFile(candidate) ? candidate : null;
     }
@@ -211,9 +216,9 @@ public class BuildReactorParser {
 
     // ------------------------------------------------------------------ Gradle
 
-    private void parseGradle(Path root, Graph graph) {
+    private void parseGradle(Path root, Path realRoot, Graph graph) {
         Path settings = firstExisting(root, "settings.gradle.kts", "settings.gradle");
-        if (settings == null) {
+        if (settings == null || !staysInside(root, realRoot, settings)) {
             return;
         }
         String source = readText(settings);
@@ -234,6 +239,12 @@ public class BuildReactorParser {
                     dir = dir.resolve(segment);
                 }
             }
+            // The same boundary parseMaven keeps: include("../x") or include(":..:x"), or a
+            // project directory that is a symlink out of the checkout, is not part of this reactor.
+            if (!staysInside(root, realRoot, dir)) {
+                log.warning(() -> "Gradle project '" + path + "' resolves outside " + root + ", skipping it.");
+                continue;
+            }
             projects.put(name, dir.normalize());
         }
         if (projects.isEmpty()) {
@@ -249,7 +260,7 @@ public class BuildReactorParser {
 
         projects.forEach((name, dir) -> {
             Path buildFile = firstExisting(dir, "build.gradle.kts", "build.gradle");
-            if (buildFile == null) {
+            if (buildFile == null || !staysInside(root, realRoot, buildFile)) {
                 return;
             }
             String build = readText(buildFile);
@@ -294,6 +305,34 @@ public class BuildReactorParser {
     }
 
     // ------------------------------------------------------------------ helpers
+
+    /**
+     * Whether a path stays inside the reactor root, both as spelled and once symlinks are followed.
+     *
+     * <p>{@code normalize()} alone is lexical: {@code root/linked/pom.xml} passes it even when
+     * {@code linked} is a symlink to somewhere else entirely, and an untrusted checkout can ship
+     * that link. A path that does not exist has nothing to follow, so only the lexical check
+     * applies; the caller's own existence check then drops it.
+     */
+    private static boolean staysInside(Path root, Path realRoot, Path candidate) {
+        if (!candidate.normalize().startsWith(root)) {
+            return false;
+        }
+        if (!Files.exists(candidate)) {
+            return !Files.isSymbolicLink(candidate);
+        }
+        Path real = realPath(candidate);
+        return real != null && real.startsWith(realRoot);
+    }
+
+    private static Path realPath(Path path) {
+        try {
+            return path.toRealPath();
+        } catch (IOException | RuntimeException e) {
+            log.warning(() -> "Cannot resolve " + path + ": " + e.getMessage());
+            return null;
+        }
+    }
 
     private void addEdge(Graph graph, String source, String target, String type) {
         graph.addEdge(new Edge(source + "-" + type.toLowerCase(java.util.Locale.ROOT) + "-" + target,
