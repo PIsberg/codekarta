@@ -117,6 +117,63 @@ class CallSequenceParserTest {
 
     // --- helpers ---
 
+
+    // --- nested types, anonymous classes and overloads (#265) ---
+
+    /**
+     * {@code findAll(MethodDeclaration.class)} on a type reaches into its nested and anonymous
+     * classes, so Inner's method was drawn a second time on Outer's lifeline and the anonymous
+     * Runnable's run() became a method Outer never declared.
+     */
+    @Test
+    void methodsOfNestedAndAnonymousClassesAreNotAttributedToTheEnclosingClass(@TempDir Path dir) throws Exception {
+        Graph graph = parser.parse(write(dir, "Outer.java", """
+                public class Outer {
+                    void start() {
+                        Runnable r = new Runnable() {
+                            public void run() { helper(); }
+                        };
+                        r.run();
+                    }
+                    void helper() {}
+                    static class Inner {
+                        void innerMethod() {}
+                    }
+                }
+                """));
+
+        assertNotNull(graph.findNode("Inner.innerMethod"), "a nested class keeps its own methods");
+        assertNull(graph.findNode("Outer.innerMethod"), "Outer does not declare innerMethod");
+        assertNull(graph.findNode("Outer.run"), "Outer does not declare the anonymous Runnable's run");
+        assertTrue(hasCallEdge(graph, "Outer.start", "Outer.helper"),
+                "a call inside an anonymous class belongs to the method that declares it");
+    }
+
+    /**
+     * Every overload shared the id {@code K.run}, so delegation from one overload to another
+     * drew as a self-call and the overloads' call sequences were merged into one.
+     */
+    @Test
+    void overloadedMethodsAreSeparateNodesAndDelegationIsNotASelfCall(@TempDir Path dir) throws Exception {
+        Graph graph = parser.parse(write(dir, "K.java", """
+                public class K {
+                    void run(String a) { run(a, 1); }
+                    void run(String a, int b) { work(); }
+                    void work() {}
+                }
+                """));
+
+        assertNotNull(graph.findNode("K.run(String)"));
+        assertNotNull(graph.findNode("K.run(String,int)"));
+        assertEquals("run", graph.findNode("K.run(String)").getLabel(), "the label stays the plain name");
+        assertNull(graph.findNode("K.run"), "no merged node for both overloads");
+        assertNotNull(graph.findNode("K.work"), "a method that is not overloaded keeps the plain id");
+        assertTrue(hasCallEdge(graph, "K.run(String)", "K.run(String,int)"), "delegation targets the other overload");
+        assertTrue(hasCallEdge(graph, "K.run(String,int)", "K.work"));
+        assertTrue(graph.getEdges().stream().noneMatch(e -> e.getSourceId().equals(e.getTargetId())),
+                "overload delegation is not a self-call");
+    }
+
     private boolean hasCallEdge(Graph graph, String caller, String callee) {
         return graph.getEdges().stream().anyMatch(e ->
                 "CALLS".equals(e.getType())

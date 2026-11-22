@@ -57,6 +57,16 @@ each version heading is the complete record.
 
 ### Fixed
 
+- **Sequence diagrams keep overloads apart and leave nested classes' methods where they are.**
+  All three sequence parsers collected methods with a recursive search, so a nested class's
+  methods were drawn a second time on the enclosing class's lifeline and an anonymous class's
+  methods (the `visit` of a `VoidVisitorAdapter`) appeared as methods the enclosing class never
+  declared. Every overload also shared one `Owner.name` id: their call sequences merged, sequence
+  numbers collided, and delegation between overloads (`run(a, b)` to `run(a, b, c)`) drew as a
+  self-call. An overloaded method's id now carries its parameter types, `Owner.run(Path,Path)`
+  (the label stays `run`); a type contributes only the methods it declares; calls inside an
+  anonymous class or lambda still count for the enclosing method. Anyone matching `METHOD` ids
+  in `--format json` output will see the suffix on overloaded names. (#265)
 - **`--modules-only` no longer reads build files outside `--input`.** The Gradle reader followed
   `include("../x")` and `include(":..:x")` out of the root (a crafted `settings.gradle.kts` drew,
   and read the build file of, a directory beside the checkout), and both the Maven and Gradle

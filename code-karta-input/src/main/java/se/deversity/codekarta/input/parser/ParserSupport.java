@@ -123,11 +123,12 @@ public final class ParserSupport {
 
     /**
      * Method name → raw return type (generics stripped), used to resolve
-     * chained local calls such as {@code resolveLayout(x).layout(g)}.
+     * chained local calls such as {@code resolveLayout(x).layout(g)}. Only methods the type
+     * declares itself: a nested or anonymous class's method is not callable unqualified here.
      */
     public static Map<String, String> returnTypesOf(TypeDeclaration<?> classDecl) {
         Map<String, String> returnTypes = new HashMap<>();
-        classDecl.findAll(MethodDeclaration.class).forEach(m -> {
+        classDecl.getMethods().forEach(m -> {
             String rt = m.getType().asString();
             int lt = rt.indexOf('<');
             returnTypes.put(m.getNameAsString(), lt > 0 ? rt.substring(0, lt).trim() : rt.trim());

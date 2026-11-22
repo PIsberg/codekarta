@@ -1,7 +1,6 @@
 package se.deversity.codekarta.input.parser;
 
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -17,7 +16,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 @AIContext(
-    focus = "Produces integer-labelled CALLS edges in textual call order within each method. Node IDs use 'ClassName.methodName' qualified form. These integer labels are the contract read by SequenceDiagramRenderer to order messages.",
+    focus = "Produces integer-labelled CALLS edges in textual call order within each method. Node IDs use 'ClassName.methodName' qualified form, with the parameter types appended, 'ClassName.methodName(String,int)', when the class declares that name more than once (MethodIds). These integer labels are the contract read by SequenceDiagramRenderer to order messages.",
     avoids = "Changing the CALLS edge label format — SequenceDiagramRenderer.isInteractionGraph() and orderMessages() depend on labels parsing as integers."
 )
 @AIArchitecture(belongsTo = "input", cannotReference = {"layout", "render", "cli"})
@@ -45,9 +44,13 @@ public class CallSequenceParser {
                 // Return-type map for resolving chained local calls, e.g. resolveLayout(x).layout(g)
                 Map<String, String> returnTypes = ParserSupport.returnTypesOf(classDecl);
 
-                classDecl.findAll(MethodDeclaration.class).forEach(method -> {
-                    String qualifiedMethod = className + "." + method.getNameAsString();
-                    if (FilterMatcher.matchesAny(qualifiedMethod, customExcludes) || FilterMatcher.matchesAny(method.getNameAsString(), customExcludes)) {
+                // Direct methods only: findAll would reach into nested and anonymous classes and
+                // draw their methods on this class's lifeline (#265). Calls made inside an
+                // anonymous class or lambda still count, for the method that declares it.
+                classDecl.getMethods().forEach(method -> {
+                    String qualifiedMethod = MethodIds.of(className, classDecl, method);
+                    if (FilterMatcher.matchesAny(className + "." + method.getNameAsString(), customExcludes)
+                            || FilterMatcher.matchesAny(qualifiedMethod, customExcludes) || FilterMatcher.matchesAny(method.getNameAsString(), customExcludes)) {
                         return;
                     }
                     graph.addNodeIfAbsent(new Node(qualifiedMethod, "METHOD", method.getNameAsString()));
@@ -72,10 +75,12 @@ public class CallSequenceParser {
                                     super.visit(call, null);
                                     return;
                                 }
-                                callee = scopeName + "." + name;
+                                String own = className.equals(scopeName)
+                                        ? MethodIds.forLocalCall(className, classDecl, call) : null;
+                                callee = own != null ? own : scopeName + "." + name;
                             } else if (returnTypes.containsKey(name)) {
                                 // local method call — qualify so it joins this class's lifeline
-                                callee = className + "." + name;
+                                callee = MethodIds.forLocalCall(className, classDecl, call);
                             } else {
                                 // unscoped non-local call (static import etc.) — not attributable
                                 super.visit(call, null);

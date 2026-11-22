@@ -4,7 +4,7 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -20,6 +20,7 @@ import se.deversity.codekarta.core.model.Group;
 import se.deversity.codekarta.core.model.Node;
 import se.deversity.codekarta.core.model.NodeType;
 import se.deversity.codekarta.input.parser.FilterMatcher;
+import se.deversity.codekarta.input.parser.MethodIds;
 import se.deversity.codekarta.input.parser.ParserSupport;
 import se.deversity.codekarta.input.parser.SourceTree;
 
@@ -42,7 +43,8 @@ import se.deversity.vibetags.annotations.AIKeepInSync;
  * <p>
  * Cross-file method calls are resolved via JavaParser's
  * {@link JavaSymbolSolver}: when a callee's declaring type can be determined,
- * the callee node id uses the qualified form {@code ClassName.methodName} so
+ * the callee node id uses the qualified form {@code ClassName.methodName} (with a parameter-type
+ * suffix for an overloaded name, see {@link MethodIds}) so
  * nodes from different files are automatically linked. Unresolvable calls fall
  * back gracefully to scope-based naming.
  *
@@ -53,7 +55,7 @@ import se.deversity.vibetags.annotations.AIKeepInSync;
  * needed per-file.
  */
 @AIContext(
-    focus = "Cross-file call resolution via JavaSymbolSolver: resolved callees get 'ClassName.methodName' ids so nodes from different source files are automatically linked. Unresolvable calls fall back to scope-based naming without crashing.",
+    focus = "Cross-file call resolution via JavaSymbolSolver: resolved callees get 'ClassName.methodName' ids (MethodIds adds a parameter-type suffix for overloads) so nodes from different source files are automatically linked. Unresolvable calls fall back to scope-based naming without crashing.",
     avoids = "Adding exception-flow parsing here — catch-boundary groups and EXCEPTION_PROPAGATION edges belong to ExceptionFlowParser on individual files, not to the multi-file stitching pass."
 )
 @AIArchitecture(belongsTo = "input", cannotReference = {"layout", "render", "cli"})
@@ -191,13 +193,13 @@ public class MultiFileSequenceParser {
                 }
                 graph.addNodeIfAbsent(new Node(className, ParserSupport.nodeTypeOf(classDecl), className));
 
-                Set<String> localMethods = classDecl.findAll(MethodDeclaration.class).stream()
-                        .map(MethodDeclaration::getNameAsString)
-                        .collect(Collectors.toSet());
-
-                classDecl.findAll(MethodDeclaration.class).forEach(method -> {
-                    String methodId = className + "." + method.getNameAsString();
-                    if (FilterMatcher.matchesAny(methodId, customExcludes) || FilterMatcher.matchesAny(method.getNameAsString(), customExcludes)) {
+                // Direct methods only: findAll would reach into nested and anonymous classes and
+                // draw their methods on this class's lifeline (#265). Calls made inside an
+                // anonymous class or lambda still count, for the method that declares it.
+                classDecl.getMethods().forEach(method -> {
+                    String methodId = MethodIds.of(className, classDecl, method);
+                    if (FilterMatcher.matchesAny(className + "." + method.getNameAsString(), customExcludes)
+                            || FilterMatcher.matchesAny(methodId, customExcludes) || FilterMatcher.matchesAny(method.getNameAsString(), customExcludes)) {
                         return;
                     }
                     graph.addNodeIfAbsent(new Node(methodId, NodeType.METHOD, method.getNameAsString()));
@@ -206,7 +208,7 @@ public class MultiFileSequenceParser {
                     method.accept(new VoidVisitorAdapter<Void>() {
                         @Override
                         public void visit(MethodCallExpr call, Void arg) {
-                            String calleeId = resolveCallee(call, className, localMethods);
+                            String calleeId = resolveCallee(call, className, classDecl);
                             if (calleeId == null) {
                                 super.visit(call, null);
                                 return;
@@ -240,7 +242,7 @@ public class MultiFileSequenceParser {
 
                     // Catch-boundary groups (structural context, no exception edges)
                     ParserSupport.addCatchBoundaryGroups(graph, method, methodId,
-                            call -> resolveCallee(call, className, localMethods));
+                            call -> resolveCallee(call, className, classDecl));
                 });
             });
 
@@ -256,11 +258,10 @@ public class MultiFileSequenceParser {
      * expression string, or a bare static-import name here would leak
      * non-project participants into the diagram — skip those instead.
      */
-    private String resolveCallee(MethodCallExpr call, String ownerClass, Set<String> localMethods) {
+    private String resolveCallee(MethodCallExpr call, String ownerClass, TypeDeclaration<?> owner) {
         try {
             ResolvedMethodDeclaration resolved = call.resolve();
-            String declaringType = resolved.declaringType().getQualifiedName();
-            return declaringType + "." + resolved.getName();
+            return MethodIds.forResolved(resolved);
         } catch (Exception ignored) {
             // Symbol resolution unavailable for this call — fall back to scope-based naming
         }
@@ -270,13 +271,13 @@ public class MultiFileSequenceParser {
                 return scope.asNameExpr().getNameAsString() + "." + call.getNameAsString();
             }
             if (scope.isThisExpr()) {
-                return ownerClass + "." + call.getNameAsString();
+                String own = MethodIds.forLocalCall(ownerClass, owner, call);
+                return own != null ? own : ownerClass + "." + call.getNameAsString();
             }
             return null; // constructor/cast/chained expression scopes — not attributable
         }
-        return localMethods.contains(call.getNameAsString())
-                ? ownerClass + "." + call.getNameAsString()
-                : null; // unscoped non-local call (e.g. static import) — skip
+        // null for an unscoped non-local call (e.g. static import) — skip
+        return MethodIds.forLocalCall(ownerClass, owner, call);
     }
 
     @AIKeepInSync(

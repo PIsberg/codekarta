@@ -76,16 +76,18 @@ public class ExceptionFlowParser {
                 Map<String, Set<String>> methodThrows = new LinkedHashMap<>();
 
                 // Pre-pass: collect local method names + return types for scope resolution
-                Set<String> localMethodNames = classDecl.findAll(MethodDeclaration.class).stream()
+                Set<String> localMethodNames = classDecl.getMethods().stream()
                         .map(MethodDeclaration::getNameAsString)
                         .collect(Collectors.toSet());
 
                 Map<String, String> returnTypes = ParserSupport.returnTypesOf(classDecl);
 
                 // ── Pass 1 ────────────────────────────────────────────────
-                classDecl.findAll(MethodDeclaration.class).forEach(method -> {
-                    String methodId = className + "." + method.getNameAsString();
-                    if (FilterMatcher.matchesAny(methodId, customExcludes) || FilterMatcher.matchesAny(method.getNameAsString(), customExcludes)) {
+                // Direct methods only, as in CallSequenceParser (#265).
+                classDecl.getMethods().forEach(method -> {
+                    String methodId = MethodIds.of(className, classDecl, method);
+                    if (FilterMatcher.matchesAny(className + "." + method.getNameAsString(), customExcludes)
+                            || FilterMatcher.matchesAny(methodId, customExcludes) || FilterMatcher.matchesAny(method.getNameAsString(), customExcludes)) {
                         return;
                     }
                     graph.addNodeIfAbsent(new Node(methodId, NodeType.METHOD, method.getNameAsString()));
@@ -117,9 +119,11 @@ public class ExceptionFlowParser {
                                     super.visit(call, null);
                                     return;
                                 }
-                                callee = scopeName + "." + name;
+                                String own = className.equals(scopeName)
+                                        ? MethodIds.forLocalCall(className, classDecl, call) : null;
+                                callee = own != null ? own : scopeName + "." + name;
                             } else if (localMethodNames.contains(name)) {
-                                callee = className + "." + name;
+                                callee = MethodIds.forLocalCall(className, classDecl, call);
                             } else {
                                 // unscoped non-local call (static import etc.) — not attributable
                                 super.visit(call, null);
@@ -150,9 +154,15 @@ public class ExceptionFlowParser {
                             }
                             String sn = CallSequenceParser.resolveScope(
                                     call.getScope().get(), returnTypes, className);
-                            return sn == null ? null : sn + "." + cname;
+                            if (sn == null) {
+                                return null;
+                            }
+                            String own = className.equals(sn)
+                                    ? MethodIds.forLocalCall(className, classDecl, call) : null;
+                            return own != null ? own : sn + "." + cname;
                         }
-                        return localMethodNames.contains(cname) ? className + "." + cname : cname;
+                        return localMethodNames.contains(cname)
+                                ? MethodIds.forLocalCall(className, classDecl, call) : cname;
                     });
                 });
 
