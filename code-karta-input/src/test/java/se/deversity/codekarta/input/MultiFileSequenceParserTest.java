@@ -227,6 +227,64 @@ class MultiFileSequenceParserTest {
         assertNotNull(graph.findNode("Status"), "an enum is a participant");
     }
 
+    // --- nested types, anonymous classes and overloads (#265) ---
+
+    @Test
+    void methodsOfNestedAndAnonymousClassesAreNotAttributedToTheEnclosingClass(@TempDir Path sourceRoot) throws Exception {
+        write(Files.createDirectories(sourceRoot.resolve("p")), "Outer.java", "package p;\n" + """
+                public class Outer {
+                    void start() {
+                        Runnable r = new Runnable() {
+                            public void run() { helper(); }
+                        };
+                        r.run();
+                    }
+                    void helper() {}
+                    static class Inner {
+                        void innerMethod() {}
+                    }
+                }
+                """);
+
+        Graph graph = parser.parse(sourceRoot);
+
+        assertNotNull(graph.findNode("p.Outer.Inner.innerMethod"), "a nested class keeps its own methods");
+        assertNull(graph.findNode("p.Outer.innerMethod"), "Outer does not declare innerMethod");
+        assertNull(graph.findNode("p.Outer.run"), "Outer does not declare the anonymous Runnable's run");
+        assertTrue(callEdges(graph).contains("p.Outer.start -> p.Outer.helper"),
+                "a call inside an anonymous class belongs to the method that declares it");
+    }
+
+    @Test
+    void overloadedMethodsAreSeparateNodesAndDelegationIsNotASelfCall(@TempDir Path sourceRoot) throws Exception {
+        Path pkg = Files.createDirectories(sourceRoot.resolve("p"));
+        write(pkg, "K.java", "package p;\n" + """
+                public class K {
+                    void run(String a) { run(a, 1); }
+                    void run(String a, int b) { work(); }
+                    void work() {}
+                }
+                """);
+        write(pkg, "Caller.java", """
+                package p;
+                public class Caller {
+                    void go(K k) { k.run("x"); k.run("x", 2); }
+                }
+                """);
+
+        Graph graph = parser.parse(sourceRoot);
+
+        assertNotNull(graph.findNode("p.K.run(String)"));
+        assertNotNull(graph.findNode("p.K.run(String,int)"));
+        assertNull(graph.findNode("p.K.run"), "no merged node for both overloads");
+        assertEquals(java.util.Set.of(
+                "p.K.run(String) -> p.K.run(String,int)",
+                "p.K.run(String,int) -> p.K.work",
+                "p.Caller.go -> p.K.run(String)",
+                "p.Caller.go -> p.K.run(String,int)"), callEdges(graph),
+                "each call reaches the overload it resolves to, and none is a self-call");
+    }
+
     // --- recursion and cycles under --max-depth (#229) ---
 
     private static java.util.Set<String> callEdges(Graph graph) {

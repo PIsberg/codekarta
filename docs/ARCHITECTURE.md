@@ -87,6 +87,8 @@ otherwise no edge is drawn rather than a guessed one.
 | `MultiFileSequenceParser` | source directory | `CLASS`, `METHOD` | ordered `CALLS`, cross-file callee IDs when symbol solving succeeds |
 | `StateMachineParser` | file or directory plus `--state-machine` | `STATE` | `TRANSITION` |
 
+The three sequence parsers share `METHOD` ids through `MethodIds`: `Owner.name`, or `Owner.name(String,int)` when the owner declares that name more than once, with parameter types reduced to simple raw names so the id holds no dot after the owner's. The label stays the plain name. Each type contributes only the methods it declares itself; a call made inside an anonymous class or a lambda counts for the method that declares it.
+
 Dispatch rules:
 
 ```text
