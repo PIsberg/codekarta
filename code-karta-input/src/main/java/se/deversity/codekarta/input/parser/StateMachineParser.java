@@ -11,6 +11,7 @@ import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.stmt.ReturnStmt;
+import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.expr.SwitchExpr;
 import com.github.javaparser.ast.stmt.SwitchEntry;
 import com.github.javaparser.ast.stmt.SwitchStmt;
@@ -320,9 +321,18 @@ public class StateMachineParser {
                 }
             });
             entry.findAll(ReturnStmt.class).forEach(ret ->
-                    ret.getExpression().flatMap(expr -> stateRef(expr, states)).ifPresent(targets::add));
+                    ret.getExpression().ifPresent(expr -> resultRefs(expr, states, targets)));
             entry.findAll(YieldStmt.class).forEach(yield ->
-                    stateRef(yield.getExpression(), states).ifPresent(targets::add));
+                    resultRefs(yield.getExpression(), states, targets));
+            // case NEW -> OrderStatus.PAID; in a switch expression: the rule's expression is the
+            // value the switch produces. It is neither a return, a yield nor an assignment, so the
+            // idiomatic Java 14+ transition table used to yield nothing at all (issue #269).
+            if (entry.getType() == SwitchEntry.Type.EXPRESSION
+                    && entry.getParentNode().filter(SwitchExpr.class::isInstance).isPresent()) {
+                entry.getStatements().stream()
+                        .filter(Statement::isExpressionStmt)
+                        .forEach(stmt -> resultRefs(stmt.asExpressionStmt().getExpression(), states, targets));
+            }
 
             for (Ref source : sources) {
                 for (Ref target : targets) {
@@ -414,6 +424,18 @@ public class StateMachineParser {
      * or a qualified one ({@code OrderStatus.PAID}) whose qualifier narrows which enums it can
      * belong to. Empty when no enum of the input declares the constant.
      */
+    /** The states {@code expr} can produce: itself, or both branches of a {@code ?:}, through parentheses. */
+    private void resultRefs(Expression expr, States states, List<Ref> sink) {
+        if (expr.isEnclosedExpr()) {
+            resultRefs(expr.asEnclosedExpr().getInner(), states, sink);
+        } else if (expr.isConditionalExpr()) {
+            resultRefs(expr.asConditionalExpr().getThenExpr(), states, sink);
+            resultRefs(expr.asConditionalExpr().getElseExpr(), states, sink);
+        } else {
+            stateRef(expr, states).ifPresent(sink::add);
+        }
+    }
+
     private Optional<Ref> stateRef(Expression expr, States states) {
         String constant = null;
         Set<String> enums = Set.of();

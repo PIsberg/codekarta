@@ -90,8 +90,9 @@ java -jar code-karta-cli/target/code-karta-cli-0.4.0-all.jar \
 ## State Transition Diagram
 
 Use `--state-machine` for enum-backed workflow code. Enum constants become `STATE` nodes. The
-parser recognizes switch cases that assign, return, or yield another enum constant, plus explicit
-`transition(from, to, event)` calls.
+parser recognizes switch cases that assign, return, or yield another enum constant, the arrow rules
+of a switch expression (`return switch (s) { case NEW -> Status.PAID; ... }`, both branches of a
+`?:` result included), plus explicit `transition(from, to, event)` calls.
 
 A state variable is any field, local or parameter whose declared type is one of the input's enums,
 whatever it is called (`status`, `phase`, `mode`); for `var` and other untyped cases, a name
