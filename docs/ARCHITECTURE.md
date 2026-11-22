@@ -126,7 +126,7 @@ Implementations mutate the same `Graph` instance and return it for chaining. The
 
 | Engine | Use case |
 |---|---|
-| `SimpleLayoutEngine` | Default pure-Java layout. Uses root discovery plus breadth-first depth levels and a row/column grid. Predictable and dependency-light. |
+| `SimpleLayoutEngine` | Default pure-Java layout. Uses root discovery plus breadth-first depth levels and a row/column grid. With groups, each group is laid out as its own block and the blocks are packed side by side, so package frames never overlap. Predictable and dependency-light. |
 | `ElkLayoutEngine` | Large or dense graphs. Uses Eclipse Layout Kernel layered layout for crossing reduction and routed edges. Falls back to simple layout if ELK fails. |
 
 Both engines size nodes for what the renderer will draw. `SvgRenderer` draws a class or interface with member compartments as tall as its members need, whatever height layout assigned, so each engine reserves `RenderedSize.estimateHeight(node)` (package-private in `code-karta-layout`): the compartment height for a node with `fields` or `methods`, otherwise `NodeDimensions.DEFAULT_HEIGHT`. `SimpleLayoutEngine` uses it as the row pitch, and `ElkLayoutEngine` gives it to ELK as the node height. Layout may not reference render, so the formula mirrors `SvgRenderer.computeCompartmentHeight`; `@AIKeepInSync` names the pair, and `RenderedOverlapTest` lays out the same wide classes with both engines and fails if any two boxes overlap at their rendered height.
@@ -160,7 +160,7 @@ Rendering behavior:
 | `Group` entries | Renders bounding regions |
 | Missing node coordinates | Skips those nodes safely |
 
-`SequenceDiagramRenderer` derives participant lanes from method node IDs, renders ordered messages, self-calls, activation bars, exception propagation arrows, and try/catch frames when present. A frame encloses the calls its `owner` method makes to the group's members; a group without an owner falls back to every call to them.
+`SequenceDiagramRenderer` derives participant lanes from method node IDs and ignores node coordinates, so `KartaCli` skips layout for an interaction graph rendered to SVG (not for `--format json`, which carries coordinates). It renders ordered messages, self-calls, activation bars, exception propagation arrows, and try/catch frames when present. A frame encloses the calls its `owner` method makes to the group's members; a group without an owner falls back to every call to them.
 
 ### Svg Interactive Capabilities
 To support the single-page diagram viewer (`viewer.html`), the rendered SVG embeds structured markup:

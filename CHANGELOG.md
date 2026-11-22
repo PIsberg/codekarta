@@ -57,6 +57,15 @@ each version heading is the complete record.
 
 ### Fixed
 
+- **Parallel edges, group frames and sequence layout.** Two edges between the same nodes in the
+  same direction (`billingAddress` and `shippingAddress` from `Order` to `Address`, or two
+  transitions between one pair of states) drew one path with the second label painted over the
+  first; each further one now bows 26px further out. `SimpleLayoutEngine` placed nodes by depth
+  alone, so the frame drawn around a package swallowed other packages' classes; with groups it
+  now lays out each group as a block of its own and packs the blocks side by side. And
+  `--sequence-only` ran layout (ELK, with `--layout elk`) for an SVG renderer that discards
+  coordinates; it now skips it, except for `--format json`. `SvgRenderer.isInteractionGraph` is
+  public. (#272)
 - **Sequence diagrams draw method references and constructors.** All three sequence parsers
   visited method calls only, so `items.forEach(this::convert)`, `processor::handle` and
   `Type::new` drew nothing, a constructor's own calls were invisible, and so was

@@ -303,7 +303,12 @@ public class KartaCli {
         }
 
         state = PipelineStage.LAYOUT;
-        resolveLayout(options.layout()).layout(graph);
+        // A sequence SVG computes its own geometry and ignores node coordinates, so laying it out
+        // (ELK layered layout, with --layout elk) was work thrown away. JSON documents the
+        // coordinates, so it is still laid out (issue #272).
+        if (options.isJson() || !new SvgRenderer().isInteractionGraph(graph)) {
+            resolveLayout(options.layout()).layout(graph);
+        }
 
         if (graph.getNodes().isEmpty() && graph.getEdges().isEmpty()) {
             log.info("Graph is empty for input " + inputPath + ", skipping diagram generation.");

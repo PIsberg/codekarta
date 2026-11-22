@@ -140,7 +140,14 @@ public class SvgRenderer {
             "<rect width=\"%.0f\" height=\"%.0f\" fill=\"url(#dotGrid)\"/>\n", svgW, svgH));
 
         for (Group group : graph.getGroups()) sb.append(renderGroup(group, graph));
-        for (Edge  edge  : graph.getEdges())  sb.append(renderEdge(edge, graph));
+        // Edges between the same two nodes in the same direction share a source, target and bow;
+        // the n-th one bows further out so each path and label stays distinct (issue #272).
+        // Opposite directions already bow to opposite sides.
+        Map<String, Integer> parallel = new LinkedHashMap<>();
+        for (Edge  edge  : graph.getEdges()) {
+            int index = parallel.merge(edge.getSourceId() + " -> " + edge.getTargetId(), 1, Integer::sum) - 1;
+            sb.append(renderEdge(edge, graph, index));
+        }
         for (Node  node  : graph.getNodes())  sb.append(renderNode(node));
 
         if (!legendTypes.isEmpty()) sb.append(renderLegend(legendTypes, svgW, bounds[1] + PADDING));
@@ -324,6 +331,18 @@ public class SvgRenderer {
     // ------------------------------------------------------------------ edge
 
     String renderEdge(Edge edge, Graph graph) {
+        return renderEdge(edge, graph, 0);
+    }
+
+    /** Extra bow, in pixels, for each further edge between the same two nodes in the same direction. */
+    static final double PARALLEL_BOW_STEP = 26.0;
+
+    /**
+     * @param parallelIndex 0 for the first edge from this source to this target, 1 for the
+     *                      second, and so on; each step bows the curve {@link #PARALLEL_BOW_STEP}
+     *                      further out
+     */
+    String renderEdge(Edge edge, Graph graph, int parallelIndex) {
         Node src    = graph.findNode(edge.getSourceId());
         Node target = graph.findNode(edge.getTargetId());
         if (src == null || target == null || src.getX() == null || target.getX() == null) return "";
@@ -354,7 +373,7 @@ public class SvgRenderer {
         // Perpendicular bow — reduces crossing confusion vs straight lines
         double mx  = (sx + tx) / 2, my = (sy + ty) / 2;
         double len = Math.max(1.0, Math.sqrt(dx * dx + dy * dy));
-        double bow = Math.min(40.0, len * 0.18);
+        double bow = Math.min(40.0, len * 0.18) + parallelIndex * PARALLEL_BOW_STEP;
         double cx  = mx - (ty - sy) / len * bow;
         double cy  = my + (tx - sx) / len * bow;
 
@@ -585,7 +604,12 @@ public class SvgRenderer {
 
     // ------------------------------------------------------------------ sequence detection
 
-    boolean isInteractionGraph(Graph graph) {
+    /**
+     * Whether {@link #render} draws {@code graph} as a sequence diagram: METHOD nodes joined by
+     * integer-labelled CALLS edges. That path computes its own geometry and ignores node
+     * coordinates, so a caller can skip layout for it.
+     */
+    public boolean isInteractionGraph(Graph graph) {
         if (graph.getNodes().size() < 2 || graph.getEdges().isEmpty()) return false;
         long methodCount = graph.getNodes().stream()
                 .filter(n -> "METHOD".equals(n.getType())).count();

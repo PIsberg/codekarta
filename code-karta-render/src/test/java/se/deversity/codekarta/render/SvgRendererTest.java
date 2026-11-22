@@ -344,4 +344,45 @@ class SvgRendererTest {
         n.setX(x); n.setY(y); n.setWidth(150.0); n.setHeight(50.0);
         return n;
     }
+
+    // ------------------------------------------------------------------ parallel edges (#272)
+
+    /**
+     * The bow was computed from the two centres alone, so two fields from Order to Address drew
+     * the same path and the second label painted over the first.
+     */
+    @Test
+    void parallelEdgesBetweenTheSameNodesDrawDistinctPathsAndLabels() {
+        Graph graph = new Graph();
+        Node order = new Node("Order", "CLASS", "Order");
+        order.setX(0.0); order.setY(0.0); order.setWidth(160.0); order.setHeight(60.0);
+        Node address = new Node("Address", "CLASS", "Address");
+        address.setX(400.0); address.setY(0.0); address.setWidth(160.0); address.setHeight(60.0);
+        graph.addNode(order);
+        graph.addNode(address);
+        Edge billing = new Edge("e1", "Order", "Address", "TRANSITION");
+        billing.setLabel("billing");
+        Edge shipping = new Edge("e2", "Order", "Address", "TRANSITION");
+        shipping.setLabel("shipping");
+        graph.addEdge(billing);
+        graph.addEdge(shipping);
+
+        String svg = new SvgRenderer().render(graph);
+
+        java.util.List<String> paths = matches(svg, "data-source=\"Order\"[^>]*? d=\"([^\"]+)\"");
+        java.util.List<String> labels = matches(svg, "class=\"edge-label\" data-source=\"Order\"[^>]*? x=\"([-0-9.]+\" y=\"[-0-9.]+)\"");
+        assertEquals(2, paths.size());
+        assertNotEquals(paths.get(0), paths.get(1), "parallel edges must not share one path");
+        assertEquals(2, labels.size());
+        assertNotEquals(labels.get(0), labels.get(1), "parallel edge labels must not share one position");
+    }
+
+    private static java.util.List<String> matches(String text, String regex) {
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile(regex).matcher(text);
+        java.util.List<String> found = new java.util.ArrayList<>();
+        while (m.find()) {
+            found.add(m.group(1));
+        }
+        return found;
+    }
 }

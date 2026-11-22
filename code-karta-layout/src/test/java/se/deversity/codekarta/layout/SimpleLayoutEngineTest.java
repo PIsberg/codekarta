@@ -216,4 +216,65 @@ class SimpleLayoutEngineTest {
         assertEquals(1, SimpleLayoutEngine.subRowCount(10, 10));
         assertEquals(2, SimpleLayoutEngine.subRowCount(11, 10));
     }
+
+    // ------------------------------------------------------------------ groups (#272)
+
+    /**
+     * Placing nodes by depth alone scattered a package's classes among other packages' classes,
+     * so the frame SvgRenderer draws around each group's members swallowed unrelated nodes. Each
+     * group's frame (its members' bounds plus the renderer's 14px padding) must be clear of every
+     * other group's frame.
+     */
+    @Test
+    void groupFramesDoNotOverlapEachOther() {
+        Graph graph = new Graph();
+        for (String id : java.util.List.of("a1", "a2", "a3", "b1", "b2", "c1")) {
+            graph.addNode(new Node(id, "CLASS", id));
+        }
+        // edges that interleave the groups across depth levels
+        graph.addEdge(new Edge("e1", "a1", "b1", "HAS"));
+        graph.addEdge(new Edge("e2", "b1", "a2", "HAS"));
+        graph.addEdge(new Edge("e3", "a2", "b2", "HAS"));
+        graph.addEdge(new Edge("e4", "b2", "a3", "HAS"));
+        graph.addEdge(new Edge("e5", "c1", "a1", "HAS"));
+        graph.addGroup(group("pkg.a", "a1", "a2", "a3"));
+        graph.addGroup(group("pkg.b", "b1", "b2"));
+
+        new SimpleLayoutEngine().layout(graph);
+
+        double[] a = frame(graph, "a1", "a2", "a3");
+        double[] b = frame(graph, "b1", "b2");
+        assertFalse(intersects(a, b), "the frames of two packages must not overlap");
+        Node c1 = graph.findNode("c1");
+        double[] c = { c1.getX(), c1.getY(), c1.getX() + c1.getWidth(), c1.getY() + c1.getHeight() };
+        assertFalse(intersects(a, c) || intersects(b, c), "an ungrouped node must sit outside every frame");
+        for (Node n : graph.getNodes()) {
+            assertNotNull(n.getX(), n.getId() + " must still be placed");
+        }
+    }
+
+    private static se.deversity.codekarta.core.model.Group group(String id, String... members) {
+        se.deversity.codekarta.core.model.Group group = new se.deversity.codekarta.core.model.Group(id, id);
+        for (String m : members) {
+            group.addMember(m);
+        }
+        return group;
+    }
+
+    /** Members' bounds grown by the 14px padding SvgRenderer.renderGroup draws: {minX, minY, maxX, maxY}. */
+    private static double[] frame(Graph graph, String... ids) {
+        double[] f = { Double.MAX_VALUE, Double.MAX_VALUE, -Double.MAX_VALUE, -Double.MAX_VALUE };
+        for (String id : ids) {
+            Node n = graph.findNode(id);
+            f[0] = Math.min(f[0], n.getX());
+            f[1] = Math.min(f[1], n.getY());
+            f[2] = Math.max(f[2], n.getX() + n.getWidth());
+            f[3] = Math.max(f[3], n.getY() + RenderedSize.estimateHeight(n));
+        }
+        return new double[] { f[0] - 14, f[1] - 14, f[2] + 14, f[3] + 14 };
+    }
+
+    private static boolean intersects(double[] p, double[] q) {
+        return p[0] < q[2] && q[0] < p[2] && p[1] < q[3] && q[1] < p[3];
+    }
 }
