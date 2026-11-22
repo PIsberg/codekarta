@@ -57,6 +57,13 @@ each version heading is the complete record.
 
 ### Fixed
 
+- **Try/catch frames stay around the try block.** A frame listed the methods called inside one
+  method's `try`, and the renderer framed every call to those methods from anywhere in the
+  diagram, so a shared helper stretched frames across unrelated classes: 10,118px tall in
+  `docs/diagrams/sequence-diagram.svg`. Try/catch groups now carry `properties.owner`, the method
+  holding the `try`, and only that method's calls are framed; a group without one, from older
+  JSON, is drawn as before. `--sequence-only` on a directory no longer adds try/catch frames at
+  all, as its documentation already said; single-file exception-flow diagrams keep them. (#267)
 - **`--exclude` works as documented.** The package form from `--help`,
   `se.deversity.codekarta.util.*`, excluded nothing: class diagrams and single-file sequence
   diagrams tested only a type's simple name. Both names are tested now, so package patterns and

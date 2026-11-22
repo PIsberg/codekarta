@@ -60,15 +60,15 @@ text { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe
 <rect class="group-rect" x="91.0" y="166.0" width="198.0" height="74.0" rx="4" fill="#fef9c3" fill-opacity="0.35" stroke="#ca8a04" stroke-dasharray="6,3" stroke-width="1.2"/>
 <rect x="91.0" y="166.0" width="194.0" height="16" rx="2" fill="#fef08a"/>
 <text x="95.0" y="177.0" font-family="sans-serif" font-size="10" fill="#713f12">catch(IllegalArgumentException)</text>
-<rect class="group-rect" x="91.0" y="1138.0" width="198.0" height="4934.0" rx="4" fill="#fef9c3" fill-opacity="0.35" stroke="#ca8a04" stroke-dasharray="6,3" stroke-width="1.2"/>
+<rect class="group-rect" x="91.0" y="1138.0" width="198.0" height="1424.0" rx="4" fill="#fef9c3" fill-opacity="0.35" stroke="#ca8a04" stroke-dasharray="6,3" stroke-width="1.2"/>
 <rect x="91.0" y="1138.0" width="138.0" height="16" rx="2" fill="#fef08a"/>
 <text x="95.0" y="1149.0" font-family="sans-serif" font-size="10" fill="#713f12">catch(IOException)</text>
 <rect class="group-rect" x="91.0" y="4648.0" width="3498.0" height="128.0" rx="4" fill="#fef9c3" fill-opacity="0.35" stroke="#ca8a04" stroke-dasharray="6,3" stroke-width="1.2"/>
 <rect x="91.0" y="4648.0" width="299.0" height="16" rx="2" fill="#fef08a"/>
 <text x="95.0" y="4659.0" font-family="sans-serif" font-size="10" fill="#713f12">catch(java.nio.file.InvalidPathException)</text>
-<rect class="group-rect" x="91.0" y="1300.0" width="198.0" height="4934.0" rx="4" fill="#fef9c3" fill-opacity="0.35" stroke="#ca8a04" stroke-dasharray="6,3" stroke-width="1.2"/>
-<rect x="91.0" y="1300.0" width="138.0" height="16" rx="2" fill="#fef08a"/>
-<text x="95.0" y="1311.0" font-family="sans-serif" font-size="10" fill="#713f12">catch(IOException)</text>
+<rect class="group-rect" x="91.0" y="2326.0" width="198.0" height="74.0" rx="4" fill="#fef9c3" fill-opacity="0.35" stroke="#ca8a04" stroke-dasharray="6,3" stroke-width="1.2"/>
+<rect x="91.0" y="2326.0" width="138.0" height="16" rx="2" fill="#fef08a"/>
+<text x="95.0" y="2337.0" font-family="sans-serif" font-size="10" fill="#713f12">catch(IOException)</text>
 <line x1="190.0" y1="98.0" x2="190.0" y2="6606.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
 <line x1="410.0" y1="98.0" x2="410.0" y2="6606.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
 <line x1="630.0" y1="98.0" x2="630.0" y2="6606.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>

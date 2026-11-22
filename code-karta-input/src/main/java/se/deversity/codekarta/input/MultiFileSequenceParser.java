@@ -238,12 +238,7 @@ public class MultiFileSequenceParser {
 
                             super.visit(call, null);
                         }
-                    }, null);
-
-                    // Catch-boundary groups (structural context, no exception edges)
-                    ParserSupport.addCatchBoundaryGroups(graph, method, methodId,
-                            call -> resolveCallee(call, className, classDecl));
-                });
+                    }, null);                });
             });
 
         } catch (Exception e) {

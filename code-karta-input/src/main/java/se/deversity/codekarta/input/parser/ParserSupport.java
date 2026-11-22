@@ -5,11 +5,8 @@ import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.EnumDeclaration;
-import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.RecordDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
-import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.stmt.TryStmt;
 import se.deversity.codekarta.core.model.Graph;
 import se.deversity.codekarta.core.model.Group;
 import se.deversity.codekarta.core.model.Node;
@@ -26,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 
 /**
  * Shared building blocks for the single-file parsers. Extracted so
@@ -136,41 +132,6 @@ public final class ParserSupport {
             returnTypes.put(m.getNameAsString(), lt > 0 ? rt.substring(0, lt).trim() : rt.trim());
         });
         return returnTypes;
-    }
-
-    /**
-     * Adds one catch-boundary {@link Group} per try-statement in {@code method},
-     * with a member per call inside the try block. {@code calleeResolver} maps a
-     * call to its node id, or returns {@code null} to skip the call.
-     */
-    public static void addCatchBoundaryGroups(Graph graph, MethodDeclaration method, String methodId,
-            Function<MethodCallExpr, String> calleeResolver) {
-        int[] tryIdx = { 0 };
-        method.findAll(TryStmt.class).forEach(tryStmt -> {
-            String catchTypes = tryStmt.getCatchClauses().stream()
-                    .map(c -> c.getParameter().getType().asString())
-                    .reduce((a, b) -> a + ", " + b)
-                    .orElse("Exception");
-
-            Group group = new Group(
-                    "catch-boundary-" + methodId + "-" + tryIdx[0]++,
-                    "catch(" + catchTypes + ")");
-
-            tryStmt.getTryBlock().findAll(MethodCallExpr.class).forEach(call -> {
-                String callee = calleeResolver.apply(call);
-                // Only reference nodes the calling parser already accepted — creating
-                // nodes here would bypass the parser's project/stdlib filters and leak
-                // JDK types or raw variable names into the diagram as participants.
-                if (callee == null || graph.findNode(callee) == null) {
-                    return;
-                }
-                group.addMember(callee);
-            });
-
-            if (!group.getMemberIds().isEmpty()) {
-                graph.addGroup(group);
-            }
-        });
     }
 
     /**
