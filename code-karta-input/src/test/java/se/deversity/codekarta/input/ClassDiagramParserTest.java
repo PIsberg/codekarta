@@ -290,6 +290,46 @@ class ClassDiagramParserTest {
         assertFalse(hasEdge(graph, "Car", "Engine", "HAS"), "Car should not have HAS edge to Engine");
     }
 
+    /**
+     * Only the simple name was ever tested against --exclude, so the documented package form
+     * (se.deversity.codekarta.util.*) excluded nothing (#266).
+     */
+    @Test
+    void aPackageExcludeDropsTheTypesInThatPackageAndTheEdgesToThem(@TempDir Path dir) throws Exception {
+        Path util = Files.createDirectories(dir.resolve("com/example/util"));
+        Path app = Files.createDirectories(dir.resolve("com/example/app"));
+        Files.writeString(util.resolve("Helper.java"), "package com.example.util;\npublic class Helper {}");
+        Files.writeString(util.resolve("Base.java"), "package com.example.util;\npublic class Base {}");
+        Files.writeString(app.resolve("Service.java"), """
+                package com.example.app;
+                import com.example.util.Base;
+                import com.example.util.Helper;
+                public class Service extends Base {
+                    private Helper helper;
+                }
+                """);
+
+        Graph graph = new ClassDiagramParser(java.util.Set.of("com.example.util.*")).parse(dir);
+
+        assertNotNull(graph.findNode("com.example.app.Service"));
+        assertNull(graph.findNode("com.example.util.Helper"), "a type in the excluded package is dropped");
+        assertNull(graph.findNode("com.example.util.Base"));
+        assertTrue(graph.getEdges().isEmpty(), "no HAS or EXTENDS edge may point into the excluded package");
+    }
+
+    @Test
+    void aQualifiedExcludeDropsExactlyThatType(@TempDir Path dir) throws Exception {
+        Path a = Files.createDirectories(dir.resolve("a"));
+        Path b = Files.createDirectories(dir.resolve("b"));
+        Files.writeString(a.resolve("Node.java"), "package a;\npublic class Node {}");
+        Files.writeString(b.resolve("Node.java"), "package b;\npublic class Node {}");
+
+        Graph graph = new ClassDiagramParser(java.util.Set.of("a.Node")).parse(dir);
+
+        assertNull(graph.findNode("a.Node"));
+        assertNotNull(graph.findNode("b.Node"), "the other package's Node is not excluded");
+    }
+
     // ------------------------------------------------------------------ member cap
 
     @Test

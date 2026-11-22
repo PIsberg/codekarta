@@ -16,6 +16,25 @@ class ModuleInfoParserTest {
 
     private final ModuleInfoParser parser = new ModuleInfoParser();
 
+    /** --exclude was never handed to the module parsers, so --modules-only ignored it (#266). */
+    @Test
+    void anExcludedModuleIsDroppedWithItsEdges(@TempDir Path dir) throws Exception {
+        Path file = dir.resolve("module-info.java");
+        Files.writeString(file, """
+                module com.example.app {
+                    requires com.example.core;
+                    requires com.example.legacy;
+                }
+                """);
+
+        Graph graph = new ModuleInfoParser(java.util.Set.of("com.example.legacy")).parse(file);
+
+        assertNotNull(graph.findNode("com.example.core"));
+        assertNull(graph.findNode("com.example.legacy"));
+        assertTrue(graph.getEdges().stream().noneMatch(e -> e.getTargetId().equals("com.example.legacy")),
+                "no edge may point at an excluded module");
+    }
+
     @Test
     void parsesModuleNameAsNode(@TempDir Path dir) throws Exception {
         Path file = dir.resolve("module-info.java");

@@ -118,6 +118,21 @@ class CallSequenceParserTest {
     // --- helpers ---
 
 
+    /** forEachIncludedClass tested only the simple name, so a package pattern never matched (#266). */
+    @Test
+    void aPackageExcludeDropsTheClassesOfThatPackage(@TempDir Path dir) throws Exception {
+        Path file = write(dir, "Greeter.java", """
+                package com.example.util;
+                public class Greeter {
+                    void hello() {}
+                }
+                """);
+
+        Graph graph = new CallSequenceParser(java.util.Set.of("com.example.util.*")).parse(file);
+
+        assertTrue(graph.getNodes().isEmpty(), "every class of the excluded package is dropped");
+    }
+
     // --- nested types, anonymous classes and overloads (#265) ---
 
     /**

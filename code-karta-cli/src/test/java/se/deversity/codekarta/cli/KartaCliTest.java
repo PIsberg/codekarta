@@ -305,6 +305,42 @@ class KartaCliTest {
         assertEquals(1, written.size(), "a single file input must still produce its one diagram");
     }
 
+    /** The CLI parsed --exclude but never passed it to the state-machine or module parsers (#266). */
+    @Test
+    void excludeReachesTheStateMachineAndModuleModes(@TempDir Path dir) throws Exception {
+        Path src = dir.resolve("Workflows.java");
+        Files.writeString(src, """
+                public class Workflows {
+                    enum Order { NEW, PAID }
+                    enum Light { RED, GREEN }
+                    private Order order = Order.NEW;
+                    private Light light = Light.RED;
+                    void advance() {
+                        switch (order) { case NEW -> order = Order.PAID; default -> {} }
+                        switch (light) { case RED -> light = Light.GREEN; default -> {} }
+                    }
+                }
+                """);
+        RunOptions options = new RunOptions(false, "simple", true, java.util.Set.of("Light"),
+                Integer.MAX_VALUE, false, null,
+                se.deversity.codekarta.input.parser.ClassDiagramParser.DEFAULT_MAX_MEMBERS,
+                RunOptions.FORMAT_JSON, false);
+
+        String json = Files.readString(KartaCli.run(src, dir.resolve("out"), options));
+
+        assertTrue(json.contains("Workflows.Order.NEW"));
+        assertFalse(json.contains("Workflows.Light"), "--exclude must reach --state-machine");
+
+        Path reactor = Files.createDirectories(dir.resolve("reactor"));
+        Files.writeString(reactor.resolve("pom.xml"),
+                "<project><artifactId>parent</artifactId><modules><module>alpha</module><module>beta</module></modules></project>");
+        writeFile(reactor.resolve("alpha/pom.xml"), "<project><artifactId>alpha</artifactId></project>");
+        writeFile(reactor.resolve("beta/pom.xml"), "<project><artifactId>beta</artifactId></project>");
+
+        assertNull(KartaCli.parseModules(reactor, false, java.util.Set.of("beta")).findNode("beta"),
+                "--exclude must reach --modules-only");
+    }
+
     // --- --output-name ---
 
     /**

@@ -15,6 +15,31 @@ class StateMachineParserTest {
 
     private final StateMachineParser parser = new StateMachineParser();
 
+    /** --exclude was never handed to this parser, so --state-machine ignored it (#266). */
+    @Test
+    void anExcludedEnumContributesNoStatesOrTransitions(@TempDir Path dir) throws Exception {
+        Path source = dir.resolve("Workflows.java");
+        Files.writeString(source, """
+                public class Workflows {
+                    enum Order { NEW, PAID }
+                    enum Light { RED, GREEN }
+                    private Order order = Order.NEW;
+                    private Light light = Light.RED;
+                    void advance() {
+                        switch (order) { case NEW -> order = Order.PAID; default -> {} }
+                        switch (light) { case RED -> light = Light.GREEN; default -> {} }
+                    }
+                }
+                """);
+
+        Graph graph = new StateMachineParser(false, java.util.Set.of("Light")).parse(source);
+
+        assertNotNull(graph.findNode("Workflows.Order.NEW"));
+        assertNull(graph.findNode("Workflows.Light.RED"), "an excluded enum contributes no states");
+        assertTrue(graph.getEdges().stream().noneMatch(e -> e.getSourceId().contains("Light")),
+                "nor transitions");
+    }
+
     @Test
     void parsesEnumStatesAndSwitchTransitions(@TempDir Path dir) throws Exception {
         Path source = dir.resolve("OrderWorkflow.java");

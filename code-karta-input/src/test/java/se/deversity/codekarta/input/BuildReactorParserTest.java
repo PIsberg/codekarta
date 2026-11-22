@@ -173,6 +173,20 @@ class BuildReactorParserTest {
         }
     }
 
+    /** --exclude was never handed to the module parsers, so --modules-only ignored it (#266). */
+    @Test
+    void anExcludedModuleIsDroppedWithItsEdges(@TempDir Path root) throws IOException {
+        Files.createDirectories(root);
+        Files.writeString(root.resolve("pom.xml"), aggregatorPom("parent", "alpha", "legacy-beta"));
+        writeModulePom(root.resolve("alpha"), "alpha", "legacy-beta");
+        writeModulePom(root.resolve("legacy-beta"), "legacy-beta");
+
+        Graph graph = new BuildReactorParser(Set.of("legacy-*")).parse(root);
+
+        assertEquals(Set.of("parent", "alpha"), ids(graph));
+        assertFalse(hasEdge(graph, "alpha", "legacy-beta", "REQUIRES"));
+    }
+
     // ------------------------------------------------------------------ Gradle
 
     @Test

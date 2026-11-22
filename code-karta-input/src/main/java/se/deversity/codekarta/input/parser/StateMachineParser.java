@@ -49,6 +49,7 @@ public class StateMachineParser {
     private static final Logger log = Logger.getLogger(StateMachineParser.class.getName());
 
     private final boolean includeTests;
+    private final Set<String> customExcludes;
 
     /** Reads production sources only when given a project or repository root. */
     public StateMachineParser() {
@@ -60,7 +61,16 @@ public class StateMachineParser {
      *                     directory; see {@link SourceTree}
      */
     public StateMachineParser(boolean includeTests) {
+        this(includeTests, java.util.Collections.emptySet());
+    }
+
+    /**
+     * @param customExcludes {@code --exclude} patterns; an enum whose simple or qualified name
+     *                       matches contributes no states, and a state whose id matches is dropped
+     */
+    public StateMachineParser(boolean includeTests, Set<String> customExcludes) {
         this.includeTests = includeTests;
+        this.customExcludes = ParserSupport.normalizeExcludes(customExcludes);
     }
 
     /**
@@ -233,6 +243,9 @@ public class StateMachineParser {
         States states = new States();
         for (ParsedFile file : parsed) {
             file.cu().findAll(EnumDeclaration.class).forEach(enumDecl -> {
+                if (excluded(enumDecl)) {
+                    return;
+                }
                 String key = enumKey(enumDecl);
                 enumDecl.getEntries().forEach(entry ->
                         states.add(key, enumDecl.getNameAsString(), entry.getNameAsString()));
@@ -242,14 +255,29 @@ public class StateMachineParser {
     }
 
     /** A STATE node for every constant of every enum declared in {@code files}, in source order. */
-    private static void addStateNodes(List<ParsedFile> files, Graph graph) {
+    private void addStateNodes(List<ParsedFile> files, Graph graph) {
         for (ParsedFile file : files) {
             file.cu().findAll(EnumDeclaration.class).forEach(enumDecl -> {
+                if (excluded(enumDecl)) {
+                    return;
+                }
                 String key = enumKey(enumDecl);
-                enumDecl.getEntries().forEach(entry -> graph.addNodeIfAbsent(
-                        new Node(key + "." + entry.getNameAsString(), NodeType.STATE, entry.getNameAsString())));
+                enumDecl.getEntries().forEach(entry -> {
+                    String id = key + "." + entry.getNameAsString();
+                    if (!FilterMatcher.matchesAny(id, customExcludes)) {
+                        graph.addNodeIfAbsent(new Node(id, NodeType.STATE, entry.getNameAsString()));
+                    }
+                });
             });
         }
+    }
+
+    /** An enum matched by --exclude, by simple name, nested key or qualified name, is not a machine. */
+    private boolean excluded(EnumDeclaration enumDecl) {
+        return FilterMatcher.matchesAny(enumDecl.getNameAsString(), customExcludes)
+                || FilterMatcher.matchesAny(enumKey(enumDecl), customExcludes)
+                || enumDecl.getFullyQualifiedName()
+                        .map(fqn -> FilterMatcher.matchesAny(fqn, customExcludes)).orElse(false);
     }
 
     /**
@@ -439,6 +467,9 @@ public class StateMachineParser {
         }
         String sourceId = machine + "." + source.constant();
         String targetId = machine + "." + target.constant();
+        if (FilterMatcher.matchesAny(sourceId, customExcludes) || FilterMatcher.matchesAny(targetId, customExcludes)) {
+            return;
+        }
         boolean exists = graph.getEdges().stream()
                 .anyMatch(edge -> EdgeType.TRANSITION.equals(edge.getType())
                         && sourceId.equals(edge.getSourceId())

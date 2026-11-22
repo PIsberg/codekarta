@@ -12,6 +12,7 @@ import se.deversity.codekarta.core.model.Node;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Set;
 import java.util.logging.Logger;
 import se.deversity.vibetags.annotations.AIArchitecture;
 import se.deversity.vibetags.annotations.AIContext;
@@ -25,6 +26,17 @@ public class ModuleInfoParser {
 
     private static final Logger log = Logger.getLogger(ModuleInfoParser.class.getName());
 
+    private final Set<String> customExcludes;
+
+    public ModuleInfoParser() {
+        this(java.util.Collections.emptySet());
+    }
+
+    /** @param customExcludes {@code --exclude} patterns; a matching module or package is dropped with its edges */
+    public ModuleInfoParser(Set<String> customExcludes) {
+        this.customExcludes = ParserSupport.normalizeExcludes(customExcludes);
+    }
+
     public Graph parse(Path moduleInfoFile) {
         Graph graph = new Graph();
         try {
@@ -36,6 +48,7 @@ public class ModuleInfoParser {
         } catch (Exception e) {
             log.warning("Failed to parse " + moduleInfoFile + ": " + e.getMessage());
         }
+        ParserSupport.dropExcluded(graph, customExcludes);
         return graph;
     }
 
@@ -69,6 +82,7 @@ public class ModuleInfoParser {
         } catch (java.io.IOException e) {
             log.warning("Failed to walk directory " + root + ": " + e.getMessage());
         }
+        ParserSupport.dropExcluded(graph, customExcludes);
         return graph;
     }
 
