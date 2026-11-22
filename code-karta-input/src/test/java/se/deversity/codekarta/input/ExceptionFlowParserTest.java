@@ -39,8 +39,8 @@ class ExceptionFlowParserTest {
                 """);
         Graph graph = parser.parse(file);
 
-        assertTrue(hasCallEdge(graph, "A.run", "b.first"),  "CALLS edge to first() must exist");
-        assertTrue(hasCallEdge(graph, "A.run", "b.second"), "CALLS edge to second() must exist");
+        assertTrue(hasCallEdge(graph, "A.run", "B.first"),  "CALLS edge to first() must exist");
+        assertTrue(hasCallEdge(graph, "A.run", "B.second"), "CALLS edge to second() must exist");
 
         graph.getEdges().stream().filter(e -> EdgeType.CALLS.equals(e.getType())).forEach(e ->
             assertNotNull(e.getLabel(), "every CALLS edge must carry a sequence label"));
@@ -268,6 +268,27 @@ class ExceptionFlowParserTest {
         assertTrue(hasCallEdge(graph, "K.run(String,int)", "K.work"));
         assertTrue(graph.getEdges().stream().noneMatch(e -> e.getSourceId().equals(e.getTargetId())),
                 "overload delegation is not a self-call");
+    }
+
+    /** Same receiver typing as CallSequenceParser: the variable's declared type, not its name (#268). */
+    @Test
+    void callsOnTypedVariablesUseTheDeclaredType(@TempDir Path dir) throws Exception {
+        Graph graph = parser.parse(write(dir, "Q.java", """
+                public class Q {
+                    void go(Repo param, String text) {
+                        Repo local = new Repo();
+                        param.find();
+                        local.find();
+                        text.isBlank();
+                    }
+                }
+                class Repo { void find() {} }
+                """));
+
+        assertTrue(hasCallEdge(graph, "Q.go", "Repo.find"));
+        assertNull(graph.findNode("param.find"));
+        assertNull(graph.findNode("local.find"));
+        assertNull(graph.findNode("text.isBlank"), "a String receiver is stdlib");
     }
 
     /** The renderer scopes a frame to the method holding the try block, so the group must name it (#267). */

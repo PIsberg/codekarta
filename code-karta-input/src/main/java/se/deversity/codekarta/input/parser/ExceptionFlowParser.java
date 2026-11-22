@@ -2,6 +2,7 @@ package se.deversity.codekarta.input.parser;
 
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.stmt.TryStmt;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -82,6 +83,7 @@ public class ExceptionFlowParser {
                         .collect(Collectors.toSet());
 
                 Map<String, String> returnTypes = ParserSupport.returnTypesOf(classDecl);
+                Map<String, TypeDeclaration<?>> fileTypes = CallSequenceParser.typesByName(cu);
 
                 // ── Pass 1 ────────────────────────────────────────────────
                 // Direct methods only, as in CallSequenceParser (#265).
@@ -92,6 +94,7 @@ public class ExceptionFlowParser {
                         return;
                     }
                     graph.addNodeIfAbsent(new Node(methodId, NodeType.METHOD, method.getNameAsString()));
+                    Map<String, String> varTypes = CallSequenceParser.receiverTypes(classDecl, method, returnTypes);
 
                     // Collect declared throws
                     method.getThrownExceptions()
@@ -115,14 +118,12 @@ public class ExceptionFlowParser {
                                     return;
                                 }
                                 String scopeName = CallSequenceParser.resolveScope(
-                                        call.getScope().get(), returnTypes, className);
+                                        call.getScope().get(), returnTypes, className, varTypes);
                                 if (scopeName == null || externalTypes.contains(scopeName)) {
                                     super.visit(call, null);
                                     return;
                                 }
-                                String own = className.equals(scopeName)
-                                        ? MethodIds.forLocalCall(className, classDecl, call) : null;
-                                callee = own != null ? own : scopeName + "." + name;
+                                callee = CallSequenceParser.calleeIn(scopeName, call, fileTypes);
                             } else if (localMethodNames.contains(name)) {
                                 callee = MethodIds.forLocalCall(className, classDecl, call);
                             } else {
@@ -154,13 +155,8 @@ public class ExceptionFlowParser {
                                 return null;
                             }
                             String sn = CallSequenceParser.resolveScope(
-                                    call.getScope().get(), returnTypes, className);
-                            if (sn == null) {
-                                return null;
-                            }
-                            String own = className.equals(sn)
-                                    ? MethodIds.forLocalCall(className, classDecl, call) : null;
-                            return own != null ? own : sn + "." + cname;
+                                    call.getScope().get(), returnTypes, className, varTypes);
+                            return sn == null ? null : CallSequenceParser.calleeIn(sn, call, fileTypes);
                         }
                         return localMethodNames.contains(cname)
                                 ? MethodIds.forLocalCall(className, classDecl, call) : cname;

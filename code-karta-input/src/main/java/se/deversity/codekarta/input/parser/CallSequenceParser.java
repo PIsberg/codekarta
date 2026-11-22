@@ -1,6 +1,11 @@
 package se.deversity.codekarta.input.parser;
 
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.body.RecordDeclaration;
+import com.github.javaparser.ast.body.TypeDeclaration;
+import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -12,6 +17,7 @@ import se.deversity.vibetags.annotations.AIArchitecture;
 import se.deversity.vibetags.annotations.AIContext;
 
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -43,6 +49,7 @@ public class CallSequenceParser {
 
                 // Return-type map for resolving chained local calls, e.g. resolveLayout(x).layout(g)
                 Map<String, String> returnTypes = ParserSupport.returnTypesOf(classDecl);
+                Map<String, TypeDeclaration<?>> fileTypes = typesByName(cu);
 
                 // Direct methods only: findAll would reach into nested and anonymous classes and
                 // draw their methods on this class's lifeline (#265). Calls made inside an
@@ -54,6 +61,7 @@ public class CallSequenceParser {
                         return;
                     }
                     graph.addNodeIfAbsent(new Node(qualifiedMethod, "METHOD", method.getNameAsString()));
+                    Map<String, String> varTypes = receiverTypes(classDecl, method, returnTypes);
 
                     int[] order = { 0 };
                     method.accept(new VoidVisitorAdapter<Void>() {
@@ -70,14 +78,12 @@ public class CallSequenceParser {
                                     super.visit(call, null);
                                     return;
                                 }
-                                String scopeName = resolveScope(call.getScope().get(), returnTypes, className);
+                                String scopeName = resolveScope(call.getScope().get(), returnTypes, className, varTypes);
                                 if (scopeName == null || externalTypes.contains(scopeName)) {
                                     super.visit(call, null);
                                     return;
                                 }
-                                String own = className.equals(scopeName)
-                                        ? MethodIds.forLocalCall(className, classDecl, call) : null;
-                                callee = own != null ? own : scopeName + "." + name;
+                                callee = calleeIn(scopeName, call, fileTypes);
                             } else if (returnTypes.containsKey(name)) {
                                 // local method call — qualify so it joins this class's lifeline
                                 callee = MethodIds.forLocalCall(className, classDecl, call);
@@ -112,8 +118,19 @@ public class CallSequenceParser {
      * Resolves a scope expression to a simple class/variable name.
      * Returns null when the scope is too complex to represent (skip the call).
      */
-    static String resolveScope(Expression scope, Map<String, String> returnTypes, String thisClass) {
-        if (scope.isNameExpr())            return scope.asNameExpr().getNameAsString();
+    static String resolveScope(Expression scope, Map<String, String> returnTypes, String thisClass,
+                               Map<String, String> varTypes) {
+        if (scope.isNameExpr()) {
+            String name = scope.asNameExpr().getNameAsString();
+            if (!varTypes.containsKey(name)) {
+                return name; // not a variable in scope: a type name (static call) or unknown
+            }
+            String type = varTypes.get(name);
+            if (type == null) {
+                return name; // a variable whose type cannot be read (untyped lambda parameter)
+            }
+            return type.endsWith("[]") ? null : type; // arrays have no domain methods
+        }
         if (scope.isThisExpr())            return thisClass;
         if (scope.isObjectCreationExpr())  return scope.asObjectCreationExpr().getType().getNameAsString();
         if (scope.isMethodCallExpr()) {
@@ -122,5 +139,65 @@ public class CallSequenceParser {
             if (inner.getScope().isEmpty()) return returnTypes.get(inner.getNameAsString());
         }
         return null; // field access chains, cast expressions, etc. — skip
+    }
+
+    /**
+     * Variable name → declared raw simple type for every field of {@code classDecl} (record
+     * components included) and every parameter and local of {@code method}, catch and for-each
+     * variables included. Locals win over fields of the same name. A {@code var} takes the type
+     * of {@code new T(...)} or of a local method it is assigned from; a variable whose type
+     * cannot be read (an untyped lambda parameter, an unresolvable {@code var}) maps to
+     * {@code null}, so it is drawn by name rather than mistaken for a same-named field.
+     *
+     * <p>Without this the receiver of {@code matcher.find()} was the string {@code matcher}: it
+     * escaped the stdlib filter, which knows type names, and every variable of one type drew a
+     * lifeline of its own (issue #268).
+     */
+    static Map<String, String> receiverTypes(TypeDeclaration<?> classDecl, MethodDeclaration method,
+                                             Map<String, String> returnTypes) {
+        Map<String, String> types = new HashMap<>();
+        if (classDecl instanceof RecordDeclaration record) {
+            record.getParameters().forEach(p -> types.put(p.getNameAsString(), MethodIds.simpleType(p.getType())));
+        }
+        classDecl.getFields().forEach(field -> field.getVariables().forEach(v ->
+                types.put(v.getNameAsString(), declaredType(v, returnTypes))));
+        method.findAll(Parameter.class).forEach(p -> types.put(p.getNameAsString(),
+                p.getType().isUnknownType() ? null
+                        : MethodIds.simpleType(p.getType()) + (p.isVarArgs() ? "[]" : "")));
+        method.findAll(VariableDeclarator.class).forEach(v ->
+                types.put(v.getNameAsString(), declaredType(v, returnTypes)));
+        return types;
+    }
+
+    private static String declaredType(VariableDeclarator variable, Map<String, String> returnTypes) {
+        if (!variable.getType().isVarType()) {
+            return MethodIds.simpleType(variable.getType());
+        }
+        Expression init = variable.getInitializer().orElse(null);
+        if (init != null && init.isObjectCreationExpr()) {
+            return init.asObjectCreationExpr().getType().getNameAsString();
+        }
+        if (init != null && init.isMethodCallExpr() && init.asMethodCallExpr().getScope().isEmpty()) {
+            return returnTypes.get(init.asMethodCallExpr().getNameAsString());
+        }
+        return null;
+    }
+
+    /** Every class, interface, record and enum in the file, by simple name. */
+    static Map<String, TypeDeclaration<?>> typesByName(CompilationUnit cu) {
+        Map<String, TypeDeclaration<?>> types = new HashMap<>();
+        ParserSupport.methodBearingTypes(cu).forEach(t -> types.putIfAbsent(t.getNameAsString(), t));
+        return types;
+    }
+
+    /**
+     * The callee id for a call on a receiver of type {@code scopeName}. When that type is declared
+     * in this file, the id names the overload the way the declaration's own node does
+     * ({@link MethodIds}); otherwise it is {@code scopeName.name}.
+     */
+    static String calleeIn(String scopeName, MethodCallExpr call, Map<String, TypeDeclaration<?>> fileTypes) {
+        TypeDeclaration<?> declared = fileTypes.get(scopeName);
+        String id = declared == null ? null : MethodIds.forLocalCall(scopeName, declared, call);
+        return id != null ? id : scopeName + "." + call.getNameAsString();
     }
 }

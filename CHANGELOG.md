@@ -57,6 +57,14 @@ each version heading is the complete record.
 
 ### Fixed
 
+- **Single-file sequence diagrams name receivers by type.** `CallSequenceParser` and
+  `ExceptionFlowParser` used a variable's name as the receiver of a call on it, so
+  `requested.isBlank()` and `matcher.find()` drew lifelines called `requested` and `matcher`
+  (the stdlib filter knows type names, not variable names), and `options` and `RunOptions`, or
+  `graph` and `jpms`, split one type over several lifelines. Receivers now take the declared
+  type of the field, parameter, local, catch or for-each variable, or of a `var` assigned from
+  `new T(...)` or a local method. Call targets change accordingly, from `svc.execute` to
+  `Service.execute`, in SVG and `--format json` alike. (#268)
 - **Try/catch frames stay around the try block.** A frame listed the methods called inside one
   method's `try`, and the renderer framed every call to those methods from anywhere in the
   diagram, so a shared helper stretched frames across unrelated classes: 10,118px tall in

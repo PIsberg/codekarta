@@ -89,6 +89,8 @@ otherwise no edge is drawn rather than a guessed one.
 
 The three sequence parsers share `METHOD` ids through `MethodIds`: `Owner.name`, or `Owner.name(String,int)` when the owner declares that name more than once, with parameter types reduced to simple raw names so the id holds no dot after the owner's. The label stays the plain name. Each type contributes only the methods it declares itself; a call made inside an anonymous class or a lambda counts for the method that declares it.
 
+The single-file parsers have no symbol solver, so they type a call's receiver from declarations: a field, record component, parameter, local, catch or for-each variable gives its declared raw type, and `var` takes the type of `new T(...)` or of the local method it is assigned from. `matcher.find()` is then a call on `Matcher`, which the stdlib filter drops, and every `Repo` variable lands on one `Repo` lifeline. A receiver whose type cannot be read is drawn by its name, as before.
+
 Dispatch rules:
 
 ```text

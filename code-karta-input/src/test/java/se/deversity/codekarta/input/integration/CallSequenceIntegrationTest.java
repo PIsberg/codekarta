@@ -55,13 +55,13 @@ class CallSequenceIntegrationTest {
 
     @Test
     void submitCallsCheckStock() {
-        assertTrue(hasCallEdge("OrderProcessor.submit", "inventoryService.checkStock"),
+        assertTrue(hasCallEdge("OrderProcessor.submit", "InventoryService.checkStock"),
                 "submit() must call inventoryService.checkStock()");
     }
 
     @Test
     void submitCallsReserveStock() {
-        assertTrue(hasCallEdge("OrderProcessor.submit", "inventoryService.reserveStock"),
+        assertTrue(hasCallEdge("OrderProcessor.submit", "InventoryService.reserveStock"),
                 "submit() must call inventoryService.reserveStock()");
     }
 
@@ -84,7 +84,7 @@ class CallSequenceIntegrationTest {
 
     @Test
     void cancelCallsReleaseStock() {
-        assertTrue(hasCallEdge("OrderProcessor.cancel", "inventoryService.releaseStock"),
+        assertTrue(hasCallEdge("OrderProcessor.cancel", "InventoryService.releaseStock"),
                 "cancel() must call inventoryService.releaseStock()");
     }
 

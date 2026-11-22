@@ -68,16 +68,16 @@ text { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe
 <rect x="405.0" y="231.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <rect x="185.0" y="285.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <rect x="405.0" y="339.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<line class="edge-line" data-source="OrderProcessor.submit" data-target="inventoryService.checkStock" data-type="CALLS" x1="190.0" y1="130.0" x2="405.0" y2="130.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="OrderProcessor.submit" data-target="inventoryService.checkStock" data-type="CALLS" x="300.0" y="121.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: checkStock</text>
-<line class="edge-line" data-source="OrderProcessor.submit" data-target="inventoryService.reserveStock" data-type="CALLS" x1="190.0" y1="184.0" x2="405.0" y2="184.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="OrderProcessor.submit" data-target="inventoryService.reserveStock" data-type="CALLS" x="300.0" y="175.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2: reserveStock</text>
-<line class="edge-line" data-source="OrderProcessor.cancel" data-target="inventoryService.releaseStock" data-type="CALLS" x1="190.0" y1="238.0" x2="405.0" y2="238.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="OrderProcessor.cancel" data-target="inventoryService.releaseStock" data-type="CALLS" x="300.0" y="229.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: releaseStock</text>
+<line class="edge-line" data-source="OrderProcessor.submit" data-target="InventoryService.checkStock" data-type="CALLS" x1="190.0" y1="130.0" x2="405.0" y2="130.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="OrderProcessor.submit" data-target="InventoryService.checkStock" data-type="CALLS" x="300.0" y="121.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: checkStock</text>
+<line class="edge-line" data-source="OrderProcessor.submit" data-target="InventoryService.reserveStock" data-type="CALLS" x1="190.0" y1="184.0" x2="405.0" y2="184.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="OrderProcessor.submit" data-target="InventoryService.reserveStock" data-type="CALLS" x="300.0" y="175.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2: reserveStock</text>
+<line class="edge-line" data-source="OrderProcessor.cancel" data-target="InventoryService.releaseStock" data-type="CALLS" x1="190.0" y1="238.0" x2="405.0" y2="238.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="OrderProcessor.cancel" data-target="InventoryService.releaseStock" data-type="CALLS" x="300.0" y="229.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: releaseStock</text>
 <path class="edge-line" data-source="OrderProcessor.submitOrder" data-target="OrderProcessor.processOrder" data-type="CALLS" d="M195.0 292.0 C231.0 287.0 231.0 321.3 195.0 316.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
 <text class="edge-label" data-source="OrderProcessor.submitOrder" data-target="OrderProcessor.processOrder" data-type="CALLS" x="235.0" y="296.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: processOrder</text>
-<line class="edge-line" data-source="OrderProcessor.processOrder" data-target="inventoryService.checkStock" data-type="CALLS" x1="190.0" y1="346.0" x2="405.0" y2="346.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="OrderProcessor.processOrder" data-target="inventoryService.checkStock" data-type="CALLS" x="300.0" y="337.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: checkStock</text>
+<line class="edge-line" data-source="OrderProcessor.processOrder" data-target="InventoryService.checkStock" data-type="CALLS" x1="190.0" y1="346.0" x2="405.0" y2="346.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="OrderProcessor.processOrder" data-target="InventoryService.checkStock" data-type="CALLS" x="300.0" y="337.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: checkStock</text>
 <path class="edge-line" data-source="OrderProcessor.processOrder" data-target="OrderProcessor.submitOrder" data-type="EXCEPTION_PROPAGATION" d="M195.0 400.0 C231.0 395.0 231.0 429.3 195.0 424.3" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#seq-marker-exc)"/>
 <text class="edge-label" data-source="OrderProcessor.processOrder" data-target="OrderProcessor.submitOrder" data-type="EXCEPTION_PROPAGATION" x="235.0" y="404.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#dc2626" font-style="italic">throws</text>
 <line class="edge-line" data-source="OrderProcessor.submitOrder" data-target="exception:OrderValidationException" data-type="EXCEPTION_PROPAGATION" x1="190.0" y1="454.0" x2="625.0" y2="454.0" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="6,3" marker-end="url(#seq-marker-exc)"/>
@@ -87,10 +87,10 @@ text { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe
   <rect class="node-rect" x="105.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
   <text class="node-label" x="190.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">OrderProcessor</text>
 </g>
-<g id="inventoryService">
-  <title>inventoryService</title>
+<g id="InventoryService">
+  <title>InventoryService</title>
   <rect class="node-rect" x="325.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="410.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">inventoryService</text>
+  <text class="node-label" x="410.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">InventoryService</text>
 </g>
 <g id="exception:OrderValidationException">
   <title>OrderValidationException</title>

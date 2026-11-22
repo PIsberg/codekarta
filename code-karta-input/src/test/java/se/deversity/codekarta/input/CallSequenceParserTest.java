@@ -51,8 +51,8 @@ class CallSequenceParserTest {
                 """);
         Graph graph = parser.parse(file);
 
-        assertTrue(hasCallEdge(graph, "Processor.process", "svc.execute"),
-                "process() must have a CALLS edge to svc.execute()");
+        assertTrue(hasCallEdge(graph, "Processor.process", "Service.execute"),
+                "process() must have a CALLS edge to Service.execute(), typed by svc's declaration");
     }
 
     @Test
@@ -131,6 +131,85 @@ class CallSequenceParserTest {
         Graph graph = new CallSequenceParser(java.util.Set.of("com.example.util.*")).parse(file);
 
         assertTrue(graph.getNodes().isEmpty(), "every class of the excluded package is dropped");
+    }
+
+    // --- receivers typed by declaration (#268) ---
+
+    /**
+     * Without symbol resolution, a call on a variable used the variable's name as the receiver,
+     * so requested.isBlank() or matcher.find() drew lifelines called requested and matcher even
+     * though their types (String, Matcher) are filtered as stdlib.
+     */
+    @Test
+    void stdlibTypedVariablesAndFieldsDoNotBecomeParticipants(@TempDir Path dir) throws Exception {
+        Graph graph = parser.parse(write(dir, "P.java", """
+                import java.util.regex.Matcher;
+                import java.util.regex.Pattern;
+                public class P {
+                    private static final Pattern SVG = Pattern.compile("x");
+                    void run(String requested) {
+                        requested.isBlank();
+                        Matcher matcher = SVG.matcher(requested);
+                        matcher.find();
+                        for (String part : requested.split(",")) { part.isBlank(); }
+                        helper();
+                    }
+                    void helper() {}
+                }
+                """));
+
+        assertEquals(java.util.Set.of("P.run -> P.helper"), callEdges(graph),
+                "only the domain call remains; String, Pattern and Matcher receivers are stdlib");
+    }
+
+    /** Three variables of one type drew three lifelines, one per variable name. */
+    @Test
+    void variablesOfOneTypeShareThatTypesLifeline(@TempDir Path dir) throws Exception {
+        Graph graph = parser.parse(write(dir, "Q.java", """
+                public class Q {
+                    private Repo field = new Repo();
+                    void go(Repo param) {
+                        Repo local = new Repo();
+                        var inferred = new Repo();
+                        param.find();
+                        local.find();
+                        inferred.find();
+                        field.find();
+                    }
+                }
+                class Repo { void find() {} }
+                """));
+
+        assertEquals(java.util.Set.of("Q.go -> Repo.find"), callEdges(graph));
+        assertEquals(4, graph.getEdges().size(), "one CALLS edge per call, all to Repo.find");
+        for (String var : java.util.List.of("param", "local", "inferred", "field")) {
+            assertNull(graph.findNode(var + ".find"), var + " must not become a participant");
+        }
+    }
+
+    /** An untyped lambda parameter must not borrow the type of a field that happens to share its name. */
+    @Test
+    void anUntypedLambdaParameterIsNotGivenAFieldsType(@TempDir Path dir) throws Exception {
+        Graph graph = parser.parse(write(dir, "L.java", """
+                public class L {
+                    private Repo repo = new Repo();
+                    void go(java.util.List<Other> others) {
+                        others.forEach(repo -> repo.touch());
+                    }
+                }
+                class Repo { void touch() {} }
+                class Other { void touch() {} }
+                """));
+
+        assertFalse(callEdges(graph).contains("L.go -> Repo.touch"),
+                "the lambda's repo is an Other, not the Repo field");
+    }
+
+    private static java.util.Set<String> callEdges(Graph graph) {
+        return graph.getEdges().stream()
+                .filter(e -> "CALLS".equals(e.getType()))
+                .map(e -> e.getSourceId() + " -> " + e.getTargetId())
+                .collect(java.util.stream.Collectors.toSet());
     }
 
     // --- nested types, anonymous classes and overloads (#265) ---
