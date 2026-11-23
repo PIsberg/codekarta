@@ -6,7 +6,7 @@ paths: ["**/ClassDiagramParser.java"]
 # Rules for ClassDiagramParser
 
 ## Context & Focus
-- **Focus**: Generic-type stripping: rawType() must be called before SKIP_TYPES lookup so 'List<Node>' → 'List' and gets filtered. Node.properties is populated with truncated field/method summaries for UML compartments. HAS edge labels carry the field name.
+- **Focus**: Field targets come from walking the declared Type AST (referencedTypeNames: arrays, wildcard bounds, every type argument at any depth, one member per variable); each raw name is checked against SKIP_TYPES, so 'List<Node>' yields Node and never List. Node.properties is populated with truncated field/method summaries for UML compartments. HAS edge labels carry the field name.
 - **Avoid**: Bypassing SKIP_TYPES for stdlib types — class diagrams quickly become unreadable with List/Map/String nodes. Populating Node.properties for externally-referenced stub nodes (only populate for types whose source is in this parse run).
 
 ## Strict Test Isolation

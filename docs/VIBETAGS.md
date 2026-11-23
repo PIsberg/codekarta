@@ -21,7 +21,7 @@ A local copy of the upstream annotation reference is vendored at
 | Annotation | Where | What it protects |
 |---|---|---|
 | `@AIArchitecture` | every main class in input / layout / render / core | The tier boundaries, as machine-readable `cannotReference` lists |
-| `@AIContext` | parsers, layout engines, renderers | The design decision a reader cannot infer from the code — why the two-pass exception walk exists, why `rawType()` runs before the skip-list lookup |
+| `@AIContext` | parsers, layout engines, renderers | The design decision a reader cannot infer from the code — why the two-pass exception walk exists, why field targets walk the declared `Type` AST before the skip-list lookup |
 | `@AILocked` | `NodeType`, `EdgeType`, `NodeDimensions` | Enum string values used as CSS selectors and matched by identity across all parsers |
 | `@AICore`, `@AISchemaSafe`, `@AIDomainModel`, `@AIStrictTypes` | `Graph`, `Node`, `Edge`, `Group` | The IR: serialised schema, framework-free purity, precise types |
 | `@AIContract` | `LayoutEngine`, `InputParser`, `KartaCli` | Signatures other code and tests bind to |

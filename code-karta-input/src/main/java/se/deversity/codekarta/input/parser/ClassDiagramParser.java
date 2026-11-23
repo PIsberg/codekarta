@@ -11,7 +11,10 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.RecordDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
+import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.nodeTypes.NodeWithImplements;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.type.Type;
 import se.deversity.codekarta.core.model.Edge;
 import se.deversity.codekarta.core.model.Graph;
 import se.deversity.codekarta.core.model.Group;
@@ -33,7 +36,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 @AIContext(
-    focus = "Generic-type stripping: rawType() must be called before SKIP_TYPES lookup so 'List<Node>' → 'List' and gets filtered. Node.properties is populated with truncated field/method summaries for UML compartments. HAS edge labels carry the field name.",
+    focus = "Field targets come from walking the declared Type AST (referencedTypeNames: arrays, wildcard bounds, every type argument at any depth, one member per variable); each raw name is checked against SKIP_TYPES, so 'List<Node>' yields Node and never List. Node.properties is populated with truncated field/method summaries for UML compartments. HAS edge labels carry the field name.",
     avoids = "Bypassing SKIP_TYPES for stdlib types — class diagrams quickly become unreadable with List/Map/String nodes. Populating Node.properties for externally-referenced stub nodes (only populate for types whose source is in this parse run)."
 )
 @AIArchitecture(belongsTo = "input", cannotReference = {"layout", "render", "cli"})
@@ -385,14 +388,16 @@ public class ClassDiagramParser {
                 graph.addEdge(new Edge(id + "-implements-" + iface, id, iface, "IMPLEMENTS"));
             }
             for (Member member : members(type)) {
-                // Direct domain type: Engine engine → HAS Engine
-                String target = fieldTarget(rawType(member.type()), inScope, scope, index);
-                if (target == null) {
-                    // Container of domain type: List<Node> → HAS Node, Map<String,Node> → HAS Node
-                    String innerType = innerGenericType(member.type());
-                    target = innerType != null ? fieldTarget(innerType, inScope, scope, index) : null;
+                // Every domain type the declaration names: Engine engine, Engine[] spares,
+                // List<? extends Engine>, Map<EngineId, List<Engine>> → one HAS edge per target
+                Set<String> targets = new java.util.LinkedHashSet<>();
+                for (String referenced : referencedTypeNames(member.type())) {
+                    String target = fieldTarget(referenced, inScope, scope, index);
+                    if (target != null) {
+                        targets.add(target);
+                    }
                 }
-                if (target != null) {
+                for (String target : targets) {
                     graph.addNodeIfAbsent(new Node(target, "CLASS", index.label(target)));
                     Edge hasEdge = new Edge(id + "-has-" + member.name() + "-" + target, id, target, "HAS");
                     hasEdge.setLabel(member.name());
@@ -406,26 +411,55 @@ public class ClassDiagramParser {
         }
     }
 
-    /** A field or record component: its name and its declared type as written. */
-    private record Member(String name, String type) {}
+    /** A field variable or record component: its name and its declared type. */
+    private record Member(String name, Type type) {}
 
     /**
      * The members a HAS edge can start from, in declaration order: record components first,
-     * then fields. Only the first variable of a multi-variable field declaration is used, as
-     * one {@code int a, b;} declaration has one type.
+     * then fields, one per variable, so {@code Berth primary, secondary;} gives two.
      */
     private static List<Member> members(TypeDeclaration<?> type) {
         List<Member> members = new ArrayList<>();
         if (type instanceof RecordDeclaration rec) {
             for (Parameter component : rec.getParameters()) {
-                members.add(new Member(component.getNameAsString(), component.getType().asString()));
+                members.add(new Member(component.getNameAsString(), component.getType()));
             }
         }
         for (FieldDeclaration field : type.getFields()) {
-            members.add(new Member(field.getVariables().get(0).getNameAsString(),
-                    field.getElementType().asString()));
+            for (VariableDeclarator variable : field.getVariables()) {
+                members.add(new Member(variable.getNameAsString(), variable.getType()));
+            }
         }
         return members;
+    }
+
+    /**
+     * Every class or interface name a declared type mentions, outermost first: the type itself,
+     * an array's component, a wildcard's bound, and each type argument at any depth.
+     *
+     * <p>Slicing the type string instead lost the domain type behind {@code Cargo[]},
+     * {@code List<? extends Cargo>} and {@code Optional<List<Cargo>>}, and read only the last
+     * argument of {@code Map<OrderId, Cargo>} (issue #270). Stdlib names such as {@code List}
+     * come back too; {@link #fieldTarget} drops them through {@link #SKIP_TYPES}.
+     */
+    static List<String> referencedTypeNames(Type type) {
+        List<String> names = new ArrayList<>();
+        collectTypeNames(type, names);
+        return names;
+    }
+
+    private static void collectTypeNames(Type type, List<String> sink) {
+        if (type.isArrayType()) {
+            collectTypeNames(type.asArrayType().getComponentType(), sink);
+        } else if (type.isWildcardType()) {
+            type.asWildcardType().getExtendedType().ifPresent(t -> collectTypeNames(t, sink));
+            type.asWildcardType().getSuperType().ifPresent(t -> collectTypeNames(t, sink));
+        } else if (type.isClassOrInterfaceType()) {
+            ClassOrInterfaceType named = type.asClassOrInterfaceType();
+            sink.add(named.getNameWithScope());
+            named.getTypeArguments().ifPresent(args -> args.forEach(arg -> collectTypeNames(arg, sink)));
+        }
+        // primitives, var and void name no type a HAS edge could point at
     }
 
     /**
@@ -445,7 +479,8 @@ public class ClassDiagramParser {
     /**
      * The node id a field type points at, or {@code null} when it is not drawn: a stdlib type,
      * an excluded name, or a type this parse run does not declare. {@code typeName} must
-     * already be raw ({@link #rawType}) so {@code List<Node>} is checked as {@code List}.
+     * already be raw ({@link #referencedTypeNames} yields raw names) so {@code List<Node>} is
+     * checked as {@code List}.
      */
     private @Nullable String fieldTarget(String typeName, List<String> enclosingIds,
                                          Scope scope, TypeIndex index) {

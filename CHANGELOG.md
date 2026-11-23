@@ -57,6 +57,13 @@ each version heading is the complete record.
 
 ### Fixed
 
+- **Class diagrams draw a HAS edge for every field shape.** Field targets came from slicing the
+  type string, so `List<? extends Cargo>`, `Consumer<? super Port>`, `Optional<List<Port>>` and
+  `Map<OrderId, List<Cargo>>` produced no edge at all (or, for the map, none to the key), and
+  `Berth primary, secondary;` produced one edge for `primary` only. Targets now come from the
+  declared type's syntax tree: array components, wildcard bounds and every type argument at any
+  depth, one edge per variable. A domain container such as `Repository<Order>` now also gets an
+  edge to `Order`. `rawType` and `innerGenericType` stay public. (#270)
 - **`--state-machine` reads switch-expression arrow rules.** `return switch (s) { case NEW ->
   Status.PAID; ... }` and `s = switch (s) { ... }`, the idiomatic Java 14+ transition table,
   produced no transitions: the rule's value is neither a return, a yield nor an assignment, so the
