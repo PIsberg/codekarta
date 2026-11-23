@@ -148,6 +148,14 @@
                 <version>1.5.1</version>
                 <scope>test</scope>
             </dependency>
+            <!-- A headless browser for the HTML viewer's tests (#291). Test scope only; mirrored as
+                 htmlunitVersion in build.gradle.kts, which check-build-parity.py compares. -->
+            <dependency>
+                <groupId>org.htmlunit</groupId>
+                <artifactId>htmlunit</artifactId>
+                <version>5.8.0</version>
+                <scope>test</scope>
+            </dependency>
             <dependency>
                 <groupId>se.deversity.vibetags</groupId>
                 <artifactId>vibetags-processor</artifactId>

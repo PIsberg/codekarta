@@ -43,6 +43,12 @@ The viewer lists every `.svg` it finds, whoever wrote it, so a diagram is not tr
   nothing can be fetched.
 - It reads only regular files inside the output directory and does not follow links.
 
+`HtmlViewerBrowserTest` drives a generated page in a headless browser (HtmlUnit), opened from a
+`file://` URL: it switches diagrams, searches, toggles edge types, follows a deep link, and feeds
+the sanitizer an SVG carrying a script, event handlers, `javascript:` links, `foreignObject`, an
+`<image onerror>` and a `<set>` that rewrites a link, then checks none of it survives or runs. The
+Content-Security-Policy is not exercised there: HtmlUnit does not enforce it.
+
 The page depends only on the diagrams, with no timestamp, so regenerating it over unchanged
 diagrams gives the same bytes. [`docs/diagrams/viewer.html`](diagrams/viewer.html) is generated
 this way as the last step of the diagram regeneration in `mvn verify`; see
