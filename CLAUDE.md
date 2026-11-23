@@ -53,7 +53,8 @@ These are the things not derivable from reading a single file.
   domain-focused. Field targets come from walking the declared `Type` AST (`referencedTypeNames`),
   which yields raw names, so the skip list sees `List`, not `List<Node>`, and `Node` still gets its edge.
 - **`KartaCli.run` is idempotent** — the same inputs regenerate byte-identical SVG. Diagram
-  regeneration in `mvn verify` depends on it, so a clean tree stays clean.
+  regeneration in `mvn verify` depends on it, so a clean tree stays clean. There is one known exception: `--sequence-only` on a directory of a large code base, where JavaParser's symbol solver can resolve a few calls differently from run to run (#295);
+  code-karta's own diagrams are small enough to be stable, and CI's regeneration diff would say otherwise.
 - **Everything shipped compiles for Java 17** (`<library.release>` in the parent pom), tests
   compile for 21, and the build itself needs a JDK between 21 and 25, which the enforcer checks.
   Consumers on 17 are the reason; the one runtime exception is the `elk` layout, which needs 21

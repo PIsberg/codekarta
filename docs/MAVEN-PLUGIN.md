@@ -118,7 +118,8 @@ in front still works.
 `outputDirectory` defaults under `target/` so that a build does not write into the source tree
 unasked. A project that wants its diagrams reviewable in pull requests points it at
 `docs/diagrams` instead. `KartaCli.run` is idempotent, so identical input regenerates
-byte-identical output and a committed diagram changes only when the code does.
+byte-identical output and a committed diagram changes only when the code does. There is one known exception: `--sequence-only` on a directory of a large code base, where JavaParser's symbol solver can resolve a few calls differently from run to run (#295): commit
+such a diagram only if a regeneration diff in review is acceptable.
 
 ## Declaring it once in a parent pom
 
