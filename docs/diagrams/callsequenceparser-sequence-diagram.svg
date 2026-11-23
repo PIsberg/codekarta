@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="4340" height="3838" viewBox="0 0 4340 3838">
+<svg xmlns="http://www.w3.org/2000/svg" width="4340" height="3514" viewBox="0 0 4340 3514">
 <defs>
 <style>
 svg { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
@@ -55,225 +55,207 @@ text { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe
   <path d="M0,0 L8,4 L0,8 Z" fill="#dc2626"/>
 </marker>
 </defs>
-<rect width="4340" height="3838" fill="#f9fafb"/>
-<rect width="4340" height="3838" fill="url(#dotGrid)"/>
-<line x1="190.0" y1="98.0" x2="190.0" y2="3744.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="410.0" y1="98.0" x2="410.0" y2="3744.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="630.0" y1="98.0" x2="630.0" y2="3744.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="850.0" y1="98.0" x2="850.0" y2="3744.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="1070.0" y1="98.0" x2="1070.0" y2="3744.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="1290.0" y1="98.0" x2="1290.0" y2="3744.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="1510.0" y1="98.0" x2="1510.0" y2="3744.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="1730.0" y1="98.0" x2="1730.0" y2="3744.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="1950.0" y1="98.0" x2="1950.0" y2="3744.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="2170.0" y1="98.0" x2="2170.0" y2="3744.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="2390.0" y1="98.0" x2="2390.0" y2="3744.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="2610.0" y1="98.0" x2="2610.0" y2="3744.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="2830.0" y1="98.0" x2="2830.0" y2="3744.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="3050.0" y1="98.0" x2="3050.0" y2="3744.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="3270.0" y1="98.0" x2="3270.0" y2="3744.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="3490.0" y1="98.0" x2="3490.0" y2="3744.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="3710.0" y1="98.0" x2="3710.0" y2="3744.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="3930.0" y1="98.0" x2="3930.0" y2="3744.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
-<line x1="4150.0" y1="98.0" x2="4150.0" y2="3744.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<rect width="4340" height="3514" fill="#f9fafb"/>
+<rect width="4340" height="3514" fill="url(#dotGrid)"/>
+<line x1="190.0" y1="98.0" x2="190.0" y2="3420.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="410.0" y1="98.0" x2="410.0" y2="3420.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="630.0" y1="98.0" x2="630.0" y2="3420.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="850.0" y1="98.0" x2="850.0" y2="3420.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="1070.0" y1="98.0" x2="1070.0" y2="3420.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="1290.0" y1="98.0" x2="1290.0" y2="3420.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="1510.0" y1="98.0" x2="1510.0" y2="3420.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="1730.0" y1="98.0" x2="1730.0" y2="3420.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="1950.0" y1="98.0" x2="1950.0" y2="3420.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="2170.0" y1="98.0" x2="2170.0" y2="3420.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="2390.0" y1="98.0" x2="2390.0" y2="3420.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="2610.0" y1="98.0" x2="2610.0" y2="3420.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="2830.0" y1="98.0" x2="2830.0" y2="3420.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="3050.0" y1="98.0" x2="3050.0" y2="3420.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="3270.0" y1="98.0" x2="3270.0" y2="3420.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="3490.0" y1="98.0" x2="3490.0" y2="3420.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="3710.0" y1="98.0" x2="3710.0" y2="3420.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="3930.0" y1="98.0" x2="3930.0" y2="3420.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
+<line x1="4150.0" y1="98.0" x2="4150.0" y2="3420.0" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="6,4"/>
 <rect x="405.0" y="123.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="625.0" y="177.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="405.0" y="231.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="405.0" y="177.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="625.0" y="231.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <rect x="405.0" y="285.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="185.0" y="339.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="4145.0" y="393.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="405.0" y="447.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="501.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1065.0" y="555.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="609.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="663.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="405.0" y="339.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="185.0" y="393.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="4145.0" y="447.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="405.0" y="501.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="845.0" y="555.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1065.0" y="609.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1065.0" y="663.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <rect x="1065.0" y="717.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <rect x="1285.0" y="771.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1065.0" y="825.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="185.0" y="879.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="2605.0" y="933.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1725.0" y="987.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="2605.0" y="1041.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="2825.0" y="1095.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="3045.0" y="1149.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="185.0" y="1203.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="3925.0" y="1257.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1725.0" y="1311.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="185.0" y="825.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2605.0" y="879.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="845.0" y="933.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2605.0" y="987.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2825.0" y="1041.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="3045.0" y="1095.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="185.0" y="1149.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="3925.0" y="1203.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="845.0" y="1257.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="3925.0" y="1311.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <rect x="3925.0" y="1365.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="3925.0" y="1419.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="2385.0" y="1473.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="2385.0" y="1527.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="2385.0" y="1581.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="2385.0" y="1635.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="2385.0" y="1689.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="3265.0" y="1743.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="3485.0" y="1797.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2165.0" y="1419.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2165.0" y="1473.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2165.0" y="1527.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2165.0" y="1581.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2165.0" y="1635.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="3265.0" y="1689.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="3485.0" y="1743.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2605.0" y="1797.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <rect x="2605.0" y="1851.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="2605.0" y="1905.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1725.0" y="1959.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="845.0" y="1905.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2605.0" y="1959.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <rect x="2605.0" y="2013.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="2605.0" y="2067.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="3705.0" y="2121.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="3045.0" y="2175.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="185.0" y="2229.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="3705.0" y="2283.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1065.0" y="2337.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1505.0" y="2391.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="2445.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1505.0" y="2499.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="3705.0" y="2067.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="3045.0" y="2121.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="185.0" y="2175.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="3705.0" y="2229.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1505.0" y="2283.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1285.0" y="2337.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1725.0" y="2391.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1725.0" y="2445.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1725.0" y="2499.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
 <rect x="1725.0" y="2553.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="625.0" y="2607.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="185.0" y="2661.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="2385.0" y="2715.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="2385.0" y="2769.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="2385.0" y="2823.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="2385.0" y="2877.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="2385.0" y="2931.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="2385.0" y="2985.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="2385.0" y="3039.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1505.0" y="3093.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1505.0" y="3147.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1505.0" y="3201.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="185.0" y="3255.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1725.0" y="3309.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1505.0" y="3363.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="845.0" y="3417.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1285.0" y="3471.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1945.0" y="3525.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="1285.0" y="3579.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<rect x="2165.0" y="3633.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
-<line class="edge-line" data-source="CallSequenceParser.parse" data-target="ParserSupport.parseJava21" data-type="CALLS" x1="190.0" y1="130.0" x2="405.0" y2="130.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.parse" data-target="ParserSupport.parseJava21" data-type="CALLS" x="300.0" y="121.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: parseJava21</text>
-<line class="edge-line" data-source="CallSequenceParser.parse" data-target="SequenceFilterUtil.externalTypeNames" data-type="CALLS" x1="190.0" y1="184.0" x2="625.0" y2="184.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.parse" data-target="SequenceFilterUtil.externalTypeNames" data-type="CALLS" x="410.0" y="175.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2: externalTypeNames</text>
-<line class="edge-line" data-source="CallSequenceParser.parse" data-target="ParserSupport.forEachIncludedClass" data-type="CALLS" x1="190.0" y1="238.0" x2="405.0" y2="238.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.parse" data-target="ParserSupport.forEachIncludedClass" data-type="CALLS" x="300.0" y="229.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3: forEachIncludedClass</text>
-<line class="edge-line" data-source="CallSequenceParser.parse" data-target="ParserSupport.returnTypesOf" data-type="CALLS" x1="190.0" y1="292.0" x2="405.0" y2="292.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.parse" data-target="ParserSupport.returnTypesOf" data-type="CALLS" x="300.0" y="283.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4: returnTypesOf</text>
-<path class="edge-line" data-source="CallSequenceParser.parse" data-target="CallSequenceParser.typesByName" data-type="CALLS" d="M195.0 346.0 C231.0 341.0 231.0 375.3 195.0 370.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.parse" data-target="CallSequenceParser.typesByName" data-type="CALLS" x="235.0" y="350.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5: typesByName</text>
-<line class="edge-line" data-source="CallSequenceParser.typesByName" data-target="t.getNameAsString" data-type="CALLS" x1="190.0" y1="400.0" x2="4145.0" y2="400.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.typesByName" data-target="t.getNameAsString" data-type="CALLS" x="2170.0" y="391.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: getNameAsString</text>
-<line class="edge-line" data-source="CallSequenceParser.typesByName" data-target="ParserSupport.methodBearingTypes" data-type="CALLS" x1="190.0" y1="454.0" x2="405.0" y2="454.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.typesByName" data-target="ParserSupport.methodBearingTypes" data-type="CALLS" x="300.0" y="445.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2: methodBearingTypes</text>
-<line class="edge-line" data-source="CallSequenceParser.parse" data-target="FilterMatcher.matchesAny" data-type="CALLS" x1="190.0" y1="508.0" x2="845.0" y2="508.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.parse" data-target="FilterMatcher.matchesAny" data-type="CALLS" x="520.0" y="499.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">6: matchesAny</text>
-<line class="edge-line" data-source="CallSequenceParser.parse" data-target="method.getNameAsString" data-type="CALLS" x1="190.0" y1="562.0" x2="1065.0" y2="562.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.parse" data-target="method.getNameAsString" data-type="CALLS" x="630.0" y="553.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">7: getNameAsString</text>
-<line class="edge-line" data-source="CallSequenceParser.parse" data-target="FilterMatcher.matchesAny" data-type="CALLS" x1="190.0" y1="616.0" x2="845.0" y2="616.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.parse" data-target="FilterMatcher.matchesAny" data-type="CALLS" x="520.0" y="607.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">8: matchesAny</text>
-<line class="edge-line" data-source="CallSequenceParser.parse" data-target="FilterMatcher.matchesAny" data-type="CALLS" x1="190.0" y1="670.0" x2="845.0" y2="670.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.parse" data-target="FilterMatcher.matchesAny" data-type="CALLS" x="520.0" y="661.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">9: matchesAny</text>
-<line class="edge-line" data-source="CallSequenceParser.parse" data-target="method.getNameAsString" data-type="CALLS" x1="190.0" y1="724.0" x2="1065.0" y2="724.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.parse" data-target="method.getNameAsString" data-type="CALLS" x="630.0" y="715.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">10: getNameAsString</text>
+<rect x="1945.0" y="2607.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="1285.0" y="2661.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="845.0" y="2715.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2165.0" y="2769.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2165.0" y="2823.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2165.0" y="2877.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2165.0" y="2931.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2165.0" y="2985.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2165.0" y="3039.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2165.0" y="3093.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2385.0" y="3147.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2385.0" y="3201.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="845.0" y="3255.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<rect x="2385.0" y="3309.5" width="10.0" height="26.0" fill="#ffffff" stroke="#92400e" stroke-width="0.9"/>
+<line class="edge-line" data-source="CallSequenceParser.new(Set)" data-target="ParserSupport.normalizeExcludes" data-type="CALLS" x1="190.0" y1="130.0" x2="405.0" y2="130.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.new(Set)" data-target="ParserSupport.normalizeExcludes" data-type="CALLS" x="300.0" y="121.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: normalizeExcludes</text>
+<line class="edge-line" data-source="CallSequenceParser.parse" data-target="ParserSupport.parseJava21" data-type="CALLS" x1="190.0" y1="184.0" x2="405.0" y2="184.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.parse" data-target="ParserSupport.parseJava21" data-type="CALLS" x="300.0" y="175.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: parseJava21</text>
+<line class="edge-line" data-source="CallSequenceParser.parse" data-target="SequenceFilterUtil.externalTypeNames" data-type="CALLS" x1="190.0" y1="238.0" x2="625.0" y2="238.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.parse" data-target="SequenceFilterUtil.externalTypeNames" data-type="CALLS" x="410.0" y="229.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2: externalTypeNames</text>
+<line class="edge-line" data-source="CallSequenceParser.parse" data-target="ParserSupport.forEachIncludedClass" data-type="CALLS" x1="190.0" y1="292.0" x2="405.0" y2="292.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.parse" data-target="ParserSupport.forEachIncludedClass" data-type="CALLS" x="300.0" y="283.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3: forEachIncludedClass</text>
+<line class="edge-line" data-source="CallSequenceParser.parse" data-target="ParserSupport.returnTypesOf" data-type="CALLS" x1="190.0" y1="346.0" x2="405.0" y2="346.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.parse" data-target="ParserSupport.returnTypesOf" data-type="CALLS" x="300.0" y="337.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4: returnTypesOf</text>
+<path class="edge-line" data-source="CallSequenceParser.parse" data-target="CallSequenceParser.typesByName" data-type="CALLS" d="M195.0 400.0 C231.0 395.0 231.0 429.3 195.0 424.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.parse" data-target="CallSequenceParser.typesByName" data-type="CALLS" x="235.0" y="404.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5: typesByName</text>
+<line class="edge-line" data-source="CallSequenceParser.typesByName" data-target="t.getNameAsString" data-type="CALLS" x1="190.0" y1="454.0" x2="4145.0" y2="454.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.typesByName" data-target="t.getNameAsString" data-type="CALLS" x="2170.0" y="445.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: getNameAsString</text>
+<line class="edge-line" data-source="CallSequenceParser.typesByName" data-target="ParserSupport.methodBearingTypes" data-type="CALLS" x1="190.0" y1="508.0" x2="405.0" y2="508.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.typesByName" data-target="ParserSupport.methodBearingTypes" data-type="CALLS" x="300.0" y="499.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2: methodBearingTypes</text>
+<line class="edge-line" data-source="CallSequenceParser.parse" data-target="MethodIds.labelOf" data-type="CALLS" x1="190.0" y1="562.0" x2="845.0" y2="562.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.parse" data-target="MethodIds.labelOf" data-type="CALLS" x="520.0" y="553.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">6: labelOf</text>
+<line class="edge-line" data-source="CallSequenceParser.parse" data-target="FilterMatcher.matchesAny" data-type="CALLS" x1="190.0" y1="616.0" x2="1065.0" y2="616.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.parse" data-target="FilterMatcher.matchesAny" data-type="CALLS" x="630.0" y="607.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">7: matchesAny</text>
+<line class="edge-line" data-source="CallSequenceParser.parse" data-target="FilterMatcher.matchesAny" data-type="CALLS" x1="190.0" y1="670.0" x2="1065.0" y2="670.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.parse" data-target="FilterMatcher.matchesAny" data-type="CALLS" x="630.0" y="661.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">8: matchesAny</text>
+<line class="edge-line" data-source="CallSequenceParser.parse" data-target="FilterMatcher.matchesAny" data-type="CALLS" x1="190.0" y1="724.0" x2="1065.0" y2="724.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.parse" data-target="FilterMatcher.matchesAny" data-type="CALLS" x="630.0" y="715.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">9: matchesAny</text>
 <line class="edge-line" data-source="CallSequenceParser.parse" data-target="Graph.addNodeIfAbsent" data-type="CALLS" x1="190.0" y1="778.0" x2="1285.0" y2="778.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.parse" data-target="Graph.addNodeIfAbsent" data-type="CALLS" x="740.0" y="769.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">11: addNodeIfAbsent</text>
-<line class="edge-line" data-source="CallSequenceParser.parse" data-target="method.getNameAsString" data-type="CALLS" x1="190.0" y1="832.0" x2="1065.0" y2="832.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.parse" data-target="method.getNameAsString" data-type="CALLS" x="630.0" y="823.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">12: getNameAsString</text>
-<path class="edge-line" data-source="CallSequenceParser.parse" data-target="CallSequenceParser.receiverTypes" data-type="CALLS" d="M195.0 886.0 C231.0 881.0 231.0 915.3 195.0 910.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.parse" data-target="CallSequenceParser.receiverTypes" data-type="CALLS" x="235.0" y="890.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">13: receiverTypes</text>
-<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="p.getNameAsString" data-type="CALLS" x1="190.0" y1="940.0" x2="2605.0" y2="940.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="p.getNameAsString" data-type="CALLS" x="1400.0" y="931.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: getNameAsString</text>
-<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="MethodIds.simpleType" data-type="CALLS" x1="190.0" y1="994.0" x2="1725.0" y2="994.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="MethodIds.simpleType" data-type="CALLS" x="960.0" y="985.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2: simpleType</text>
-<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="p.getType" data-type="CALLS" x1="190.0" y1="1048.0" x2="2605.0" y2="1048.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="p.getType" data-type="CALLS" x="1400.0" y="1039.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3: getType</text>
-<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="record.getParameters" data-type="CALLS" x1="190.0" y1="1102.0" x2="2825.0" y2="1102.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="record.getParameters" data-type="CALLS" x="1510.0" y="1093.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4: getParameters</text>
-<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="v.getNameAsString" data-type="CALLS" x1="190.0" y1="1156.0" x2="3045.0" y2="1156.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="v.getNameAsString" data-type="CALLS" x="1620.0" y="1147.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5: getNameAsString</text>
-<path class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="CallSequenceParser.declaredType" data-type="CALLS" d="M195.0 1210.0 C231.0 1205.0 231.0 1239.3 195.0 1234.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="CallSequenceParser.declaredType" data-type="CALLS" x="235.0" y="1214.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">6: declaredType</text>
-<line class="edge-line" data-source="CallSequenceParser.declaredType" data-target="VariableDeclarator.getType" data-type="CALLS" x1="190.0" y1="1264.0" x2="3925.0" y2="1264.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.declaredType" data-target="VariableDeclarator.getType" data-type="CALLS" x="2060.0" y="1255.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: getType</text>
-<line class="edge-line" data-source="CallSequenceParser.declaredType" data-target="MethodIds.simpleType" data-type="CALLS" x1="190.0" y1="1318.0" x2="1725.0" y2="1318.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.declaredType" data-target="MethodIds.simpleType" data-type="CALLS" x="960.0" y="1309.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2: simpleType</text>
-<line class="edge-line" data-source="CallSequenceParser.declaredType" data-target="VariableDeclarator.getType" data-type="CALLS" x1="190.0" y1="1372.0" x2="3925.0" y2="1372.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.declaredType" data-target="VariableDeclarator.getType" data-type="CALLS" x="2060.0" y="1363.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3: getType</text>
-<line class="edge-line" data-source="CallSequenceParser.declaredType" data-target="VariableDeclarator.getInitializer" data-type="CALLS" x1="190.0" y1="1426.0" x2="3925.0" y2="1426.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.declaredType" data-target="VariableDeclarator.getInitializer" data-type="CALLS" x="2060.0" y="1417.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4: getInitializer</text>
-<line class="edge-line" data-source="CallSequenceParser.declaredType" data-target="Expression.isObjectCreationExpr" data-type="CALLS" x1="190.0" y1="1480.0" x2="2385.0" y2="1480.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.declaredType" data-target="Expression.isObjectCreationExpr" data-type="CALLS" x="1290.0" y="1471.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5: isObjectCreationExpr</text>
-<line class="edge-line" data-source="CallSequenceParser.declaredType" data-target="Expression.asObjectCreationExpr" data-type="CALLS" x1="190.0" y1="1534.0" x2="2385.0" y2="1534.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.declaredType" data-target="Expression.asObjectCreationExpr" data-type="CALLS" x="1290.0" y="1525.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">6: asObjectCreationExpr</text>
-<line class="edge-line" data-source="CallSequenceParser.declaredType" data-target="Expression.isMethodCallExpr" data-type="CALLS" x1="190.0" y1="1588.0" x2="2385.0" y2="1588.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.declaredType" data-target="Expression.isMethodCallExpr" data-type="CALLS" x="1290.0" y="1579.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">7: isMethodCallExpr</text>
-<line class="edge-line" data-source="CallSequenceParser.declaredType" data-target="Expression.asMethodCallExpr" data-type="CALLS" x1="190.0" y1="1642.0" x2="2385.0" y2="1642.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.declaredType" data-target="Expression.asMethodCallExpr" data-type="CALLS" x="1290.0" y="1633.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">8: asMethodCallExpr</text>
-<line class="edge-line" data-source="CallSequenceParser.declaredType" data-target="Expression.asMethodCallExpr" data-type="CALLS" x1="190.0" y1="1696.0" x2="2385.0" y2="1696.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.declaredType" data-target="Expression.asMethodCallExpr" data-type="CALLS" x="1290.0" y="1687.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">9: asMethodCallExpr</text>
-<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="field.getVariables" data-type="CALLS" x1="190.0" y1="1750.0" x2="3265.0" y2="1750.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="field.getVariables" data-type="CALLS" x="1730.0" y="1741.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">7: getVariables</text>
-<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="TypeDeclaration.getFields" data-type="CALLS" x1="190.0" y1="1804.0" x2="3485.0" y2="1804.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="TypeDeclaration.getFields" data-type="CALLS" x="1840.0" y="1795.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">8: getFields</text>
-<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="p.getNameAsString" data-type="CALLS" x1="190.0" y1="1858.0" x2="2605.0" y2="1858.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="p.getNameAsString" data-type="CALLS" x="1400.0" y="1849.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">9: getNameAsString</text>
-<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="p.getType" data-type="CALLS" x1="190.0" y1="1912.0" x2="2605.0" y2="1912.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="p.getType" data-type="CALLS" x="1400.0" y="1903.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">10: getType</text>
-<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="MethodIds.simpleType" data-type="CALLS" x1="190.0" y1="1966.0" x2="1725.0" y2="1966.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="MethodIds.simpleType" data-type="CALLS" x="960.0" y="1957.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">11: simpleType</text>
-<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="p.getType" data-type="CALLS" x1="190.0" y1="2020.0" x2="2605.0" y2="2020.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="p.getType" data-type="CALLS" x="1400.0" y="2011.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">12: getType</text>
-<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="p.isVarArgs" data-type="CALLS" x1="190.0" y1="2074.0" x2="2605.0" y2="2074.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="p.isVarArgs" data-type="CALLS" x="1400.0" y="2065.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">13: isVarArgs</text>
-<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="MethodDeclaration.findAll" data-type="CALLS" x1="190.0" y1="2128.0" x2="3705.0" y2="2128.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="MethodDeclaration.findAll" data-type="CALLS" x="1950.0" y="2119.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">14: findAll</text>
-<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="v.getNameAsString" data-type="CALLS" x1="190.0" y1="2182.0" x2="3045.0" y2="2182.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="v.getNameAsString" data-type="CALLS" x="1620.0" y="2173.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">15: getNameAsString</text>
-<path class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="CallSequenceParser.declaredType" data-type="CALLS" d="M195.0 2236.0 C231.0 2231.0 231.0 2265.3 195.0 2260.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="CallSequenceParser.declaredType" data-type="CALLS" x="235.0" y="2240.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">16: declaredType</text>
-<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="MethodDeclaration.findAll" data-type="CALLS" x1="190.0" y1="2290.0" x2="3705.0" y2="2290.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="MethodDeclaration.findAll" data-type="CALLS" x="1950.0" y="2281.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">17: findAll</text>
-<line class="edge-line" data-source="CallSequenceParser.parse" data-target="method.accept" data-type="CALLS" x1="190.0" y1="2344.0" x2="1065.0" y2="2344.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.parse" data-target="method.accept" data-type="CALLS" x="630.0" y="2335.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">14: accept</text>
-<line class="edge-line" data-source="CallSequenceParser.parse" data-target="MethodCallExpr.getNameAsString" data-type="CALLS" x1="190.0" y1="2398.0" x2="1505.0" y2="2398.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.parse" data-target="MethodCallExpr.getNameAsString" data-type="CALLS" x="850.0" y="2389.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">15: getNameAsString</text>
-<line class="edge-line" data-source="CallSequenceParser.parse" data-target="FilterMatcher.matchesAny" data-type="CALLS" x1="190.0" y1="2452.0" x2="845.0" y2="2452.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.parse" data-target="FilterMatcher.matchesAny" data-type="CALLS" x="520.0" y="2443.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">16: matchesAny</text>
-<line class="edge-line" data-source="CallSequenceParser.parse" data-target="MethodCallExpr.getScope" data-type="CALLS" x1="190.0" y1="2506.0" x2="1505.0" y2="2506.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.parse" data-target="MethodCallExpr.getScope" data-type="CALLS" x="850.0" y="2497.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">17: getScope</text>
-<line class="edge-line" data-source="CallSequenceParser.parse" data-target="MethodIds.forLocalCall" data-type="CALLS" x1="190.0" y1="2560.0" x2="1725.0" y2="2560.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.parse" data-target="MethodIds.forLocalCall" data-type="CALLS" x="960.0" y="2551.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">18: forLocalCall</text>
-<line class="edge-line" data-source="CallSequenceParser.parse" data-target="SequenceFilterUtil.shouldSkipScopedCall" data-type="CALLS" x1="190.0" y1="2614.0" x2="625.0" y2="2614.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.parse" data-target="SequenceFilterUtil.shouldSkipScopedCall" data-type="CALLS" x="410.0" y="2605.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">19: shouldSkipScopedCall</text>
-<path class="edge-line" data-source="CallSequenceParser.parse" data-target="CallSequenceParser.resolveScope" data-type="CALLS" d="M195.0 2668.0 C231.0 2663.0 231.0 2697.3 195.0 2692.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.parse" data-target="CallSequenceParser.resolveScope" data-type="CALLS" x="235.0" y="2672.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">20: resolveScope</text>
-<line class="edge-line" data-source="CallSequenceParser.resolveScope" data-target="Expression.isNameExpr" data-type="CALLS" x1="190.0" y1="2722.0" x2="2385.0" y2="2722.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.resolveScope" data-target="Expression.isNameExpr" data-type="CALLS" x="1290.0" y="2713.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: isNameExpr</text>
-<line class="edge-line" data-source="CallSequenceParser.resolveScope" data-target="Expression.asNameExpr" data-type="CALLS" x1="190.0" y1="2776.0" x2="2385.0" y2="2776.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.resolveScope" data-target="Expression.asNameExpr" data-type="CALLS" x="1290.0" y="2767.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2: asNameExpr</text>
-<line class="edge-line" data-source="CallSequenceParser.resolveScope" data-target="Expression.isThisExpr" data-type="CALLS" x1="190.0" y1="2830.0" x2="2385.0" y2="2830.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.resolveScope" data-target="Expression.isThisExpr" data-type="CALLS" x="1290.0" y="2821.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3: isThisExpr</text>
-<line class="edge-line" data-source="CallSequenceParser.resolveScope" data-target="Expression.isObjectCreationExpr" data-type="CALLS" x1="190.0" y1="2884.0" x2="2385.0" y2="2884.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.resolveScope" data-target="Expression.isObjectCreationExpr" data-type="CALLS" x="1290.0" y="2875.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4: isObjectCreationExpr</text>
-<line class="edge-line" data-source="CallSequenceParser.resolveScope" data-target="Expression.asObjectCreationExpr" data-type="CALLS" x1="190.0" y1="2938.0" x2="2385.0" y2="2938.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.resolveScope" data-target="Expression.asObjectCreationExpr" data-type="CALLS" x="1290.0" y="2929.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5: asObjectCreationExpr</text>
-<line class="edge-line" data-source="CallSequenceParser.resolveScope" data-target="Expression.isMethodCallExpr" data-type="CALLS" x1="190.0" y1="2992.0" x2="2385.0" y2="2992.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.resolveScope" data-target="Expression.isMethodCallExpr" data-type="CALLS" x="1290.0" y="2983.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">6: isMethodCallExpr</text>
-<line class="edge-line" data-source="CallSequenceParser.resolveScope" data-target="Expression.asMethodCallExpr" data-type="CALLS" x1="190.0" y1="3046.0" x2="2385.0" y2="3046.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.resolveScope" data-target="Expression.asMethodCallExpr" data-type="CALLS" x="1290.0" y="3037.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">7: asMethodCallExpr</text>
-<line class="edge-line" data-source="CallSequenceParser.resolveScope" data-target="MethodCallExpr.getScope" data-type="CALLS" x1="190.0" y1="3100.0" x2="1505.0" y2="3100.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.resolveScope" data-target="MethodCallExpr.getScope" data-type="CALLS" x="850.0" y="3091.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">8: getScope</text>
-<line class="edge-line" data-source="CallSequenceParser.resolveScope" data-target="MethodCallExpr.getNameAsString" data-type="CALLS" x1="190.0" y1="3154.0" x2="1505.0" y2="3154.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.resolveScope" data-target="MethodCallExpr.getNameAsString" data-type="CALLS" x="850.0" y="3145.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">9: getNameAsString</text>
-<line class="edge-line" data-source="CallSequenceParser.parse" data-target="MethodCallExpr.getScope" data-type="CALLS" x1="190.0" y1="3208.0" x2="1505.0" y2="3208.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.parse" data-target="MethodCallExpr.getScope" data-type="CALLS" x="850.0" y="3199.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">21: getScope</text>
-<path class="edge-line" data-source="CallSequenceParser.parse" data-target="CallSequenceParser.calleeIn" data-type="CALLS" d="M195.0 3262.0 C231.0 3257.0 231.0 3291.3 195.0 3286.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.parse" data-target="CallSequenceParser.calleeIn" data-type="CALLS" x="235.0" y="3266.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">22: calleeIn</text>
-<line class="edge-line" data-source="CallSequenceParser.calleeIn" data-target="MethodIds.forLocalCall" data-type="CALLS" x1="190.0" y1="3316.0" x2="1725.0" y2="3316.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.calleeIn" data-target="MethodIds.forLocalCall" data-type="CALLS" x="960.0" y="3307.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: forLocalCall</text>
-<line class="edge-line" data-source="CallSequenceParser.calleeIn" data-target="MethodCallExpr.getNameAsString" data-type="CALLS" x1="190.0" y1="3370.0" x2="1505.0" y2="3370.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.calleeIn" data-target="MethodCallExpr.getNameAsString" data-type="CALLS" x="850.0" y="3361.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2: getNameAsString</text>
-<line class="edge-line" data-source="CallSequenceParser.parse" data-target="FilterMatcher.matchesAny" data-type="CALLS" x1="190.0" y1="3424.0" x2="845.0" y2="3424.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.parse" data-target="FilterMatcher.matchesAny" data-type="CALLS" x="520.0" y="3415.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">23: matchesAny</text>
-<line class="edge-line" data-source="CallSequenceParser.parse" data-target="Graph.addNodeIfAbsent" data-type="CALLS" x1="190.0" y1="3478.0" x2="1285.0" y2="3478.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.parse" data-target="Graph.addNodeIfAbsent" data-type="CALLS" x="740.0" y="3469.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">24: addNodeIfAbsent</text>
-<line class="edge-line" data-source="CallSequenceParser.parse" data-target="Edge.setLabel" data-type="CALLS" x1="190.0" y1="3532.0" x2="1945.0" y2="3532.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.parse" data-target="Edge.setLabel" data-type="CALLS" x="1070.0" y="3523.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">25: setLabel</text>
-<line class="edge-line" data-source="CallSequenceParser.parse" data-target="Graph.addEdge" data-type="CALLS" x1="190.0" y1="3586.0" x2="1285.0" y2="3586.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.parse" data-target="Graph.addEdge" data-type="CALLS" x="740.0" y="3577.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">26: addEdge</text>
-<line class="edge-line" data-source="CallSequenceParser.parse" data-target="classDecl.getMethods" data-type="CALLS" x1="190.0" y1="3640.0" x2="2165.0" y2="3640.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
-<text class="edge-label" data-source="CallSequenceParser.parse" data-target="classDecl.getMethods" data-type="CALLS" x="1180.0" y="3631.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">27: getMethods</text>
+<text class="edge-label" data-source="CallSequenceParser.parse" data-target="Graph.addNodeIfAbsent" data-type="CALLS" x="740.0" y="769.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">10: addNodeIfAbsent</text>
+<path class="edge-line" data-source="CallSequenceParser.parse" data-target="CallSequenceParser.receiverTypes" data-type="CALLS" d="M195.0 832.0 C231.0 827.0 231.0 861.3 195.0 856.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.parse" data-target="CallSequenceParser.receiverTypes" data-type="CALLS" x="235.0" y="836.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">11: receiverTypes</text>
+<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="p.getNameAsString" data-type="CALLS" x1="190.0" y1="886.0" x2="2605.0" y2="886.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="p.getNameAsString" data-type="CALLS" x="1400.0" y="877.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: getNameAsString</text>
+<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="MethodIds.simpleType" data-type="CALLS" x1="190.0" y1="940.0" x2="845.0" y2="940.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="MethodIds.simpleType" data-type="CALLS" x="520.0" y="931.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2: simpleType</text>
+<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="p.getType" data-type="CALLS" x1="190.0" y1="994.0" x2="2605.0" y2="994.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="p.getType" data-type="CALLS" x="1400.0" y="985.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3: getType</text>
+<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="record.getParameters" data-type="CALLS" x1="190.0" y1="1048.0" x2="2825.0" y2="1048.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="record.getParameters" data-type="CALLS" x="1510.0" y="1039.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4: getParameters</text>
+<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="v.getNameAsString" data-type="CALLS" x1="190.0" y1="1102.0" x2="3045.0" y2="1102.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="v.getNameAsString" data-type="CALLS" x="1620.0" y="1093.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5: getNameAsString</text>
+<path class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="CallSequenceParser.declaredType" data-type="CALLS" d="M195.0 1156.0 C231.0 1151.0 231.0 1185.3 195.0 1180.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="CallSequenceParser.declaredType" data-type="CALLS" x="235.0" y="1160.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">6: declaredType</text>
+<line class="edge-line" data-source="CallSequenceParser.declaredType" data-target="VariableDeclarator.getType" data-type="CALLS" x1="190.0" y1="1210.0" x2="3925.0" y2="1210.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.declaredType" data-target="VariableDeclarator.getType" data-type="CALLS" x="2060.0" y="1201.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: getType</text>
+<line class="edge-line" data-source="CallSequenceParser.declaredType" data-target="MethodIds.simpleType" data-type="CALLS" x1="190.0" y1="1264.0" x2="845.0" y2="1264.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.declaredType" data-target="MethodIds.simpleType" data-type="CALLS" x="520.0" y="1255.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2: simpleType</text>
+<line class="edge-line" data-source="CallSequenceParser.declaredType" data-target="VariableDeclarator.getType" data-type="CALLS" x1="190.0" y1="1318.0" x2="3925.0" y2="1318.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.declaredType" data-target="VariableDeclarator.getType" data-type="CALLS" x="2060.0" y="1309.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3: getType</text>
+<line class="edge-line" data-source="CallSequenceParser.declaredType" data-target="VariableDeclarator.getInitializer" data-type="CALLS" x1="190.0" y1="1372.0" x2="3925.0" y2="1372.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.declaredType" data-target="VariableDeclarator.getInitializer" data-type="CALLS" x="2060.0" y="1363.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4: getInitializer</text>
+<line class="edge-line" data-source="CallSequenceParser.declaredType" data-target="Expression.isObjectCreationExpr" data-type="CALLS" x1="190.0" y1="1426.0" x2="2165.0" y2="1426.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.declaredType" data-target="Expression.isObjectCreationExpr" data-type="CALLS" x="1180.0" y="1417.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5: isObjectCreationExpr</text>
+<line class="edge-line" data-source="CallSequenceParser.declaredType" data-target="Expression.asObjectCreationExpr" data-type="CALLS" x1="190.0" y1="1480.0" x2="2165.0" y2="1480.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.declaredType" data-target="Expression.asObjectCreationExpr" data-type="CALLS" x="1180.0" y="1471.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">6: asObjectCreationExpr</text>
+<line class="edge-line" data-source="CallSequenceParser.declaredType" data-target="Expression.isMethodCallExpr" data-type="CALLS" x1="190.0" y1="1534.0" x2="2165.0" y2="1534.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.declaredType" data-target="Expression.isMethodCallExpr" data-type="CALLS" x="1180.0" y="1525.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">7: isMethodCallExpr</text>
+<line class="edge-line" data-source="CallSequenceParser.declaredType" data-target="Expression.asMethodCallExpr" data-type="CALLS" x1="190.0" y1="1588.0" x2="2165.0" y2="1588.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.declaredType" data-target="Expression.asMethodCallExpr" data-type="CALLS" x="1180.0" y="1579.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">8: asMethodCallExpr</text>
+<line class="edge-line" data-source="CallSequenceParser.declaredType" data-target="Expression.asMethodCallExpr" data-type="CALLS" x1="190.0" y1="1642.0" x2="2165.0" y2="1642.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.declaredType" data-target="Expression.asMethodCallExpr" data-type="CALLS" x="1180.0" y="1633.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">9: asMethodCallExpr</text>
+<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="field.getVariables" data-type="CALLS" x1="190.0" y1="1696.0" x2="3265.0" y2="1696.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="field.getVariables" data-type="CALLS" x="1730.0" y="1687.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">7: getVariables</text>
+<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="TypeDeclaration.getFields" data-type="CALLS" x1="190.0" y1="1750.0" x2="3485.0" y2="1750.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="TypeDeclaration.getFields" data-type="CALLS" x="1840.0" y="1741.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">8: getFields</text>
+<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="p.getNameAsString" data-type="CALLS" x1="190.0" y1="1804.0" x2="2605.0" y2="1804.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="p.getNameAsString" data-type="CALLS" x="1400.0" y="1795.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">9: getNameAsString</text>
+<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="p.getType" data-type="CALLS" x1="190.0" y1="1858.0" x2="2605.0" y2="1858.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="p.getType" data-type="CALLS" x="1400.0" y="1849.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">10: getType</text>
+<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="MethodIds.simpleType" data-type="CALLS" x1="190.0" y1="1912.0" x2="845.0" y2="1912.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="MethodIds.simpleType" data-type="CALLS" x="520.0" y="1903.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">11: simpleType</text>
+<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="p.getType" data-type="CALLS" x1="190.0" y1="1966.0" x2="2605.0" y2="1966.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="p.getType" data-type="CALLS" x="1400.0" y="1957.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">12: getType</text>
+<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="p.isVarArgs" data-type="CALLS" x1="190.0" y1="2020.0" x2="2605.0" y2="2020.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="p.isVarArgs" data-type="CALLS" x="1400.0" y="2011.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">13: isVarArgs</text>
+<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="CallableDeclaration.findAll" data-type="CALLS" x1="190.0" y1="2074.0" x2="3705.0" y2="2074.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="CallableDeclaration.findAll" data-type="CALLS" x="1950.0" y="2065.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">14: findAll</text>
+<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="v.getNameAsString" data-type="CALLS" x1="190.0" y1="2128.0" x2="3045.0" y2="2128.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="v.getNameAsString" data-type="CALLS" x="1620.0" y="2119.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">15: getNameAsString</text>
+<path class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="CallSequenceParser.declaredType" data-type="CALLS" d="M195.0 2182.0 C231.0 2177.0 231.0 2211.3 195.0 2206.3" fill="none" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="CallSequenceParser.declaredType" data-type="CALLS" x="235.0" y="2186.0" text-anchor="start" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">16: declaredType</text>
+<line class="edge-line" data-source="CallSequenceParser.receiverTypes" data-target="CallableDeclaration.findAll" data-type="CALLS" x1="190.0" y1="2236.0" x2="3705.0" y2="2236.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.receiverTypes" data-target="CallableDeclaration.findAll" data-type="CALLS" x="1950.0" y="2227.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">17: findAll</text>
+<line class="edge-line" data-source="CallSequenceParser.parse" data-target="SingleFileCallees.forEachCall" data-type="CALLS" x1="190.0" y1="2290.0" x2="1505.0" y2="2290.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.parse" data-target="SingleFileCallees.forEachCall" data-type="CALLS" x="850.0" y="2281.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">12: forEachCall</text>
+<line class="edge-line" data-source="CallSequenceParser.parse" data-target="Graph.addNodeIfAbsent" data-type="CALLS" x1="190.0" y1="2344.0" x2="1285.0" y2="2344.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.parse" data-target="Graph.addNodeIfAbsent" data-type="CALLS" x="740.0" y="2335.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">13: addNodeIfAbsent</text>
+<line class="edge-line" data-source="CallSequenceParser.parse" data-target="callee.id" data-type="CALLS" x1="190.0" y1="2398.0" x2="1725.0" y2="2398.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.parse" data-target="callee.id" data-type="CALLS" x="960.0" y="2389.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">14: id</text>
+<line class="edge-line" data-source="CallSequenceParser.parse" data-target="callee.label" data-type="CALLS" x1="190.0" y1="2452.0" x2="1725.0" y2="2452.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.parse" data-target="callee.label" data-type="CALLS" x="960.0" y="2443.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">15: label</text>
+<line class="edge-line" data-source="CallSequenceParser.parse" data-target="callee.id" data-type="CALLS" x1="190.0" y1="2506.0" x2="1725.0" y2="2506.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.parse" data-target="callee.id" data-type="CALLS" x="960.0" y="2497.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">16: id</text>
+<line class="edge-line" data-source="CallSequenceParser.parse" data-target="callee.id" data-type="CALLS" x1="190.0" y1="2560.0" x2="1725.0" y2="2560.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.parse" data-target="callee.id" data-type="CALLS" x="960.0" y="2551.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">17: id</text>
+<line class="edge-line" data-source="CallSequenceParser.parse" data-target="Edge.setLabel" data-type="CALLS" x1="190.0" y1="2614.0" x2="1945.0" y2="2614.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.parse" data-target="Edge.setLabel" data-type="CALLS" x="1070.0" y="2605.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">18: setLabel</text>
+<line class="edge-line" data-source="CallSequenceParser.parse" data-target="Graph.addEdge" data-type="CALLS" x1="190.0" y1="2668.0" x2="1285.0" y2="2668.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.parse" data-target="Graph.addEdge" data-type="CALLS" x="740.0" y="2659.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">19: addEdge</text>
+<line class="edge-line" data-source="CallSequenceParser.parse" data-target="MethodIds.callables" data-type="CALLS" x1="190.0" y1="2722.0" x2="845.0" y2="2722.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.parse" data-target="MethodIds.callables" data-type="CALLS" x="520.0" y="2713.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">20: callables</text>
+<line class="edge-line" data-source="CallSequenceParser.resolveScope" data-target="Expression.isNameExpr" data-type="CALLS" x1="190.0" y1="2776.0" x2="2165.0" y2="2776.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.resolveScope" data-target="Expression.isNameExpr" data-type="CALLS" x="1180.0" y="2767.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: isNameExpr</text>
+<line class="edge-line" data-source="CallSequenceParser.resolveScope" data-target="Expression.asNameExpr" data-type="CALLS" x1="190.0" y1="2830.0" x2="2165.0" y2="2830.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.resolveScope" data-target="Expression.asNameExpr" data-type="CALLS" x="1180.0" y="2821.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2: asNameExpr</text>
+<line class="edge-line" data-source="CallSequenceParser.resolveScope" data-target="Expression.isThisExpr" data-type="CALLS" x1="190.0" y1="2884.0" x2="2165.0" y2="2884.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.resolveScope" data-target="Expression.isThisExpr" data-type="CALLS" x="1180.0" y="2875.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">3: isThisExpr</text>
+<line class="edge-line" data-source="CallSequenceParser.resolveScope" data-target="Expression.isObjectCreationExpr" data-type="CALLS" x1="190.0" y1="2938.0" x2="2165.0" y2="2938.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.resolveScope" data-target="Expression.isObjectCreationExpr" data-type="CALLS" x="1180.0" y="2929.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">4: isObjectCreationExpr</text>
+<line class="edge-line" data-source="CallSequenceParser.resolveScope" data-target="Expression.asObjectCreationExpr" data-type="CALLS" x1="190.0" y1="2992.0" x2="2165.0" y2="2992.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.resolveScope" data-target="Expression.asObjectCreationExpr" data-type="CALLS" x="1180.0" y="2983.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">5: asObjectCreationExpr</text>
+<line class="edge-line" data-source="CallSequenceParser.resolveScope" data-target="Expression.isMethodCallExpr" data-type="CALLS" x1="190.0" y1="3046.0" x2="2165.0" y2="3046.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.resolveScope" data-target="Expression.isMethodCallExpr" data-type="CALLS" x="1180.0" y="3037.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">6: isMethodCallExpr</text>
+<line class="edge-line" data-source="CallSequenceParser.resolveScope" data-target="Expression.asMethodCallExpr" data-type="CALLS" x1="190.0" y1="3100.0" x2="2165.0" y2="3100.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.resolveScope" data-target="Expression.asMethodCallExpr" data-type="CALLS" x="1180.0" y="3091.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">7: asMethodCallExpr</text>
+<line class="edge-line" data-source="CallSequenceParser.resolveScope" data-target="MethodCallExpr.getScope" data-type="CALLS" x1="190.0" y1="3154.0" x2="2385.0" y2="3154.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.resolveScope" data-target="MethodCallExpr.getScope" data-type="CALLS" x="1290.0" y="3145.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">8: getScope</text>
+<line class="edge-line" data-source="CallSequenceParser.resolveScope" data-target="MethodCallExpr.getNameAsString" data-type="CALLS" x1="190.0" y1="3208.0" x2="2385.0" y2="3208.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.resolveScope" data-target="MethodCallExpr.getNameAsString" data-type="CALLS" x="1290.0" y="3199.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">9: getNameAsString</text>
+<line class="edge-line" data-source="CallSequenceParser.calleeIn" data-target="MethodIds.forLocalCall" data-type="CALLS" x1="190.0" y1="3262.0" x2="845.0" y2="3262.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.calleeIn" data-target="MethodIds.forLocalCall" data-type="CALLS" x="520.0" y="3253.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">1: forLocalCall</text>
+<line class="edge-line" data-source="CallSequenceParser.calleeIn" data-target="MethodCallExpr.getNameAsString" data-type="CALLS" x1="190.0" y1="3316.0" x2="2385.0" y2="3316.0" stroke="#92400e" stroke-width="1.6" marker-end="url(#seq-marker-call)"/>
+<text class="edge-label" data-source="CallSequenceParser.calleeIn" data-target="MethodCallExpr.getNameAsString" data-type="CALLS" x="1290.0" y="3307.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#92400e" font-style="italic">2: getNameAsString</text>
 <g id="CallSequenceParser">
   <title>CallSequenceParser</title>
   <rect class="node-rect" x="105.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
@@ -289,45 +271,45 @@ text { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe
   <rect class="node-rect" x="545.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
   <text class="node-label" x="630.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">SequenceFilterUtil</text>
 </g>
+<g id="MethodIds">
+  <title>MethodIds</title>
+  <rect class="node-rect" x="765.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="850.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">MethodIds</text>
+</g>
 <g id="FilterMatcher">
   <title>FilterMatcher</title>
-  <rect class="node-rect" x="765.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="850.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">FilterMatcher</text>
-</g>
-<g id="method">
-  <title>method</title>
   <rect class="node-rect" x="985.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="1070.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">method</text>
+  <text class="node-label" x="1070.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">FilterMatcher</text>
 </g>
 <g id="Graph">
   <title>Graph</title>
   <rect class="node-rect" x="1205.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
   <text class="node-label" x="1290.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">Graph</text>
 </g>
-<g id="MethodCallExpr">
-  <title>MethodCallExpr</title>
+<g id="SingleFileCallees">
+  <title>SingleFileCallees</title>
   <rect class="node-rect" x="1425.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="1510.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">MethodCallExpr</text>
+  <text class="node-label" x="1510.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">SingleFileCallees</text>
 </g>
-<g id="MethodIds">
-  <title>MethodIds</title>
+<g id="callee">
+  <title>callee</title>
   <rect class="node-rect" x="1645.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="1730.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">MethodIds</text>
+  <text class="node-label" x="1730.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">callee</text>
 </g>
 <g id="Edge">
   <title>Edge</title>
   <rect class="node-rect" x="1865.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
   <text class="node-label" x="1950.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">Edge</text>
 </g>
-<g id="classDecl">
-  <title>classDecl</title>
-  <rect class="node-rect" x="2085.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="2170.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">classDecl</text>
-</g>
 <g id="Expression">
   <title>Expression</title>
+  <rect class="node-rect" x="2085.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
+  <text class="node-label" x="2170.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">Expression</text>
+</g>
+<g id="MethodCallExpr">
+  <title>MethodCallExpr</title>
   <rect class="node-rect" x="2305.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="2390.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">Expression</text>
+  <text class="node-label" x="2390.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">MethodCallExpr</text>
 </g>
 <g id="p">
   <title>p</title>
@@ -354,10 +336,10 @@ text { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe
   <rect class="node-rect" x="3405.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
   <text class="node-label" x="3490.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">TypeDeclaration</text>
 </g>
-<g id="MethodDeclaration">
-  <title>MethodDeclaration</title>
+<g id="CallableDeclaration">
+  <title>CallableDeclaration</title>
   <rect class="node-rect" x="3625.0" y="40.0" width="170.0" height="58.0" rx="6" fill="url(#grad-CLASS)" stroke="#374151" stroke-width="1.8" filter="url(#nodeShadow)"/>
-  <text class="node-label" x="3710.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">MethodDeclaration</text>
+  <text class="node-label" x="3710.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">CallableDeclaration</text>
 </g>
 <g id="VariableDeclarator">
   <title>VariableDeclarator</title>
@@ -370,7 +352,7 @@ text { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe
   <text class="node-label" x="4150.0" y="69.0" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="13.0" font-weight="bold" fill="#1f2937">t</text>
 </g>
 <a class="diagram-attribution" href="https://github.com/PIsberg/codekarta" target="_blank" rel="noopener noreferrer">
-  <text x="4324.0" y="3822.0" text-anchor="end" font-family="sans-serif" font-size="11" fill="#6b7280" text-decoration="underline">Created with https://github.com/PIsberg/codekarta</text>
+  <text x="4324.0" y="3498.0" text-anchor="end" font-family="sans-serif" font-size="11" fill="#6b7280" text-decoration="underline">Created with https://github.com/PIsberg/codekarta</text>
 </a>
 <script type="text/javascript">
 <![CDATA[

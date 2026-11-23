@@ -1,11 +1,13 @@
 package se.deversity.codekarta.input.parser;
 
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.CallableDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
+import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.MethodReferenceExpr;
+import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.stmt.TryStmt;
-import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import se.deversity.codekarta.core.model.Edge;
 import se.deversity.codekarta.core.model.EdgeType;
 import se.deversity.codekarta.core.model.Graph;
@@ -22,7 +24,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.logging.Logger;
 import se.deversity.vibetags.annotations.AIArchitecture;
 import se.deversity.vibetags.annotations.AIContext;
@@ -77,24 +78,22 @@ public class ExceptionFlowParser {
                 // methodId → declared exception simple names
                 Map<String, Set<String>> methodThrows = new LinkedHashMap<>();
 
-                // Pre-pass: collect local method names + return types for scope resolution
-                Set<String> localMethodNames = classDecl.getMethods().stream()
-                        .map(MethodDeclaration::getNameAsString)
-                        .collect(Collectors.toSet());
-
                 Map<String, String> returnTypes = ParserSupport.returnTypesOf(classDecl);
                 Map<String, TypeDeclaration<?>> fileTypes = CallSequenceParser.typesByName(cu);
 
                 // ── Pass 1 ────────────────────────────────────────────────
-                // Direct methods only, as in CallSequenceParser (#265).
-                classDecl.getMethods().forEach(method -> {
+                // Direct methods and constructors only, as in CallSequenceParser (#265, #271).
+                MethodIds.callables(classDecl).forEach(method -> {
                     String methodId = MethodIds.of(className, classDecl, method);
-                    if (FilterMatcher.matchesAny(className + "." + method.getNameAsString(), customExcludes)
-                            || FilterMatcher.matchesAny(methodId, customExcludes) || FilterMatcher.matchesAny(method.getNameAsString(), customExcludes)) {
+                    String label = MethodIds.labelOf(method);
+                    if (FilterMatcher.matchesAny(className + "." + label, customExcludes)
+                            || FilterMatcher.matchesAny(methodId, customExcludes) || FilterMatcher.matchesAny(label, customExcludes)) {
                         return;
                     }
-                    graph.addNodeIfAbsent(new Node(methodId, NodeType.METHOD, method.getNameAsString()));
-                    Map<String, String> varTypes = CallSequenceParser.receiverTypes(classDecl, method, returnTypes);
+                    graph.addNodeIfAbsent(new Node(methodId, NodeType.METHOD, label));
+                    SingleFileCallees callees = new SingleFileCallees(className, classDecl, returnTypes,
+                            CallSequenceParser.receiverTypes(classDecl, method, returnTypes),
+                            fileTypes, externalTypes, customExcludes);
 
                     // Collect declared throws
                     method.getThrownExceptions()
@@ -103,63 +102,20 @@ public class ExceptionFlowParser {
 
                     // Walk body for CALLS edges
                     int[] seq = { 0 };
-                    method.accept(new VoidVisitorAdapter<Void>() {
-                        @Override
-                        public void visit(MethodCallExpr call, Void arg) {
-                            String name = call.getNameAsString();
-                            if (FilterMatcher.matchesAny(name, customExcludes)) {
-                                super.visit(call, null);
-                                return;
-                            }
-                            String callee;
-                            if (call.getScope().isPresent()) {
-                                if (SequenceFilterUtil.shouldSkipScopedCall(name)) {
-                                    super.visit(call, null);
-                                    return;
-                                }
-                                String scopeName = CallSequenceParser.resolveScope(
-                                        call.getScope().get(), returnTypes, className, varTypes);
-                                if (scopeName == null || externalTypes.contains(scopeName)) {
-                                    super.visit(call, null);
-                                    return;
-                                }
-                                callee = CallSequenceParser.calleeIn(scopeName, call, fileTypes);
-                            } else if (localMethodNames.contains(name)) {
-                                callee = MethodIds.forLocalCall(className, classDecl, call);
-                            } else {
-                                // unscoped non-local call (static import etc.) — not attributable
-                                super.visit(call, null);
-                                return;
-                            }
-
-                            if (FilterMatcher.matchesAny(callee, customExcludes)) {
-                                super.visit(call, null);
-                                return;
-                            }
-                            graph.addNodeIfAbsent(new Node(callee, NodeType.METHOD, call.getNameAsString()));
-                            int n = ++seq[0];
-                            Edge edge = new Edge(methodId + "-calls-" + callee + "-" + n,
-                                    methodId, callee, EdgeType.CALLS);
-                            edge.setLabel(String.valueOf(n));
-                            graph.addEdge(edge);
-                            callersOf.computeIfAbsent(callee, k -> new ArrayList<>()).add(methodId);
-                            super.visit(call, null);
-                        }
-                    }, null);
+                    SingleFileCallees.forEachCall(method, callees, callee -> {
+                        graph.addNodeIfAbsent(new Node(callee.id(), NodeType.METHOD, callee.label()));
+                        int n = ++seq[0];
+                        Edge edge = new Edge(methodId + "-calls-" + callee.id() + "-" + n,
+                                methodId, callee.id(), EdgeType.CALLS);
+                        edge.setLabel(String.valueOf(n));
+                        graph.addEdge(edge);
+                        callersOf.computeIfAbsent(callee.id(), k -> new ArrayList<>()).add(methodId);
+                    });
 
                     // Walk for try-catch → catch-boundary groups
-                    addCatchBoundaryGroups(graph, method, methodId, call -> {
-                        String cname = call.getNameAsString();
-                        if (call.getScope().isPresent()) {
-                            if (SequenceFilterUtil.shouldSkipScopedCall(cname)) {
-                                return null;
-                            }
-                            String sn = CallSequenceParser.resolveScope(
-                                    call.getScope().get(), returnTypes, className, varTypes);
-                            return sn == null ? null : CallSequenceParser.calleeIn(sn, call, fileTypes);
-                        }
-                        return localMethodNames.contains(cname)
-                                ? MethodIds.forLocalCall(className, classDecl, call) : cname;
+                    addCatchBoundaryGroups(graph, method, methodId, expr -> {
+                        SingleFileCallees.Callee callee = callees.of(expr);
+                        return callee == null ? null : callee.id();
                     });
                 });
 
@@ -204,8 +160,8 @@ public class ExceptionFlowParser {
      * every call to a shared helper from anywhere in the diagram (issue #267).
      * {@code calleeResolver} maps a call to its node id, or returns {@code null} to skip it.
      */
-    private static void addCatchBoundaryGroups(Graph graph, MethodDeclaration method, String methodId,
-            java.util.function.Function<MethodCallExpr, String> calleeResolver) {
+    private static void addCatchBoundaryGroups(Graph graph, CallableDeclaration<?> method, String methodId,
+            java.util.function.Function<Expression, String> calleeResolver) {
         int[] tryIdx = { 0 };
         method.findAll(TryStmt.class).forEach(tryStmt -> {
             String catchTypes = tryStmt.getCatchClauses().stream()
@@ -218,7 +174,8 @@ public class ExceptionFlowParser {
                     "catch(" + catchTypes + ")");
             group.getProperties().put(Group.OWNER_PROPERTY, methodId);
 
-            tryStmt.getTryBlock().findAll(MethodCallExpr.class).forEach(call -> {
+            tryStmt.getTryBlock().findAll(Expression.class, e -> e instanceof MethodCallExpr
+                    || e instanceof MethodReferenceExpr || e instanceof ObjectCreationExpr).forEach(call -> {
                 String callee = calleeResolver.apply(call);
                 // Only reference nodes the parser already accepted — creating nodes here would
                 // bypass its project/stdlib filters and leak JDK types or raw variable names into

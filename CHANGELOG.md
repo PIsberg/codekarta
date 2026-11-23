@@ -57,6 +57,15 @@ each version heading is the complete record.
 
 ### Fixed
 
+- **Sequence diagrams draw method references and constructors.** All three sequence parsers
+  visited method calls only, so `items.forEach(this::convert)`, `processor::handle` and
+  `Type::new` drew nothing, a constructor's own calls were invisible, and so was
+  `new OrderValidator(...)`. Method references are now ordered `CALLS` like calls; a constructor
+  is a method with the id `Owner.new` (label `new`, suffixed like an overload when a class has
+  several); and `new` of a project type is a call to that constructor. "Project type" means
+  declared in the same file for single-file diagrams and anywhere in the input for
+  `--sequence-only` on a directory, so `new ArrayList<>()` stays out. A constructor's declared
+  exceptions propagate in exception-flow diagrams like a method's. (#271)
 - **Class diagrams draw a HAS edge for every field shape.** Field targets came from slicing the
   type string, so `List<? extends Cargo>`, `Consumer<? super Port>`, `Optional<List<Port>>` and
   `Map<OrderId, List<Cargo>>` produced no edge at all (or, for the map, none to the key), and
