@@ -2,6 +2,7 @@ package se.deversity.codekarta.cli;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import se.deversity.codekarta.core.model.Graph;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -339,6 +340,35 @@ class KartaCliTest {
 
         assertNull(KartaCli.parseModules(reactor, false, java.util.Set.of("beta")).findNode("beta"),
                 "--exclude must reach --modules-only");
+    }
+
+    /**
+     * SequenceDiagramRenderer computes its own geometry and ignores Node x/y, so laying out an
+     * interaction graph for an SVG was wasted work (ELK layered layout, with --layout elk) (#272).
+     * JSON keeps the coordinates it documents.
+     */
+    @Test
+    void anInteractionGraphIsLaidOutForJsonButNotForSvg(@TempDir Path dir) throws Exception {
+        Path input = Files.writeString(dir.resolve("A.java"), "class A {}");
+
+        Graph forSvg = interactionGraph();
+        KartaCli.run(input, dir.resolve("svg"), RunOptions.defaults().withOutputName("a.svg"), forSvg);
+        assertNull(forSvg.findNode("A.a").getX(), "a sequence SVG must not pay for a layout it discards");
+
+        Graph forJson = interactionGraph();
+        KartaCli.run(input, dir.resolve("json"),
+                RunOptions.defaults().withFormat(RunOptions.FORMAT_JSON).withOutputName("a.json"), forJson);
+        assertNotNull(forJson.findNode("A.a").getX(), "JSON output documents layout coordinates");
+    }
+
+    private static Graph interactionGraph() {
+        Graph graph = new Graph();
+        graph.addNode(new se.deversity.codekarta.core.model.Node("A.a", "METHOD", "a"));
+        graph.addNode(new se.deversity.codekarta.core.model.Node("B.b", "METHOD", "b"));
+        se.deversity.codekarta.core.model.Edge call = new se.deversity.codekarta.core.model.Edge("c1", "A.a", "B.b", "CALLS");
+        call.setLabel("1");
+        graph.addEdge(call);
+        return graph;
     }
 
     // --- --output-name ---

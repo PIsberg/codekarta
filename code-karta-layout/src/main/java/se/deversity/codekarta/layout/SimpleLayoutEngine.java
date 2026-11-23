@@ -27,9 +27,12 @@ import java.util.TreeMap;
  *  3. Nodes at the same depth are placed side by side (column); depths are rows.
  *  4. Row Y positions are computed from the tallest estimated rendered height in each
  *     row so that class-diagram compartment nodes never bleed into the row below.
+ *  5. A graph with groups is laid out one block per group (then the ungrouped nodes), each
+ *     by steps 1-4 over its own members, and the blocks are packed left to right, so the frame
+ *     drawn around a group holds that group's nodes and no others.
  */
 @AIContext(
-    focus = "BFS from root nodes (no incoming edges) assigns depth levels → rows; siblings within a row become columns. Isolated nodes fall back to level 0. Cyclic graphs seed BFS from the first node. Row Y positions are computed dynamically from the tallest estimated node height in each row so that compartment-heavy class nodes never overlap the row below.",
+    focus = "BFS from root nodes (no incoming edges) assigns depth levels → rows; siblings within a row become columns. Isolated nodes fall back to level 0. Cyclic graphs seed BFS from the first node. Row Y positions are computed dynamically from the tallest estimated node height in each row so that compartment-heavy class nodes never overlap the row below. With groups, each group is its own block laid out over its members and the blocks are packed side by side, so group frames never overlap.",
     avoids = "Changing NodeDimensions.DEFAULT_WIDTH/HEIGHT — those constants are @AILocked and consumed by both layout engines and SvgRenderer."
 )
 @AIArchitecture(belongsTo = "layout", cannotReference = {"input", "render", "cli"})
@@ -54,12 +57,87 @@ public class SimpleLayoutEngine implements LayoutEngine {
     static final double MAX_ROW_WIDTH = 2600.0;
 
 
+    /**
+     * Space between two group blocks, horizontally and vertically. Wider than twice the 14px
+     * padding SvgRenderer draws around a group, so neighbouring frames stay apart.
+     */
+    static final double GROUP_GAP = 80.0;
+
     @Override
     public Graph layout(Graph graph) {
         List<Node> nodes = graph.getNodes();
         if (nodes.isEmpty()) return graph;
 
-        Map<String, Integer> levels = computeLevels(graph);
+        List<Set<String>> blocks = blocks(graph);
+        if (blocks.size() <= 1) {
+            layoutBlock(graph, blocks.isEmpty() ? Set.of() : blocks.get(0), MARGIN, MARGIN);
+            return graph;
+        }
+
+        // One block per group, then the ungrouped nodes, packed left to right and wrapped at
+        // MAX_ROW_WIDTH. Laying the whole graph out by depth instead scattered each package's
+        // classes among the others', and the frame drawn around a package swallowed classes
+        // that do not belong to it (issue #272).
+        double x = MARGIN;
+        double y = MARGIN;
+        double rowHeight = 0;
+        for (Set<String> block : blocks) {
+            double[] size = layoutBlock(graph, block, 0, 0);
+            if (x > MARGIN && x + size[0] > MARGIN + MAX_ROW_WIDTH) {
+                x = MARGIN;
+                y += rowHeight + GROUP_GAP;
+                rowHeight = 0;
+            }
+            for (String id : block) {
+                Node node = graph.findNode(id);
+                Double nodeX = node == null ? null : node.getX();
+                Double nodeY = node == null ? null : node.getY();
+                if (nodeX != null && nodeY != null) {
+                    node.setX(nodeX + x);
+                    node.setY(nodeY + y);
+                }
+            }
+            x += size[0] + GROUP_GAP;
+            rowHeight = Math.max(rowHeight, size[1]);
+        }
+        return graph;
+    }
+
+    /**
+     * The node sets laid out separately: each group's members (a node listed by two groups goes
+     * with the first, as {@code Group} documents one enclosing group per node), then the nodes no
+     * group lists. A graph without groups is one block, laid out exactly as before groups were read.
+     */
+    private static List<Set<String>> blocks(Graph graph) {
+        Set<String> existing = new java.util.LinkedHashSet<>();
+        graph.getNodes().forEach(n -> existing.add(n.getId()));
+        List<Set<String>> blocks = new ArrayList<>();
+        Set<String> assigned = new HashSet<>();
+        for (se.deversity.codekarta.core.model.Group group : graph.getGroups()) {
+            Set<String> members = new java.util.LinkedHashSet<>();
+            for (String id : group.getMemberIds()) {
+                if (existing.contains(id) && assigned.add(id)) {
+                    members.add(id);
+                }
+            }
+            if (!members.isEmpty()) {
+                blocks.add(members);
+            }
+        }
+        Set<String> rest = new java.util.LinkedHashSet<>(existing);
+        rest.removeAll(assigned);
+        if (!rest.isEmpty()) {
+            blocks.add(rest);
+        }
+        return blocks;
+    }
+
+    /**
+     * Lays out {@code members} by depth from {@code (originX, originY)}, counting only the edges
+     * between members, and returns the block's {width, height}.
+     */
+    private double[] layoutBlock(Graph graph, Set<String> members, double originX, double originY) {
+        Map<String, Integer> levels = computeLevels(graph, members);
         Map<Integer, List<String>> byLevel = new TreeMap<>();
         for (Map.Entry<String, Integer> entry : levels.entrySet()) {
             byLevel.computeIfAbsent(entry.getValue(), k -> new ArrayList<>()).add(entry.getKey());
@@ -70,7 +148,7 @@ public class SimpleLayoutEngine implements LayoutEngine {
         // Pass 1: compute cumulative row Y positions based on the tallest estimated rendered
         // height in each level, so compartment nodes never overlap the next level. A level wider
         // than MAX_ROW_WIDTH occupies several sub-rows, each of which needs that height.
-        double curY = MARGIN;
+        double curY = originY;
         Map<Integer, Double> rowY = new TreeMap<>();
         for (Map.Entry<Integer, List<String>> entry : byLevel.entrySet()) {
             int row = entry.getKey();
@@ -81,6 +159,8 @@ public class SimpleLayoutEngine implements LayoutEngine {
         }
 
         // Pass 2: assign coordinates, wrapping each level across sub-rows.
+        double width = 0;
+        double height = 0;
         for (Map.Entry<Integer, List<String>> entry : byLevel.entrySet()) {
             int row = entry.getKey();
             List<String> ids = entry.getValue();
@@ -94,14 +174,18 @@ public class SimpleLayoutEngine implements LayoutEngine {
                     // reads as intent rather than as an accidental truncation.
                     int col = i % perRow;
                     int subRow = i / perRow;
-                    node.setX(MARGIN + col * (NODE_WIDTH + H_GAP));
-                    node.setY(levelY + subRow * (maxH + V_GAP));
+                    double nodeX = originX + col * (NODE_WIDTH + H_GAP);
+                    double nodeY = levelY + subRow * (maxH + V_GAP);
+                    node.setX(nodeX);
+                    node.setY(nodeY);
                     node.setWidth(NODE_WIDTH);
                     node.setHeight(NODE_HEIGHT);
+                    width = Math.max(width, nodeX - originX + NODE_WIDTH);
+                    height = Math.max(height, nodeY - originY + estimateRenderHeight(node));
                 }
             }
         }
-        return graph;
+        return new double[] { width, height };
     }
 
     /** Nodes per sub-row. At least one, so a node wider than the bound still lays out. */
@@ -130,16 +214,28 @@ public class SimpleLayoutEngine implements LayoutEngine {
         return RenderedSize.estimateHeight(node);
     }
 
-    private Map<String, Integer> computeLevels(Graph graph) {
-        Set<String> hasIncoming = new HashSet<>();
+    private Map<String, Integer> computeLevels(Graph graph, Set<String> members) {
+        List<Edge> edges = new ArrayList<>();
         for (Edge edge : graph.getEdges()) {
+            if (members.contains(edge.getSourceId()) && members.contains(edge.getTargetId())) {
+                edges.add(edge);
+            }
+        }
+        List<Node> nodes = new ArrayList<>();
+        for (Node node : graph.getNodes()) {
+            if (members.contains(node.getId())) {
+                nodes.add(node);
+            }
+        }
+        Set<String> hasIncoming = new HashSet<>();
+        for (Edge edge : edges) {
             hasIncoming.add(edge.getTargetId());
         }
 
         Map<String, Integer> levels = new HashMap<>();
         Queue<String> queue = new ArrayDeque<>();
 
-        for (Node node : graph.getNodes()) {
+        for (Node node : nodes) {
             if (!hasIncoming.contains(node.getId())) {
                 levels.put(node.getId(), 0);
                 queue.add(node.getId());
@@ -147,8 +243,8 @@ public class SimpleLayoutEngine implements LayoutEngine {
         }
 
         // Cycle fallback: seed with first node
-        if (queue.isEmpty() && !graph.getNodes().isEmpty()) {
-            String firstId = graph.getNodes().get(0).getId();
+        if (queue.isEmpty() && !nodes.isEmpty()) {
+            String firstId = nodes.get(0).getId();
             levels.put(firstId, 0);
             queue.add(firstId);
         }
@@ -158,7 +254,7 @@ public class SimpleLayoutEngine implements LayoutEngine {
             String id = queue.poll();
             if (!visited.add(id)) continue;
             int level = levels.getOrDefault(id, 0);
-            for (Edge edge : graph.getEdges()) {
+            for (Edge edge : edges) {
                 if (id.equals(edge.getSourceId())) {
                     String target = edge.getTargetId();
                     int proposed = level + 1;
@@ -171,7 +267,7 @@ public class SimpleLayoutEngine implements LayoutEngine {
         }
 
         // Assign level 0 to any nodes not reached by BFS (isolated)
-        for (Node node : graph.getNodes()) {
+        for (Node node : nodes) {
             levels.putIfAbsent(node.getId(), 0);
         }
 
