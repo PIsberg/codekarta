@@ -324,11 +324,13 @@ public class ClassDiagramParser {
     private void processType(TypeDeclaration<?> type, @Nullable String outerRelativeName,
                              List<String> enclosingIds, Graph graph, Scope scope, TypeIndex index) {
         String simple = type.getNameAsString();
-        if (FilterMatcher.matchesAny(simple, customExcludes)) {
-            return;
-        }
         String relative = relativeName(outerRelativeName, type);
         String id = typeId(scope.packageName, relative);
+        // Both spellings: --exclude takes simple names (Engine) and qualified or package
+        // patterns (com.example.util.*), and only the simple one used to be tested (#266).
+        if (FilterMatcher.matchesAny(simple, customExcludes) || FilterMatcher.matchesAny(id, customExcludes)) {
+            return;
+        }
         List<String> inScope = new ArrayList<>(enclosingIds.size() + 1);
         inScope.add(id);
         inScope.addAll(enclosingIds);
@@ -433,9 +435,11 @@ public class ClassDiagramParser {
      */
     private @Nullable String supertypeTarget(String typeName, List<String> enclosingIds,
                                              Scope scope, TypeIndex index) {
-        return FilterMatcher.matchesAny(simpleName(typeName), customExcludes)
-                ? null
-                : scope.resolve(typeName, index, enclosingIds);
+        if (FilterMatcher.matchesAny(simpleName(typeName), customExcludes)) {
+            return null;
+        }
+        String target = scope.resolve(typeName, index, enclosingIds);
+        return target != null && FilterMatcher.matchesAny(target, customExcludes) ? null : target;
     }
 
     /**

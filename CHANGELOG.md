@@ -57,6 +57,14 @@ each version heading is the complete record.
 
 ### Fixed
 
+- **`--exclude` works as documented.** The package form from `--help`,
+  `se.deversity.codekarta.util.*`, excluded nothing: class diagrams and single-file sequence
+  diagrams tested only a type's simple name. Both names are tested now, so package patterns and
+  qualified names (`a.Node` without `b.Node`) work, and an edge to an excluded type goes with it.
+  A `*` inside a pattern (`Order*Service`, `com.example.*.internal.*`) used to fall through to
+  exact equality; it now matches anywhere, without a regular expression. `--state-machine` and
+  `--modules-only` ignored `--exclude` altogether; it now drops enums or states, and modules.
+  (#266)
 - **Sequence diagrams keep overloads apart and leave nested classes' methods where they are.**
   All three sequence parsers collected methods with a recursive search, so a nested class's
   methods were drawn a second time on the enclosing class's lifeline and an anonymous class's

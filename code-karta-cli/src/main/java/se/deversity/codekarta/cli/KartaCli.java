@@ -289,10 +289,10 @@ public class KartaCli {
             graph = parsed;
         } else if (options.stateMachine()) {
             log.fine(() -> "State-machine mode for input: " + inputPath);
-            graph = new StateMachineParser(options.includeTests()).parse(inputPath);
+            graph = new StateMachineParser(options.includeTests(), options.customExcludes()).parse(inputPath);
         } else if (options.modulesOnly() && Files.isDirectory(inputPath)) {
             log.fine(() -> "Multi-module mode for directory: " + inputPath);
-            graph = parseModules(inputPath, options.includeTests());
+            graph = parseModules(inputPath, options.includeTests(), options.customExcludes());
         } else if (options.sequenceOnly() && Files.isDirectory(inputPath)) {
             log.fine(() -> "Multi-file sequence mode for directory: " + inputPath);
             graph = new MultiFileSequenceParser(options.customExcludes(), options.maxDepth(),
@@ -359,13 +359,17 @@ public class KartaCli {
     }
 
     static Graph parseModules(Path inputPath, boolean includeTests) {
-        Graph jpms = new se.deversity.codekarta.input.parser.ModuleInfoParser()
+        return parseModules(inputPath, includeTests, java.util.Set.of());
+    }
+
+    static Graph parseModules(Path inputPath, boolean includeTests, java.util.Set<String> customExcludes) {
+        Graph jpms = new se.deversity.codekarta.input.parser.ModuleInfoParser(customExcludes)
                 .parseDirectory(inputPath, includeTests);
         if (!jpms.getNodes().isEmpty()) {
             return jpms;
         }
         log.fine(() -> "No module-info.java under " + inputPath + "; reading the build reactor instead.");
-        return new se.deversity.codekarta.input.parser.BuildReactorParser().parse(inputPath);
+        return new se.deversity.codekarta.input.parser.BuildReactorParser(customExcludes).parse(inputPath);
     }
 
     /**
@@ -497,7 +501,7 @@ public class KartaCli {
         // Each package drawn from its own files, the tree parsed once so references into other
         // packages still resolve (to stub nodes, cross-package calls, or enums).
         java.util.Map<Path, Graph> graphs = options.stateMachine()
-                ? new StateMachineParser(options.includeTests()).parsePerDirectory(inputRoot)
+                ? new StateMachineParser(options.includeTests(), options.customExcludes()).parsePerDirectory(inputRoot)
                 : options.sequenceOnly()
                 ? new MultiFileSequenceParser(options.customExcludes(), options.maxDepth(),
                         options.includeTests()).parsePerDirectory(inputRoot)
@@ -655,9 +659,10 @@ public class KartaCli {
         System.out.println("                         elk uses the Eclipse Layout Kernel layered");
         System.out.println("                         algorithm for edge-crossing minimisation and");
         System.out.println("                         orthogonal routing (recommended for large graphs).");
-        System.out.println("  --exclude <patterns> Comma-separated wildcard patterns of classes or methods");
-        System.out.println("                         to exclude (e.g. *Test,se.deversity.codekarta.util.*,Map) to");
-        System.out.println("                         reduce diagram clutter under scale.");
+        System.out.println("  --exclude <patterns> Comma-separated wildcard patterns of classes, methods,");
+        System.out.println("                         enums (--state-machine) or modules (--modules-only) to");
+        System.out.println("                         exclude (e.g. *Test,se.deversity.codekarta.util.*,Order*Service,Map).");
+        System.out.println("                         A simple or qualified name works; * matches anywhere.");
         System.out.println("  --max-depth <depth>  Maximum call sequence depth to parse/stitch (integer).");
         System.out.println("  --max-members <n>    Field/method lines per class box before the rest collapse");
         System.out.println("                         into \"…(+N more)\" (default 6). Pass 'all' or 0 to show");

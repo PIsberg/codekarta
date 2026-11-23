@@ -57,6 +57,17 @@ public class BuildReactorParser {
 
     private static final Logger log = Logger.getLogger(BuildReactorParser.class.getName());
 
+    private final Set<String> customExcludes;
+
+    public BuildReactorParser() {
+        this(java.util.Collections.emptySet());
+    }
+
+    /** @param customExcludes {@code --exclude} patterns; a matching module is dropped with its edges */
+    public BuildReactorParser(Set<String> customExcludes) {
+        this.customExcludes = ParserSupport.normalizeExcludes(customExcludes);
+    }
+
     /** Guards against a pom that lists itself, directly or through a cycle of aggregators. */
     private static final int MAX_REACTOR_DEPTH = 32;
 
@@ -100,6 +111,7 @@ public class BuildReactorParser {
         if (graph.getNodes().isEmpty()) {
             parseGradle(root, realRoot, graph);
         }
+        ParserSupport.dropExcluded(graph, customExcludes);
         return graph;
     }
 

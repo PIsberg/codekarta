@@ -23,7 +23,15 @@ public final class FilterMatcher {
     }
 
     /**
-     * Checks if a name matches a single pattern (supporting basic wildcards like *, suffix*, *prefix, *sub*).
+     * Checks if a name matches a single pattern.
+     *
+     * <p>A pattern without {@code *} matches the whole name or its last dot-separated segments,
+     * so {@code Map} matches {@code java.util.Map}. A pattern with {@code *} is a glob over the
+     * whole name, each {@code *} standing for any run of characters, dots included:
+     * {@code se.example.util.*}, {@code Order*Service}, {@code com.example.*.internal.*}. A glob
+     * with no dot in it is also tried against the simple name, so {@code Order*} matches
+     * {@code com.example.OrderService}. Only leading and trailing stars used to work; any other
+     * star fell through to exact equality and never matched (issue #266).
      */
     @AIPure(reason = "Deterministic wildcard matching with no side effects")
     public static boolean matches(String name, String rawPattern) {
@@ -34,25 +42,45 @@ public final class FilterMatcher {
         if (pattern.isEmpty()) {
             return false;
         }
-        if ("*".equals(pattern)) {
-            return true;
-        }
-        boolean startWildcard = pattern.startsWith("*");
-        boolean endWildcard = pattern.endsWith("*");
-
-        if (startWildcard && endWildcard) {
-            if (pattern.length() <= 2) return true;
-            String mid = pattern.substring(1, pattern.length() - 1);
-            return name.contains(mid);
-        } else if (startWildcard) {
-            String suffix = pattern.substring(1);
-            return name.endsWith(suffix);
-        } else if (endWildcard) {
-            String prefix = pattern.substring(0, pattern.length() - 1);
-            return name.startsWith(prefix);
-        } else {
+        if (pattern.indexOf('*') < 0) {
             return name.equals(pattern) || name.endsWith("." + pattern);
         }
+        if (glob(name, pattern)) {
+            return true;
+        }
+        int dot = name.lastIndexOf('.');
+        return pattern.indexOf('.') < 0 && dot >= 0 && glob(name.substring(dot + 1), pattern);
+    }
+
+    /**
+     * Glob match with {@code *} as the only wildcard, by the greedy two-pointer method: on a
+     * mismatch it resumes just after the most recent star, never further back, so the work is
+     * bounded by name length times pattern length. A regex built from user input could
+     * backtrack exponentially instead.
+     */
+    private static boolean glob(String name, String pattern) {
+        int n = 0;
+        int p = 0;
+        int starP = -1;
+        int starN = 0;
+        while (n < name.length()) {
+            if (p < pattern.length() && pattern.charAt(p) != '*' && pattern.charAt(p) == name.charAt(n)) {
+                n++;
+                p++;
+            } else if (p < pattern.length() && pattern.charAt(p) == '*') {
+                starP = p++;
+                starN = n;
+            } else if (starP >= 0) {
+                p = starP + 1;
+                n = ++starN;
+            } else {
+                return false;
+            }
+        }
+        while (p < pattern.length() && pattern.charAt(p) == '*') {
+            p++;
+        }
+        return p == pattern.length();
     }
 
     private FilterMatcher() {}

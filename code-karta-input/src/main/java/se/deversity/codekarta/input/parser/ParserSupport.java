@@ -113,7 +113,9 @@ public final class ParserSupport {
             Graph graph, java.util.function.BiConsumer<TypeDeclaration<?>, String> body) {
         methodBearingTypes(cu).forEach(classDecl -> {
             String className = classDecl.getNameAsString();
-            if (FilterMatcher.matchesAny(className, customExcludes)) {
+            if (FilterMatcher.matchesAny(className, customExcludes)
+                    || classDecl.getFullyQualifiedName()
+                            .map(fqn -> FilterMatcher.matchesAny(fqn, customExcludes)).orElse(false)) {
                 return;
             }
             graph.addNodeIfAbsent(new Node(className, nodeTypeOf(classDecl), className));
@@ -169,6 +171,35 @@ public final class ParserSupport {
                 graph.addGroup(group);
             }
         });
+    }
+
+    /**
+     * Removes every node whose id or label matches {@code customExcludes}, with the edges that
+     * touch one and its group memberships. For the parsers whose nodes are names and nothing
+     * more (modules, packages), where filtering after the parse is the same as filtering during it.
+     */
+    public static void dropExcluded(Graph graph, Set<String> customExcludes) {
+        if (customExcludes.isEmpty()) {
+            return;
+        }
+        Set<String> dropped = new java.util.HashSet<>();
+        for (Node node : graph.getNodes()) {
+            if (FilterMatcher.matchesAny(node.getId(), customExcludes)
+                    || FilterMatcher.matchesAny(node.getLabel(), customExcludes)) {
+                dropped.add(node.getId());
+            }
+        }
+        if (dropped.isEmpty()) {
+            return;
+        }
+        graph.setNodes(new ArrayList<>(graph.getNodes().stream().filter(n -> !dropped.contains(n.getId())).toList()));
+        graph.setEdges(new ArrayList<>(graph.getEdges().stream()
+                .filter(e -> !dropped.contains(e.getSourceId()) && !dropped.contains(e.getTargetId()))
+                .toList()));
+        for (Group group : graph.getGroups()) {
+            group.setMemberIds(new ArrayList<>(group.getMemberIds().stream().filter(id -> !dropped.contains(id)).toList()));
+        }
+        graph.setGroups(new ArrayList<>(graph.getGroups().stream().filter(g -> !g.getMemberIds().isEmpty()).toList()));
     }
 
     public static java.util.Set<String> collectProjectClasses(CompilationUnit cu) {
