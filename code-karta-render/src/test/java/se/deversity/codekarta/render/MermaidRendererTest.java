@@ -7,6 +7,7 @@ import se.deversity.codekarta.core.model.Group;
 import se.deversity.codekarta.core.model.Node;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -22,8 +23,8 @@ class MermaidRendererTest {
         assertEquals("""
                 classDiagram
                     class n0["Order"]
-                    n0 : id: long
-                    n0 : items: List~Item~
+                    n0 : id#58; long
+                    n0 : items#58; List#lt;Item#gt;
                     n0 : submit()
                     class n1["Payable"]
                     <<interface>> n1
@@ -76,9 +77,9 @@ class MermaidRendererTest {
                     n1["core"]
                     n2["java.base"]
                     n3["com.x"]
-                    n0 -->|requires| n1
-                    n0 -->|requires| n2
-                    n0 -.->|exports| n3
+                    n0 -->|"requires"| n1
+                    n0 -->|"requires"| n2
+                    n0 -.->|"exports"| n3
                 """, renderer.render(moduleGraph()));
     }
 
@@ -97,6 +98,57 @@ class MermaidRendererTest {
         String out = renderer.render(graph);
 
         assertTrue(out.contains("n0[\"we#quot;ird#59; #35;1 #lt;a#124;b#gt; x\"]"), out);
+    }
+
+    /**
+     * Mermaid reads the first {@code :} of a member line as the separator and rejects a second, so
+     * every {@code name: type} field failed to parse (#293). A colon in member text is an entity code.
+     */
+    @Test
+    void aFieldsColonIsAnEntityCodeSoMermaidAcceptsTheLine() {
+        assertTrue(renderer.render(classGraph()).contains("    n0 : id#58; long\n"));
+    }
+
+    /**
+     * Mermaid draws a method's return type after its own {@code " : "}, written as
+     * {@code name(args) Type}; passing the parser's {@code name(args): Type} through drew
+     * {@code name(args) : : Type}.
+     */
+    @Test
+    void aMethodsReturnTypeFollowsItsParenthesesAsMermaidWritesIt() {
+        String out = renderer.render(memberGraph());
+        assertTrue(out.contains("    n0 : find(Map#lt;K, V#gt;, int) Map#lt;String, List#lt;Item#gt;#gt;\n"), out);
+        assertTrue(out.contains("    n0 : run() void\n"), out);
+    }
+
+    /**
+     * Mermaid's {@code ~} generics cannot carry a comma, so {@code Map<String, List<Item>>} was drawn
+     * mangled; angle brackets are entity codes like everywhere else in the output.
+     */
+    @Test
+    void nestedGenericsWithACommaAreEntityCodesNotTildes() {
+        String out = renderer.render(memberGraph());
+        assertTrue(out.contains("    n0 : items#58; Map#lt;String, List#lt;Item#gt;#gt;\n"), out);
+        assertFalse(out.contains("~"), out);
+    }
+
+    /** A parenthesis makes Mermaid file a line under methods, so the fields' overflow line codes its own. */
+    @Test
+    void aFieldLineWithParenthesesStaysAField() {
+        String out = renderer.render(memberGraph());
+        assertTrue(out.contains("    n0 : …#40;+3 more#41;\n"), out);
+        assertTrue(out.contains("    n0 : …(+2 more)\n"), out);
+    }
+
+    /**
+     * An edge label sits between pipes, where a bracket of any kind opens a node shape and Mermaid
+     * rejected the line (#293); quoted, it is text.
+     */
+    @Test
+    void aFlowchartEdgeLabelIsQuoted() {
+        Graph graph = moduleGraph();
+        graph.getEdges().get(0).setLabel("a{b}[c](d)");
+        assertTrue(renderer.render(graph).contains("    n0 -->|\"a{b}[c](d)\"| n1\n"), renderer.render(graph));
     }
 
     @Test
@@ -123,6 +175,16 @@ class MermaidRendererTest {
         x.addMember("com.x.Payable");
         x.addMember("com.x.Item");
         graph.addGroup(x);
+        return graph;
+    }
+
+    static Graph memberGraph() {
+        Graph graph = new Graph();
+        Node order = new Node("com.x.Order", "CLASS", "Order");
+        order.setProperties(java.util.Map.of(
+                "fields", "items: Map<String, List<Item>>\n…(+3 more)",
+                "methods", "find(Map<K, V>, int): Map<String, List<Item>>\nrun(): void\n…(+2 more)"));
+        graph.addNode(order);
         return graph;
     }
 

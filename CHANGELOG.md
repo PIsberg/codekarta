@@ -21,8 +21,28 @@ each version heading is the complete record.
   on guava's `collect` package. Single files and code-karta-sized trees are stable. The fix
   belongs upstream; see #295.
 
+### Fixed
+
+- **`--format mermaid` class diagrams parse.** Every field line (`n0 : id: long`) was rejected
+  by Mermaid 11 and 12: Mermaid reads the first colon as the member separator and fails on a
+  second, so any class diagram with a field failed to render in Markdown. A colon in member text is
+  now the entity code `#58;`, drawn as a colon. Found by the new parse check (below). In the same
+  pass: a method's return type is written as Mermaid expects (`run() void`, drawn `run() : void`,
+  where it was drawn `run() : : void`); generics are entity-coded angle brackets instead of `~T~`,
+  which cannot carry the comma of `Map<K, V>`; a `(` in a field line (the `…(+N more)` overflow
+  line) no longer moves it under methods; and flowchart edge labels are quoted, so a bracket in one
+  no longer opens a node shape. (#293)
+
 ### Added
 
+- **CI parses `--format mermaid` and `--format dot` output with the real parsers.** The job
+  "Mermaid and DOT output parse" runs Mermaid 12.3.0 and Graphviz 16.1.0
+  (`@hpcc-js/wasm-graphviz` 1.30.0, pinned in `scripts/format-check/package-lock.json`) over every
+  diagram kind: `TextFormatSamplesTest`'s fixtures, each also with labels full of quotes,
+  semicolons, hashes, brackets, pipes and colons, and the CLI's output for every line of
+  `diagrams.txt` plus whole-tree class, sequence and module runs, 48 files in all. It fails when a
+  file is rejected, when nothing was found, or when one of the four Mermaid kinds is missing.
+  Dependabot bumps the parsers weekly. (#293)
 - **`--batch <file>`: many diagrams from one JVM.** Each line of the file is one command line, run
   in order; the batch stops at the first failing line and names it. The repository's own
   regeneration uses it: `code-karta-cli/diagrams.txt` is now the single list of the 13 runs that

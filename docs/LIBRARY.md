@@ -78,7 +78,9 @@ String dot = new DotRenderer().render(graph);     // Graphviz DOT
 interaction graph becomes a `sequenceDiagram`, STATE nodes a `stateDiagram-v2`, MODULE or PACKAGE
 nodes a `flowchart TD`, anything else a `classDiagram`. Both text renderers ignore layout
 coordinates; node ids are generated (`n0`, `n1`, ...) and names are quoted labels, so no Java name
-can break the syntax.
+can break the syntax. Characters that would end a Mermaid statement are written as Mermaid entity
+codes (`#58;` for a colon in a class member, `#lt;`/`#gt;` for generics), which Mermaid draws as
+the character itself.
 
 `JsonRenderer` writes the IR: nodes, edges, groups, and layout coordinates if a layout engine has
 run. It round-trips, so `new ObjectMapper().readValue(json, Graph.class)` gives back an equivalent

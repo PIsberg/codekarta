@@ -1,0 +1,14 @@
+{
+  "name": "code-karta-format-check",
+  "private": true,
+  "type": "module",
+  "description": "Parses code-karta's --format mermaid and --format dot output with the real Mermaid and Graphviz parsers (#293). CI only; not part of the Maven or Gradle build.",
+  "scripts": {
+    "validate": "node validate.mjs"
+  },
+  "dependencies": {
+    "@hpcc-js/wasm-graphviz": "1.30.0",
+    "jsdom": "31.0.1",
+    "mermaid": "12.3.0"
+  }
+}

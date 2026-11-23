@@ -28,3 +28,4 @@ code-karta-maven-plugin/build
 # artifact of -Pmutation, not of any build a user runs.
 code-karta-maven-plugin/class-diagram.svg
 .vibetags-generate.lock
+scripts/format-check/node_modules/
