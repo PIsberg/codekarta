@@ -102,10 +102,12 @@ Two rules govern the merge, and both come from what a Maven configuration bean c
 express:
 
 - **`excludes` lists are combined**, goal-level plus per-diagram, deduplicated in that order.
-- **Booleans are OR-ed, not overridden.** The bean cannot tell an unset `boolean` from an
-  explicit `false`, so a goal-level `<stateMachine>true</stateMachine>` applies to every diagram
-  in the execution and a per-diagram `false` cannot cancel it. Set such flags per diagram, not at
-  the goal level, when they should not apply to all of them.
+- **Booleans inherit when unset and override when set.** A goal-level
+  `<stateMachine>true</stateMachine>` applies to every `<diagram>` that does not mention
+  `stateMachine`, and a `<diagram>` with `<stateMachine>false</stateMachine>` switches it off for
+  that diagram alone. The same holds for `sequenceOnly`, `modulesOnly`, `splitPackages` and
+  `includeTests`. (Before 0.5 these were OR-ed, so a per-diagram `false` could not cancel a
+  goal-level `true`.)
 
 A relative `<input>` or `<output>` inside `<diagram>` is relative to the module that declares it,
 the same as the goal-level `input` and `outputDirectory`. So `<input>src/main/java/com/example</input>`
