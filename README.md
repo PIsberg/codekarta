@@ -85,8 +85,9 @@ source** on every `mvn verify`. Click a thumbnail for the full-size vector SVG, 
 | [<img src="docs/diagrams/sequence-diagram.svg" width="380" alt="Input layer multi-file stitched sequence diagram"/>](docs/diagrams/sequence-diagram.svg)<br/>**🔗 Multi-File Stitched** — cross-class calls resolved by JavaParser symbol solving | [<img src="docs/diagrams/kartacli-state-machine-diagram.svg" width="380" alt="KartaCli pipeline state machine"/>](docs/diagrams/kartacli-state-machine-diagram.svg)<br/>**🔄 State Transition** — states from enums, switch cases, and builder DSLs |
 
 For large or highly coupled systems there is a self-contained
-[interactive viewer](docs/diagrams/viewer.html) with search, edge-type toggles, and zoom —
-see [`docs/VIEWER.md`](docs/VIEWER.md).
+[interactive viewer](docs/diagrams/viewer.html) with search, edge-type toggles, and zoom;
+`--viewer` (or `<viewer>true</viewer>` in the Maven plugin) writes one for your own diagrams.
+See [`docs/VIEWER.md`](docs/VIEWER.md).
 
 ## Documentation
 

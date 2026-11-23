@@ -482,6 +482,102 @@ class KartaCliTest {
         assertEquals("", console.out());
     }
 
+    // --- --viewer (#274) ---
+
+    @Test
+    void viewerIndexesEveryDiagramUnderTheOutputIncludingNestedPackages(@TempDir Path dir) throws Exception {
+        writeClass(dir.resolve("src/com/example/alpha"), "Alpha");
+        writeClass(dir.resolve("src/com/example/beta"), "Beta");
+        Path out = dir.resolve("out");
+
+        Console console = execute("--input", dir.resolve("src").toString(), "--output", out.toString(),
+                "--split-packages", "--viewer");
+
+        assertEquals(0, console.status(), console.err());
+        Path viewer = out.resolve("viewer.html");
+        assertTrue(console.out().endsWith("Generated viewer: " + viewer.toAbsolutePath() + "\n"), console.out());
+        String html = Files.readString(viewer);
+        java.util.List<String> titles = titlesIn(html);
+        assertEquals(2, titles.size(), html.substring(0, Math.min(400, html.length())));
+        assertTrue(titles.get(0).endsWith("alpha/class-diagram") && titles.get(1).endsWith("beta/class-diagram"),
+                "nested diagrams are listed by their path under --output, in sorted order: " + titles);
+    }
+
+    /** --viewer without --input rebuilds the viewer from whatever an earlier run left in --output. */
+    @Test
+    void viewerAloneIndexesTheDiagramsAlreadyInTheOutput(@TempDir Path dir) throws Exception {
+        Path out = Files.createDirectories(dir.resolve("out"));
+        Files.writeString(out.resolve("b.svg"), "<svg xmlns=\"http://www.w3.org/2000/svg\"/>");
+        Files.writeString(out.resolve("a.svg"), "<svg xmlns=\"http://www.w3.org/2000/svg\"/>");
+        Files.writeString(out.resolve("graph.json"), "{}");
+
+        Console console = execute("--output", out.toString(), "--viewer");
+
+        assertEquals(0, console.status(), console.err());
+        assertEquals(java.util.List.of("a", "b"), titlesIn(Files.readString(out.resolve("viewer.html"))),
+                "SVGs only, sorted; JSON output is not a diagram to show");
+        byte[] first = Files.readAllBytes(out.resolve("viewer.html"));
+        execute("--output", out.toString(), "--viewer");
+        assertArrayEquals(first, Files.readAllBytes(out.resolve("viewer.html")), "regenerating gives the same bytes");
+    }
+
+    @Test
+    void aDirectoryNamedLikeADiagramIsNotOne(@TempDir Path dir) throws Exception {
+        Path out = Files.createDirectories(dir.resolve("out"));
+        Files.createDirectories(out.resolve("folder.svg"));
+        Files.writeString(out.resolve("real.svg"), "<svg xmlns=\"http://www.w3.org/2000/svg\"/>");
+
+        Console console = execute("--output", out.toString(), "--viewer");
+
+        assertEquals(0, console.status(), console.err());
+        assertEquals(java.util.List.of("real"), titlesIn(Files.readString(out.resolve("viewer.html"))));
+    }
+
+    @Test
+    void viewerWithNoDiagramsSaysSoAndWritesNothing(@TempDir Path dir) throws Exception {
+        Path out = Files.createDirectories(dir.resolve("out"));
+
+        Console console = execute("--output", out.toString(), "--viewer");
+
+        assertEquals(0, console.status());
+        assertEquals("Skipped: no .svg diagrams under " + out + " to build a viewer from.\n", console.out());
+        assertFalse(Files.exists(out.resolve("viewer.html")));
+    }
+
+    @Test
+    void withoutViewerTheInputIsStillRequired() {
+        Console console = execute("--output", "out");
+        assertEquals(1, console.status());
+        assertTrue(console.err().contains("--input is required"), console.err());
+    }
+
+    /**
+     * An SVG that is a link to a file elsewhere would carry that file's content into a page meant
+     * to be shared. The viewer reads only regular files inside --output.
+     */
+    @Test
+    void viewerDoesNotFollowALinkedDiagramOutOfTheOutput(@TempDir Path dir) throws Exception {
+        Path out = Files.createDirectories(dir.resolve("out"));
+        Files.writeString(out.resolve("real.svg"), "<svg xmlns=\"http://www.w3.org/2000/svg\"/>");
+        Path secret = Files.writeString(dir.resolve("secret.svg"), "<svg>top-secret</svg>");
+        symlinkOrAbort(out.resolve("linked.svg"), secret);
+
+        execute("--output", out.toString(), "--viewer");
+
+        String html = Files.readString(out.resolve("viewer.html"));
+        assertEquals(java.util.List.of("real"), titlesIn(html));
+        assertFalse(html.contains("top-secret"));
+    }
+
+    private static java.util.List<String> titlesIn(String html) {
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("\\{\"title\":\"([^\"]*)\"").matcher(html);
+        java.util.List<String> titles = new java.util.ArrayList<>();
+        while (m.find()) {
+            titles.add(m.group(1));
+        }
+        return titles;
+    }
+
     // --- --output-name ---
 
     /**

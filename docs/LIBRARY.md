@@ -82,6 +82,10 @@ Target the stable CSS classes: `.node-rect`, `.node-label`, `.edge-line`, `.edge
 `.group-rect`. These names are a published contract — renaming one breaks every existing
 stylesheet.
 
+`HtmlViewerRenderer` turns a list of rendered SVGs into one self-contained page that browses them
+(`new HtmlViewerRenderer().render(List.of(new HtmlViewerRenderer.Diagram(title, svg)))`); it is what
+`--viewer` writes. See [`VIEWER.md`](VIEWER.md).
+
 `SvgRenderer` routes interaction graphs (METHOD nodes with integer `CALLS` labels) to
 `SequenceDiagramRenderer` automatically. Detection is content-based; there is no diagram-type field
 on `Graph`.

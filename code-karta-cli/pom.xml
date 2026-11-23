@@ -173,7 +173,7 @@
                             </arguments>
                         </configuration>
                     </execution>
-                    <!-- 6-12. State machines and the example project's diagrams. Regenerated here so
+                    <!-- 6-13. State machines, the example project's diagrams and the viewer. Regenerated here so
                          the "regeneration is committed" gate covers them; all seven drifted
                          unnoticed while this list left them out (#249). Keep this list in step with
                          the generateDiagrams task in build.gradle.kts, which CI checks produces the
@@ -305,6 +305,23 @@
                                 <argument>example-shipping-system/src/main/java/com/karta/shipping/core/OrderProcessor.java</argument>
                                 <argument>--output</argument>
                                 <argument>example-shipping-system/diagrams</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <!-- 13. The viewer over docs/diagrams. Last, so it indexes every SVG above. -->
+                    <execution>
+                        <id>gen-viewer</id>
+                        <phase>verify</phase>
+                        <goals><goal>exec</goal></goals>
+                        <configuration>
+                            <skip>${skipDiagrams}</skip>
+                            <executable>java</executable>
+                            <arguments>
+                                <argument>-jar</argument>
+                                <argument>${project.build.directory}/${project.artifactId}-${project.version}-all.jar</argument>
+                                <argument>--output</argument>
+                                <argument>docs/diagrams</argument>
+                                <argument>--viewer</argument>
                             </arguments>
                         </configuration>
                     </execution>

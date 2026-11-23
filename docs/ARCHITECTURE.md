@@ -163,10 +163,10 @@ Rendering behavior:
 `SequenceDiagramRenderer` derives participant lanes from method node IDs and ignores node coordinates, so `KartaCli` skips layout for an interaction graph rendered to SVG (not for `--format json`, which carries coordinates). It renders ordered messages, self-calls, activation bars, exception propagation arrows, and try/catch frames when present. A frame encloses the calls its `owner` method makes to the group's members; a group without an owner falls back to every call to them.
 
 ### Svg Interactive Capabilities
-To support the single-page diagram viewer (`viewer.html`), the rendered SVG embeds structured markup:
+`HtmlViewerRenderer` builds the single-page diagram viewer (`viewer.html`, written by `--viewer`) from a list of rendered SVGs, embedding each as data so the page works from disk; see [`VIEWER.md`](VIEWER.md). It relies on structured markup in every rendered SVG:
 *   **Stable CSS Classes:** Elements are styled using `.node-rect`, `.edge-line`, `.group-rect`, and other standard class names.
 *   **Edge Metadata:** Rendered edges carry a `data-type` attribute (e.g. `data-type="CALLS"`, `data-type="EXTENDS"`) corresponding to the `EdgeType` or relationship enum. The diagram viewer's sidebar toggles query these selectors to hide or show relationships dynamically.
-*   **Node Text & Search:** Nodes contain readable labels that are queried by the viewer's real-time search engine. When a search query is active, non-matching nodes are dimmed to $15\%$ opacity, and matching nodes are highlighted with a glowing blue border.
+*   **Node Text & Search:** Nodes contain readable labels that are queried by the viewer's real-time search engine. When a search query is active, non-matching nodes are dimmed to 15% opacity and edges that touch no match to 8%.
 
 All user-visible text is XML escaped. SVG elements use stable CSS class names, including `.node-rect`, `.node-label`, `.edge-line`, and `.group-rect`.
 
