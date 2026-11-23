@@ -111,19 +111,19 @@ class ExceptionFlowIntegrationTest {
 
     @Test
     void submitStillCallsCheckStock() {
-        assertTrue(hasCallEdge("OrderProcessor.submit", "inventoryService.checkStock"),
+        assertTrue(hasCallEdge("OrderProcessor.submit", "InventoryService.checkStock"),
                 "Phase 2 submit() must still have a CALLS edge to checkStock()");
     }
 
     @Test
     void submitStillCallsReserveStock() {
-        assertTrue(hasCallEdge("OrderProcessor.submit", "inventoryService.reserveStock"),
+        assertTrue(hasCallEdge("OrderProcessor.submit", "InventoryService.reserveStock"),
                 "Phase 2 submit() must still have a CALLS edge to reserveStock()");
     }
 
     @Test
     void cancelStillCallsReleaseStock() {
-        assertTrue(hasCallEdge("OrderProcessor.cancel", "inventoryService.releaseStock"),
+        assertTrue(hasCallEdge("OrderProcessor.cancel", "InventoryService.releaseStock"),
                 "Phase 2 cancel() must still have a CALLS edge to releaseStock()");
     }
 
