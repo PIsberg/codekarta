@@ -114,6 +114,12 @@ each version heading is the complete record.
 
 ### Fixed
 
+- **Repository hygiene.** Seven build outputs under `example-shipping-system/build/` (class files and a
+  Gradle compilation cache), committed before `.gitignore` covered them, are no longer tracked, and a
+  CI step fails if any `build/` or `target/` file is tracked again. `SECURITY.md` named 0.3.x as the
+  supported line after 0.4.0 shipped; it now says 0.4.x, and `SecurityPolicyTest` checks the table
+  against the version being built. The README's "Java 21+" badge now says what
+  `docs/COMPATIBILITY.md` does: runs on Java 17+, builds with JDK 21 to 25. (#280)
 - **A Maven `<diagram>` can switch a goal-level flag off.** `Diagram`'s flags were primitive
   booleans OR-ed with the goal level, so `<stateMachine>false</stateMachine>` in a `<diagram>` could
   not cancel a goal-level `true`. They are now unset-or-set: unset inherits, set wins either way, for

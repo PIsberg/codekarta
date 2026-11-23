@@ -78,6 +78,17 @@ jobs:
             exit 1
           fi
 
+      # .gitignore keeps new build output out, but not files committed before the rule existed:
+      # seven class files under example-shipping-system/build/ sat in the tree until #280.
+      - name: No build output is tracked
+        run: |
+          tracked="$(git ls-files | grep -E '(^|/)(build|target)/' || true)"
+          if [ -n "$tracked" ]; then
+            echo "::error::Build output is tracked; remove it with git rm -r --cached:"
+            echo "$tracked"
+            exit 1
+          fi
+
       # code-karta-cli-0.3.0.pom on Maven Central declares no compile-scope dependency at all:
       # the shade plugin's dependency-reduced pom replaced the real one and stripped the four
       # modules the unshaded main jar needs. Anyone declaring code-karta-cli as a dependency got
