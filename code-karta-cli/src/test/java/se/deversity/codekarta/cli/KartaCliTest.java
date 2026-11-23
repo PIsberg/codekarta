@@ -371,6 +371,117 @@ class KartaCliTest {
         return graph;
     }
 
+    // --- execute(): exit status and console output (#273) ---
+
+    private record Console(int status, String out, String err) {}
+
+    private static Console execute(String... args) {
+        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+        java.io.ByteArrayOutputStream err = new java.io.ByteArrayOutputStream();
+        int status = KartaCli.execute(args, new java.io.PrintStream(out, true, java.nio.charset.StandardCharsets.UTF_8),
+                new java.io.PrintStream(err, true, java.nio.charset.StandardCharsets.UTF_8));
+        return new Console(status, out.toString(java.nio.charset.StandardCharsets.UTF_8).replace("\r\n", "\n"),
+                err.toString(java.nio.charset.StandardCharsets.UTF_8).replace("\r\n", "\n"));
+    }
+
+    /**
+     * The help text is the CLI's user-facing reference, so it is pinned whole: a flag dropped
+     * from it, or a line lost, fails here. After a deliberate change, copy the actual text from
+     * target/usage-actual.txt over src/test/resources/usage.txt.
+     */
+    @Test
+    void helpPrintsTheDocumentedUsageAndExitsZero() throws Exception {
+        Console console = execute("--help");
+
+        String expected = new String(KartaCliTest.class.getResourceAsStream("/usage.txt").readAllBytes(),
+                java.nio.charset.StandardCharsets.UTF_8).replace("\r\n", "\n");
+        if (!expected.equals(console.out())) {
+            Files.writeString(Path.of("target", "usage-actual.txt"), console.out());
+        }
+        assertEquals(0, console.status());
+        assertEquals(expected, console.out());
+        assertEquals("", console.err());
+    }
+
+    /** Every flag the parser accepts is documented in the help text. */
+    @Test
+    void theHelpTextNamesEveryFlagTheParserAccepts() {
+        String usage = execute("--help").out();
+        for (String flag : java.util.List.of("--exclude", "--format", "--help", "--include-tests", "--input", "--layout", "--max-depth", "--max-members", "--modules-only", "--output", "--output-name", "--sequence-only", "--split-packages", "--state-machine")) {
+            assertTrue(usage.contains(flag), flag + " is accepted but not in --help");
+        }
+    }
+
+    @Test
+    void anUnknownFlagExitsOneWithTheErrorOnStderrAndTheUsageOnStdout() {
+        Console console = execute("--input", ".", "--sequnce-only");
+
+        assertEquals(1, console.status());
+        assertTrue(console.err().startsWith("Error: "), console.err());
+        assertTrue(console.err().contains("--sequnce-only"), "the error names the bad argument");
+        assertTrue(console.out().startsWith("Usage: karta"), "the usage follows the error");
+    }
+
+    @Test
+    void aSuccessfulRunPrintsTheAbsolutePathOfTheDiagram(@TempDir Path dir) throws Exception {
+        writeClass(dir.resolve("src/com/example"), "Alpha");
+        Path out = dir.resolve("out");
+
+        Console console = execute("--input", dir.resolve("src").toString(), "--output", out.toString());
+
+        assertEquals(0, console.status());
+        assertEquals("Generated: " + out.resolve("class-diagram.svg").toAbsolutePath() + "\n", console.out());
+        assertTrue(Files.exists(out.resolve("class-diagram.svg")));
+    }
+
+    @Test
+    void aDeclinedDiagramIsReportedAsSkippedAndStillExitsZero(@TempDir Path dir) throws Exception {
+        Path src = Files.writeString(dir.resolve("Plain.java"), "public class Plain { enum E { A, B } }");
+
+        Console console = execute("--input", src.toString(), "--output", dir.resolve("out").toString(), "--state-machine");
+
+        assertEquals(0, console.status());
+        assertEquals("Skipped generating a diagram; see the log message above for why.\n", console.out());
+    }
+
+    @Test
+    void splitPackagesReportsEveryDiagramAndTheCount(@TempDir Path dir) throws Exception {
+        writeClass(dir.resolve("src/com/example/alpha"), "Alpha");
+        writeClass(dir.resolve("src/com/example/beta"), "Beta");
+        Path out = dir.resolve("out");
+
+        Console console = execute("--input", dir.resolve("src").toString(), "--output", out.toString(), "--split-packages");
+
+        assertEquals(0, console.status());
+        java.util.List<String> lines = console.out().lines().toList();
+        assertEquals(3, lines.size(), console.out());
+        assertTrue(lines.get(0).startsWith("Generated: ") && lines.get(1).startsWith("Generated: "));
+        assertEquals("Generated 2 diagrams under " + out.toAbsolutePath(), lines.get(2));
+    }
+
+    @Test
+    void splitPackagesWithNothingToDrawSaysSo(@TempDir Path dir) throws Exception {
+        Path empty = Files.createDirectories(dir.resolve("empty"));
+
+        Console console = execute("--input", empty.toString(), "--output", dir.resolve("out").toString(), "--split-packages");
+
+        assertEquals(0, console.status());
+        assertEquals("Skipped: no package under " + empty + " produced a diagram.\n", console.out());
+    }
+
+    /** An output directory that cannot be created is an I/O failure: exit 2, the reason on stderr. */
+    @Test
+    void anUnwritableOutputExitsTwo(@TempDir Path dir) throws Exception {
+        writeClass(dir.resolve("src/com/example"), "Alpha");
+        Path blocker = Files.writeString(dir.resolve("not-a-directory"), "x");
+
+        Console console = execute("--input", dir.resolve("src").toString(), "--output", blocker.toString());
+
+        assertEquals(2, console.status());
+        assertTrue(console.err().startsWith("Error: "), console.err());
+        assertEquals("", console.out());
+    }
+
     // --- --output-name ---
 
     /**

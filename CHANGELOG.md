@@ -54,6 +54,13 @@ each version heading is the complete record.
 - A directory input no longer reads test source sets, generated sources under `target/` or
   `build/`, or anything under a hidden directory. Inputs that were already a source root such as
   `src/main/java`, which is the Maven plugin's default, draw exactly what they drew before.
+- **Coverage floors raised to what the tests now measure.** The render module killed 24% of its
+  mutants while executing 95% of its lines; new geometry tests for both renderers pin computed
+  coordinates and markup and take it to 90.0%. The CLI's `main` now delegates to
+  `KartaCli.execute(args, out, err)`, which returns the exit status, and its tests cover every
+  branch, taking the module from 45.7% to 96.7% line coverage and 92.7% of mutants killed. Floors
+  are raised for render (line 0.95, mutation 85), cli (0.92, 88), input (0.82, 72) and the Maven
+  plugin (0.88, 65); measurements are in `docs/QUALITY.md`. (#273)
 
 ### Fixed
 

@@ -134,49 +134,61 @@ public class KartaCli {
     }
 
     public static void main(String[] args) {
+        int status = execute(args, System.out, System.err);
+        if (status != 0) {
+            System.exit(status);
+        }
+    }
+
+    /**
+     * The command line, minus the JVM exit: parses {@code args}, runs, and reports on
+     * {@code out} and {@code err}. Split out of {@link #main} so the exit status and console
+     * output can be tested without ending the test JVM.
+     *
+     * @return 0 on success (a declined diagram included), 1 for arguments it does not
+     *         understand, 2 when reading or writing fails
+     */
+    static int execute(String[] args, java.io.PrintStream out, java.io.PrintStream err) {
         Invocation call;
         try {
             call = parseArgs(args);
         } catch (IllegalArgumentException e) {
-            System.err.println("Error: " + e.getMessage());
-            printUsage();
-            System.exit(1);
-            return;
+            err.println("Error: " + e.getMessage());
+            printUsage(out);
+            return 1;
         }
         if (call.help()) {
-            printUsage();
-            System.exit(0);
-            return;
+            printUsage(out);
+            return 0;
         }
         Path inputPath = call.inputPath();
         Path outputDir = call.outputDir();
-        boolean splitPackages = call.splitPackages();
-
         RunOptions options = call.options();
 
         try {
-            if (splitPackages) {
+            if (call.splitPackages()) {
                 java.util.List<Path> written = runPerPackage(inputPath, outputDir, options);
                 if (written.isEmpty()) {
-                    System.out.println("Skipped: no package under " + inputPath + " produced a diagram.");
+                    out.println("Skipped: no package under " + inputPath + " produced a diagram.");
                 } else {
                     for (Path p : written) {
-                        System.out.println("Generated: " + p.toAbsolutePath());
+                        out.println("Generated: " + p.toAbsolutePath());
                     }
-                    System.out.println("Generated " + written.size() + " diagrams under "
+                    out.println("Generated " + written.size() + " diagrams under "
                             + outputDir.toAbsolutePath());
                 }
-                return;
+                return 0;
             }
             Path output = run(inputPath, outputDir, options);
             if (output != null) {
-                System.out.println("Generated: " + output.toAbsolutePath());
+                out.println("Generated: " + output.toAbsolutePath());
             } else {
-                System.out.println("Skipped generating a diagram; see the log message above for why.");
+                out.println("Skipped generating a diagram; see the log message above for why.");
             }
+            return 0;
         } catch (IOException e) {
-            System.err.println("Error: " + e.getMessage());
-            System.exit(2);
+            err.println("Error: " + e.getMessage());
+            return 2;
         }
     }
 
@@ -609,70 +621,70 @@ public class KartaCli {
         return fileName.replace(".java", "").toLowerCase(java.util.Locale.ROOT) + "-sequence-diagram.svg";
     }
 
-    private static void printUsage() {
-        System.out.println("Usage: karta --input <path> [--output <dir>] [--output-name <file>] [--format svg|json] [--sequence-only] [--state-machine] [--modules-only] [--split-packages] [--include-tests] [--layout simple|elk] [--exclude <patterns>] [--max-depth <depth>] [--max-members <n>]");
-        System.out.println();
-        System.out.println("  --input  <path>      What to parse:");
-        System.out.println("                         module-info.java  → module diagram");
-        System.out.println("                         directory         → class diagram; a project or");
-        System.out.println("                                             repository root works too");
-        System.out.println("                         *.java file       → sequence/exception diagram");
-        System.out.println("                         directory + --sequence-only");
-        System.out.println("                                           → multi-file stitched sequence diagram");
-        System.out.println("                         directory + --modules-only");
-        System.out.println("                                           → cross-module communication diagram,");
-        System.out.println("                                             from module-info.java if present,");
-        System.out.println("                                             otherwise from the Maven <modules> or");
-        System.out.println("                                             Gradle include(...) reactor");
-        System.out.println("                         file/dir + --state-machine");
-        System.out.println("                                           → enum-backed state transition diagram");
-        System.out.println("  --output <dir>       Output directory  (default: ./output)");
-        System.out.println("  --output-name <file> File name to write inside --output, instead of the name");
-        System.out.println("                         derived from the input (class-diagram.svg and friends).");
-        System.out.println("                         Lets several runs share one output directory. Must be a");
-        System.out.println("                         plain file name — no path separators.");
-        System.out.println("  --format <fmt>       svg (default) or json.");
-        System.out.println("                         json writes the parsed graph itself instead of a");
-        System.out.println("                         picture of it: nodes, edges, groups and layout");
-        System.out.println("                         coordinates, for feeding into your own tooling,");
-        System.out.println("                         architecture checks or renderer. The derived file");
-        System.out.println("                         name changes to .json; --output-name is used as given.");
-        System.out.println("  --sequence-only      Emit only CALLS edges (no exception-flow).");
-        System.out.println("                         When combined with a directory input, parses");
-        System.out.println("                         all .java files together using cross-file");
-        System.out.println("                         symbol resolution to stitch call graphs.");
-        System.out.println("                         Tip: point --input at the source package root");
-        System.out.println("                         (e.g. src/main/java) so the symbol solver can");
-        System.out.println("                         resolve cross-package references correctly.");
-        System.out.println("  --state-machine      Emit STATE nodes and TRANSITION edges from enum");
-        System.out.println("                         constants, switch cases, state assignments, and");
-        System.out.println("                         transition(from, to, event) calls.");
-        System.out.println("  --split-packages     Emit one diagram per package instead of one for");
-        System.out.println("                         the whole tree, mirroring the package structure");
-        System.out.println("                         under --output. Use this when a single diagram");
-        System.out.println("                         would be too large to read: a wide tree stays");
-        System.out.println("                         wide whatever --max-depth is set to, because");
-        System.out.println("                         the fan-out is horizontal, and a package is");
-        System.out.println("                         already the author's own grouping of things");
-        System.out.println("                         that belong together.");
-        System.out.println("  --include-tests      Also read test source sets (src/test, src/integrationTest,");
-        System.out.println("                         src/testFixtures, src/it, ...) when --input is a");
-        System.out.println("                         project or repository root. Off by default, so a");
-        System.out.println("                         checkout draws the code that ships. target/, build/,");
-        System.out.println("                         .git and node_modules are skipped either way.");
-        System.out.println("  --layout <engine>    Layout algorithm:  simple (default) or elk.");
-        System.out.println("                         elk uses the Eclipse Layout Kernel layered");
-        System.out.println("                         algorithm for edge-crossing minimisation and");
-        System.out.println("                         orthogonal routing (recommended for large graphs).");
-        System.out.println("  --exclude <patterns> Comma-separated wildcard patterns of classes, methods,");
-        System.out.println("                         enums (--state-machine) or modules (--modules-only) to");
-        System.out.println("                         exclude (e.g. *Test,se.deversity.codekarta.util.*,Order*Service,Map).");
-        System.out.println("                         A simple or qualified name works; * matches anywhere.");
-        System.out.println("  --max-depth <depth>  Maximum call sequence depth to parse/stitch (integer).");
-        System.out.println("  --max-members <n>    Field/method lines per class box before the rest collapse");
-        System.out.println("                         into \"…(+N more)\" (default 6). Pass 'all' or 0 to show");
-        System.out.println("                         every member — useful for a small package where the");
-        System.out.println("                         members are the point.");
-        System.out.println("  --help               Show this message");
+    private static void printUsage(java.io.PrintStream out) {
+        out.println("Usage: karta --input <path> [--output <dir>] [--output-name <file>] [--format svg|json] [--sequence-only] [--state-machine] [--modules-only] [--split-packages] [--include-tests] [--layout simple|elk] [--exclude <patterns>] [--max-depth <depth>] [--max-members <n>]");
+        out.println();
+        out.println("  --input  <path>      What to parse:");
+        out.println("                         module-info.java  → module diagram");
+        out.println("                         directory         → class diagram; a project or");
+        out.println("                                             repository root works too");
+        out.println("                         *.java file       → sequence/exception diagram");
+        out.println("                         directory + --sequence-only");
+        out.println("                                           → multi-file stitched sequence diagram");
+        out.println("                         directory + --modules-only");
+        out.println("                                           → cross-module communication diagram,");
+        out.println("                                             from module-info.java if present,");
+        out.println("                                             otherwise from the Maven <modules> or");
+        out.println("                                             Gradle include(...) reactor");
+        out.println("                         file/dir + --state-machine");
+        out.println("                                           → enum-backed state transition diagram");
+        out.println("  --output <dir>       Output directory  (default: ./output)");
+        out.println("  --output-name <file> File name to write inside --output, instead of the name");
+        out.println("                         derived from the input (class-diagram.svg and friends).");
+        out.println("                         Lets several runs share one output directory. Must be a");
+        out.println("                         plain file name — no path separators.");
+        out.println("  --format <fmt>       svg (default) or json.");
+        out.println("                         json writes the parsed graph itself instead of a");
+        out.println("                         picture of it: nodes, edges, groups and layout");
+        out.println("                         coordinates, for feeding into your own tooling,");
+        out.println("                         architecture checks or renderer. The derived file");
+        out.println("                         name changes to .json; --output-name is used as given.");
+        out.println("  --sequence-only      Emit only CALLS edges (no exception-flow).");
+        out.println("                         When combined with a directory input, parses");
+        out.println("                         all .java files together using cross-file");
+        out.println("                         symbol resolution to stitch call graphs.");
+        out.println("                         Tip: point --input at the source package root");
+        out.println("                         (e.g. src/main/java) so the symbol solver can");
+        out.println("                         resolve cross-package references correctly.");
+        out.println("  --state-machine      Emit STATE nodes and TRANSITION edges from enum");
+        out.println("                         constants, switch cases, state assignments, and");
+        out.println("                         transition(from, to, event) calls.");
+        out.println("  --split-packages     Emit one diagram per package instead of one for");
+        out.println("                         the whole tree, mirroring the package structure");
+        out.println("                         under --output. Use this when a single diagram");
+        out.println("                         would be too large to read: a wide tree stays");
+        out.println("                         wide whatever --max-depth is set to, because");
+        out.println("                         the fan-out is horizontal, and a package is");
+        out.println("                         already the author's own grouping of things");
+        out.println("                         that belong together.");
+        out.println("  --include-tests      Also read test source sets (src/test, src/integrationTest,");
+        out.println("                         src/testFixtures, src/it, ...) when --input is a");
+        out.println("                         project or repository root. Off by default, so a");
+        out.println("                         checkout draws the code that ships. target/, build/,");
+        out.println("                         .git and node_modules are skipped either way.");
+        out.println("  --layout <engine>    Layout algorithm:  simple (default) or elk.");
+        out.println("                         elk uses the Eclipse Layout Kernel layered");
+        out.println("                         algorithm for edge-crossing minimisation and");
+        out.println("                         orthogonal routing (recommended for large graphs).");
+        out.println("  --exclude <patterns> Comma-separated wildcard patterns of classes, methods,");
+        out.println("                         enums (--state-machine) or modules (--modules-only) to");
+        out.println("                         exclude (e.g. *Test,se.deversity.codekarta.util.*,Order*Service,Map).");
+        out.println("                         A simple or qualified name works; * matches anywhere.");
+        out.println("  --max-depth <depth>  Maximum call sequence depth to parse/stitch (integer).");
+        out.println("  --max-members <n>    Field/method lines per class box before the rest collapse");
+        out.println("                         into \"…(+N more)\" (default 6). Pass 'all' or 0 to show");
+        out.println("                         every member — useful for a small package where the");
+        out.println("                         members are the point.");
+        out.println("  --help               Show this message");
     }
 }
