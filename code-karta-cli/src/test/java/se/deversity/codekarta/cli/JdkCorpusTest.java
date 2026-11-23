@@ -68,9 +68,28 @@ class JdkCorpusTest {
     private static final int MIN_NODES = 110;
     private static final int MIN_EDGES = 110;
 
+    // The stitched sequence graph of SUBSET (issue #276). Measured on JDK 21: 1435 nodes and 1657
+    // calls, the same on three runs.
+    private static final int MIN_SEQUENCE_NODES = 1200;
+    private static final int MIN_SEQUENCE_EDGES = 1400;
+
     private static List<LogRecord> warnings;
     private static Graph graph;
     private static Path sources;
+
+    /**
+     * The core collections, for the slower modes (issue #276). ELK and the symbol-solving sequence
+     * parser over all 135 files cost about 19 and 37 seconds on every build; these 24 keep the
+     * shapes that matter (deep generics, abstract bases, overloads, inner iterators) for a fraction
+     * of that. Collections and Arrays are left out for their size. The full set runs weekly in the
+     * third-party corpus instead.
+     */
+    private static final List<String> SUBSET = List.of(
+            "AbstractCollection", "AbstractList", "AbstractMap", "AbstractQueue", "AbstractSequentialList",
+            "AbstractSet", "ArrayDeque", "ArrayList", "Collection", "Deque", "HashMap", "HashSet",
+            "Iterator", "LinkedHashMap", "LinkedHashSet", "LinkedList", "List", "ListIterator", "Map",
+            "NavigableMap", "Queue", "Set", "SortedMap", "TreeMap");
+    private static Path subset;
 
     @BeforeAll
     static void parseTheCorpus(@TempDir Path tempDir) throws IOException {
@@ -86,18 +105,33 @@ class JdkCorpusTest {
         sources = tempDir.resolve("corpus");
         Files.createDirectories(sources);
         extractTopLevelSources(sources);
+        subset = Files.createDirectories(tempDir.resolve("subset"));
+        for (String name : SUBSET) {
+            Files.copy(sources.resolve(name + ".java"), subset.resolve(name + ".java"));
+        }
 
         // Parsers report failure by logging rather than by throwing, so the log is the only place
         // a regression surfaces. Count records from the parser packages and nowhere else: the CLI
         // warns about oversized diagrams, and that is advice to a user, not a parse failure.
         warnings = new ArrayList<>();
-        Handler collector = new Handler() {
+        Handler collector = parserWarningsInto(warnings);
+        Logger root = Logger.getLogger("");
+        root.addHandler(collector);
+        try {
+            graph = new JavaSourceInputParser().parse(sources);
+        } finally {
+            root.removeHandler(collector);
+        }
+    }
+
+    private static Handler parserWarningsInto(List<LogRecord> sink) {
+        return new Handler() {
             @Override public void publish(LogRecord record) {
                 if (record.getLevel().intValue() >= Level.WARNING.intValue()
                         && record.getLoggerName() != null
                         && record.getLoggerName().startsWith("se.deversity.codekarta.input")) {
-                    synchronized (warnings) {
-                        warnings.add(record);
+                    synchronized (sink) {
+                        sink.add(record);
                     }
                 }
             }
@@ -106,13 +140,6 @@ class JdkCorpusTest {
 
             @Override public void close() { }
         };
-        Logger root = Logger.getLogger("");
-        root.addHandler(collector);
-        try {
-            graph = new JavaSourceInputParser().parse(sources);
-        } finally {
-            root.removeHandler(collector);
-        }
     }
 
     private static void extractTopLevelSources(Path into) throws IOException {
@@ -166,6 +193,51 @@ class JdkCorpusTest {
         assertTrue(hasNode("HashMap", "CLASS"), "HashMap is missing, or is no longer a CLASS");
         assertTrue(hasNode("Collection", "INTERFACE"),
                 "Collection is missing, or is no longer an INTERFACE");
+    }
+
+    /**
+     * The ELK engine on real source (issue #276): every node gets a position, and the SVG is the
+     * same bytes twice. The class mode used to be the only one any corpus exercised.
+     */
+    @Test
+    void theElkLayoutPlacesEveryNodeAndRendersTheSameBytes(@TempDir Path out) throws IOException {
+        RunOptions elk = new RunOptions(false, RunOptions.LAYOUT_ELK, false, java.util.Set.of(),
+                Integer.MAX_VALUE, false, null, se.deversity.codekarta.input.parser.ClassDiagramParser.DEFAULT_MAX_MEMBERS,
+                RunOptions.FORMAT_SVG, false);
+        Graph laidOut = new JavaSourceInputParser().parse(subset);
+
+        Path first = KartaCli.run(subset, out.resolve("first"), elk, laidOut);
+        Path second = KartaCli.run(subset, out.resolve("second"), elk);
+
+        assertTrue(laidOut.getNodes().stream().allMatch(n -> n.getX() != null && n.getY() != null),
+                "ELK left some of java.util's nodes without a position");
+        assertEquals(-1L, Files.mismatch(first, second), "two ELK runs over java.util gave different bytes");
+    }
+
+    /**
+     * The multi-file sequence parser and its symbol solver on real source (issue #276): nothing
+     * logged as skipped, and the stitched graph does not collapse.
+     */
+    @Test
+    void theSequenceParserSurvivesRealJdkSource() {
+        List<LogRecord> sequenceWarnings = new ArrayList<>();
+        Handler collector = parserWarningsInto(sequenceWarnings);
+        Logger root = Logger.getLogger("");
+        root.addHandler(collector);
+        Graph sequence;
+        try {
+            sequence = new se.deversity.codekarta.input.MultiFileSequenceParser().parse(subset);
+        } finally {
+            root.removeHandler(collector);
+        }
+
+        assertEquals(0, sequenceWarnings.size(), "the sequence parser logged warnings on java.util: "
+                + sequenceWarnings.stream().map(LogRecord::getMessage).distinct().limit(5).collect(Collectors.joining("; ")));
+        assertTrue(sequence.getNodes().size() >= MIN_SEQUENCE_NODES,
+                "only " + sequence.getNodes().size() + " nodes in the stitched sequence graph, expected at least "
+                        + MIN_SEQUENCE_NODES);
+        assertTrue(sequence.getEdges().size() >= MIN_SEQUENCE_EDGES,
+                "only " + sequence.getEdges().size() + " calls, expected at least " + MIN_SEQUENCE_EDGES);
     }
 
     @Test

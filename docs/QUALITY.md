@@ -38,8 +38,8 @@ because there is no ground truth for that.
 
 | | Runs | Source | Cost |
 |---|---|---|---|
-| `JdkCorpusTest` | every build | `$JAVA_HOME/lib/src.zip`, top level of `java.util` | ~9s |
-| `run-corpus.py` | weekly, and on demand | four projects pinned by commit | ~30s plus clones |
+| `JdkCorpusTest` | every build | `$JAVA_HOME/lib/src.zip`, top level of `java.util`; ELK and `--sequence-only` over a 24-file collections subset | ~35s |
+| `run-corpus.py` | weekly, and on demand | four projects pinned by commit, each in class mode plus extra modes | ~8.5 min plus clones |
 
 What they assert: the run completes, the parsers log **no** warnings, the node count clears a
 measured floor, and two runs produce byte-identical output.
@@ -49,18 +49,30 @@ nothing to download and no third-party source in this repository. The external t
 project at its pinned commit and throws it away, which is why the licences in `corpus.json` are
 recorded but do not constrain this repository: a clone is not redistribution.
 
-Measured on the pinned commits, with floors set roughly ten percent below so that re-pinning does
-not immediately fail the build:
+Every project runs in class mode, and `modes` in `corpus.json` adds the others, because each fails
+in its own way: `--sequence-only` through the symbol solver, `--state-machine` through enum and
+switch analysis, `--split-packages` through the per-package walk, `--layout elk` through ELK. Until
+2026-11-23 only class mode ran anywhere, and the first run of the others found that sequence output
+is not stable between runs on the multi-file projects (#295). Measured 2026-11-23 on the pinned
+commits, nodes summed over every file a mode writes, floors set roughly ten percent below so that
+re-pinning does not immediately fail the build:
 
-| Project | Why it is here | Nodes | Floor |
-|---|---|---|---|
-| `guava` | generics at their most brutal | 215 | 190 |
-| `jackson-databind` | deep inheritance, and already a dependency | 550 | 495 |
-| `junit5` | interface-first architecture | 183 | 165 |
-| `picocli` | one file of 19,329 lines | 2 | 2 |
+| Project | Why it is here | class | sequence | state | split | elk |
+|---|---|---|---|---|---|---|
+| `guava` | generics at their most brutal | 626 / 560 | not run (#295) | 21 / 18 | 626 / 560 | 626 / 560 |
+| `jackson-databind` | deep inheritance, and already a dependency | 826 / 740 | not run (#295) | none to find | 1158 / 1040 (36 files) | 826 / 740 |
+| `junit5` | interface-first architecture | 235 / 210 | not run (#295) | none to find | 246 / 220 (9 files) | 235 / 210 |
+| `picocli` | one file of 19,329 lines | 191 / 170 | 2078 / 1870 | 51 / 45 | not run | 191 / 170 |
 
-`picocli` earns its place on file size rather than node count: only two top-level types, in twenty
-thousand lines that no fixture comes close to.
+Each cell is measured / floor. "None to find" means the project has no state machine, so the CLI
+rightly writes nothing; "not run (#295)" is a mode left out until its output is stable. The class
+floors were 190, 495, 165 and 2 before the parsers learned the field shapes, member types and
+constructors that #265 to #271 added; they rose with the measurement, as the rule below says.
+
+`picocli` earns its place on file size: two top-level types in twenty thousand lines that no
+fixture comes close to. Its 191 class-mode nodes are almost all nested types, which the class
+parser has drawn since records, enums and nested declarations were taken in (#227). Being one
+file, it is also the one project whose `--sequence-only` output is stable today.
 
 The external tier is deliberately off the pull-request path. It is minutes of work and a pile of
 network calls, Central has rate-limited this repository once already, and nothing it finds needs

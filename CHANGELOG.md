@@ -13,6 +13,14 @@ each version heading is the complete record.
 
 ### Added
 
+- **The corpus gates cover every diagram mode.** `run-corpus.py` ran only the default class
+  diagram over the four pinned projects; `corpus.json` now gives each project extra modes with their
+  own floors (`--sequence-only`, `--state-machine`, `--split-packages`, `--layout elk`, where each
+  has something to find), each checked for exit 0, no parser warnings, its floor and byte-identical
+  reruns, and `--modes` runs a subset. `JdkCorpusTest` adds an ELK run and a `--sequence-only` run
+  over 24 core collection files on every build. The first run found that sequence output is not
+  stable between runs on the larger projects (#295); those combinations wait for the fix. Class-mode
+  floors rose to the measurement. (#276)
 - **`--format mermaid` and `--format dot`.** Mermaid text (`.mmd`) for diagrams that live in
   Markdown, where GitHub, GitLab and MkDocs draw a fenced `mermaid` block inline and a change diffs
   as text; Graphviz DOT (`.dot`) for Graphviz pipelines. The Mermaid kind follows the graph:

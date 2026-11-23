@@ -247,6 +247,45 @@ class MultiFileSequenceParserTest {
         assertTrue(graph.getGroups().isEmpty(), "multi-file sequence diagrams draw no try/catch frames");
     }
 
+    // --- deterministic overload choice (#276) ---
+
+    /**
+     * Same-arity overloads are told apart by the arguments' static types, so each call names the
+     * overload it reaches. On guava the solver's choice is not stable between runs (#276's corpus
+     * gate found it, see the issue linked there); this pins the choice where it is.
+     */
+    @Test
+    void sameArityOverloadsAreChosenByTheArgumentsStaticTypes(@TempDir Path sourceRoot) throws Exception {
+        Path pkg = Files.createDirectories(sourceRoot.resolve("p"));
+        write(pkg, "Maps.java", """
+                package p;
+                import java.util.*;
+                public class Maps {
+                    static void transform(Map<String, String> m) {}
+                    static void transform(SortedMap<String, String> m) {}
+                    static void transform(NavigableMap<String, String> m) {}
+                }
+                """);
+        write(pkg, "Caller.java", """
+                package p;
+                import java.util.*;
+                public class Caller {
+                    void plain(Map<String, String> m) { Maps.transform(m); }
+                    void sorted(SortedMap<String, String> m) { Maps.transform(m); }
+                    void navigable(TreeMap<String, String> m) { Maps.transform(m); }
+                }
+                """);
+
+        java.util.Set<String> first = callEdges(parser.parse(sourceRoot));
+        java.util.Set<String> second = callEdges(new MultiFileSequenceParser().parse(sourceRoot));
+
+        assertTrue(first.contains("p.Caller.plain -> p.Maps.transform(Map)"), first.toString());
+        assertTrue(first.contains("p.Caller.sorted -> p.Maps.transform(SortedMap)"), first.toString());
+        assertTrue(first.contains("p.Caller.navigable -> p.Maps.transform(NavigableMap)"),
+                "a TreeMap goes to the most specific overload that accepts it: " + first);
+        assertEquals(first, second, "two parses of the same sources agree");
+    }
+
     // --- method references and constructors (#271) ---
 
     @Test
