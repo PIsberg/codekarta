@@ -62,6 +62,8 @@ CHECKS = [
      kts_int_val("libraryRelease"), "build.gradle.kts libraryRelease"),
     ("jspecify", pom_managed_version("org.jspecify", "jspecify"), "pom.xml jspecify dependency",
      kts_val("jspecifyVersion"), "build.gradle.kts jspecifyVersion"),
+    ("htmlunit", pom_managed_version("org.htmlunit", "htmlunit"), "pom.xml htmlunit dependency",
+     kts_val("htmlunitVersion"), "build.gradle.kts htmlunitVersion"),
 ]
 
 failures = []

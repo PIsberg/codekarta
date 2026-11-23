@@ -61,6 +61,11 @@ each version heading is the complete record.
 
 ### Changed
 
+- **The HTML viewer is tested in a browser.** `HtmlViewerBrowserTest` opens a generated viewer
+  from a `file://` URL in headless HtmlUnit and drives it: diagram switching, search, edge-type
+  toggles, deep links, and the SVG sanitizer against a hostile diagram, with every alert collected.
+  Removing the sanitizer, or only its event-handler check, fails it. HtmlUnit 5.8.0 is a new
+  test-scope dependency of `code-karta-render`, in both builds and in the parity check. (#291)
 - **The CLI rejects arguments it does not understand, and exits 1.** An unknown flag (a misspelt
   `--sequnce-only` used to produce a class diagram), a valued flag with no value, an unknown
   `--layout` (`elkk` became `simple`) or `--format`, and a non-number for `--max-depth` or

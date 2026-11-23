@@ -19,6 +19,7 @@ own CI job rather than inside `verify`, because it is slow, not because it is op
 | Maven Invoker | [`code-karta-maven-plugin/src/it/`](../code-karta-maven-plugin/src/it/) | The plugin goal driven from real Maven builds, against the poms in [`MAVEN-PLUGIN.md`](MAVEN-PLUGIN.md) |
 | JDK corpus | [`JdkCorpusTest`](../code-karta-cli/src/test/java/se/deversity/codekarta/cli/JdkCorpusTest.java) | The pipeline over 135 files of real `java.util`, from the JDK's own `src.zip` |
 | Third-party corpus | [`corpus/corpus.json`](../corpus/corpus.json), [`run-corpus.py`](../scripts/run-corpus.py) | Four pinned projects parsed weekly by [`corpus.yml`](../.github/workflows/corpus.yml) |
+| Viewer in a browser | [`HtmlViewerBrowserTest`](../code-karta-render/src/test/java/se/deversity/codekarta/render/HtmlViewerBrowserTest.java) | The `--viewer` page driven in headless HtmlUnit from a `file://` URL: switching, search, edge toggles, deep links, and the SVG sanitizer against a hostile diagram |
 
 The ArchUnit rules are what stop the architecture from decaying quietly: the tier rule in
 [`ARCHITECTURE.md`](ARCHITECTURE.md) used to be upheld only by convention, and a fitness function

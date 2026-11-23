@@ -4,6 +4,7 @@
 val vibetagsVersion = "1.4.2"
 val jspecifyVersion = "1.0.1"
 val junitVersion = "6.1.3"
+val htmlunitVersion = "5.8.0"
 
 allprojects {
     group = "se.deversity.codekarta"
@@ -66,5 +67,12 @@ subprojects {
 
     tasks.named<Test>("test") {
         useJUnitPlatform()
+    }
+}
+
+// The HTML viewer's browser-level tests (#291). Mirrors the managed htmlunit version in pom.xml.
+project(":code-karta-render") {
+    dependencies {
+        "testImplementation"("org.htmlunit:htmlunit:$htmlunitVersion")
     }
 }
