@@ -71,6 +71,9 @@ Then grep for the version in the docs and fix what has drifted — the jar name 
 grep -rn "code-karta-cli-[0-9].*-all.jar\|SNAPSHOT" docs/ README.md
 ```
 
+For a new minor (X.Y.0), update the supported-versions table in `SECURITY.md` to `X.Y.x | Yes` and
+`< X.Y | No`. `SecurityPolicyTest` fails `mvn verify` until it does, so this is caught either way.
+
 The plugin coordinates in `docs/MAVEN-PLUGIN.md` are the one place this is already enforced:
 `PluginDescriptorTest.theDocumentedVersionIsTheVersionBeingBuilt` compares them against the
 generated descriptor, so `mvn verify` fails rather than shipping a copyable `<plugin>` block
