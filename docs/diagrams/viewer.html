@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="generator" content="code-karta">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-iHI4Yz38aPV1mt4oj61F3fR2s1pE7IHkg531FNU7jiE='; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'">
 <title>code-karta diagrams</title>
 <style>
   :root {
@@ -165,28 +166,50 @@ function highlight() {
   });
 }
 
-// A diagram is parsed as SVG and stripped of anything that could run before it is shown. The
-// diagrams code-karta renders contain nothing of the kind (their own hover script is not needed
-// here), but the viewer lists every .svg in the output directory, whoever wrote it.
+// A diagram is parsed as SVG and rebuilt from an allowlist before it is shown: only SVG drawing
+// elements survive (no script, foreignObject, animation, image or foreign-namespace element), no
+// event-handler attribute, and a URL only as a same-document #reference or an http(s) link on <a>.
+// The diagrams code-karta renders need nothing else, but the viewer lists every .svg in the output
+// directory, whoever wrote it. The page's Content-Security-Policy is the second layer: it lets only
+// this script run, so a handler or javascript: URL that got past this function still would not.
+const SVG_NS = "http://www.w3.org/2000/svg";
+const ALLOWED = new Set(["svg", "g", "defs", "style", "title", "desc", "rect", "circle", "ellipse",
+  "line", "polyline", "polygon", "path", "text", "tspan", "textPath", "a", "use", "symbol", "marker",
+  "linearGradient", "radialGradient", "stop", "pattern", "clipPath", "mask", "filter",
+  "feDropShadow", "feGaussianBlur", "feOffset", "feFlood", "feComposite", "feMerge", "feMergeNode",
+  "feBlend", "feColorMatrix"]);
+const URL_ATTRS = new Set(["href", "xlink:href", "src", "action", "formaction", "data", "to", "from",
+  "values", "by"]);
+
+function clean(el) {
+  Array.from(el.children).forEach(child => {
+    if (child.namespaceURI !== SVG_NS || !ALLOWED.has(child.localName)) {
+      child.remove();
+    } else {
+      clean(child);
+    }
+  });
+  Array.from(el.attributes).forEach(a => {
+    const name = a.name.toLowerCase();
+    const value = a.value.replace(/[\s\x00-\x1f]/g, "").toLowerCase();
+    const urlOk = value.startsWith("#")
+      || (el.localName === "a" && (value.startsWith("https:") || value.startsWith("http:")));
+    if (name.startsWith("on") || (URL_ATTRS.has(name) && !urlOk) || value.includes("javascript:")) {
+      el.removeAttribute(a.name);
+    }
+  });
+}
+
 function safeSvg(markup) {
   const doc = new DOMParser().parseFromString(markup, "image/svg+xml");
   const root = doc.documentElement;
-  if (!root || root.nodeName.toLowerCase() !== "svg") {
+  if (!root || root.namespaceURI !== SVG_NS || root.localName !== "svg") {
     const p = document.createElement("p");
     p.id = "empty";
     p.textContent = "This file is not an SVG the viewer can show.";
     return p;
   }
-  root.querySelectorAll("script, foreignObject").forEach(el => el.remove());
-  [root, ...root.querySelectorAll("*")].forEach(el => {
-    Array.from(el.attributes).forEach(a => {
-      const name = a.name.toLowerCase();
-      const value = a.value.replace(/[\s\x00-\x1f]/g, "").toLowerCase();
-      if (name.startsWith("on") || ((name === "href" || name.endsWith(":href")) && value.startsWith("javascript:"))) {
-        el.removeAttribute(a.name);
-      }
-    });
-  });
+  clean(root);
   return document.importNode(root, true);
 }
 

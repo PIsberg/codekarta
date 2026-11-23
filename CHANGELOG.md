@@ -19,8 +19,9 @@ each version heading is the complete record.
   opened from disk and offline: the hand-written viewer read sibling files, which browsers block
   over `file://`, listed six fixed diagrams, and loaded Google Fonts. `--viewer` without
   `--input` rebuilds the viewer from what `--output` holds; the Maven plugin takes
-  `<viewer>true</viewer>`. SVGs are stripped of scripts and event handlers before they are shown,
-  and links are not followed when collecting them. `docs/diagrams/viewer.html` is now generated.
+  `<viewer>true</viewer>`. Each SVG is rebuilt from an allowlist of SVG drawing elements before it
+  is shown, and a Content-Security-Policy lets only the viewer's own script (by SHA-256) run and
+  nothing load; links are not followed when collecting the SVGs. `docs/diagrams/viewer.html` is now generated.
   New library API: `HtmlViewerRenderer`, `KartaCli.writeViewer`. (#274)
 
 - **A repository root works as `--input`.** Every directory walk, for every diagram type and for

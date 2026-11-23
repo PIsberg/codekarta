@@ -33,10 +33,15 @@ block for pages opened from disk, so search and the toggles stopped working unle
 served over HTTP. It also listed six fixed diagrams and fetched its fonts from Google; this one
 lists whatever is in the directory and uses the system's fonts.
 
-Before a diagram is shown it is parsed as SVG and stripped of scripts, `foreignObject`
-elements, event-handler attributes and `javascript:` links. The diagrams code-karta renders
-carry none of these, but the viewer lists every `.svg` it finds, whoever wrote it. It reads only
-regular files inside the output directory and does not follow links.
+The viewer lists every `.svg` it finds, whoever wrote it, so a diagram is not trusted:
+
+- Before it is shown it is parsed as SVG and rebuilt from an allowlist: SVG drawing elements only
+  (no script, `foreignObject`, animation, image or foreign-namespace element), no event-handler
+  attribute, and a URL only as a same-document `#reference` or an `http(s)` link on `<a>`.
+- The page's Content-Security-Policy, `default-src 'none'` with the viewer's own script named by
+  its SHA-256, is the second layer: no other script, handler or `javascript:` URL can run, and
+  nothing can be fetched.
+- It reads only regular files inside the output directory and does not follow links.
 
 The page depends only on the diagrams, with no timestamp, so regenerating it over unchanged
 diagrams gives the same bytes. [`docs/diagrams/viewer.html`](diagrams/viewer.html) is generated

@@ -70,6 +70,29 @@ class HtmlViewerRendererTest {
         assertFalse(html.contains("<object"), "SVGs are inlined, not loaded through object elements");
     }
 
+    /**
+     * Second layer behind the in-page SVG sanitizer: the policy lets exactly the viewer's own
+     * script run, so an event handler or javascript: URL inside a diagram is refused by the browser,
+     * and nothing may be fetched.
+     */
+    @Test
+    void thePolicyAllowsOnlyTheViewersOwnScriptAndNoNetwork() throws Exception {
+        String html = renderer.render(List.of(new HtmlViewerRenderer.Diagram("d", SVG)));
+
+        Matcher csp = Pattern.compile("<meta http-equiv=\"Content-Security-Policy\" content=\"([^\"]+)\">").matcher(html);
+        assertTrue(csp.find(), "the page carries a content security policy");
+        String policy = csp.group(1);
+        String script = html.substring(html.indexOf("<script>") + 8, html.indexOf("</script>"));
+        String hash = java.util.Base64.getEncoder().encodeToString(java.security.MessageDigest.getInstance("SHA-256")
+                .digest(script.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+        assertTrue(policy.startsWith("default-src 'none'"), policy);
+        assertTrue(policy.contains("script-src 'sha256-" + hash + "'"), "the hash names this page's script");
+        assertFalse(policy.contains("unsafe-inline';") && policy.contains("script-src 'unsafe-inline'"),
+                "scripts are never allowed wholesale");
+        assertFalse(policy.contains("unsafe-eval"));
+        assertEquals(1, count(html, "<script"), "one script, the one the hash covers");
+    }
+
     @Test
     void titlesAreDataNotMarkup() {
         String html = renderer.render(List.of(new HtmlViewerRenderer.Diagram("a</script><b>\"x", SVG)));

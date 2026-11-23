@@ -36,6 +36,7 @@ public final class HtmlViewerRenderer {
 
     private static final String TEMPLATE = "viewer.html";
     private static final String PLACEHOLDER = "/*@DIAGRAMS@*/[]";
+    private static final String CSP_PLACEHOLDER = "@@CSP@@";
 
     /** The page listing {@code diagrams} in the order given. */
     public String render(List<Diagram> diagrams) {
@@ -48,7 +49,29 @@ public final class HtmlViewerRenderer {
                 .append('}');
         }
         data.append(diagrams.isEmpty() ? "]" : "\n]");
-        return template().replace(PLACEHOLDER, data.toString());
+        String page = template().replace(PLACEHOLDER, data.toString());
+        return page.replace(CSP_PLACEHOLDER, contentSecurityPolicy(page));
+    }
+
+    /**
+     * The page's policy: nothing may load from anywhere, and the one script that may run is the
+     * viewer's own, named by its SHA-256. Inline event handlers and javascript: URLs are therefore
+     * refused by the browser even if one survived the viewer's SVG sanitizer, and "works offline"
+     * is enforced rather than merely true. Styles stay inline, which the SVGs need.
+     */
+    static String contentSecurityPolicy(String page) {
+        int start = page.indexOf("<script>") + "<script>".length();
+        int end = page.indexOf("</script>", start);
+        String script = page.substring(start, end);
+        String hash;
+        try {
+            hash = java.util.Base64.getEncoder().encodeToString(java.security.MessageDigest.getInstance("SHA-256")
+                    .digest(script.getBytes(StandardCharsets.UTF_8)));
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new IllegalStateException("every Java platform provides SHA-256", e);
+        }
+        return "default-src 'none'; script-src 'sha256-" + hash + "'; style-src 'unsafe-inline'; "
+                + "img-src data:; base-uri 'none'; form-action 'none'";
     }
 
     /** Drops the XML declaration, which is not allowed inside an HTML document. */
