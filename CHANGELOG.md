@@ -23,6 +23,11 @@ each version heading is the complete record.
 
 ### Added
 
+- **`--batch <file>`: many diagrams from one JVM.** Each line of the file is one command line, run
+  in order; the batch stops at the first failing line and names it. The repository's own
+  regeneration uses it: `code-karta-cli/diagrams.txt` is now the single list of the 13 runs that
+  `mvn verify` and Gradle's `generateDiagrams` each used to copy by hand (about 230 lines of
+  exec executions and a second Kotlin list), run in one JVM instead of 13. (#279)
 - **`--version` / `-V` and `RunOptions.builder()`.** The CLI prints `code-karta <version>`, filled in at
   build time by both builds, so a bug report can say which jar it was. `RunOptions.builder()` and
   `toBuilder()` are the recommended way to construct options: a new option adds a builder method,
