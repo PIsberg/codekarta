@@ -13,7 +13,13 @@
     "minNodes is a floor measured on the pinned sha and set below it. Parsers return a partial",
     "graph instead of throwing, so a collapse in this number is what a broken parser looks like.",
     "Raise a floor when the measured number rises. Never lower one to make a red build green:",
-    "re-pin the sha instead, and say in the commit why the project got smaller."
+    "re-pin the sha instead, and say in the commit why the project got smaller.",
+    "",
+    "modes adds runs beyond the default class diagram (issue #276), each with its own floor, measured",
+    "2026-11-23 and set about ten percent below. A mode is listed only where it has something to find",
+    "and is stable: --state-machine only where the project has transitions (junit5 and jackson-databind",
+    "have none, so the CLI rightly writes nothing), and --sequence-only only for picocli, because on the",
+    "multi-file projects its output differs between runs (#295). Add those back when #295 is fixed."
   ],
   "projects": [
     {
@@ -23,7 +29,31 @@
       "sha": "d5cc108ede2f3fc4a0c512c90920000fcdcbc4a0",
       "license": "Apache-2.0",
       "path": "guava/src/com/google/common/collect",
-      "minNodes": 190
+      "minNodes": 560,
+      "modes": [
+        {
+          "name": "state",
+          "args": [
+            "--state-machine"
+          ],
+          "minNodes": 18
+        },
+        {
+          "name": "split",
+          "args": [
+            "--split-packages"
+          ],
+          "minNodes": 560
+        },
+        {
+          "name": "elk",
+          "args": [
+            "--layout",
+            "elk"
+          ],
+          "minNodes": 560
+        }
+      ]
     },
     {
       "name": "picocli",
@@ -32,7 +62,31 @@
       "sha": "10509c0af89aa3254ca14ba90d9b3b7168e57994",
       "license": "Apache-2.0",
       "path": "src/main/java/picocli",
-      "minNodes": 2
+      "minNodes": 170,
+      "modes": [
+        {
+          "name": "sequence",
+          "args": [
+            "--sequence-only"
+          ],
+          "minNodes": 1870
+        },
+        {
+          "name": "state",
+          "args": [
+            "--state-machine"
+          ],
+          "minNodes": 45
+        },
+        {
+          "name": "elk",
+          "args": [
+            "--layout",
+            "elk"
+          ],
+          "minNodes": 170
+        }
+      ]
     },
     {
       "name": "junit5",
@@ -41,7 +95,24 @@
       "sha": "9cd9a3cfb6cd98aec355bd49fc8d801058762441",
       "license": "EPL-2.0",
       "path": "junit-jupiter-api/src/main/java/org/junit/jupiter/api",
-      "minNodes": 165
+      "minNodes": 210,
+      "modes": [
+        {
+          "name": "split",
+          "args": [
+            "--split-packages"
+          ],
+          "minNodes": 220
+        },
+        {
+          "name": "elk",
+          "args": [
+            "--layout",
+            "elk"
+          ],
+          "minNodes": 210
+        }
+      ]
     },
     {
       "name": "jackson-databind",
@@ -50,7 +121,24 @@
       "sha": "e82178d19415dddce37ede95c125b70b20561954",
       "license": "Apache-2.0",
       "path": "src/main/java/tools/jackson/databind",
-      "minNodes": 495
+      "minNodes": 740,
+      "modes": [
+        {
+          "name": "split",
+          "args": [
+            "--split-packages"
+          ],
+          "minNodes": 1040
+        },
+        {
+          "name": "elk",
+          "args": [
+            "--layout",
+            "elk"
+          ],
+          "minNodes": 740
+        }
+      ]
     }
   ]
 }
