@@ -160,7 +160,7 @@ Rendering behavior:
 | `Group` entries | Renders bounding regions |
 | Missing node coordinates | Skips those nodes safely |
 
-`SequenceDiagramRenderer` derives participant lanes from method node IDs and ignores node coordinates, so `KartaCli` skips layout for an interaction graph rendered to SVG (not for `--format json`, which carries coordinates). It renders ordered messages, self-calls, activation bars, exception propagation arrows, and try/catch frames when present. A frame encloses the calls its `owner` method makes to the group's members; a group without an owner falls back to every call to them.
+`SequenceDiagramRenderer` derives participant lanes from method node IDs and ignores node coordinates, so `KartaCli` skips layout for an interaction graph rendered to SVG (not for `--format json`, which carries coordinates). `MermaidRenderer` and `DotRenderer` (`--format mermaid|dot`) write diagram source text and never need layout. It renders ordered messages, self-calls, activation bars, exception propagation arrows, and try/catch frames when present. A frame encloses the calls its `owner` method makes to the group's members; a group without an owner falls back to every call to them.
 
 ### Svg Interactive Capabilities
 `HtmlViewerRenderer` builds the single-page diagram viewer (`viewer.html`, written by `--viewer`) from a list of rendered SVGs, embedding each as data so the page works from disk; see [`VIEWER.md`](VIEWER.md). It relies on structured markup in every rendered SVG:

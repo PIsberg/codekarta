@@ -27,10 +27,12 @@ import java.util.Set;
  *                       directory is rejected rather than followed.
  * @param maxMembers     compartment lines kept per class before "…(+N more)";
  *                       {@link ClassDiagramParser#UNLIMITED_MEMBERS} keeps all of them
- * @param format         {@code "svg"} or {@code "json"}. {@code "json"} writes the graph itself
- *                       rather than a picture of it, for a consumer that wants to run its own
- *                       checks over the analysis. Layout still runs, so the JSON carries
- *                       coordinates. Defaults to {@code "svg"} when {@code null}.
+ * @param format         {@code "svg"}, {@code "json"}, {@code "mermaid"} or {@code "dot"}.
+ *                       {@code "json"} writes the graph itself rather than a picture of it, for a
+ *                       consumer that wants to run its own checks over the analysis; layout still
+ *                       runs, so the JSON carries coordinates. {@code "mermaid"} and {@code "dot"}
+ *                       write diagram source text for Markdown and Graphviz, without layout.
+ *                       Defaults to {@code "svg"} when {@code null}.
  * @param includeTests   read test source sets ({@code src/test}, {@code src/integrationTest},
  *                       ...) when the input is a project or repository root. Off by default, so
  *                       pointing the CLI at a checkout draws the code that ships. Build output,
@@ -59,6 +61,12 @@ public record RunOptions(
     /** Writes the IR as JSON instead of an SVG. See {@code JsonRenderer}. */
     public static final String FORMAT_JSON = "json";
 
+    /** Writes Mermaid diagram text for Markdown. See {@code MermaidRenderer}. */
+    public static final String FORMAT_MERMAID = "mermaid";
+
+    /** Writes Graphviz DOT. See {@code DotRenderer}. */
+    public static final String FORMAT_DOT = "dot";
+
     /** The default layout: the pure-Java BFS grid. */
     public static final String LAYOUT_SIMPLE = "simple";
 
@@ -72,19 +80,24 @@ public record RunOptions(
      * library callers alike.
      *
      * @throws IllegalArgumentException for a layout other than {@code simple}/{@code elk} or a
-     *                                  format other than {@code svg}/{@code json}
+     *                                  format other than {@code svg}/{@code json}/{@code mermaid}/{@code dot}
      */
     public RunOptions {
         layout = oneOf("layout", layout == null ? LAYOUT_SIMPLE : layout, LAYOUT_SIMPLE, LAYOUT_ELK);
         customExcludes = customExcludes == null ? Collections.emptySet() : Set.copyOf(customExcludes);
-        format = oneOf("format", format == null ? FORMAT_SVG : format, FORMAT_SVG, FORMAT_JSON);
+        format = oneOf("format", format == null ? FORMAT_SVG : format,
+                FORMAT_SVG, FORMAT_JSON, FORMAT_MERMAID, FORMAT_DOT);
     }
 
-    private static String oneOf(String name, String value, String first, String second) {
+    private static String oneOf(String name, String value, String... allowed) {
         String lower = value.toLowerCase(java.util.Locale.ROOT);
-        if (!lower.equals(first) && !lower.equals(second)) {
-            throw new IllegalArgumentException(name + " must be '" + first + "' or '" + second
-                    + "', got '" + value + "'.");
+        if (!java.util.List.of(allowed).contains(lower)) {
+            StringBuilder names = new StringBuilder();
+            for (int i = 0; i < allowed.length; i++) {
+                names.append(i == 0 ? "" : i == allowed.length - 1 ? " or " : ", ")
+                     .append('\'').append(allowed[i]).append('\'');
+            }
+            throw new IllegalArgumentException(name + " must be " + names + ", got '" + value + "'.");
         }
         return lower;
     }
@@ -120,6 +133,11 @@ public record RunOptions(
         return FORMAT_JSON.equalsIgnoreCase(format);
     }
 
+    /** @return true for the diagram-source formats, Mermaid and DOT, which carry no coordinates */
+    public boolean isText() {
+        return FORMAT_MERMAID.equals(format) || FORMAT_DOT.equals(format);
+    }
+
     /**
      * The pipeline as it runs with no flags at all: class diagram, simple layout, capped members,
      * production sources only.
@@ -136,7 +154,7 @@ public record RunOptions(
     }
 
     /**
-     * @param newFormat {@link #FORMAT_SVG} or {@link #FORMAT_JSON}
+     * @param newFormat {@link #FORMAT_SVG}, {@link #FORMAT_JSON}, {@link #FORMAT_MERMAID} or {@link #FORMAT_DOT}
      * @return a copy of these options with the format replaced
      */
     public RunOptions withFormat(String newFormat) {

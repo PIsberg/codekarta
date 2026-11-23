@@ -380,7 +380,8 @@ public class KartaCli {
         // A sequence SVG computes its own geometry and ignores node coordinates, so laying it out
         // (ELK layered layout, with --layout elk) was work thrown away. JSON documents the
         // coordinates, so it is still laid out (issue #272).
-        if (options.isJson() || !new SvgRenderer().isInteractionGraph(graph)) {
+        // Mermaid and DOT carry no coordinates at all; their own tools lay them out (issue #275).
+        if (!options.isText() && (options.isJson() || !new SvgRenderer().isInteractionGraph(graph))) {
             resolveLayout(options.layout()).layout(graph);
         }
 
@@ -406,16 +407,18 @@ public class KartaCli {
         // Layout has already run either way, so the JSON carries coordinates. That is deliberate:
         // a consumer feeding this into its own renderer wants them, and one running architecture
         // checks over the graph can ignore them.
-        boolean json = options.isJson();
-        String rendered = json
-                ? new JsonRenderer().render(graph)
-                : new SvgRenderer().render(graph);
+        String rendered = switch (options.format()) {
+            case RunOptions.FORMAT_JSON -> new JsonRenderer().render(graph);
+            case RunOptions.FORMAT_MERMAID -> new se.deversity.codekarta.render.MermaidRenderer().render(graph);
+            case RunOptions.FORMAT_DOT -> new se.deversity.codekarta.render.DotRenderer().render(graph);
+            default -> new SvgRenderer().render(graph);
+        };
 
         state = PipelineStage.WRITING;
         Path outputFile = resolveOutputFile(inputPath, outputDir, options);
         writeInsideOutputDir(outputFile, rendered);
 
-        if (!json) {
+        if (RunOptions.FORMAT_SVG.equals(options.format())) {
             warnIfOversized(rendered, graph, outputFile);
         }
 
@@ -518,12 +521,18 @@ public class KartaCli {
      * because a caller who names the file has already decided what to call it.
      */
     static String withFormatExtension(String derivedName, RunOptions options) {
-        if (!options.isJson()) {
+        String extension = switch (options.format()) {
+            case RunOptions.FORMAT_JSON -> ".json";
+            case RunOptions.FORMAT_MERMAID -> ".mmd";
+            case RunOptions.FORMAT_DOT -> ".dot";
+            default -> null;
+        };
+        if (extension == null) {
             return derivedName;
         }
         return derivedName.endsWith(".svg")
-                ? derivedName.substring(0, derivedName.length() - 4) + ".json"
-                : derivedName + ".json";
+                ? derivedName.substring(0, derivedName.length() - 4) + extension
+                : derivedName + extension;
     }
 
     /**
@@ -684,7 +693,7 @@ public class KartaCli {
     }
 
     private static void printUsage(java.io.PrintStream out) {
-        out.println("Usage: karta --input <path> [--output <dir>] [--output-name <file>] [--format svg|json] [--sequence-only] [--state-machine] [--modules-only] [--split-packages] [--include-tests] [--viewer] [--layout simple|elk] [--exclude <patterns>] [--max-depth <depth>] [--max-members <n>]");
+        out.println("Usage: karta --input <path> [--output <dir>] [--output-name <file>] [--format svg|json|mermaid|dot] [--sequence-only] [--state-machine] [--modules-only] [--split-packages] [--include-tests] [--viewer] [--layout simple|elk] [--exclude <patterns>] [--max-depth <depth>] [--max-members <n>]");
         out.println();
         out.println("  --input  <path>      What to parse:");
         out.println("                         module-info.java  → module diagram");
@@ -705,12 +714,15 @@ public class KartaCli {
         out.println("                         derived from the input (class-diagram.svg and friends).");
         out.println("                         Lets several runs share one output directory. Must be a");
         out.println("                         plain file name — no path separators.");
-        out.println("  --format <fmt>       svg (default) or json.");
+        out.println("  --format <fmt>       svg (default), json, mermaid or dot.");
         out.println("                         json writes the parsed graph itself instead of a");
         out.println("                         picture of it: nodes, edges, groups and layout");
         out.println("                         coordinates, for feeding into your own tooling,");
         out.println("                         architecture checks or renderer. The derived file");
         out.println("                         name changes to .json; --output-name is used as given.");
+        out.println("                         mermaid writes a Mermaid diagram (.mmd) to paste into");
+        out.println("                         Markdown; dot writes Graphviz DOT (.dot). Both are text,");
+        out.println("                         unlaid-out: Mermaid or Graphviz does the layout.");
         out.println("  --sequence-only      Emit only CALLS edges (no exception-flow).");
         out.println("                         When combined with a directory input, parses");
         out.println("                         all .java files together using cross-file");

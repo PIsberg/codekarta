@@ -71,5 +71,5 @@ Detailed per-element guardrails live in scoped rule files that Gemini CLI does n
 - `se.deversity.codekarta.input`: `InputParser`, `JavaSourceInputParser`, `MultiFileSequenceParser`
 - `se.deversity.codekarta.input.parser`: `BuildReactorParser`, `CallSequenceParser`, `ClassDiagramParser`, `ExceptionFlowParser`, `FilterMatcher`, `MethodIds`, `ModuleInfoParser`, `ParserSupport`, `SequenceFilterUtil`, `SingleFileCallees`, `SourceTree`, `StateMachineParser`
 - `se.deversity.codekarta.layout`: `ElkLayoutEngine`, `LayoutEngine`, `RenderedSize`, `SimpleLayoutEngine`
-- `se.deversity.codekarta.render`: `HtmlViewerRenderer`, `JsonRenderer`, `SequenceDiagramRenderer`, `SvgRenderer`
+- `se.deversity.codekarta.render`: `DotRenderer`, `HtmlViewerRenderer`, `JsonRenderer`, `MermaidRenderer`, `SequenceDiagramRenderer`, `SvgRenderer`
 <!-- VIBETAGS-END -->
