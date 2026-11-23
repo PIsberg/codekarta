@@ -270,6 +270,23 @@ class ExceptionFlowParserTest {
                 "overload delegation is not a self-call");
     }
 
+    /** The renderer scopes a frame to the method holding the try block, so the group must name it (#267). */
+    @Test
+    void aCatchBoundaryGroupNamesTheMethodThatOwnsTheTryBlock(@TempDir Path dir) throws Exception {
+        Graph graph = parser.parse(write(dir, "Svc.java", """
+                public class Svc {
+                    void guarded() {
+                        try { helper(); } catch (IllegalStateException e) { }
+                    }
+                    void plain() { helper(); }
+                    void helper() { }
+                }
+                """));
+
+        assertEquals(1, graph.getGroups().size());
+        assertEquals("Svc.guarded", graph.getGroups().get(0).getProperties().get(Group.OWNER_PROPERTY));
+    }
+
     /** The catch-boundary resolver must name the overload the call reaches, not a merged id. */
     @Test
     void aTryBlockCallingAnOverloadNamesThatOverload(@TempDir Path dir) throws Exception {

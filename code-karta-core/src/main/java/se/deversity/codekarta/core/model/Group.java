@@ -31,6 +31,13 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Group {
 
+    /**
+     * {@link #getProperties() Property} naming the METHOD node whose {@code try} block a
+     * try/catch frame encloses. The sequence renderer draws such a frame around the calls that
+     * method makes to the members, not around every call to them from anywhere.
+     */
+    public static final String OWNER_PROPERTY = "owner";
+
     private String id;
     private String label;
     private List<String> memberIds;

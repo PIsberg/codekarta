@@ -3,6 +3,7 @@ package se.deversity.codekarta.input.parser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.stmt.TryStmt;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import se.deversity.codekarta.core.model.Edge;
 import se.deversity.codekarta.core.model.EdgeType;
@@ -146,7 +147,7 @@ public class ExceptionFlowParser {
                     }, null);
 
                     // Walk for try-catch → catch-boundary groups
-                    ParserSupport.addCatchBoundaryGroups(graph, method, methodId, call -> {
+                    addCatchBoundaryGroups(graph, method, methodId, call -> {
                         String cname = call.getNameAsString();
                         if (call.getScope().isPresent()) {
                             if (SequenceFilterUtil.shouldSkipScopedCall(cname)) {
@@ -198,5 +199,43 @@ public class ExceptionFlowParser {
             log.warning("Failed to parse " + sourceFile + ": " + e.getMessage());
         }
         return graph;
+    }
+
+    /**
+     * Adds one catch-boundary {@link Group} per try-statement in {@code method}, with a member per
+     * call inside the try block, and the method itself as {@link Group#OWNER_PROPERTY}. Without
+     * the owner the renderer could only select messages by callee, and a frame stretched over
+     * every call to a shared helper from anywhere in the diagram (issue #267).
+     * {@code calleeResolver} maps a call to its node id, or returns {@code null} to skip it.
+     */
+    private static void addCatchBoundaryGroups(Graph graph, MethodDeclaration method, String methodId,
+            java.util.function.Function<MethodCallExpr, String> calleeResolver) {
+        int[] tryIdx = { 0 };
+        method.findAll(TryStmt.class).forEach(tryStmt -> {
+            String catchTypes = tryStmt.getCatchClauses().stream()
+                    .map(c -> c.getParameter().getType().asString())
+                    .reduce((a, b) -> a + ", " + b)
+                    .orElse("Exception");
+
+            Group group = new Group(
+                    "catch-boundary-" + methodId + "-" + tryIdx[0]++,
+                    "catch(" + catchTypes + ")");
+            group.getProperties().put(Group.OWNER_PROPERTY, methodId);
+
+            tryStmt.getTryBlock().findAll(MethodCallExpr.class).forEach(call -> {
+                String callee = calleeResolver.apply(call);
+                // Only reference nodes the parser already accepted — creating nodes here would
+                // bypass its project/stdlib filters and leak JDK types or raw variable names into
+                // the diagram as participants.
+                if (callee == null || graph.findNode(callee) == null) {
+                    return;
+                }
+                group.addMember(callee);
+            });
+
+            if (!group.getMemberIds().isEmpty()) {
+                graph.addGroup(group);
+            }
+        });
     }
 }

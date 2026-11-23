@@ -227,6 +227,26 @@ class MultiFileSequenceParserTest {
         assertNotNull(graph.findNode("Status"), "an enum is a participant");
     }
 
+    /**
+     * The class javadoc and @AIContext both say catch-boundary groups belong to
+     * ExceptionFlowParser, and --sequence-only on a directory added them anyway (#267).
+     */
+    @Test
+    void stitchedSequencesCarryNoCatchBoundaryGroups(@TempDir Path sourceRoot) throws Exception {
+        write(sourceRoot, "Svc.java", """
+                public class Svc {
+                    void guarded() {
+                        try { helper(); } catch (IllegalStateException e) { }
+                    }
+                    void helper() { }
+                }
+                """);
+
+        Graph graph = parser.parse(sourceRoot);
+
+        assertTrue(graph.getGroups().isEmpty(), "multi-file sequence diagrams draw no try/catch frames");
+    }
+
     // --- nested types, anonymous classes and overloads (#265) ---
 
     @Test

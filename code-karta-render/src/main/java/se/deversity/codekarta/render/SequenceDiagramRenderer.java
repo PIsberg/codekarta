@@ -344,8 +344,14 @@ class SequenceDiagramRenderer {
     private String renderFrame(Group group, List<Message> messages,
                                 List<Participant> participants, double diagramY) {
         Set<String> memberIds = new HashSet<>(group.getMemberIds());
+        // A try/catch frame names the method holding the try block. Only its calls belong in the
+        // frame: selecting by callee alone pulled in every call to a shared helper from anywhere,
+        // and frames grew to 10,000px across unrelated classes (issue #267). A group without an
+        // owner, such as one from an older JSON file, keeps the callee-only selection.
+        String owner = group.getProperties() == null ? null : group.getProperties().get(Group.OWNER_PROPERTY);
         List<Message> memberMsgs = messages.stream()
                 .filter(m -> memberIds.contains(m.toId))
+                .filter(m -> owner == null || owner.equals(m.fromId))
                 .toList();
         if (memberMsgs.isEmpty()) return "";
 

@@ -154,6 +154,51 @@ class SequenceDiagramRendererTest {
         assertTrue(svg.contains("catch(ServiceException)"), "try/catch label must appear");
     }
 
+    /**
+     * A frame records the callees invoked inside one method's try block. Selecting every message
+     * to those callees, from anywhere, stretched frames across unrelated methods whenever a
+     * shared helper was involved: 10,118px-tall frames in docs/diagrams/sequence-diagram.svg (#267).
+     */
+    @Test
+    void aCatchFrameSpansOnlyTheCallsMadeByItsOwningMethod() {
+        double guardedOnly = frameHeight(renderer.render(sharedHelperGraph(false)));
+        double withUnguardedCaller = frameHeight(renderer.render(sharedHelperGraph(true)));
+
+        assertEquals(guardedOnly, withUnguardedCaller,
+                "another method calling the same helper outside any try block must not stretch the frame");
+    }
+
+    private static Graph sharedHelperGraph(boolean withUnguardedCaller) {
+        Graph graph = new Graph();
+        graph.addNode(new Node("X.guarded", "METHOD", "guarded"));
+        graph.addNode(new Node("Y.helper", "METHOD", "helper"));
+        graph.addNode(new Node("Y.other", "METHOD", "other"));
+        Edge guarded = new Edge("e1", "X.guarded", "Y.helper", "CALLS");
+        guarded.setLabel("1");
+        graph.addEdge(guarded);
+        Edge after = new Edge("e2", "X.guarded", "Y.other", "CALLS");
+        after.setLabel("2");
+        graph.addEdge(after);
+        if (withUnguardedCaller) {
+            graph.addNode(new Node("Z.plain", "METHOD", "plain"));
+            Edge plain = new Edge("e3", "Z.plain", "Y.helper", "CALLS");
+            plain.setLabel("1");
+            graph.addEdge(plain);
+        }
+        Group frame = new Group("catch-boundary-X.guarded-0", "catch(IOException)");
+        frame.addMember("Y.helper");
+        frame.getProperties().put(Group.OWNER_PROPERTY, "X.guarded");
+        graph.addGroup(frame);
+        return graph;
+    }
+
+    private static double frameHeight(String svg) {
+        java.util.regex.Matcher m = java.util.regex.Pattern
+                .compile("class=\"group-rect\"[^>]*height=\"([0-9.]+)\"").matcher(svg);
+        assertTrue(m.find(), "a frame must be drawn");
+        return Double.parseDouble(m.group(1));
+    }
+
     @Test
     void rendersExceptionArrowWithRedColor() {
         Graph graph = twoMethodGraph();

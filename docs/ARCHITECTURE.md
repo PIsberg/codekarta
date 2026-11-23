@@ -45,7 +45,7 @@ The dependency rule is strict: lower-level modules do not depend on higher-level
 | `Graph` | Container for `nodes`, `edges`, and `groups`; includes helpers such as `addNodeIfAbsent` and `findNode`. |
 | `Node` | A vertex with `id`, `type`, `label`, optional layout fields, and optional `properties`. |
 | `Edge` | Directed relationship with `id`, `sourceId`, `targetId`, `type`, and optional `label`. |
-| `Group` | Named cluster of node IDs, used for module/package boundaries and try/catch regions. |
+| `Group` | Named cluster of node IDs, used for module/package boundaries and try/catch regions. A try/catch group sets `properties.owner` to the METHOD holding the `try` block (`Group.OWNER_PROPERTY`). |
 | `NodeDimensions` | Central default dimensions used by layout/render code. |
 
 Jackson omits null fields with `@JsonInclude(NON_NULL)`, so raw parser output stays compact until layout coordinates are assigned.
@@ -158,7 +158,7 @@ Rendering behavior:
 | `Group` entries | Renders bounding regions |
 | Missing node coordinates | Skips those nodes safely |
 
-`SequenceDiagramRenderer` derives participant lanes from method node IDs, renders ordered messages, self-calls, activation bars, exception propagation arrows, and try/catch frames when present.
+`SequenceDiagramRenderer` derives participant lanes from method node IDs, renders ordered messages, self-calls, activation bars, exception propagation arrows, and try/catch frames when present. A frame encloses the calls its `owner` method makes to the group's members; a group without an owner falls back to every call to them.
 
 ### Svg Interactive Capabilities
 To support the single-page diagram viewer (`viewer.html`), the rendered SVG embeds structured markup:
