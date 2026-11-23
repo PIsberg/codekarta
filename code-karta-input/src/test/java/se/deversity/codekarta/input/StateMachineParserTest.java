@@ -15,6 +15,87 @@ class StateMachineParserTest {
 
     private final StateMachineParser parser = new StateMachineParser();
 
+    // --- arrow-rule switch expressions (#269) ---
+
+    /**
+     * {@code case NEW -> OrderStatus.PAID;} in a switch expression is an expression entry, not a
+     * return, yield or assignment, so the idiomatic Java 14+ transition table drew nothing and the
+     * CLI declined the diagram.
+     */
+    @Test
+    void returnSwitchArrowRulesAreTransitions(@TempDir Path dir) throws Exception {
+        Path source = dir.resolve("Flow.java");
+        Files.writeString(source, """
+                public class Flow {
+                    enum OrderStatus { NEW, PAID, SHIPPED, DELIVERED }
+                    OrderStatus next(OrderStatus current) {
+                        return switch (current) {
+                            case NEW -> OrderStatus.PAID;
+                            case PAID -> OrderStatus.SHIPPED;
+                            case SHIPPED, DELIVERED -> OrderStatus.DELIVERED;
+                        };
+                    }
+                }
+                """);
+
+        assertEquals(java.util.Set.of("NEW->PAID", "PAID->SHIPPED", "SHIPPED->DELIVERED", "DELIVERED->DELIVERED"),
+                transitions(parser.parse(source)));
+    }
+
+    @Test
+    void assignedSwitchArrowRulesAreTransitionsIncludingBothTernaryBranches(@TempDir Path dir) throws Exception {
+        Path source = dir.resolve("Flow.java");
+        Files.writeString(source, """
+                public class Flow {
+                    enum State { NEW, PAID, SHIPPED, CANCELLED }
+                    private State state = State.NEW;
+                    void advance(boolean paid) {
+                        state = switch (state) {
+                            case NEW -> paid ? State.PAID : State.CANCELLED;
+                            case PAID -> State.SHIPPED;
+                            default -> state;
+                        };
+                    }
+                }
+                """);
+
+        assertEquals(java.util.Set.of("NEW->PAID", "NEW->CANCELLED", "PAID->SHIPPED"),
+                transitions(parser.parse(source)));
+    }
+
+    /** Inside the enum itself the arrow results are bare constants. */
+    @Test
+    void bareConstantsInAnEnumsOwnSwitchExpressionAreTransitions(@TempDir Path dir) throws Exception {
+        Path source = dir.resolve("Light.java");
+        Files.writeString(source, """
+                public enum Light {
+                    RED, GREEN, YELLOW;
+                    Light next() {
+                        return switch (this) {
+                            case RED -> GREEN;
+                            case GREEN -> YELLOW;
+                            case YELLOW -> RED;
+                        };
+                    }
+                }
+                """);
+
+        assertEquals(java.util.Set.of("RED->GREEN", "GREEN->YELLOW", "YELLOW->RED"),
+                transitions(parser.parse(source)));
+    }
+
+    /** Source and target constants of every TRANSITION edge, as "FROM->TO". */
+    private static java.util.Set<String> transitions(Graph graph) {
+        return graph.getEdges().stream()
+                .filter(e -> "TRANSITION".equals(e.getType()))
+                .map(e -> constant(e.getSourceId()) + "->" + constant(e.getTargetId()))
+                .collect(java.util.stream.Collectors.toSet());
+    }
+
+    private static String constant(String stateId) {
+        return stateId.substring(stateId.lastIndexOf('.') + 1);
+    }
+
     /** --exclude was never handed to this parser, so --state-machine ignored it (#266). */
     @Test
     void anExcludedEnumContributesNoStatesOrTransitions(@TempDir Path dir) throws Exception {

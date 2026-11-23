@@ -57,6 +57,11 @@ each version heading is the complete record.
 
 ### Fixed
 
+- **`--state-machine` reads switch-expression arrow rules.** `return switch (s) { case NEW ->
+  Status.PAID; ... }` and `s = switch (s) { ... }`, the idiomatic Java 14+ transition table,
+  produced no transitions: the rule's value is neither a return, a yield nor an assignment, so the
+  CLI declined the diagram with "No state transitions found". Arrow rules of a switch expression
+  are now transitions, both branches of a `?:` result included. (#269)
 - **Single-file sequence diagrams name receivers by type.** `CallSequenceParser` and
   `ExceptionFlowParser` used a variable's name as the receiver of a call on it, so
   `requested.isBlank()` and `matcher.find()` drew lifelines called `requested` and `matcher`
