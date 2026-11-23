@@ -63,6 +63,55 @@ class GenerateMojoTest {
         assertTrue(Files.readString(out.resolve("graph.json")).contains("nodes"));
     }
 
+    // --- per-diagram booleans override the goal level both ways (#277) ---
+
+    /**
+     * Diagram's flags were primitive booleans, so an unset one and an explicit false looked the
+     * same and were OR-ed with the goal level: a per-diagram false could not cancel a goal-level
+     * true. Unset now inherits; set wins, either way.
+     */
+    @Test
+    void aDiagramFlagSetToFalseOverridesTheGoalLevelAndAnUnsetOneInherits(@TempDir Path in, @TempDir Path out) {
+        GenerateMojo mojo = mojo(in, out, "jar");
+        mojo.setStateMachine(true);
+        mojo.setSequenceOnly(true);
+        mojo.setIncludeTests(true);
+        mojo.setModulesOnly(true);
+
+        Diagram overriding = new Diagram();
+        overriding.setStateMachine(false);
+        overriding.setSequenceOnly(false);
+        overriding.setIncludeTests(false);
+        overriding.setModulesOnly(false);
+        RunOptions overridden = mojo.toRunOptions(overriding);
+
+        RunOptions inherited = mojo.toRunOptions(new Diagram());
+
+        assertFalse(overridden.stateMachine(), "an explicit false wins over a goal-level true");
+        assertFalse(overridden.sequenceOnly());
+        assertFalse(overridden.includeTests());
+        assertFalse(overridden.modulesOnly());
+        assertTrue(inherited.stateMachine(), "an unset flag inherits the goal level");
+        assertTrue(inherited.sequenceOnly());
+        assertTrue(inherited.includeTests());
+        assertTrue(inherited.modulesOnly());
+    }
+
+    @Test
+    void aDiagramCanSwitchSplitPackagesOffWhenTheGoalTurnsItOn(@TempDir Path in, @TempDir Path out) throws Exception {
+        writeSources(in.resolve("com/example/a"));
+        GenerateMojo mojo = mojo(in, out, "jar");
+        mojo.setSplitPackages(true);
+        Diagram whole = new Diagram();
+        whole.setSplitPackages(false);
+        whole.setOutputName("whole.svg");
+        mojo.setDiagrams(List.of(whole));
+
+        mojo.execute();
+
+        assertTrue(Files.exists(out.resolve("whole.svg")), "the diagram ran unsplit, under its own name");
+    }
+
     /** viewer writes one page over everything the execution drew into outputDirectory (#274). */
     @Test
     void viewerIndexesTheDiagramsOfTheExecution(@TempDir Path in, @TempDir Path out) throws Exception {

@@ -274,6 +274,58 @@ class BuildReactorParserTest {
         assertTrue(hasEdge(graph, "beta", "alpha", "REQUIRES"));
     }
 
+    // --- modern reactor constructs (#277) ---
+
+    /**
+     * Gradle's type-safe project accessors name a project by its camel-cased path:
+     * include("core-model") is projects.coreModel and :libs:util is projects.libs.util. Only the
+     * string form project(":x") used to count, so a build on accessors drew no REQUIRES at all.
+     */
+    @Test
+    void typeSafeProjectAccessorsBecomeRequires(@TempDir Path root) throws IOException {
+        Files.writeString(root.resolve("settings.gradle.kts"),
+                "rootProject.name = \"demo\"\n"
+              + "include(\"core-model\", \"app\", \":libs:string_utils\")\n");
+        Files.createDirectories(root.resolve("core-model"));
+        Files.writeString(root.resolve("core-model/build.gradle.kts"), "plugins { java }\n");
+        Files.createDirectories(root.resolve("libs/string_utils"));
+        Files.writeString(root.resolve("libs/string_utils/build.gradle.kts"), "plugins { java }\n");
+        Files.createDirectories(root.resolve("app"));
+        Files.writeString(root.resolve("app/build.gradle.kts"), """
+                dependencies {
+                    implementation(projects.coreModel)
+                    implementation(projects.libs.stringUtils)
+                }
+                """);
+
+        Graph graph = parser.parse(root);
+
+        assertTrue(hasEdge(graph, "app", "core-model", "REQUIRES"), "projects.coreModel is core-model");
+        assertTrue(hasEdge(graph, "app", "string_utils", "REQUIRES"), "projects.libs.stringUtils is :libs:string_utils");
+    }
+
+    /** A module declared only inside a <profile> is still part of the reactor when that profile is active. */
+    @Test
+    void mavenModulesDeclaredInProfilesAreModules(@TempDir Path root) throws IOException {
+        Files.createDirectories(root);
+        Files.writeString(root.resolve("pom.xml"), """
+                <project><artifactId>parent</artifactId>
+                  <modules><module>alpha</module></modules>
+                  <profiles>
+                    <profile><id>extra</id><modules><module>beta</module></modules></profile>
+                  </profiles>
+                </project>
+                """);
+        writeModulePom(root.resolve("alpha"), "alpha");
+        writeModulePom(root.resolve("beta"), "beta", "alpha");
+
+        Graph graph = parser.parse(root);
+
+        assertEquals(Set.of("parent", "alpha", "beta"), ids(graph));
+        assertTrue(hasEdge(graph, "parent", "beta", "HAS"));
+        assertTrue(hasEdge(graph, "beta", "alpha", "REQUIRES"));
+    }
+
     @Test
     void includeBuildIsNotAnInclude(@TempDir Path root) throws IOException {
         Files.writeString(root.resolve("settings.gradle.kts"),

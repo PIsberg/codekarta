@@ -99,6 +99,14 @@ each version heading is the complete record.
 
 ### Fixed
 
+- **A Maven `<diagram>` can switch a goal-level flag off.** `Diagram`'s flags were primitive
+  booleans OR-ed with the goal level, so `<stateMachine>false</stateMachine>` in a `<diagram>` could
+  not cancel a goal-level `true`. They are now unset-or-set: unset inherits, set wins either way, for
+  `sequenceOnly`, `stateMachine`, `modulesOnly`, `splitPackages` and `includeTests`. `Diagram`'s
+  getters for them are now `getX()` returning a nullable `Boolean`. (#277)
+- **`--modules-only` reads type-safe Gradle accessors and Maven profile modules.** A Gradle build
+  using `implementation(projects.coreModel)` drew no `REQUIRES` edges, only `project(":core-model")`
+  counted; and a module listed only inside a Maven `<profile>` was not part of the reactor. (#277)
 - **Parallel edges, group frames and sequence layout.** Two edges between the same nodes in the
   same direction (`billingAddress` and `shippingAddress` from `Order` to `Address`, or two
   transitions between one pair of states) drew one path with the second label painted over the

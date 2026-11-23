@@ -2,6 +2,7 @@ package se.deversity.codekarta.maven;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.jspecify.annotations.Nullable;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -202,7 +203,7 @@ public class GenerateMojo extends AbstractMojo {
                     + e.getMessage() + " Check <layout> and <format>, at goal level and in <diagram>.", e);
         }
         try {
-            if (diagram.isSplitPackages() || splitPackages) {
+            if (flag(diagram.getSplitPackages(), splitPackages)) {
                 List<Path> paths = KartaCli.runPerPackage(in, outDir, options);
                 for (Path path : paths) {
                     getLog().info("code-karta: " + path);
@@ -249,16 +250,21 @@ public class GenerateMojo extends AbstractMojo {
         Integer depth = diagramDepth != null ? diagramDepth : maxDepth;
         Integer diagramMembers = diagram.getMaxMembers();
         return new RunOptions(
-                diagram.isSequenceOnly() || sequenceOnly,
+                flag(diagram.getSequenceOnly(), sequenceOnly),
                 firstNonBlank(diagram.getLayout(), layout),
-                diagram.isStateMachine() || stateMachine,
+                flag(diagram.getStateMachine(), stateMachine),
                 patterns,
                 depth != null ? depth : Integer.MAX_VALUE,
-                diagram.isModulesOnly() || modulesOnly,
+                flag(diagram.getModulesOnly(), modulesOnly),
                 firstNonBlank(diagram.getOutputName(), outputName),
                 diagramMembers != null ? diagramMembers : maxMembers,
                 firstNonBlank(diagram.getFormat(), format),
-                diagram.isIncludeTests() || includeTests);
+                flag(diagram.getIncludeTests(), includeTests));
+    }
+
+    /** A per-diagram flag when set, in either direction; the goal-level value when not. */
+    private static boolean flag(@Nullable Boolean specific, boolean goalLevel) {
+        return specific != null ? specific : goalLevel;
     }
 
     /**

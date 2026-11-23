@@ -81,6 +81,9 @@ public class BuildReactorParser {
     private static final Pattern GRADLE_ROOT_NAME =
             Pattern.compile("rootProject\\.name\\s*=\\s*[\"']([^\"']+)[\"']");
     /** {@code implementation(project(":a"))} and the Groovy {@code project ':a'} spelling. */
+    /** {@code implementation(projects.coreModel)}: a type-safe project accessor chain. */
+    private static final Pattern GRADLE_PROJECT_ACCESSOR =
+            Pattern.compile("\\bprojects\\.([A-Za-z_][\\w.]*)");
     private static final Pattern GRADLE_PROJECT_REF =
             Pattern.compile("\\bproject\\s*\\(?\\s*[\"']([:\\w.\\-]+)[\"']");
 
@@ -146,7 +149,7 @@ public class BuildReactorParser {
             reactor.put(artifactId, pom);
 
             Path base = pom.getParent();
-            for (String module : directChildTexts(project, "modules", "module")) {
+            for (String module : moduleEntries(project)) {
                 Path modulePom = resolveModulePom(root, realRoot, base, module);
                 if (modulePom == null) {
                     log.warning(() -> "Module '" + module + "' declared in " + pom + " is not readable, skipping it.");
@@ -240,6 +243,8 @@ public class BuildReactorParser {
 
         // ":a:b" is Gradle's project path; the last segment is the project's name.
         Map<String, Path> projects = new LinkedHashMap<>();
+        // projects.libs.stringUtils, Gradle's type-safe accessor for ":libs:string_utils" -> project name
+        Map<String, String> accessors = new LinkedHashMap<>();
         for (String path : includedPaths(source)) {
             String name = path.substring(path.lastIndexOf(':') + 1);
             if (name.isEmpty()) {
@@ -258,6 +263,7 @@ public class BuildReactorParser {
                 continue;
             }
             projects.put(name, dir.normalize());
+            accessors.put(accessor(path), name);
         }
         if (projects.isEmpty()) {
             return;
@@ -287,7 +293,60 @@ public class BuildReactorParser {
                     addEdge(graph, name, target, EdgeType.REQUIRES);
                 }
             }
+            // implementation(projects.coreModel): only the string form above used to count, so a
+            // build written with type-safe accessors drew no dependencies at all (issue #277).
+            Matcher typed = GRADLE_PROJECT_ACCESSOR.matcher(build);
+            while (typed.find()) {
+                String target = accessorTarget(typed.group(1), accessors);
+                if (target != null && !target.equals(name)) {
+                    addEdge(graph, name, target, EdgeType.REQUIRES);
+                }
+            }
         });
+    }
+
+    /**
+     * Gradle's accessor for a project path: each segment camel-cased at its dashes and
+     * underscores, joined by dots. {@code ":libs:string_utils"} is {@code libs.stringUtils}.
+     */
+    static String accessor(String path) {
+        StringBuilder out = new StringBuilder();
+        for (String segment : path.split(":")) {
+            if (segment.isEmpty()) {
+                continue;
+            }
+            if (out.length() > 0) {
+                out.append('.');
+            }
+            boolean upper = false;
+            boolean first = true;
+            for (char c : segment.toCharArray()) {
+                if (c == '-' || c == '_') {
+                    upper = !first;
+                    continue;
+                }
+                out.append(first ? Character.toLowerCase(c) : upper ? Character.toUpperCase(c) : c);
+                upper = false;
+                first = false;
+            }
+        }
+        return out.toString();
+    }
+
+    /** The project a {@code projects.a.b.c} chain names: its longest prefix that is an accessor, if any. */
+    private static String accessorTarget(String chain, Map<String, String> accessors) {
+        String candidate = chain;
+        while (true) {
+            String name = accessors.get(candidate);
+            if (name != null) {
+                return name;
+            }
+            int dot = candidate.lastIndexOf('.');
+            if (dot < 0) {
+                return null;
+            }
+            candidate = candidate.substring(0, dot);
+        }
     }
 
     private Set<String> includedPaths(String settingsSource) {
@@ -402,6 +461,25 @@ public class BuildReactorParser {
         }
         String text = matches.get(0).getTextContent();
         return text == null || text.isBlank() ? null : text.trim();
+    }
+
+    /**
+     * The modules a pom declares: its own {@code <modules>} and those of every {@code <profile>}.
+     * A module that only a profile lists is still part of the reactor when the profile is active,
+     * and this structural read does not evaluate activation, so it counts (issue #277).
+     */
+    private List<String> moduleEntries(Element project) {
+        List<String> modules = new ArrayList<>(directChildTexts(project, "modules", "module"));
+        for (Element profiles : directChildren(project, "profiles")) {
+            for (Element profile : directChildren(profiles, "profile")) {
+                for (String module : directChildTexts(profile, "modules", "module")) {
+                    if (!modules.contains(module)) {
+                        modules.add(module);
+                    }
+                }
+            }
+        }
+        return modules;
     }
 
     private List<String> directChildTexts(Element parent, String containerTag, String itemTag) {
