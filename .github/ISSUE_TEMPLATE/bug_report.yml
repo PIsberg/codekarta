@@ -11,7 +11,7 @@ body:
     id: version
     attributes:
       label: code-karta version
-      placeholder: "0.3.0, or a commit SHA if built from source"
+      placeholder: "output of java -jar code-karta-cli-*-all.jar --version, or a commit SHA if built from source"
     validations:
       required: true
   - type: dropdown

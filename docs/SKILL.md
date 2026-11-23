@@ -37,6 +37,7 @@ java -jar code-karta-cli/target/code-karta-cli-0.4.0-all.jar \
   [--split-packages] \
   [--include-tests] \
   [--viewer] \
+  [--version] \
   [--output-name <file>]
 ```
 

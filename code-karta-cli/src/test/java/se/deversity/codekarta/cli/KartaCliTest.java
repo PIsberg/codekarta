@@ -407,9 +407,23 @@ class KartaCliTest {
     @Test
     void theHelpTextNamesEveryFlagTheParserAccepts() {
         String usage = execute("--help").out();
-        for (String flag : java.util.List.of("--exclude", "--format", "--help", "--include-tests", "--input", "--layout", "--max-depth", "--max-members", "--modules-only", "--output", "--output-name", "--sequence-only", "--split-packages", "--state-machine")) {
+        for (String flag : java.util.List.of("--version", "--exclude", "--format", "--help", "--include-tests", "--input", "--layout", "--max-depth", "--max-members", "--modules-only", "--output", "--output-name", "--sequence-only", "--split-packages", "--state-machine")) {
             assertTrue(usage.contains(flag), flag + " is accepted but not in --help");
         }
+    }
+
+    /** A bug report needs the version, and the jar had no way to say it (#278). */
+    @Test
+    void versionPrintsTheBuiltVersionAndExitsZero() {
+        Console console = execute("--version");
+        Console shortForm = execute("-V");
+
+        assertEquals(0, console.status());
+        assertTrue(console.out().matches("code-karta \\d+\\.\\d+\\.\\d+(-[\\w.]+)?\\n"),
+                "the version is filled in at build time, not left as a placeholder: [" + console.out() + "]");
+        assertEquals("", console.err());
+        assertEquals(console.out(), shortForm.out());
+        assertEquals(0, shortForm.status());
     }
 
     @Test

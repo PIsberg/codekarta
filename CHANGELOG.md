@@ -23,6 +23,11 @@ each version heading is the complete record.
 
 ### Added
 
+- **`--version` / `-V` and `RunOptions.builder()`.** The CLI prints `code-karta <version>`, filled in at
+  build time by both builds, so a bug report can say which jar it was. `RunOptions.builder()` and
+  `toBuilder()` are the recommended way to construct options: a new option adds a builder method,
+  where each one so far added a canonical-constructor component and a deprecated overload. The
+  builder validates through the constructor, so it accepts and rejects the same values. (#278)
 - **The corpus gates cover every diagram mode.** `run-corpus.py` ran only the default class
   diagram over the four pinned projects; `corpus.json` now gives each project extra modes with their
   own floors (`--sequence-only`, `--state-machine`, `--split-packages`, `--layout elk`, where each

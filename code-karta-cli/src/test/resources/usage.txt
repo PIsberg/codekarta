@@ -1,4 +1,4 @@
-Usage: karta --input <path> [--output <dir>] [--output-name <file>] [--format svg|json|mermaid|dot] [--sequence-only] [--state-machine] [--modules-only] [--split-packages] [--include-tests] [--viewer] [--layout simple|elk] [--exclude <patterns>] [--max-depth <depth>] [--max-members <n>]
+Usage: karta --input <path> [--output <dir>] [--output-name <file>] [--format svg|json|mermaid|dot] [--sequence-only] [--state-machine] [--modules-only] [--split-packages] [--include-tests] [--viewer] [--layout simple|elk] [--exclude <patterns>] [--max-depth <depth>] [--max-members <n>] [--version]
 
   --input  <path>      What to parse:
                          module-info.java  → module diagram
@@ -68,4 +68,5 @@ Usage: karta --input <path> [--output <dir>] [--output-name <file>] [--format sv
                          into "…(+N more)" (default 6). Pass 'all' or 0 to show
                          every member — useful for a small package where the
                          members are the point.
+  --version, -V        Print the version and exit.
   --help               Show this message

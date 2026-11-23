@@ -46,9 +46,9 @@ public class KartaCli {
     enum PipelineStage { PARSING, LAYOUT, RENDERING, WRITING, DONE }
 
     /** What one command line asks for. {@code help} means print the usage and stop. */
-    /** A parsed command line. {@code inputPath} is null for help, and for a viewer-only run. */
+    /** A parsed command line. {@code inputPath} is null for help, version, and a viewer-only run. */
     record Invocation(Path inputPath, Path outputDir, boolean splitPackages, boolean help, RunOptions options,
-                      boolean viewer) {}
+                      boolean viewer, boolean version) {}
 
     /**
      * Reads a command line. Anything it does not understand is an error rather than a default:
@@ -102,7 +102,10 @@ public class KartaCli {
                             : intValueOf(raw, flag, "an integer or 'all'");
                 }
                 case "--help", "-h"    -> {
-                    return new Invocation(null, outputDir, false, true, RunOptions.defaults(), false);
+                    return new Invocation(null, outputDir, false, true, RunOptions.defaults(), false, false);
+                }
+                case "--version", "-V" -> {
+                    return new Invocation(null, outputDir, false, false, RunOptions.defaults(), false, true);
                 }
                 default -> throw new IllegalArgumentException("unknown argument '" + flag + "'.");
             }
@@ -117,8 +120,12 @@ public class KartaCli {
         // RunOptions checks layout and format, so the CLI, the Maven plugin and library callers
         // all reject the same values with the same message.
         return new Invocation(inputPath, outputDir, splitPackages, false,
-                new RunOptions(sequenceOnly, layout, stateMachine, customExcludes,
-                        maxDepth, modulesOnly, outputName, maxMembers, format, includeTests), viewer);
+                RunOptions.builder()
+                        .sequenceOnly(sequenceOnly).layout(layout).stateMachine(stateMachine)
+                        .customExcludes(customExcludes).maxDepth(maxDepth).modulesOnly(modulesOnly)
+                        .outputName(outputName).maxMembers(maxMembers).format(format)
+                        .includeTests(includeTests)
+                        .build(), viewer, false);
     }
 
     /** The value after {@code flag}; a missing one, or another flag in its place, is an error. */
@@ -165,6 +172,10 @@ public class KartaCli {
             printUsage(out);
             return 0;
         }
+        if (call.version()) {
+            out.println("code-karta " + version());
+            return 0;
+        }
         Path inputPath = call.inputPath();
         Path outputDir = call.outputDir();
         RunOptions options = call.options();
@@ -208,6 +219,26 @@ public class KartaCli {
             out.println("Generated: " + output.toAbsolutePath());
         } else {
             out.println("Skipped generating a diagram; see the log message above for why.");
+        }
+    }
+
+    /**
+     * The version this build was made from, as {@code --version} prints it: filled into
+     * {@code version.properties} by the Maven and Gradle builds alike, so it is right in the fat
+     * jar, the plain jar and a run from {@code target/classes}. {@code "unknown"} if the file is
+     * missing or was never filtered.
+     */
+    public static String version() {
+        try (java.io.InputStream in = KartaCli.class.getResourceAsStream("version.properties")) {
+            if (in == null) {
+                return "unknown";
+            }
+            java.util.Properties properties = new java.util.Properties();
+            properties.load(in);
+            String value = properties.getProperty("version", "").trim();
+            return value.isEmpty() || value.contains("${") ? "unknown" : value;
+        } catch (IOException e) {
+            return "unknown";
         }
     }
 
@@ -693,7 +724,7 @@ public class KartaCli {
     }
 
     private static void printUsage(java.io.PrintStream out) {
-        out.println("Usage: karta --input <path> [--output <dir>] [--output-name <file>] [--format svg|json|mermaid|dot] [--sequence-only] [--state-machine] [--modules-only] [--split-packages] [--include-tests] [--viewer] [--layout simple|elk] [--exclude <patterns>] [--max-depth <depth>] [--max-members <n>]");
+        out.println("Usage: karta --input <path> [--output <dir>] [--output-name <file>] [--format svg|json|mermaid|dot] [--sequence-only] [--state-machine] [--modules-only] [--split-packages] [--include-tests] [--viewer] [--layout simple|elk] [--exclude <patterns>] [--max-depth <depth>] [--max-members <n>] [--version]");
         out.println();
         out.println("  --input  <path>      What to parse:");
         out.println("                         module-info.java  → module diagram");
@@ -763,6 +794,7 @@ public class KartaCli {
         out.println("                         into \"…(+N more)\" (default 6). Pass 'all' or 0 to show");
         out.println("                         every member — useful for a small package where the");
         out.println("                         members are the point.");
+        out.println("  --version, -V        Print the version and exit.");
         out.println("  --help               Show this message");
     }
 }
