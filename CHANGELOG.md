@@ -11,6 +11,16 @@ each version heading is the complete record.
 
 ## [Unreleased]
 
+### Known issues
+
+- **`--sequence-only` on a directory of a large code base is not always byte-identical between
+  runs.** JavaParser 3.28.2 builds a type's method candidates in a `HashSet` of fresh,
+  identity-hashed declarations, and breaks ties between equally applicable methods by that order,
+  so a few calls (an override against the method it overrides, same-arity overloads, an ambiguous
+  call that sometimes resolves) can land differently from run to run: 1 to 8 of about 7,900 calls
+  on guava's `collect` package. Single files and code-karta-sized trees are stable. The fix
+  belongs upstream; see #295.
+
 ### Added
 
 - **The corpus gates cover every diagram mode.** `run-corpus.py` ran only the default class

@@ -89,7 +89,8 @@ looks green locally and fails in CI.
 code-karta's own source and the example project to refresh `docs/diagrams/` and
 `example-shipping-system/diagrams/`. Every committed diagram is on that list; one left off it drifts
 unnoticed, as seven did until #249. The run is idempotent — identical input
-produces byte-identical SVG — so a clean tree stays clean.
+produces byte-identical SVG — so a clean tree stays clean. There is one known exception: `--sequence-only` on a directory of a large code base, where JavaParser's symbol solver can resolve a few calls differently from run to run (#295); the
+repository's own diagrams are not affected.
 
 Both CI jobs check this with `git diff --exit-code` after regenerating. Downstream repositories
 commit the diagrams this produces, so byte drift arrives in someone else's repository as a diff

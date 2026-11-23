@@ -95,7 +95,7 @@ for older minors. See [`SECURITY.md`](../SECURITY.md).
 
 ## Reproducibility
 
-`KartaCli.run` is idempotent: identical inputs produce byte-identical SVG. CI enforces this on every
+`KartaCli.run` is idempotent: identical inputs produce byte-identical SVG, with one known exception: `--sequence-only` on a directory of a large code base, where JavaParser's symbol solver can resolve a few calls differently from run to run (#295). CI enforces this on every
 push by regenerating every committed diagram and failing on any diff. Downstream repositories that
 commit generated diagrams can rely on this within a single code-karta version. Across versions the
 bytes may change; see "What is not public" above.
