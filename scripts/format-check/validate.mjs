@@ -4,16 +4,15 @@
 //
 //   npm ci --ignore-scripts && node validate.mjs <dir>...
 //
+// A file with a <file>.expect beside it is also drawn, and every line of the .expect file must be
+// the full text of some drawn label (#305).
+//
 // A run that finds nothing to check fails too, and so does one that misses any of the four Mermaid
 // diagram kinds code-karta writes: a check that passes because it saw no input is not a check.
-import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
-import { JSDOM } from 'jsdom';
-
-// Mermaid's parser pulls in DOMPurify, which needs a window to load; nothing is rendered.
-const dom = new JSDOM('<!doctype html><html><body></body></html>');
-globalThis.window = dom.window;
-globalThis.document = dom.window.document;
+// Sets up the DOM Mermaid needs to load and to draw; must come before mermaid is imported.
+import { dotLabels, mermaidLabels } from './drawn.mjs';
 
 const { default: mermaid } = await import('mermaid');
 const { Graphviz } = await import('@hpcc-js/wasm-graphviz');
@@ -43,6 +42,7 @@ const failures = [];
 const kinds = new Map();
 let mmd = 0;
 let dot = 0;
+const drawn = { mmd: 0, dot: 0 };
 for (const file of files) {
   const text = readFileSync(file, 'utf8');
   const name = relative(process.cwd(), file);
@@ -56,6 +56,18 @@ for (const file of files) {
       graphviz.dot(text, 'svg');
       dot++;
     }
+    const expectFile = `${file}.expect`;
+    if (existsSync(expectFile)) {
+      const isMermaid = file.endsWith('.mmd');
+      const seen = isMermaid ? await mermaidLabels(mermaid, text) : dotLabels(graphviz, text);
+      const expected = readFileSync(expectFile, 'utf8').split('\n').filter((l) => l.length > 0);
+      const missing = expected.filter((l) => !seen.includes(l.replace(/\s+/g, ' ').trim()));
+      if (missing.length > 0) {
+        throw new Error(`drawn without the expected label(s):\n${missing.map((m) => `  want ${JSON.stringify(m)}`).join('\n')}`
+          + `\ndrawn labels:\n${seen.map((s) => `  ${JSON.stringify(s)}`).join('\n')}`);
+      }
+      drawn[isMermaid ? 'mmd' : 'dot']++;
+    }
     console.log(`ok    ${name}`);
   } catch (e) {
     const message = String(e?.message ?? e).trim();
@@ -68,6 +80,7 @@ for (const file of files) {
 const expectedKinds = ['classDiagram', 'sequence', 'stateDiagram', 'flowchart-v2'];
 const missing = expectedKinds.filter((k) => !kinds.has(k));
 console.log(`\nmermaid ${versions.mermaid}: ${mmd} parsed; @hpcc-js/wasm-graphviz ${versions.graphviz} (Graphviz ${graphviz.version()}): ${dot} parsed`);
+console.log(`labels checked by drawing: ${drawn.mmd} Mermaid, ${drawn.dot} DOT`);
 console.log(`mermaid kinds: ${[...kinds].map(([k, n]) => `${k}=${n}`).join(', ') || 'none'}`);
 
 let status = 0;
@@ -84,6 +97,10 @@ if (failures.length > 0) {
 }
 if (mmd === 0 || dot === 0) {
   console.error(`expected .mmd and .dot files under ${dirs.join(', ')}; found ${mmd} and ${dot}`);
+  status = 1;
+}
+if (drawn.mmd === 0 || drawn.dot === 0) {
+  console.error(`expected .expect files for both formats; drew ${drawn.mmd} Mermaid and ${drawn.dot} DOT`);
   status = 1;
 }
 if (missing.length > 0) {

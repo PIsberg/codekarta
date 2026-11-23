@@ -105,7 +105,9 @@ cannot go green on their own, and each needs one local step:
 - **A Mermaid bump** in `scripts/format-check/`: `validate.mjs` fails until `docs/CLI.md` names the
   new version, so the documented version cannot go stale. Change it there and push to the
   Dependabot branch. A parse failure on that pull request is the check doing its job: the new
-  Mermaid rejects something code-karta writes, and `MermaidRenderer` needs the fix.
+  Mermaid rejects something code-karta writes, and `MermaidRenderer` needs the fix. A failure
+  that names a missing label is the same, for text Mermaid draws differently. One thrown from
+  `mermaid.render` about a missing DOM API is the jsdom harness in `drawn.mjs`, not the output.
 
 The `github/codeql-action` steps are grouped into one pull request: CodeQL refuses to run with
 its steps at different versions.
