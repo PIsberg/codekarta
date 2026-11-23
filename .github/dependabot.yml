@@ -15,6 +15,15 @@ updates:
         patterns:
           - "github/codeql-action*"
 
+  # The Mermaid and Graphviz parsers the "Mermaid and DOT output parse" CI job checks output with
+  # (#293). A Mermaid bump is the point of this entry: it is how a new Mermaid release that rejects
+  # code-karta's output shows up as a red PR instead of a user's broken Markdown. docs/CLI.md names
+  # the pinned Mermaid version and changes with it.
+  - package-ecosystem: npm
+    directory: /scripts/format-check
+    schedule:
+      interval: weekly
+
   - package-ecosystem: maven
     directory: /
     schedule:

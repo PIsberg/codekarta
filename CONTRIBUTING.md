@@ -85,7 +85,7 @@ is committed, so run `mvn clean verify` and commit the result.
 
 ## Dependency updates
 
-Dependabot opens one pull request per ecosystem per week (`.github/dependabot.yml`). Three kinds
+Dependabot opens one pull request per ecosystem per week (`.github/dependabot.yml`). Four kinds
 cannot go green on their own, and each needs one local step:
 
 - **A version shared by the Maven and Gradle builds** (VibeTags, JUnit, JSpecify): the Maven pull
@@ -101,6 +101,11 @@ cannot go green on their own, and each needs one local step:
   as `.mvn/wrapper/maven-wrapper.properties` describes. Minor and major Maven bumps are ignored
   for that reason and because the plugin API is held on 3.9.x on purpose (`maven.api.version`
   in `pom.xml`); patch releases still arrive.
+
+- **A Mermaid bump** in `scripts/format-check/`: `validate.mjs` fails until `docs/CLI.md` names the
+  new version, so the documented version cannot go stale. Change it there and push to the
+  Dependabot branch. A parse failure on that pull request is the check doing its job: the new
+  Mermaid rejects something code-karta writes, and `MermaidRenderer` needs the fix.
 
 The `github/codeql-action` steps are grouped into one pull request: CodeQL refuses to run with
 its steps at different versions.

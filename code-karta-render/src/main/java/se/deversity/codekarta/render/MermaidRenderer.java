@@ -57,8 +57,9 @@ public final class MermaidRenderer {
                 for (String section : new String[] {"fields", "methods"}) {
                     String text = props.get(section);
                     if (text != null && !text.isEmpty()) {
+                        boolean methods = "methods".equals(section);
                         for (String member : text.split("\n")) {
-                            line(out, id + " : " + escapeMember(member));
+                            line(out, id + " : " + (methods ? escapeMethod(member) : escapeField(member)));
                         }
                     }
                 }
@@ -78,7 +79,7 @@ public final class MermaidRenderer {
                 case "EXTENDS" -> line(out, target + " <|-- " + source);
                 case "IMPLEMENTS" -> line(out, target + " <|.. " + source);
                 default -> line(out, source + " --> " + target
-                        + (edge.getLabel() != null ? " : " + escape(edge.getLabel()) : ""));
+                        + (edge.getLabel() != null ? " : " + escapeColon(escape(edge.getLabel())) : ""));
             }
         }
         return out.toString();
@@ -172,7 +173,7 @@ public final class MermaidRenderer {
             String text = edge.getLabel() != null ? edge.getLabel()
                     : type.toLowerCase(Locale.ROOT).replace('_', ' ');
             String arrow = "EXPORTS".equals(type) ? " -.->" : " -->";
-            line(out, source + arrow + (text.isEmpty() ? " " : "|" + escape(text) + "| ") + target);
+            line(out, source + arrow + (text.isEmpty() ? " " : "|\"" + escape(text) + "\"| ") + target);
         }
         return out.toString();
     }
@@ -223,8 +224,34 @@ public final class MermaidRenderer {
         return out.toString();
     }
 
-    /** A class member line: generics in Mermaid's tilde notation, then the same escaping. */
-    static String escapeMember(String member) {
-        return escape(member.replace('<', '~').replace('>', '~'));
+    /**
+     * A field line ({@code name: type}). Mermaid takes the first {@code :} of {@code n0 : id: long}
+     * as the member separator and rejects a second one, so every field failed to parse in Mermaid
+     * 11 and 12 alike until the colon became an entity code (#293). Parentheses are entity codes
+     * too: Mermaid files any line holding one under methods, the {@code …(+N more)} overflow line
+     * included. Generics keep their angle brackets as entity codes rather than Mermaid's
+     * {@code ~T~} notation, which cannot carry the comma of {@code Map<K, V>}.
+     */
+    static String escapeField(String member) {
+        return escapeColon(escape(member)).replace("(", "#40;").replace(")", "#41;");
+    }
+
+    /**
+     * A method line, {@code name(params): Type} as the parser writes it. Mermaid expects
+     * {@code name(params) Type} and draws the {@code " : "} itself, so the colon after the
+     * parentheses is dropped; with it, a return type was drawn as {@code name() : : Type}.
+     */
+    static String escapeMethod(String member) {
+        int close = member.lastIndexOf("): ");
+        if (close < 0) {
+            return escapeColon(escape(member));
+        }
+        return escapeColon(escape(member.substring(0, close + 1))) + " "
+                + escapeColon(escape(member.substring(close + 3)));
+    }
+
+    /** A class diagram's text after {@code " : "}, member or relation label, ends at a second colon. */
+    private static String escapeColon(String text) {
+        return text.replace(":", "#58;");
     }
 }
