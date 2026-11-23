@@ -1,0 +1,64 @@
+Usage: karta --input <path> [--output <dir>] [--output-name <file>] [--format svg|json] [--sequence-only] [--state-machine] [--modules-only] [--split-packages] [--include-tests] [--layout simple|elk] [--exclude <patterns>] [--max-depth <depth>] [--max-members <n>]
+
+  --input  <path>      What to parse:
+                         module-info.java  → module diagram
+                         directory         → class diagram; a project or
+                                             repository root works too
+                         *.java file       → sequence/exception diagram
+                         directory + --sequence-only
+                                           → multi-file stitched sequence diagram
+                         directory + --modules-only
+                                           → cross-module communication diagram,
+                                             from module-info.java if present,
+                                             otherwise from the Maven <modules> or
+                                             Gradle include(...) reactor
+                         file/dir + --state-machine
+                                           → enum-backed state transition diagram
+  --output <dir>       Output directory  (default: ./output)
+  --output-name <file> File name to write inside --output, instead of the name
+                         derived from the input (class-diagram.svg and friends).
+                         Lets several runs share one output directory. Must be a
+                         plain file name — no path separators.
+  --format <fmt>       svg (default) or json.
+                         json writes the parsed graph itself instead of a
+                         picture of it: nodes, edges, groups and layout
+                         coordinates, for feeding into your own tooling,
+                         architecture checks or renderer. The derived file
+                         name changes to .json; --output-name is used as given.
+  --sequence-only      Emit only CALLS edges (no exception-flow).
+                         When combined with a directory input, parses
+                         all .java files together using cross-file
+                         symbol resolution to stitch call graphs.
+                         Tip: point --input at the source package root
+                         (e.g. src/main/java) so the symbol solver can
+                         resolve cross-package references correctly.
+  --state-machine      Emit STATE nodes and TRANSITION edges from enum
+                         constants, switch cases, state assignments, and
+                         transition(from, to, event) calls.
+  --split-packages     Emit one diagram per package instead of one for
+                         the whole tree, mirroring the package structure
+                         under --output. Use this when a single diagram
+                         would be too large to read: a wide tree stays
+                         wide whatever --max-depth is set to, because
+                         the fan-out is horizontal, and a package is
+                         already the author's own grouping of things
+                         that belong together.
+  --include-tests      Also read test source sets (src/test, src/integrationTest,
+                         src/testFixtures, src/it, ...) when --input is a
+                         project or repository root. Off by default, so a
+                         checkout draws the code that ships. target/, build/,
+                         .git and node_modules are skipped either way.
+  --layout <engine>    Layout algorithm:  simple (default) or elk.
+                         elk uses the Eclipse Layout Kernel layered
+                         algorithm for edge-crossing minimisation and
+                         orthogonal routing (recommended for large graphs).
+  --exclude <patterns> Comma-separated wildcard patterns of classes, methods,
+                         enums (--state-machine) or modules (--modules-only) to
+                         exclude (e.g. *Test,se.deversity.codekarta.util.*,Order*Service,Map).
+                         A simple or qualified name works; * matches anywhere.
+  --max-depth <depth>  Maximum call sequence depth to parse/stitch (integer).
+  --max-members <n>    Field/method lines per class box before the rest collapse
+                         into "…(+N more)" (default 6). Pass 'all' or 0 to show
+                         every member — useful for a small package where the
+                         members are the point.
+  --help               Show this message

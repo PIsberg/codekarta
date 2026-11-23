@@ -23,8 +23,8 @@
         <!-- Floors, not targets. Measured on 2026-08-12: line 45.0%, mutation 34.5%.
              Raise these when the numbers rise; never lower one to make a red build
              green. The reactor-wide defaults live in the parent pom. -->
-        <jacoco.line.minimum>0.40</jacoco.line.minimum>
-        <pitest.mutation.minimum>30</pitest.mutation.minimum>
+        <jacoco.line.minimum>0.92</jacoco.line.minimum>
+        <pitest.mutation.minimum>88</pitest.mutation.minimum>
     </properties>
 
     <dependencies>

@@ -71,29 +71,40 @@ Both tiers passed on the day they were written. They are regression gates, not a
 ## Coverage and mutation floors
 
 Both are floors, not targets. Raise one when the number rises; never lower one to turn a red
-build green. Measured 2026-08-29 on JDK 21:
+build green. Measured 2026-11-23 on JDK 21 (line coverage from JaCoCo in `mvn clean verify`,
+mutation score from PIT with the command below):
 
 | Module | Line coverage | Mutation score | Line floor | Mutation floor |
 |---|---|---|---|---|
 | `code-karta-core` | 100.0% | 92.6% (25/27) | 0.95 | 90 |
-| `code-karta-layout` | 98.1% | 78.7% (70/89) | 0.90 | 70 |
-| `code-karta-render` | 95.5% | 24.3% (99/407) | 0.90 | 20 |
-| `code-karta-input` | 82.8% | 68.1% (346/508) | 0.78 | 62 |
-| `code-karta-cli` | 45.7% | 35.9% (71/198) | 0.40 | 30 |
-| `code-karta-maven-plugin` | 89.1% | 61.0% (36/59) | 0.85 | 55 |
-| **Total** | **83.7%** | **50.2%** (647/1288) | | |
+| `code-karta-layout` | 97.2% | 73.5% (86/117) | 0.90 | 70 |
+| `code-karta-render` | 99.5% | 90.0% (377/419) | 0.95 | 85 |
+| `code-karta-input` | 86.8% | 78.4% (664/847) | 0.82 | 72 |
+| `code-karta-cli` | 96.7% | 92.7% (166/179) | 0.92 | 88 |
+| `code-karta-maven-plugin` | 91.5% | 71.0% (49/69) | 0.88 | 65 |
+| **Total** | **91.8%** (2592/2822) | **82.4%** (1367/1658) | | |
 
-`code-karta-core` was at 26/26 when this table was last measured and is now 25/27: indexing
-`Graph` by node id added two mutants and left one alive. It clears its floor of 90 with 2.6
-points to spare, which is the margin to watch rather than a number to celebrate.
+Each floor sits a few points under its measurement, so a regression fails the build while run
+to run noise in PIT's timeouts does not.
 
-`code-karta-render` is the reason both numbers are reported. It executes 95.5% of its lines and
-kills 24.3% of its mutants, which is what it looks like when tests call the renderer and assert
-almost nothing about the SVG it returns. Line coverage alone would have called that module well
-tested. Its floors are set at the measured value so the gap cannot widen while it is closed.
+`code-karta-render` is why both numbers are reported. On 2026-08-29 it executed 95.5% of its
+lines and killed 24.3% of its mutants: the tests called the renderer and asserted little more than
+that an `<svg` came back. `SvgRendererGeometryTest` and `SequenceDiagramGeometryTest` now pin
+the computed geometry (canvas size, box and compartment heights, label placement and ellipsis,
+edge anchors and bows, legend rows, frame bounds, lifelines, activation bars, arrows) and the
+markup (escaping, CSS override, markers), working each expected number out from the renderer's
+constants in a comment. That took the module to 90.0%. Line coverage alone would have called it
+well tested before and after.
 
-`code-karta-cli` is the other one worth attention: 45.7% line coverage in the module that owns
-argument parsing and file output.
+`code-karta-cli` was at 45.7% line coverage in the module that owns argument parsing and exit
+codes. `main` now delegates to `KartaCli.execute(args, out, err)`, which returns the exit status
+instead of calling `System.exit`, so `KartaCliTest` covers every branch of it: help (pinned
+whole against `src/test/resources/usage.txt`), a bad argument (exit 1), success, a declined
+diagram, `--split-packages` with and without output, and an unwritable output (exit 2).
+
+`code-karta-layout` fell from 78.7% to 73.5% when group-aware layout landed (#272): 28 new
+mutants, 8 of them killed. It clears its floor of 70; its block packing is the place to add
+assertions next.
 
 ## Mutation testing
 

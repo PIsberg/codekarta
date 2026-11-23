@@ -33,8 +33,8 @@
              excluded below, and left in it would put the bundle at 0.35 while saying nothing
              about code anyone here wrote. Same for the mutation score, which the mutation
              profile below excludes it from. Measured 0.89 line and 61% mutation. -->
-        <jacoco.line.minimum>0.85</jacoco.line.minimum>
-        <pitest.mutation.minimum>55</pitest.mutation.minimum>
+        <jacoco.line.minimum>0.88</jacoco.line.minimum>
+        <pitest.mutation.minimum>65</pitest.mutation.minimum>
     </properties>
 
     <dependencies>

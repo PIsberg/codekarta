@@ -22,8 +22,8 @@
 
         <!-- Floors, not targets. Measured on 2026-08-12. Raise these when the numbers rise;
              never lower one to make a red build green. Reactor defaults live in the parent. -->
-        <jacoco.line.minimum>0.78</jacoco.line.minimum>
-        <pitest.mutation.minimum>62</pitest.mutation.minimum>
+        <jacoco.line.minimum>0.82</jacoco.line.minimum>
+        <pitest.mutation.minimum>72</pitest.mutation.minimum>
     </properties>
 
     <dependencies>

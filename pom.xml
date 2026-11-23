@@ -451,10 +451,10 @@
                             <!-- code-karta-core has tests but they live with each tier; a module
                                  whose tests produce no mutant kills must not fail the reactor -->
                             <failWhenNoMutations>false</failWhenNoMutations>
-                            <!-- A floor, not a target. Measured 2026-08-12: core 100%, layout
-                                 76%, input 68%, cli 35%, render 24% (1203 mutations, 598 killed,
-                                 50% overall). The floor sits just under the weakest module so a
-                                 regression fails; raise it as render and cli improve. -->
+                            <!-- A floor, not a target. Each module sets its own
+                                 pitest.mutation.minimum a few points under its measured score;
+                                 the measurements and the rule for raising them are in
+                                 docs/QUALITY.md. -->
                             <mutationThreshold>${pitest.mutation.minimum}</mutationThreshold>
                         </configuration>
                         <dependencies>
