@@ -87,8 +87,11 @@ looks green locally and fails in CI.
 
 `mvn verify` and `./gradlew :code-karta-cli:generateDiagrams` run the built JAR against
 code-karta's own source and the example project to refresh `docs/diagrams/` and
-`example-shipping-system/diagrams/`. Every committed diagram is on that list; one left off it drifts
-unnoticed, as seven did until #249. The run is idempotent — identical input
+`example-shipping-system/diagrams/`. Both run the same list,
+[`code-karta-cli/diagrams.txt`](../code-karta-cli/diagrams.txt), as one
+`java -jar ... --batch code-karta-cli/diagrams.txt` from the repository root: one command line per
+line, in one JVM. To add a committed diagram, add a line there. It used to be two hand-kept lists,
+one per build, and seven diagrams drifted unnoticed while one of them left them out (#249). The run is idempotent — identical input
 produces byte-identical SVG — so a clean tree stays clean. There is one known exception: `--sequence-only` on a directory of a large code base, where JavaParser's symbol solver can resolve a few calls differently from run to run (#295); the
 repository's own diagrams are not affected.
 

@@ -160,6 +160,9 @@ public class KartaCli {
      *         understand, 2 when reading or writing fails
      */
     static int execute(String[] args, java.io.PrintStream out, java.io.PrintStream err) {
+        if (args.length > 0 && "--batch".equals(args[0])) {
+            return batch(args, out, err);
+        }
         Invocation call;
         try {
             call = parseArgs(args);
@@ -197,6 +200,52 @@ public class KartaCli {
             err.println("Error: " + e.getMessage());
             return 2;
         }
+    }
+
+    /**
+     * {@code --batch <file>}: runs each line of {@code file} as one command line, in order, in this
+     * JVM, and stops at the first that fails. Blank lines and lines starting with {@code #} are
+     * skipped; arguments are separated by whitespace, so a path with a space in it cannot appear.
+     *
+     * <p>The repository's own diagrams are regenerated from one such file by both builds, which
+     * used to keep two hand-copied lists of thirteen runs that drifted apart (#249) and started a
+     * JVM for each (issue #279).
+     *
+     * @return 0 when every line succeeds; otherwise the failing line's status, with the line named
+     */
+    static int batch(String[] args, java.io.PrintStream out, java.io.PrintStream err) {
+        if (args.length != 2 || args[1].startsWith("--")) {
+            err.println("Error: --batch takes exactly one argument, the file of command lines, and nothing else.");
+            printUsage(out);
+            return 1;
+        }
+        java.util.List<String> lines;
+        try {
+            lines = Files.readAllLines(Path.of(args[1]));
+        } catch (IOException | java.nio.file.InvalidPathException e) {
+            err.println("Error: cannot read the batch file " + args[1] + ": " + e.getMessage());
+            return 2;
+        }
+        for (int i = 0; i < lines.size(); i++) {
+            String line = lines.get(i).strip();
+            if (line.isEmpty() || line.startsWith("#")) {
+                continue;
+            }
+            String[] lineArgs = line.split("\\s+");
+            if (java.util.Arrays.asList(lineArgs).contains("--batch")) {
+                err.println("Error: " + args[1] + " line " + (i + 1) + ": --batch cannot be nested.");
+                return 1;
+            }
+            java.io.ByteArrayOutputStream lineErr = new java.io.ByteArrayOutputStream();
+            int status = execute(lineArgs, out, new java.io.PrintStream(lineErr, true, java.nio.charset.StandardCharsets.UTF_8));
+            if (status != 0) {
+                err.println("Error: " + args[1] + " line " + (i + 1) + " failed with status " + status + ": " + line);
+                err.print(lineErr.toString(java.nio.charset.StandardCharsets.UTF_8));
+                return status;
+            }
+            err.print(lineErr.toString(java.nio.charset.StandardCharsets.UTF_8));
+        }
+        return 0;
     }
 
     private static void generate(Path inputPath, Path outputDir, RunOptions options, boolean splitPackages,
@@ -725,6 +774,7 @@ public class KartaCli {
 
     private static void printUsage(java.io.PrintStream out) {
         out.println("Usage: karta --input <path> [--output <dir>] [--output-name <file>] [--format svg|json|mermaid|dot] [--sequence-only] [--state-machine] [--modules-only] [--split-packages] [--include-tests] [--viewer] [--layout simple|elk] [--exclude <patterns>] [--max-depth <depth>] [--max-members <n>] [--version]");
+        out.println("       karta --batch <file>");
         out.println();
         out.println("  --input  <path>      What to parse:");
         out.println("                         module-info.java  → module diagram");
@@ -794,6 +844,9 @@ public class KartaCli {
         out.println("                         into \"…(+N more)\" (default 6). Pass 'all' or 0 to show");
         out.println("                         every member — useful for a small package where the");
         out.println("                         members are the point.");
+        out.println("  --batch <file>       Run every line of <file> as one command line, in order,");
+        out.println("                         in one JVM; stop at the first that fails. Blank lines");
+        out.println("                         and # comments are skipped. Use it alone.");
         out.println("  --version, -V        Print the version and exit.");
         out.println("  --help               Show this message");
     }

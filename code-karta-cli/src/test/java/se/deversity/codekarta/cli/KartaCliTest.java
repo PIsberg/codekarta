@@ -407,7 +407,7 @@ class KartaCliTest {
     @Test
     void theHelpTextNamesEveryFlagTheParserAccepts() {
         String usage = execute("--help").out();
-        for (String flag : java.util.List.of("--version", "--exclude", "--format", "--help", "--include-tests", "--input", "--layout", "--max-depth", "--max-members", "--modules-only", "--output", "--output-name", "--sequence-only", "--split-packages", "--state-machine")) {
+        for (String flag : java.util.List.of("--batch", "--version", "--exclude", "--format", "--help", "--include-tests", "--input", "--layout", "--max-depth", "--max-members", "--modules-only", "--output", "--output-name", "--sequence-only", "--split-packages", "--state-machine")) {
             assertTrue(usage.contains(flag), flag + " is accepted but not in --help");
         }
     }
@@ -530,6 +530,67 @@ class KartaCliTest {
         Console console = execute("--input", ".", "--format", "png");
         assertEquals(1, console.status());
         assertTrue(console.err().contains("'svg', 'json', 'mermaid' or 'dot'"), console.err());
+    }
+
+    // --- --batch (#279) ---
+
+    /** One JVM, many diagrams: each line of the file is one command line, run in order. */
+    @Test
+    void batchRunsEveryLineInOrderSkippingCommentsAndBlankLines(@TempDir Path dir) throws Exception {
+        writeClass(dir.resolve("src/com/a"), "Alpha");
+        writeClass(dir.resolve("src/com/b"), "Beta");
+        Path out = dir.resolve("out");
+        Path batch = Files.writeString(dir.resolve("diagrams.txt"), String.join("\n",
+                "# the two packages, one file each",
+                "",
+                "--input " + dir.resolve("src/com/a") + " --output " + out + " --output-name a.svg",
+                "   # indented comment",
+                "--input " + dir.resolve("src/com/b") + " --output " + out + " --output-name b.svg",
+                "--output " + out + " --viewer",
+                ""));
+
+        Console console = execute("--batch", batch.toString());
+
+        assertEquals(0, console.status(), console.err());
+        assertTrue(Files.exists(out.resolve("a.svg")) && Files.exists(out.resolve("b.svg")));
+        assertTrue(Files.exists(out.resolve("viewer.html")), "a viewer line runs after the diagrams above it");
+        java.util.List<String> lines = console.out().lines().toList();
+        assertEquals(3, lines.size(), console.out());
+        assertTrue(lines.get(0).endsWith("a.svg") && lines.get(1).endsWith("b.svg"), "in file order");
+    }
+
+    @Test
+    void batchStopsAtTheFirstFailingLineAndNamesIt(@TempDir Path dir) throws Exception {
+        writeClass(dir.resolve("src/com/a"), "Alpha");
+        Path out = dir.resolve("out");
+        Path batch = Files.writeString(dir.resolve("diagrams.txt"), String.join("\n",
+                "--input " + dir.resolve("src/com/a") + " --output " + out + " --output-name a.svg",
+                "--input " + dir.resolve("src/com/a") + " --sequnce-only",
+                "--input " + dir.resolve("src/com/a") + " --output " + out + " --output-name never.svg"));
+
+        Console console = execute("--batch", batch.toString());
+
+        assertEquals(1, console.status());
+        assertTrue(console.err().contains("line 2"), console.err());
+        assertTrue(console.err().contains("--sequnce-only"), console.err());
+        assertTrue(Files.exists(out.resolve("a.svg")), "lines before the failure ran");
+        assertFalse(Files.exists(out.resolve("never.svg")), "lines after it did not");
+    }
+
+    @Test
+    void aBatchCannotNestOrBeCombinedWithOtherArguments(@TempDir Path dir) throws Exception {
+        Path inner = Files.writeString(dir.resolve("inner.txt"), "--version\n");
+        Path outer = Files.writeString(dir.resolve("outer.txt"), "--batch " + inner + "\n");
+
+        Console nested = execute("--batch", outer.toString());
+        Console combined = execute("--batch", inner.toString(), "--viewer");
+        Console missing = execute("--batch", dir.resolve("absent.txt").toString());
+
+        assertEquals(1, nested.status());
+        assertTrue(nested.err().contains("line 1") && nested.err().contains("--batch"), nested.err());
+        assertEquals(1, combined.status());
+        assertTrue(combined.err().contains("--batch"), combined.err());
+        assertEquals(2, missing.status(), "an unreadable batch file is an I/O failure");
     }
 
     // --- --viewer (#274) ---

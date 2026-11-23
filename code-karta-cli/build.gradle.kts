@@ -42,7 +42,8 @@ tasks.register("fatJar") {
     dependsOn(tasks.named("shadowJar"))
 }
 
-// generateDiagrams — runs the fat JAR to regenerate docs/diagrams/.
+// generateDiagrams — runs the fat JAR over code-karta-cli/diagrams.txt to regenerate every
+// committed diagram, as Maven's gen-diagrams execution does.
 // ./gradlew :code-karta-cli:generateDiagrams
 // Skip with: -PskipDiagrams
 tasks.register("generateDiagrams") {
@@ -56,48 +57,13 @@ tasks.register("generateDiagrams") {
         val jar = tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar")
             .get().archiveFile.get().asFile
         val root = project.rootDir
-        val out  = File(root, "docs/diagrams")
-        val examples = File(root, "example-shipping-system/diagrams")
-        val example = File(root, "example-shipping-system/src/main/java")
-        val state = File(example, "com/karta/shipping/state")
-
-        listOf(
-            // 1. Module diagram — example shipping system
-            listOf("--input", "$root/example-shipping-system/src/main/java/module-info.java",
-                   "--output", "$out"),
-            // 2. Class diagram — core IR model
-            listOf("--input", "$root/code-karta-core/src/main/java/se/deversity/codekarta/core/model",
-                   "--output", "$out"),
-            // 3. Exception-flow sequence — CLI entry point
-            listOf("--input", "$root/code-karta-cli/src/main/java/se/deversity/codekarta/cli/KartaCli.java",
-                   "--output", "$out"),
-            // 4. Call-sequence-only — demonstrates --sequence-only flag
-            listOf("--input", "$root/code-karta-input/src/main/java/se/deversity/codekarta/input/parser/CallSequenceParser.java",
-                   "--output", "$out", "--sequence-only"),
-            // 5. Multi-file stitched sequence — input parsers with ELK layout
-            listOf("--input", "$root/code-karta-input/src/main/java/se/deversity/codekarta/input",
-                   "--output", "$out", "--sequence-only", "--layout", "elk"),
-            // 6-12. State machines and the example project's diagrams; keep in step with the exec
-            // executions in pom.xml (#249)
-            listOf("--input", "$root/code-karta-cli/src/main/java/se/deversity/codekarta/cli/KartaCli.java",
-                   "--state-machine", "--output", "$out"),
-            listOf("--input", "$state/ShipmentLifecycle.java", "--state-machine", "--output", "$examples"),
-            listOf("--input", "$state/PaymentWorkflow.java", "--state-machine", "--output", "$examples"),
-            listOf("--input", "$state/InventoryReservation.java", "--state-machine", "--output", "$examples"),
-            listOf("--input", "$example/module-info.java", "--output", "$examples"),
-            listOf("--input", "$example/com/karta/shipping/domain", "--output", "$examples"),
-            listOf("--input", "$example/com/karta/shipping/core/OrderProcessor.java", "--output", "$examples"),
-            // 13. The viewer over docs/diagrams; last, so it indexes every SVG above
-            listOf("--output", "$out", "--viewer")
-        ).forEach { args ->
-            val pb = ProcessBuilder(listOf("java", "-jar", jar.absolutePath) + args)
-                .directory(root)
-                .inheritIO()
-            val process = pb.start()
-            val exitCode = process.waitFor()
-            if (exitCode != 0) {
-                throw GradleException("Diagram generation failed with exit code $exitCode for arguments: $args")
-            }
+        // The single list of committed diagrams (#279), shared with the Maven build's gen-diagrams
+        // execution: one JVM, every line of diagrams.txt in order.
+        val args = listOf("java", "-jar", jar.absolutePath, "--batch", "code-karta-cli/diagrams.txt")
+        val process = ProcessBuilder(args).directory(root).inheritIO().start()
+        val exitCode = process.waitFor()
+        if (exitCode != 0) {
+            throw GradleException("Diagram generation failed with exit code $exitCode: $args")
         }
     }
 }

@@ -17,6 +17,8 @@ java -jar code-karta-cli/target/code-karta-cli-0.4.0-all.jar \
   [--max-depth <depth>] \
   [--max-members <n>] \
   [--version]
+
+java -jar code-karta-cli/target/code-karta-cli-0.4.0-all.jar --batch <file>
 ```
 
 ## Flags
@@ -25,6 +27,7 @@ java -jar code-karta-cli/target/code-karta-cli-0.4.0-all.jar \
 |---|---|---|
 | `--input <path>` | required, unless `--viewer` alone | Java source path to parse. The path determines the diagram type. A directory can be a source root, a module, or a whole repository checkout; see [Running against a whole repository](#running-against-a-whole-repository). |
 | `--version`, `-V` | | Prints `code-karta <version>` and exits 0. Paste it into a bug report. |
+| `--batch <file>` | | Runs every line of `<file>` as one command line, in order, in one JVM, and stops at the first line that fails, naming it (exit 1 for a bad line, 2 when the file cannot be read). Blank lines and `#` comments are skipped; arguments split on whitespace. Use it alone: it cannot be combined with other flags or nested. The repository regenerates its own diagrams this way from [`code-karta-cli/diagrams.txt`](../code-karta-cli/diagrams.txt). |
 | `--output <dir>` | `./output` | Directory where the SVG file is written. Created if missing. |
 | `--viewer` | off | Also writes `viewer.html` into `--output`: one self-contained page browsing every `.svg` under it, nested `--split-packages` trees included, with search, edge-type toggles, zoom and pan. The diagrams are embedded in the page, so it works opened from disk and offline. Without `--input` it rebuilds the viewer from what `--output` already holds. See [`VIEWER.md`](VIEWER.md). |
 | `--output-name <file>` | derived | File name to write inside `--output`, instead of the name derived from the input (`class-diagram.svg` and friends). Lets several runs share one output directory. Must be a plain file name — a name with separators or `..` is refused. The run fails rather than write through a symbolic link already in `--output` under that name. |
