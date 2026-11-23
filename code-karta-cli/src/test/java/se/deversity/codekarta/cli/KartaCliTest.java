@@ -482,6 +482,42 @@ class KartaCliTest {
         assertEquals("", console.out());
     }
 
+    // --- --format mermaid and dot (#275) ---
+
+    @Test
+    void mermaidAndDotAreWrittenWithTheirOwnExtensions(@TempDir Path dir) throws Exception {
+        writeClass(dir.resolve("src/com/example"), "Alpha");
+
+        Path mmd = KartaCli.run(dir.resolve("src"), dir.resolve("out"), RunOptions.defaults().withFormat("mermaid"));
+        Path dot = KartaCli.run(dir.resolve("src"), dir.resolve("out"), RunOptions.defaults().withFormat("dot"));
+
+        assertEquals("class-diagram.mmd", String.valueOf(mmd.getFileName()));
+        assertTrue(Files.readString(mmd).startsWith("classDiagram\n"));
+        assertEquals("class-diagram.dot", String.valueOf(dot.getFileName()));
+        assertTrue(Files.readString(dot).startsWith("digraph karta {\n"));
+    }
+
+    /** Text formats carry no coordinates, so laying the graph out first would be wasted work. */
+    @Test
+    void textFormatsAreNotLaidOut(@TempDir Path dir) throws Exception {
+        Path input = Files.writeString(dir.resolve("A.java"), "class A {}");
+        Graph graph = new Graph();
+        graph.addNode(new se.deversity.codekarta.core.model.Node("A", "CLASS", "A"));
+        graph.addNode(new se.deversity.codekarta.core.model.Node("B", "CLASS", "B"));
+        graph.addEdge(new se.deversity.codekarta.core.model.Edge("e", "A", "B", "HAS"));
+
+        KartaCli.run(input, dir.resolve("out"), RunOptions.defaults().withFormat("mermaid").withOutputName("a.mmd"), graph);
+
+        assertNull(graph.findNode("A").getX());
+    }
+
+    @Test
+    void anUnknownFormatNamesEveryFormatThereIs() {
+        Console console = execute("--input", ".", "--format", "png");
+        assertEquals(1, console.status());
+        assertTrue(console.err().contains("'svg', 'json', 'mermaid' or 'dot'"), console.err());
+    }
+
     // --- --viewer (#274) ---
 
     @Test

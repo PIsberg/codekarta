@@ -5,7 +5,7 @@ java -jar code-karta-cli/target/code-karta-cli-0.4.0-all.jar \
   --input <path> \
   --output <dir> \
   [--output-name <file>] \
-  [--format svg|json] \
+  [--format svg|json|mermaid|dot] \
   [--sequence-only] \
   [--state-machine] \
   [--modules-only] \
@@ -26,7 +26,7 @@ java -jar code-karta-cli/target/code-karta-cli-0.4.0-all.jar \
 | `--output <dir>` | `./output` | Directory where the SVG file is written. Created if missing. |
 | `--viewer` | off | Also writes `viewer.html` into `--output`: one self-contained page browsing every `.svg` under it, nested `--split-packages` trees included, with search, edge-type toggles, zoom and pan. The diagrams are embedded in the page, so it works opened from disk and offline. Without `--input` it rebuilds the viewer from what `--output` already holds. See [`VIEWER.md`](VIEWER.md). |
 | `--output-name <file>` | derived | File name to write inside `--output`, instead of the name derived from the input (`class-diagram.svg` and friends). Lets several runs share one output directory. Must be a plain file name — a name with separators or `..` is refused. The run fails rather than write through a symbolic link already in `--output` under that name. |
-| `--format svg\|json` | `svg` | `json` writes the parsed graph itself instead of a picture of it: nodes, edges, groups and layout coordinates, for feeding into your own tooling. The derived file name takes a `.json` extension; an explicit `--output-name` is used as given. |
+| `--format svg\|json\|mermaid\|dot` | `svg` | `json` writes the parsed graph itself instead of a picture of it: nodes, edges, groups and layout coordinates, for feeding into your own tooling. `mermaid` writes Mermaid text (`.mmd`) to paste into a fenced `mermaid` block in Markdown, where GitHub, GitLab and MkDocs draw it inline and a change diffs as text; `dot` writes Graphviz DOT (`.dot`). Neither is laid out: Mermaid and Graphviz do that. The derived file name takes the format's extension; an explicit `--output-name` is used as given. |
 | `--sequence-only` | off | Emits only `CALLS` edges. For directory input, parses all Java files together into one stitched sequence graph. |
 | `--state-machine` | off | Emits `STATE` nodes and `TRANSITION` edges from enum constants, switch cases (including `case A -> B` arrow rules of a switch expression), state assignments, and `transition(from, to, event)` calls. |
 | `--modules-only` | off | Cross-module diagram. Reads `module-info.java` when the project declares JPMS modules, and otherwise the build reactor — Maven `<modules>` or Gradle `include(...)` — with `HAS` for aggregation and `REQUIRES` for intra-reactor dependencies. |
@@ -46,7 +46,7 @@ nothing in the build catches a flag that was added to one and not the others.
 
 The CLI rejects what it does not understand instead of falling back to a default. An unknown flag,
 a flag that needs a value and has none (or has another flag in its place), a `--layout` other than
-`simple`/`elk`, a `--format` other than `svg`/`json`, and a non-number for `--max-depth` or
+`simple`/`elk`, a `--format` other than `svg`/`json`/`mermaid`/`dot`, and a non-number for `--max-depth` or
 `--max-members` each print `Error:` naming the argument, then the usage line, and exit with code 1.
 Nothing is written. Layout and format names are case-insensitive.
 

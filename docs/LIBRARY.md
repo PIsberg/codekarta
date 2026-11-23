@@ -70,7 +70,15 @@ skips them. That pairing is deliberate and load-bearing on both sides.
 String svg = new SvgRenderer().render(graph);
 String themed = new SvgRenderer().render(graph, cssOverride);
 String json = new JsonRenderer().render(graph);   // the graph itself, not a picture of it
+String mmd = new MermaidRenderer().render(graph); // Mermaid text for Markdown
+String dot = new DotRenderer().render(graph);     // Graphviz DOT
 ```
+
+`MermaidRenderer` picks the diagram kind from the graph's content, as `SvgRenderer` does: an
+interaction graph becomes a `sequenceDiagram`, STATE nodes a `stateDiagram-v2`, MODULE or PACKAGE
+nodes a `flowchart TD`, anything else a `classDiagram`. Both text renderers ignore layout
+coordinates; node ids are generated (`n0`, `n1`, ...) and names are quoted labels, so no Java name
+can break the syntax.
 
 `JsonRenderer` writes the IR: nodes, edges, groups, and layout coordinates if a layout engine has
 run. It round-trips, so `new ObjectMapper().readValue(json, Graph.class)` gives back an equivalent

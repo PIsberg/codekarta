@@ -13,6 +13,12 @@ each version heading is the complete record.
 
 ### Added
 
+- **`--format mermaid` and `--format dot`.** Mermaid text (`.mmd`) for diagrams that live in
+  Markdown, where GitHub, GitLab and MkDocs draw a fenced `mermaid` block inline and a change diffs
+  as text; Graphviz DOT (`.dot`) for Graphviz pipelines. The Mermaid kind follows the graph:
+  `sequenceDiagram` (in the order the SVG draws), `stateDiagram-v2`, `flowchart TD` for modules,
+  `classDiagram` with members otherwise; DOT boxes packages as clusters. Neither is laid out.
+  Also in the Maven plugin's `<format>`; new library API `MermaidRenderer`, `DotRenderer`. (#275)
 - **`--viewer` writes a self-contained HTML viewer over the diagrams.** `viewer.html` in
   `--output` browses every `.svg` under it, nested `--split-packages` trees included, with search,
   edge-type toggles, zoom and pan, and a dark theme. Each SVG is embedded in the page, so it works

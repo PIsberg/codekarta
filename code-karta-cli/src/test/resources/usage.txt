@@ -1,4 +1,4 @@
-Usage: karta --input <path> [--output <dir>] [--output-name <file>] [--format svg|json] [--sequence-only] [--state-machine] [--modules-only] [--split-packages] [--include-tests] [--viewer] [--layout simple|elk] [--exclude <patterns>] [--max-depth <depth>] [--max-members <n>]
+Usage: karta --input <path> [--output <dir>] [--output-name <file>] [--format svg|json|mermaid|dot] [--sequence-only] [--state-machine] [--modules-only] [--split-packages] [--include-tests] [--viewer] [--layout simple|elk] [--exclude <patterns>] [--max-depth <depth>] [--max-members <n>]
 
   --input  <path>      What to parse:
                          module-info.java  → module diagram
@@ -19,12 +19,15 @@ Usage: karta --input <path> [--output <dir>] [--output-name <file>] [--format sv
                          derived from the input (class-diagram.svg and friends).
                          Lets several runs share one output directory. Must be a
                          plain file name — no path separators.
-  --format <fmt>       svg (default) or json.
+  --format <fmt>       svg (default), json, mermaid or dot.
                          json writes the parsed graph itself instead of a
                          picture of it: nodes, edges, groups and layout
                          coordinates, for feeding into your own tooling,
                          architecture checks or renderer. The derived file
                          name changes to .json; --output-name is used as given.
+                         mermaid writes a Mermaid diagram (.mmd) to paste into
+                         Markdown; dot writes Graphviz DOT (.dot). Both are text,
+                         unlaid-out: Mermaid or Graphviz does the layout.
   --sequence-only      Emit only CALLS edges (no exception-flow).
                          When combined with a directory input, parses
                          all .java files together using cross-file

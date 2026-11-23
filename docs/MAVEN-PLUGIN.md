@@ -53,7 +53,7 @@ what each one does to the diagram. This table covers what is specific to the plu
 | `input` | `karta.input` | `${project.build.sourceDirectory}` | A file, a directory, or a `module-info.java`. The shape of the path selects the diagram type. |
 | `outputDirectory` | `karta.outputDirectory` | `${project.build.directory}/code-karta` | Created if missing. |
 | `outputName` | `karta.outputName` | derived | A plain file name. One with separators or `..` is refused. |
-| `format` | `karta.format` | `svg` | `svg` or `json`. |
+| `format` | `karta.format` | `svg` | `svg`, `json`, `mermaid` (`.mmd`, for Markdown) or `dot` (`.dot`, for Graphviz). |
 | `layout` | `karta.layout` | `simple` | `simple` or `elk`. |
 | `sequenceOnly` | `karta.sequenceOnly` | `false` | |
 | `stateMachine` | `karta.stateMachine` | `false` | |
@@ -130,7 +130,7 @@ This is how plugins are actually adopted, so two ordinary cases are deliberately
 
 ## Invalid settings
 
-A `<layout>` other than `simple`/`elk` or a `<format>` other than `svg`/`json`, at goal level or
+A `<layout>` other than `simple`/`elk` or a `<format>` other than `svg`/`json`/`mermaid`/`dot`, at goal level or
 in a `<diagram>`, fails the build with a message naming the setting and the value, and so does
 `splitPackages` together with `modulesOnly`, which has no per-package meaning. Before 0.5.0,
 `<layout>elkk</layout>` quietly became the simple layout and `<format>png</format>` SVG.
