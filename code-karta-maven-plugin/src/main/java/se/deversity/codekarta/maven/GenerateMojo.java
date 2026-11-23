@@ -249,17 +249,18 @@ public class GenerateMojo extends AbstractMojo {
         Integer diagramDepth = diagram.getMaxDepth();
         Integer depth = diagramDepth != null ? diagramDepth : maxDepth;
         Integer diagramMembers = diagram.getMaxMembers();
-        return new RunOptions(
-                flag(diagram.getSequenceOnly(), sequenceOnly),
-                firstNonBlank(diagram.getLayout(), layout),
-                flag(diagram.getStateMachine(), stateMachine),
-                patterns,
-                depth != null ? depth : Integer.MAX_VALUE,
-                flag(diagram.getModulesOnly(), modulesOnly),
-                firstNonBlank(diagram.getOutputName(), outputName),
-                diagramMembers != null ? diagramMembers : maxMembers,
-                firstNonBlank(diagram.getFormat(), format),
-                flag(diagram.getIncludeTests(), includeTests));
+        return RunOptions.builder()
+                .sequenceOnly(flag(diagram.getSequenceOnly(), sequenceOnly))
+                .layout(firstNonBlank(diagram.getLayout(), layout))
+                .stateMachine(flag(diagram.getStateMachine(), stateMachine))
+                .customExcludes(patterns)
+                .maxDepth(depth != null ? depth : Integer.MAX_VALUE)
+                .modulesOnly(flag(diagram.getModulesOnly(), modulesOnly))
+                .outputName(firstNonBlank(diagram.getOutputName(), outputName))
+                .maxMembers(diagramMembers != null ? diagramMembers : maxMembers)
+                .format(firstNonBlank(diagram.getFormat(), format))
+                .includeTests(flag(diagram.getIncludeTests(), includeTests))
+                .build();
     }
 
     /** A per-diagram flag when set, in either direction; the goal-level value when not. */

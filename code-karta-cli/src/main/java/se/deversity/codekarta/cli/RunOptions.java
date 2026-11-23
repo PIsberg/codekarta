@@ -148,6 +148,73 @@ public record RunOptions(
                 false);
     }
 
+    /**
+     * A builder starting from {@link #defaults()}. The recommended way to construct options: a new
+     * option adds a builder method, where a new record component would otherwise break the
+     * canonical constructor and add one more deprecated overload (issue #278).
+     */
+    public static Builder builder() {
+        return new Builder(defaults());
+    }
+
+    /** A builder starting from these options, to change some and keep the rest. */
+    public Builder toBuilder() {
+        return new Builder(this);
+    }
+
+    /**
+     * Collects options and validates them all at once in {@link #build()}, through the record's
+     * own constructor, so the builder accepts and rejects exactly what the constructor does.
+     */
+    public static final class Builder {
+        private boolean sequenceOnly;
+        private String layout;
+        private boolean stateMachine;
+        private Set<String> customExcludes;
+        private int maxDepth;
+        private boolean modulesOnly;
+        private String outputName;
+        private int maxMembers;
+        private String format;
+        private boolean includeTests;
+
+        private Builder(RunOptions from) {
+            sequenceOnly = from.sequenceOnly;
+            layout = from.layout;
+            stateMachine = from.stateMachine;
+            customExcludes = from.customExcludes;
+            maxDepth = from.maxDepth;
+            modulesOnly = from.modulesOnly;
+            outputName = from.outputName;
+            maxMembers = from.maxMembers;
+            format = from.format;
+            includeTests = from.includeTests;
+        }
+
+        public Builder sequenceOnly(boolean value) { sequenceOnly = value; return this; }
+        public Builder layout(String value) { layout = value; return this; }
+        public Builder stateMachine(boolean value) { stateMachine = value; return this; }
+        /** Copied, so later changes to {@code value} do not reach the options. */
+        public Builder customExcludes(Set<String> value) {
+            customExcludes = value == null ? Collections.emptySet() : Set.copyOf(value);
+            return this;
+        }
+        public Builder maxDepth(int value) { maxDepth = value; return this; }
+        public Builder modulesOnly(boolean value) { modulesOnly = value; return this; }
+        public Builder outputName(String value) { outputName = value; return this; }
+        public Builder maxMembers(int value) { maxMembers = value; return this; }
+        public Builder format(String value) { format = value; return this; }
+        public Builder includeTests(boolean value) { includeTests = value; return this; }
+
+        /**
+         * @throws IllegalArgumentException for a layout or format the record does not accept
+         */
+        public RunOptions build() {
+            return new RunOptions(sequenceOnly, layout, stateMachine, customExcludes, maxDepth,
+                    modulesOnly, outputName, maxMembers, format, includeTests);
+        }
+    }
+
     public RunOptions withOutputName(String name) {
         return new RunOptions(sequenceOnly, layout, stateMachine, customExcludes,
                 maxDepth, modulesOnly, name, maxMembers, format, includeTests);

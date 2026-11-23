@@ -15,6 +15,16 @@ dependencies {
     testImplementation("com.tngtech.archunit:archunit-junit5:1.5.1")
 }
 
+// version.properties carries the project version for --version (#278), as Maven's resource
+// filtering fills it in for the Maven build.
+tasks.named<ProcessResources>("processResources") {
+    val projectVersion = project.version.toString()
+    inputs.property("projectVersion", projectVersion)
+    filesMatching("**/version.properties") {
+        expand("project" to mapOf("version" to projectVersion))
+    }
+}
+
 // Fat JAR via shadow plugin — merges META-INF/services so ELK algorithm SPI is found.
 // ./gradlew :code-karta-cli:fatJar → build/libs/code-karta-cli-1.0-SNAPSHOT-all.jar
 tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {

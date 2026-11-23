@@ -31,7 +31,7 @@ These are the things a break in which counts as a breaking change.
 | CSS class names in the emitted SVG | `code-karta-render` | `.node-rect`, `.node-label`, `.edge-line`, `.edge-label`, `.group-rect`. Consumers theme against these. |
 | CLI flags | `code-karta-cli` | Documented in [`CLI.md`](CLI.md). Removing or repurposing one is breaking. Adding one is not. |
 | CLI exit codes | `code-karta-cli` | `0` success, `1` usage error, `2` runtime failure. |
-| `KartaCli.run`, `KartaCli.runPerPackage`, `RunOptions` | `code-karta-cli` | The programmatic entry points. Public because the Maven plugin drives them: a capability reachable only through `main(String[])` is one an embedding caller has to shell out to. |
+| `KartaCli.run`, `KartaCli.runPerPackage`, `RunOptions` | `code-karta-cli` | The programmatic entry points. Public because the Maven plugin drives them: a capability reachable only through `main(String[])` is one an embedding caller has to shell out to. Build options with `RunOptions.builder()` (or `existing.toBuilder()`): a new option adds a builder method, while the record's canonical constructor gains a component and breaks positional callers. |
 | Plugin goal, parameters and user properties | `code-karta-maven-plugin` | `karta:generate` and the parameter names in [`MAVEN-PLUGIN.md`](MAVEN-PLUGIN.md). `PluginDescriptorTest` fails the build when the descriptor and that table disagree. |
 | Maven coordinates | | `se.deversity.codekarta:code-karta-{core,input,layout,render,cli,maven-plugin}` |
 
