@@ -1,4 +1,4 @@
-Usage: karta --input <path> [--output <dir>] [--output-name <file>] [--format svg|json] [--sequence-only] [--state-machine] [--modules-only] [--split-packages] [--include-tests] [--layout simple|elk] [--exclude <patterns>] [--max-depth <depth>] [--max-members <n>]
+Usage: karta --input <path> [--output <dir>] [--output-name <file>] [--format svg|json] [--sequence-only] [--state-machine] [--modules-only] [--split-packages] [--include-tests] [--viewer] [--layout simple|elk] [--exclude <patterns>] [--max-depth <depth>] [--max-members <n>]
 
   --input  <path>      What to parse:
                          module-info.java  → module diagram
@@ -48,6 +48,10 @@ Usage: karta --input <path> [--output <dir>] [--output-name <file>] [--format sv
                          project or repository root. Off by default, so a
                          checkout draws the code that ships. target/, build/,
                          .git and node_modules are skipped either way.
+  --viewer             Also write viewer.html into --output: one self-contained
+                         page browsing every .svg under it, with search, edge
+                         toggles, zoom and pan. Works opened from disk, offline.
+                         Without --input, rebuilds it from what --output holds.
   --layout <engine>    Layout algorithm:  simple (default) or elk.
                          elk uses the Eclipse Layout Kernel layered
                          algorithm for edge-crossing minimisation and

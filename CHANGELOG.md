@@ -13,6 +13,17 @@ each version heading is the complete record.
 
 ### Added
 
+- **`--viewer` writes a self-contained HTML viewer over the diagrams.** `viewer.html` in
+  `--output` browses every `.svg` under it, nested `--split-packages` trees included, with search,
+  edge-type toggles, zoom and pan, and a dark theme. Each SVG is embedded in the page, so it works
+  opened from disk and offline: the hand-written viewer read sibling files, which browsers block
+  over `file://`, listed six fixed diagrams, and loaded Google Fonts. `--viewer` without
+  `--input` rebuilds the viewer from what `--output` holds; the Maven plugin takes
+  `<viewer>true</viewer>`. Each SVG is rebuilt from an allowlist of SVG drawing elements before it
+  is shown, and a Content-Security-Policy lets only the viewer's own script (by SHA-256) run and
+  nothing load; links are not followed when collecting the SVGs. `docs/diagrams/viewer.html` is now generated.
+  New library API: `HtmlViewerRenderer`, `KartaCli.writeViewer`. (#274)
+
 - **A repository root works as `--input`.** Every directory walk, for every diagram type and for
   `--split-packages`, now goes through one walker (`SourceTree`) that skips test source sets
   (`src/test`, `src/integrationTest`, `src/testFixtures`, `src/it`, any `src/*test*`), build

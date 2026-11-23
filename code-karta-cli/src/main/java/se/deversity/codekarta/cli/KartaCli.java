@@ -46,7 +46,9 @@ public class KartaCli {
     enum PipelineStage { PARSING, LAYOUT, RENDERING, WRITING, DONE }
 
     /** What one command line asks for. {@code help} means print the usage and stop. */
-    record Invocation(Path inputPath, Path outputDir, boolean splitPackages, boolean help, RunOptions options) {}
+    /** A parsed command line. {@code inputPath} is null for help, and for a viewer-only run. */
+    record Invocation(Path inputPath, Path outputDir, boolean splitPackages, boolean help, RunOptions options,
+                      boolean viewer) {}
 
     /**
      * Reads a command line. Anything it does not understand is an error rather than a default:
@@ -66,6 +68,7 @@ public class KartaCli {
         boolean modulesOnly = false;
         boolean splitPackages = false;
         boolean includeTests = false;
+        boolean viewer = false;
         String layout = RunOptions.LAYOUT_SIMPLE;
         String outputName = null;
         String format = RunOptions.FORMAT_SVG;
@@ -86,6 +89,7 @@ public class KartaCli {
                 case "--modules-only"  -> modulesOnly = true;
                 case "--split-packages" -> splitPackages = true;
                 case "--include-tests" -> includeTests = true;
+                case "--viewer"        -> viewer = true;
                 case "--exclude"       -> customExcludes = java.util.Arrays.stream(valueOf(args, ++i, flag).split(","))
                         .map(String::trim)
                         .filter(s -> !s.isEmpty())
@@ -98,13 +102,13 @@ public class KartaCli {
                             : intValueOf(raw, flag, "an integer or 'all'");
                 }
                 case "--help", "-h"    -> {
-                    return new Invocation(null, outputDir, false, true, RunOptions.defaults());
+                    return new Invocation(null, outputDir, false, true, RunOptions.defaults(), false);
                 }
                 default -> throw new IllegalArgumentException("unknown argument '" + flag + "'.");
             }
         }
 
-        if (inputPath == null) {
+        if (inputPath == null && !viewer) {
             throw new IllegalArgumentException("--input is required.");
         }
         if (splitPackages && modulesOnly) {
@@ -114,7 +118,7 @@ public class KartaCli {
         // all reject the same values with the same message.
         return new Invocation(inputPath, outputDir, splitPackages, false,
                 new RunOptions(sequenceOnly, layout, stateMachine, customExcludes,
-                        maxDepth, modulesOnly, outputName, maxMembers, format, includeTests));
+                        maxDepth, modulesOnly, outputName, maxMembers, format, includeTests), viewer);
     }
 
     /** The value after {@code flag}; a missing one, or another flag in its place, is an error. */
@@ -166,30 +170,88 @@ public class KartaCli {
         RunOptions options = call.options();
 
         try {
-            if (call.splitPackages()) {
-                java.util.List<Path> written = runPerPackage(inputPath, outputDir, options);
-                if (written.isEmpty()) {
-                    out.println("Skipped: no package under " + inputPath + " produced a diagram.");
-                } else {
-                    for (Path p : written) {
-                        out.println("Generated: " + p.toAbsolutePath());
-                    }
-                    out.println("Generated " + written.size() + " diagrams under "
-                            + outputDir.toAbsolutePath());
-                }
-                return 0;
+            if (inputPath != null) {
+                generate(inputPath, outputDir, options, call.splitPackages(), out);
             }
-            Path output = run(inputPath, outputDir, options);
-            if (output != null) {
-                out.println("Generated: " + output.toAbsolutePath());
-            } else {
-                out.println("Skipped generating a diagram; see the log message above for why.");
+            if (call.viewer()) {
+                Path viewer = writeViewer(outputDir);
+                if (viewer == null) {
+                    out.println("Skipped: no .svg diagrams under " + outputDir + " to build a viewer from.");
+                } else {
+                    out.println("Generated viewer: " + viewer.toAbsolutePath());
+                }
             }
             return 0;
         } catch (IOException e) {
             err.println("Error: " + e.getMessage());
             return 2;
         }
+    }
+
+    private static void generate(Path inputPath, Path outputDir, RunOptions options, boolean splitPackages,
+                                 java.io.PrintStream out) throws IOException {
+        if (splitPackages) {
+            java.util.List<Path> written = runPerPackage(inputPath, outputDir, options);
+            if (written.isEmpty()) {
+                out.println("Skipped: no package under " + inputPath + " produced a diagram.");
+            } else {
+                for (Path p : written) {
+                    out.println("Generated: " + p.toAbsolutePath());
+                }
+                out.println("Generated " + written.size() + " diagrams under "
+                        + outputDir.toAbsolutePath());
+            }
+            return;
+        }
+        Path output = run(inputPath, outputDir, options);
+        if (output != null) {
+            out.println("Generated: " + output.toAbsolutePath());
+        } else {
+            out.println("Skipped generating a diagram; see the log message above for why.");
+        }
+    }
+
+    /** The viewer's file name, written into the output directory it indexes. */
+    public static final String VIEWER_FILE = "viewer.html";
+
+    /**
+     * Writes {@value #VIEWER_FILE} into {@code outputDir}: one self-contained page browsing every
+     * {@code .svg} under it, subdirectories included, listed by relative path in sorted order.
+     *
+     * <p>Only regular files inside {@code outputDir} are read. The walk does not follow links, and
+     * an SVG that is itself a link is skipped, so a page meant to be shared cannot pick up the
+     * content of a file somewhere else. The page is written like a diagram, never through a link.
+     *
+     * @return the viewer, or {@code null} when there is no diagram to show
+     */
+    public static Path writeViewer(Path outputDir) throws IOException {
+        if (!Files.isDirectory(outputDir)) {
+            return null;
+        }
+        java.util.List<Path> svgs;
+        try (java.util.stream.Stream<Path> walk = Files.walk(outputDir)) {
+            svgs = walk.filter(p -> Files.isRegularFile(p, java.nio.file.LinkOption.NOFOLLOW_LINKS))
+                    .filter(p -> String.valueOf(p.getFileName()).endsWith(".svg"))
+                    .sorted(java.util.Comparator.comparing(p -> slashed(outputDir.relativize(p))))
+                    .toList();
+        }
+        if (svgs.isEmpty()) {
+            return null;
+        }
+        java.util.List<se.deversity.codekarta.render.HtmlViewerRenderer.Diagram> diagrams = new java.util.ArrayList<>();
+        for (Path svg : svgs) {
+            String title = slashed(outputDir.relativize(svg));
+            diagrams.add(new se.deversity.codekarta.render.HtmlViewerRenderer.Diagram(
+                    title.substring(0, title.length() - ".svg".length()), Files.readString(svg)));
+        }
+        Path viewer = outputDir.resolve(VIEWER_FILE);
+        writeInsideOutputDir(viewer, new se.deversity.codekarta.render.HtmlViewerRenderer().render(diagrams));
+        return viewer;
+    }
+
+    /** A relative path with forward slashes on every platform, so titles and order do not depend on the OS. */
+    private static String slashed(Path relative) {
+        return relative.toString().replace('\\', '/');
     }
 
     /**
@@ -622,7 +684,7 @@ public class KartaCli {
     }
 
     private static void printUsage(java.io.PrintStream out) {
-        out.println("Usage: karta --input <path> [--output <dir>] [--output-name <file>] [--format svg|json] [--sequence-only] [--state-machine] [--modules-only] [--split-packages] [--include-tests] [--layout simple|elk] [--exclude <patterns>] [--max-depth <depth>] [--max-members <n>]");
+        out.println("Usage: karta --input <path> [--output <dir>] [--output-name <file>] [--format svg|json] [--sequence-only] [--state-machine] [--modules-only] [--split-packages] [--include-tests] [--viewer] [--layout simple|elk] [--exclude <patterns>] [--max-depth <depth>] [--max-members <n>]");
         out.println();
         out.println("  --input  <path>      What to parse:");
         out.println("                         module-info.java  → module diagram");
@@ -672,6 +734,10 @@ public class KartaCli {
         out.println("                         project or repository root. Off by default, so a");
         out.println("                         checkout draws the code that ships. target/, build/,");
         out.println("                         .git and node_modules are skipped either way.");
+        out.println("  --viewer             Also write viewer.html into --output: one self-contained");
+        out.println("                         page browsing every .svg under it, with search, edge");
+        out.println("                         toggles, zoom and pan. Works opened from disk, offline.");
+        out.println("                         Without --input, rebuilds it from what --output holds.");
         out.println("  --layout <engine>    Layout algorithm:  simple (default) or elk.");
         out.println("                         elk uses the Eclipse Layout Kernel layered");
         out.println("                         algorithm for edge-crossing minimisation and");

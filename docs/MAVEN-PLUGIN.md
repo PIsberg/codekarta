@@ -66,6 +66,7 @@ what each one does to the diagram. This table covers what is specific to the plu
 | `diagrams` | | empty | Several diagrams from one execution. See below. |
 | `skip` | `karta.skip` | `false` | |
 | `failOnEmpty` | `karta.failOnEmpty` | `false` | See "When nothing is drawn". |
+| `viewer` | `karta.viewer` | `false` | After the diagrams, writes `viewer.html` into `outputDirectory`, browsing every `.svg` under it. A diagram sent elsewhere by its own `<output>` is not included. See [`VIEWER.md`](VIEWER.md). |
 
 ## Several diagrams from one execution
 

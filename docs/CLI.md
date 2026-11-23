@@ -11,6 +11,7 @@ java -jar code-karta-cli/target/code-karta-cli-0.4.0-all.jar \
   [--modules-only] \
   [--split-packages] \
   [--include-tests] \
+  [--viewer] \
   [--layout simple|elk] \
   [--exclude <patterns>] \
   [--max-depth <depth>] \
@@ -21,8 +22,9 @@ java -jar code-karta-cli/target/code-karta-cli-0.4.0-all.jar \
 
 | Flag | Default | Description |
 |---|---|---|
-| `--input <path>` | required | Java source path to parse. The path determines the diagram type. A directory can be a source root, a module, or a whole repository checkout; see [Running against a whole repository](#running-against-a-whole-repository). |
+| `--input <path>` | required, unless `--viewer` alone | Java source path to parse. The path determines the diagram type. A directory can be a source root, a module, or a whole repository checkout; see [Running against a whole repository](#running-against-a-whole-repository). |
 | `--output <dir>` | `./output` | Directory where the SVG file is written. Created if missing. |
+| `--viewer` | off | Also writes `viewer.html` into `--output`: one self-contained page browsing every `.svg` under it, nested `--split-packages` trees included, with search, edge-type toggles, zoom and pan. The diagrams are embedded in the page, so it works opened from disk and offline. Without `--input` it rebuilds the viewer from what `--output` already holds. See [`VIEWER.md`](VIEWER.md). |
 | `--output-name <file>` | derived | File name to write inside `--output`, instead of the name derived from the input (`class-diagram.svg` and friends). Lets several runs share one output directory. Must be a plain file name — a name with separators or `..` is refused. The run fails rather than write through a symbolic link already in `--output` under that name. |
 | `--format svg\|json` | `svg` | `json` writes the parsed graph itself instead of a picture of it: nodes, edges, groups and layout coordinates, for feeding into your own tooling. The derived file name takes a `.json` extension; an explicit `--output-name` is used as given. |
 | `--sequence-only` | off | Emits only `CALLS` edges. For directory input, parses all Java files together into one stitched sequence graph. |

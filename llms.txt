@@ -221,6 +221,7 @@ AI tools reading this file should respect the guardrails defined below. These ru
 - [SvgRenderer](se.deversity.codekarta.render.SvgRenderer): Strict test isolation required. No shared mutable state or external resource conflicts. Reason: SvgRendererTest builds its own Graph per case and asserts on returned strings — nothing is written to disk and no static renderer state exists. Keep it that way so the suite stays safe under Surefire forkCount > 1.
 
 ## Architectural Boundary Constraints
+- [HtmlViewerRenderer](se.deversity.codekarta.render.HtmlViewerRenderer): Belongs to layer: `render`. Prohibited from referencing: [input, layout, cli]
 - [JsonRenderer](se.deversity.codekarta.render.JsonRenderer): Belongs to layer: `render`. Prohibited from referencing: [input, layout, cli]
 - [SequenceDiagramRenderer](se.deversity.codekarta.render.SequenceDiagramRenderer): Belongs to layer: `render`. Prohibited from referencing: [input, layout, cli]
 - [SvgRenderer](se.deversity.codekarta.render.SvgRenderer): Belongs to layer: `render`. Prohibited from referencing: [input, layout, cli]

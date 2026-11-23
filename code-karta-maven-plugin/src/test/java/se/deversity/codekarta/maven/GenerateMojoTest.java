@@ -63,6 +63,35 @@ class GenerateMojoTest {
         assertTrue(Files.readString(out.resolve("graph.json")).contains("nodes"));
     }
 
+    /** viewer writes one page over everything the execution drew into outputDirectory (#274). */
+    @Test
+    void viewerIndexesTheDiagramsOfTheExecution(@TempDir Path in, @TempDir Path out) throws Exception {
+        writeSources(in);
+        GenerateMojo mojo = mojo(in, out, "jar");
+        Diagram classes = new Diagram();
+        classes.setOutputName("classes.svg");
+        Diagram graph = new Diagram();
+        graph.setFormat(RunOptions.FORMAT_JSON);
+        graph.setOutputName("graph.json");
+        mojo.setDiagrams(List.of(classes, graph));
+        mojo.setViewer(true);
+
+        mojo.execute();
+
+        String html = Files.readString(out.resolve("viewer.html"));
+        assertTrue(html.contains("{\"title\":\"classes\""), "the SVG is listed");
+        assertFalse(html.contains("\"graph\""), "JSON output is not a diagram to show");
+    }
+
+    @Test
+    void noViewerUnlessAskedFor(@TempDir Path in, @TempDir Path out) throws Exception {
+        writeSources(in);
+
+        mojo(in, out, "jar").execute();
+
+        assertFalse(Files.exists(out.resolve("viewer.html")));
+    }
+
     @Test
     void skipDoesNothingAtAll(@TempDir Path in, @TempDir Path out) throws Exception {
         writeSources(in);

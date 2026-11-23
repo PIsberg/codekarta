@@ -76,7 +76,9 @@ tasks.register("generateDiagrams") {
             listOf("--input", "$state/InventoryReservation.java", "--state-machine", "--output", "$examples"),
             listOf("--input", "$example/module-info.java", "--output", "$examples"),
             listOf("--input", "$example/com/karta/shipping/domain", "--output", "$examples"),
-            listOf("--input", "$example/com/karta/shipping/core/OrderProcessor.java", "--output", "$examples")
+            listOf("--input", "$example/com/karta/shipping/core/OrderProcessor.java", "--output", "$examples"),
+            // 13. The viewer over docs/diagrams; last, so it indexes every SVG above
+            listOf("--output", "$out", "--viewer")
         ).forEach { args ->
             val pb = ProcessBuilder(listOf("java", "-jar", jar.absolutePath) + args)
                 .directory(root)

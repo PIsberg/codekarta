@@ -136,6 +136,15 @@ public class GenerateMojo extends AbstractMojo {
     @Parameter(property = "karta.failOnEmpty", defaultValue = "false")
     private boolean failOnEmpty;
 
+    /**
+     * After the diagrams, write {@code viewer.html} into {@code outputDirectory}: one
+     * self-contained page browsing every {@code .svg} under it, with search, edge-type toggles,
+     * zoom and pan, that works opened straight from disk. A diagram written to another directory
+     * through its own {@code <output>} is not in it.
+     */
+    @Parameter(property = "karta.viewer", defaultValue = "false")
+    private boolean viewer;
+
     @Override
     public void execute() throws MojoExecutionException {
         if (skip) {
@@ -157,6 +166,21 @@ public class GenerateMojo extends AbstractMojo {
         }
         getLog().info("code-karta: wrote " + written + (written == 1 ? " file to " : " files to ")
                 + outputDirectory);
+        if (viewer) {
+            writeViewer();
+        }
+    }
+
+    private void writeViewer() throws MojoExecutionException {
+        Path outDir = outputDirectory.toPath();
+        try {
+            Path page = KartaCli.writeViewer(outDir);
+            getLog().info(page == null
+                    ? "code-karta: no .svg diagrams under " + outDir + ", so no viewer was written"
+                    : "code-karta: " + page);
+        } catch (IOException e) {
+            throw new MojoExecutionException("code-karta could not write the viewer to " + outDir, e);
+        }
     }
 
     private int generate(Diagram diagram) throws MojoExecutionException {
@@ -281,4 +305,5 @@ public class GenerateMojo extends AbstractMojo {
     void setDiagrams(List<Diagram> value) { this.diagrams = value == null ? new ArrayList<>() : value; }
     void setSkip(boolean value) { this.skip = value; }
     void setFailOnEmpty(boolean value) { this.failOnEmpty = value; }
+    void setViewer(boolean value) { this.viewer = value; }
 }
