@@ -294,7 +294,8 @@ jobs:
         run: npm ci --ignore-scripts
 
       # TextFormatSamplesTest writes every diagram kind, plain and with hostile labels, from
-      # hand-built graphs; the CLI run covers what the input parsers make of real code.
+      # hand-built graphs, each with a .expect file of the labels it must draw (#305); the CLI run
+      # covers what the input parsers make of real code, and is parsed only.
       - name: Render samples
         run: |
           set -euo pipefail

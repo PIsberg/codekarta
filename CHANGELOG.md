@@ -42,7 +42,10 @@ each version heading is the complete record.
   semicolons, hashes, brackets, pipes and colons, and the CLI's output for every line of
   `diagrams.txt` plus whole-tree class, sequence and module runs, 48 files in all. It fails when a
   file is rejected, when nothing was found, or when one of the four Mermaid kinds is missing.
-  Dependabot bumps the parsers weekly. (#293)
+  Dependabot bumps the parsers weekly. (#293) The fixtures are also drawn (Mermaid in jsdom,
+  Graphviz to SVG), and each must show every label a reader should see, such as `run() : void` and
+  `Map<String, List<Item>>`: two of the defects fixed above parsed cleanly and only showed when
+  drawn. (#305)
 - **`--batch <file>`: many diagrams from one JVM.** Each line of the file is one command line, run
   in order; the batch stops at the first failing line and names it. The repository's own
   regeneration uses it: `code-karta-cli/diagrams.txt` is now the single list of the 13 runs that
