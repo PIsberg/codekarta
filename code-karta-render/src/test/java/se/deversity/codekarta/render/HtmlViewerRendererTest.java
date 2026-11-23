@@ -93,6 +93,19 @@ class HtmlViewerRendererTest {
         assertEquals(1, count(html, "<script"), "one script, the one the hash covers");
     }
 
+    /** A diagram carrying the policy placeholder's text must not change the script after it is hashed. */
+    @Test
+    void diagramTextCannotTamperWithThePolicy() throws Exception {
+        String sneaky = "<svg xmlns=\"http://www.w3.org/2000/svg\"><text>@@CSP@@</text></svg>";
+        String html = renderer.render(List.of(new HtmlViewerRenderer.Diagram("@@CSP@@", sneaky)));
+
+        String script = html.substring(html.indexOf("<script>") + 8, html.indexOf("</script>"));
+        String hash = java.util.Base64.getEncoder().encodeToString(java.security.MessageDigest.getInstance("SHA-256")
+                .digest(script.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+        assertTrue(html.contains("script-src 'sha256-" + hash + "'"), "the hash still matches the script");
+        assertEquals(2, count(script, "@@CSP@@"), "the diagram's text and title are left as they were");
+    }
+
     @Test
     void titlesAreDataNotMarkup() {
         String html = renderer.render(List.of(new HtmlViewerRenderer.Diagram("a</script><b>\"x", SVG)));

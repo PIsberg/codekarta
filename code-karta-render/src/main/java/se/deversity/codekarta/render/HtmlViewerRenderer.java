@@ -50,7 +50,11 @@ public final class HtmlViewerRenderer {
         }
         data.append(diagrams.isEmpty() ? "]" : "\n]");
         String page = template().replace(PLACEHOLDER, data.toString());
-        return page.replace(CSP_PLACEHOLDER, contentSecurityPolicy(page));
+        // Only the first occurrence, the meta tag in <head>, which comes before the data. A diagram
+        // whose text happened to contain the placeholder would otherwise be rewritten after its
+        // script was hashed, and the browser would refuse to run the viewer at all.
+        int at = page.indexOf(CSP_PLACEHOLDER);
+        return page.substring(0, at) + contentSecurityPolicy(page) + page.substring(at + CSP_PLACEHOLDER.length());
     }
 
     /**
